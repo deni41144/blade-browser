@@ -270,17 +270,19 @@
       overflow: hidden;
       transition: border-color .15s ease, box-shadow .15s ease;
     }
-    /* A12: Пульс ввода в палитре (GLM контракт: класс .blp-typing на wrap) */
-    #blade-palette:has(.blp-typing)::part(content) {
-      border-color: var(--accent, #ff2a2a);
-      box-shadow: 0 14px 50px rgba(0,0,0,0.85), 0 0 38px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent);
-    }
     .blp-wrap {
       position: relative; /* якорь для ::before-приглашения ❯ у инпута */
       width: 560px;
       font-family: var(--blade-ui, 'Rubik', 'Segoe UI', sans-serif);
       color: #e9e9ee;
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 1px transparent;
+      transition: box-shadow .15s ease;
       animation: blp-in .12s ease-out;
+    }
+    /* A12: Пульс ввода в палитре (акцентный box-shadow на самом wrap в light DOM) */
+    .blp-wrap.blp-typing {
+      box-shadow: inset 0 0 0 1px var(--accent, #ff2a2a), inset 0 0 18px color-mix(in srgb, var(--accent, #ff2a2a) 30%, transparent), 0 0 24px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent);
     }
     /* терминальный префикс-приглашение: чистый CSS-декор .blp-wrap,
        HTML-структуру из JS не трогаем; pointer-events — клики идут в инпут */

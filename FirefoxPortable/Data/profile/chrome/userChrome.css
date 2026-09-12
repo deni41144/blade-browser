@@ -92,7 +92,7 @@ html|sidebar-main {
 #navigator-toolbox {
   background: var(--bg) !important;
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent) !important;
-  transition: background-color 0.45s ease, border-color 0.45s ease !important;
+  transition: background-color 0.6s ease, border-color 0.6s ease !important;
 }
 
 /* Плавающая капсула навбара («Новый Силуэт»): парит над контентом в стиле Arc */
@@ -103,7 +103,7 @@ html|sidebar-main {
   background: color-mix(in srgb, var(--panel) 88%, transparent) !important;
   border: 1px solid var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 22px color-mix(in srgb, var(--accent) 14%, transparent) !important;
-  transition: background-color 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease !important;
+  transition: background-color 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease !important;
 }
 
 /* A8: Шиммер нового окна (#nav-bar::before + контракт blade-newwin)
@@ -115,25 +115,29 @@ html|sidebar-main {
   border-radius: 16px !important;
   clip-path: inset(0 round 16px) !important;
   pointer-events: none !important;
-  z-index: 10 !important;
-  background: linear-gradient(105deg, transparent 0%, transparent 35%, color-mix(in srgb, var(--accent, #ff2a2a) 60%, #ffffff) 50%, transparent 65%, transparent 100%) !important;
+  z-index: 2 !important;
+  background: linear-gradient(105deg, transparent 0%, transparent 27.5%, color-mix(in srgb, var(--accent, #ff2a2a) 70%, #ffffff) 50%, transparent 72.5%, transparent 100%) !important;
+  filter: drop-shadow(0 0 12px var(--accent, #ff2a2a)) !important;
   transform: translateX(-120%) !important;
   opacity: 0 !important;
-  animation: blade-win-shimmer 0.7s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
+  animation: blade-win-shimmer 0.75s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s forwards !important;
 }
 
 html|html.blade-newwin #nav-bar::before,
 :root.blade-newwin #nav-bar::before {
-  animation: blade-win-shimmer 0.7s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
+  animation: blade-win-shimmer 0.75s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s forwards !important;
 }
 
 @keyframes blade-win-shimmer {
   0% {
     transform: translateX(-120%);
-    opacity: 1;
+    opacity: 0;
   }
-  70% {
-    opacity: 0.85;
+  20% {
+    opacity: 0.9;
+  }
+  75% {
+    opacity: 0.9;
   }
   100% {
     transform: translateX(120%);
@@ -190,7 +194,7 @@ html|html.blade-newwin #nav-bar::before,
   border: 1px solid rgba(255, 255, 255, 0.07) !important;
   border-bottom: none !important;
   border-radius: 8px 8px 0 0 !important;
-  transition: background-color 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease !important;
+  transition: background-color 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease !important;
 }
 
 .tabbrowser-tab:hover:not([selected]) .tab-background {
@@ -206,7 +210,7 @@ html|html.blade-newwin #nav-bar::before,
 
 .tab-label {
   color: rgba(232, 232, 232, 0.7) !important;
-  transition: color 0.45s ease !important;
+  transition: color 0.6s ease !important;
 }
 
 .tabbrowser-tab[selected] .tab-label {
@@ -1033,14 +1037,16 @@ panel:not(#bobliks-settings-popup):not(#blade-update-panel) {
 
 /* A4: Пульс окна на события (GLM контракт: класс .blade-flash на <html> на 900мс)
    Свет встречается со звуком chime: кайма окна и тулбокса коротко вспыхивают яркостью */
-html|html.blade-flash #main-window > html|body::after,
-:root.blade-flash #main-window > html|body::after {
+html|html.blade-flash > html|body::after,
+:root.blade-flash > html|body::after,
+html|html.blade-flash > body::after,
+:root.blade-flash > body::after {
   content: "" !important;
   position: fixed !important;
   inset: 0 !important;
   pointer-events: none !important;
   z-index: 2147483645 !important;
-  box-shadow: inset 0 0 0 2px var(--accent, #ff2a2a), inset 0 0 32px var(--accent-glow, rgba(255, 42, 42, 0.6)) !important;
+  box-shadow: inset 0 0 0 3px var(--accent, #ff2a2a), inset 0 0 40px var(--accent-glow, rgba(255, 42, 42, 0.75)) !important;
   animation: blade-window-flash 0.9s ease-out forwards !important;
 }
 
@@ -1048,8 +1054,8 @@ html|html.blade-flash #main-window > html|body::after,
   0% {
     opacity: 0;
   }
-  25% {
-    opacity: 1;
+  20% {
+    opacity: 0.9;
   }
   100% {
     opacity: 0;
@@ -1293,7 +1299,11 @@ tab[soundplaying] .tab-background,
    ========================================================================== */
 
 /* --- Вкладка: hover-lift (приподнимается навстречу курсору) --- */
+.tabbrowser-tab .tab-content {
+  position: relative !important;
+}
 .tab-content {
+  position: relative !important;
   transition: transform 0.15s ease !important;
 }
 .tabbrowser-tab:not([selected]):hover .tab-content {
@@ -1324,7 +1334,7 @@ tab[soundplaying] .tab-background,
   right: 0 !important;
   pointer-events: none !important;
   z-index: 10 !important;
-  background: linear-gradient(115deg, transparent 0%, transparent 40%, var(--accent, #ff2a2a) 47%, #ffffff 50%, var(--accent, #ff2a2a) 53%, transparent 60%, transparent 100%) !important;
+  background: linear-gradient(115deg, transparent 0%, transparent 27.5%, var(--accent, #ff2a2a) 44%, #ffffff 50%, var(--accent, #ff2a2a) 56%, transparent 72.5%, transparent 100%) !important;
   transform: translateX(-130%) skewX(-18deg) !important;
   animation: blade-tab-slash 0.4s ease-out forwards !important;
 }
@@ -1332,7 +1342,7 @@ tab[soundplaying] .tab-background,
 @keyframes blade-tab-slash {
   from {
     transform: translateX(-130%) skewX(-18deg);
-    opacity: 1;
+    opacity: 0.9;
   }
   to {
     transform: translateX(130%) skewX(-18deg);
@@ -1402,7 +1412,7 @@ toolbarbutton.bookmark-item:hover:not(.subviewbutton) {
 
 /* --- «Корона» активной вкладки: ромб 5×5 по центру неонового
        подчёркивания (секция 17), лёгкий пульс opacity.
-       A7: Воспламенение короны при переключении — one-shot вспышка scale(1.8)->(1) 0.35s --- */
+       A7: Воспламенение короны при переключении — one-shot вспышка scale(2.2)->(1) 0.35s --- */
 .tabbrowser-tab[selected] .tab-background::before {
   content: "" !important;
   position: absolute !important;
@@ -1412,7 +1422,7 @@ toolbarbutton.bookmark-item:hover:not(.subviewbutton) {
   height: 5px !important;
   margin-left: -2.5px !important;
   background: var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 6px var(--accent, #ff2a2a) !important;
+  box-shadow: 0 0 10px var(--accent, #ff2a2a), 0 0 4px #ffffff !important;
   transform: rotate(45deg) !important;
   z-index: 2 !important;
   animation: blade-crown-ignite 0.35s cubic-bezier(0.2, 0.8, 0.25, 1) forwards, blade-crown-pulse 3s ease-in-out 0.35s infinite !important;
@@ -1420,12 +1430,12 @@ toolbarbutton.bookmark-item:hover:not(.subviewbutton) {
 
 @keyframes blade-crown-ignite {
   0% {
-    transform: rotate(45deg) scale(1.8);
+    transform: rotate(45deg) scale(2.2);
     opacity: 1;
   }
   100% {
     transform: rotate(45deg) scale(1);
-    opacity: 0.9;
+    opacity: 0.95;
   }
 }
 
@@ -1687,8 +1697,29 @@ menuseparator {
 }
 
 #downloadsPanel progressmeter,
-#downloadsPanel progress {
+#downloadsPanel progress,
+#downloadsPanel .downloadProgress,
+.downloadProgress {
   accent-color: var(--accent, #ff2a2a) !important;
+  --download-progress-fill-color: var(--accent, #ff2a2a) !important;
+  background-color: color-mix(in srgb, var(--accent, #ff2a2a) 15%, #14141a) !important;
+  border-radius: 4px !important;
+  height: 4px !important;
+}
+
+#downloadsPanel .downloadProgress::-moz-progress-bar,
+.downloadProgress::-moz-progress-bar {
+  background-color: var(--accent, #ff2a2a) !important;
+  box-shadow: 0 0 8px var(--accent-glow, rgba(255, 42, 42, 0.6)) !important;
+  border-radius: 4px !important;
+}
+
+#downloads-indicator-progress-inner {
+  background: conic-gradient(var(--accent, #ff2a2a) var(--download-progress-pcent), transparent var(--download-progress-pcent)) !important;
+}
+
+#downloads-button[attention="success"] > .toolbarbutton-badge-stack > #downloads-indicator-anchor > #downloads-indicator-icon {
+  fill: var(--accent, #ff2a2a) !important;
 }
 
 /* 21.4 Тултипы (tooltip) */
@@ -1812,17 +1843,18 @@ tooltip [class*="key"] {
 /* --- A6. Разрядка капсулы при завершении загрузки (GLM контракт: .blade-loaded на <html>) --- */
 html|html.blade-loaded .urlbar-background,
 :root.blade-loaded .urlbar-background {
+  border: 1px solid var(--accent, #ff2a2a) !important;
   border-color: var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 16px var(--accent-glow, rgba(255, 42, 42, 0.55)), inset 0 0 8px var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
-  animation: blade-loaded-pulse 0.5s ease-out forwards !important;
+  box-shadow: 0 0 24px var(--accent-glow, rgba(255, 42, 42, 0.75)), inset 0 0 12px var(--accent-soft, rgba(255, 42, 42, 0.45)) !important;
+  animation: blade-loaded-pulse 0.7s ease-out forwards !important;
 }
 
 @keyframes blade-loaded-pulse {
   0% {
-    opacity: 0.65;
-    transform: scale(0.998);
+    opacity: 0.5;
+    transform: scale(0.996);
   }
-  40% {
+  35% {
     opacity: 1;
     transform: scale(1);
   }
@@ -1833,7 +1865,7 @@ html|html.blade-loaded .urlbar-background,
 }
 
 /* --- A9. Звёздная пыль приватных вкладок (мерцающие искорки в окнах инкогнито) --- */
-:is(html|html[privatebrowsing], html|html[privatebrowsingmode], :root[privatebrowsingmode], :root[privatebrowsing]) .tabbrowser-tab .tab-content::after {
+:is(:root[privatebrowsingmode], :root[privatebrowsing], html|html[privatebrowsingmode]) .tabbrowser-tab .tab-content::after {
   content: "" !important;
   position: absolute !important;
   inset: 0 !important;
@@ -1847,12 +1879,12 @@ html|html.blade-loaded .urlbar-background,
   animation: blade-private-stardust 3.6s ease-in-out infinite alternate !important;
 }
 
-:is(html|html[privatebrowsing], html|html[privatebrowsingmode], :root[privatebrowsingmode], :root[privatebrowsing]) .tabbrowser-tab:nth-child(even) .tab-content::after {
+:is(:root[privatebrowsingmode], :root[privatebrowsing], html|html[privatebrowsingmode]) .tabbrowser-tab:nth-child(even) .tab-content::after {
   animation-duration: 4.2s !important;
   animation-delay: -1.5s !important;
 }
 
-:is(html|html[privatebrowsing], html|html[privatebrowsingmode], :root[privatebrowsingmode], :root[privatebrowsing]) .tabbrowser-tab:nth-child(3n) .tab-content::after {
+:is(:root[privatebrowsingmode], :root[privatebrowsing], html|html[privatebrowsingmode]) .tabbrowser-tab:nth-child(3n) .tab-content::after {
   animation-duration: 3.1s !important;
   animation-delay: -0.8s !important;
 }
@@ -1869,35 +1901,63 @@ html|html.blade-loaded .urlbar-background,
   }
 }
 
+/* --- Бейдж приватного режима (акцент Blade) --- */
+:is(:root[privatebrowsingmode], :root[privatebrowsing]) .private-browsing-indicator-with-label,
+:is(:root[privatebrowsingmode], :root[privatebrowsing]) .private-browsing-indicator,
+:is(:root[privatebrowsingmode], :root[privatebrowsing]) #private-browsing-indicator {
+  color: var(--accent, #ff2a2a) !important;
+  fill: var(--accent, #ff2a2a) !important;
+}
+
+:is(:root[privatebrowsingmode], :root[privatebrowsing]) .private-browsing-indicator-label {
+  color: var(--accent, #ff2a2a) !important;
+  font-family: var(--blade-ui, inherit) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 10px var(--accent-glow, rgba(255, 42, 42, 0.45)) !important;
+}
+
+:is(:root[privatebrowsingmode], :root[privatebrowsing]) .private-browsing-indicator-icon {
+  fill: var(--accent, #ff2a2a) !important;
+  -moz-context-properties: fill, fill-opacity, stroke !important;
+}
+
+:is(:root[privatebrowsingmode], :root[privatebrowsing]) .private-browsing-indicator-button > .toolbarbutton-icon {
+  fill: var(--accent, #ff2a2a) !important;
+  --private-browsing-indicator-border-color: var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
+  border-color: var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
+}
+
 /* --- A10. Погодный глиф в часах (#blade-clock-widget .blade-weather-glyph) --- */
 #blade-clock-widget {
   font-family: var(--blade-mono) !important;
   font-size: 11px !important;
   color: var(--text, #e8e8e8) !important;
-  transition: color 0.45s ease, background-color 0.45s ease, border-color 0.45s ease !important;
+  transition: color 0.6s ease, background-color 0.6s ease, border-color 0.6s ease !important;
 }
 
 #blade-clock-widget .blade-weather-glyph {
   display: inline-block !important;
-  margin-right: 4px !important;
-  font-size: 12px !important;
+  margin-right: 5px !important;
+  font-size: 14px !important;
   line-height: 1 !important;
   vertical-align: middle !important;
   color: var(--accent, #ff2a2a) !important;
-  text-shadow: 0 0 8px var(--accent-glow, rgba(255, 42, 42, 0.45)) !important;
-  transition: color 0.45s ease, text-shadow 0.45s ease, transform 0.25s ease !important;
+  text-shadow: 0 0 10px var(--accent-glow, rgba(255, 42, 42, 0.55)) !important;
+  transition: color 0.6s ease, text-shadow 0.6s ease, transform 0.25s ease !important;
 }
 
 /* При «ясно днём» — тёплый янтарный глиф */
-html|html:not([data-blade-night]) #blade-clock-widget .blade-weather-glyph {
+html|html:not([data-blade-night]) #blade-clock-widget .blade-weather-glyph,
+:root:not([data-blade-night]) #blade-clock-widget .blade-weather-glyph {
   color: #ffb830 !important;
-  text-shadow: 0 0 8px rgba(255, 184, 48, 0.6) !important;
+  text-shadow: 0 0 10px rgba(255, 184, 48, 0.65) !important;
 }
 
 /* Ночью (22:00–6:00) — холодные сине-голубые звёзды ✨ */
-html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph {
+html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
+:root[data-blade-night] #blade-clock-widget .blade-weather-glyph {
   color: #a8d4ff !important;
-  text-shadow: 0 0 10px rgba(168, 212, 255, 0.7), 0 0 4px #ffffff !important;
+  text-shadow: 0 0 12px rgba(168, 212, 255, 0.8), 0 0 4px #ffffff !important;
 }
 
 /* --- A11. Карточка при драге вкладки (нативный селектор FF155: .tabbrowser-tab[dragtarget]) --- */

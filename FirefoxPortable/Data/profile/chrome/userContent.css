@@ -1000,7 +1000,7 @@ input, textarea, [contenteditable] {
                domain("google.de") {
 
   /* Базовый глубокий OLED-фон */
-  body, #main, #cnt, .appbar, #rcnt, #center_col, .minidiv .sfbg, #footcnt {
+  body, #main, #cnt, .appbar, #rcnt, #center_col, #search, .minidiv .sfbg, #footcnt {
     background: var(--bob-page, #0a0a0c) !important;
     color: #e8e8e8 !important;
   }
@@ -1052,8 +1052,8 @@ input, textarea, [contenteditable] {
     color: color-mix(in srgb, var(--bob-accent) 65%, #8a8f98) !important;
   }
 
-  /* Сниппеты */
-  .VwiC3b, .yXK7lf {
+  /* Сниппеты и текст выдачи */
+  .VwiC3b, .yXK7lf, div[data-snf] {
     color: #b8b8c4 !important;
   }
   em, b {
