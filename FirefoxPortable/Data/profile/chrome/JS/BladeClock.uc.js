@@ -4,7 +4,7 @@
 //                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
 // @author          Blade-Creations
 // @include         main
-// @version         2.3.0
+// @version         2.5.2
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'blade-clock-widget';
@@ -180,12 +180,19 @@
     const weatherTimer = setInterval(() => fetchWeather(), 30 * 60e3);   // каждые 30 минут
     window.addEventListener('unload', () => clearInterval(weatherTimer));
 
+    // Криминалистика 1.9.2 (11 рестартов): CustomizableUI в FF155 не строит
+    // узел для позднерегистрируемого custom-виджета (placement живёт, узла нет;
+    // onBuild не вызывается; состояние раскладки теряет виджет). Движок сам
+    // добавляет служебные кнопки (taskbar-tabs, smartwindow) ПРЯМО в #nav-bar
+    // мимо CUI — делаем так же: нативный DOM, ноль CustomizableUI.
     function makeNode(doc) {
       const btn = doc.createXULElement('toolbarbutton');
       btn.id = WIDGET_ID;
+      // БЕЗ toolbarbutton-1: этот класс в навбаре включает icon-only режим -
+      // лейбл скрывается, иконки нет -> невидимый слот (раунд 12). Рабочий
+      // рецепт исходных часов: бесклассовая кнопка + HTML-спаны текста
       const span = doc.createElementNS('http://www.w3.org/1999/xhtml', 'span');
       span.className = 'blade-clock-text';
-      // A10 «Клинок Живёт»: глиф погоды первым, текст часов/погоды — после
       const glyph = doc.createElementNS('http://www.w3.org/1999/xhtml', 'span');
       glyph.className = 'blade-weather-glyph';
       btn.appendChild(glyph);
@@ -195,13 +202,17 @@
         const text = weatherPart ? timeString() + '  ·  ' + weatherPart : timeString();
         const tt = 'Blade: часы и погода' + (lastCity ? ' (' + lastCity + ')' : '') +
           '. Свой город: преф blade.clock.cityQuery';
-        // пишем DOM только при изменении: 5 тиков из 6 пишут те же строки
-        if (span.textContent !== text) span.textContent = text;
-        if (btn.getAttribute('tooltiptext') !== tt) btn.setAttribute('tooltiptext', tt);
-        // Ночная забота (22:00–6:00): атрибут красит хром живьём, преф —
-        // контент через @media -moz-pref. Пишем только при смене состояния
         const h = new Date().getHours();
         const night = (h >= 22 || h < 6);
+        // A10: глиф погоды в начале label; ясной ночью — звёзды
+        let g = WEATHER_GLYPHS[currentKind()] || '';
+        if (g === '☀' && night) g = '✨';
+        // глиф живёт только в своём спане (дубль в тексте убран, раунд 13)
+        if (span.textContent !== text) span.textContent = text;
+        if (glyph.textContent !== g) glyph.textContent = g;
+        if (btn.getAttribute('tooltiptext') !== tt) btn.setAttribute('tooltiptext', tt);
+        // Ночная забота (22:00-6:00): атрибут красит хром живьём, преф -
+        // контент через @media -moz-pref. Пишем только при смене состояния
         try {
           const de = doc.documentElement;
           if (de.hasAttribute('data-blade-night') !== night) {
@@ -211,38 +222,42 @@
           if (Services.prefs.getBoolPref('blade.night', false) !== night)
             Services.prefs.setBoolPref('blade.night', night);
         } catch (e) {}
-        // A10: глиф погоды — тот же принцип «DOM только при изменении»,
-        // что и у span выше; ясной ночью солнце превращается в звёзды
-        let g = WEATHER_GLYPHS[currentKind()] || '';
-        if (g === '☀' && night) g = '✨';
-        if (glyph.textContent !== g) glyph.textContent = g;
       };
       update();
-      const tick = setInterval(update, 10e3);   // обновление раз в 10 сек (легко)
-      // таймер гасим при закрытии ИМЕННО ЭТОГО окна: makeNode вызывается для
-      // каждого окна, а window в замыкании — всегда первое (Gemini: утечка)
+      const tick = setInterval(update, 10e3);
       doc.defaultView.addEventListener('unload', () => clearInterval(tick));
       btn.addEventListener('click', () => fetchWeather(true));
       return btn;
     }
 
-    // Защита от дублирования при повторном окне (Gemini раунд 24):
-    // без getWidget + label createWidget падает с TypeError
-    if (CustomizableUI.getWidget(WIDGET_ID)) return;
-
-    CustomizableUI.createWidget({
-      id: WIDGET_ID,
-      type: 'custom',
-      label: 'Blade Clock',
-      tooltiptext: 'Часы и погода Blade',
-      defaultArea: CustomizableUI.AREA_NAVBAR,
-      onBuild: makeNode
-    });
+    // Вставка: до кнопки переполнения ("...") в конце навбара; в каждом окне
+    function mountClock() {
+      try {
+        const doc = window.document;
+        if (doc.getElementById(WIDGET_ID)) return;
+        const nav = doc.getElementById('nav-bar');
+        if (!nav) return;
+        const btn = makeNode(doc);
+        const anchor = doc.getElementById('nav-bar-overflow-button');
+        if (anchor && anchor.parentElement === nav) nav.insertBefore(btn, anchor);
+        else nav.appendChild(btn);
+      } catch (e) {
+        try {
+          const d2 = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
+          d2.append('JS'); d2.append('clock_mark.txt');
+          IOUtils.writeUTF8(d2.path, 'v2.5.2 MOUNT_ERR ' + e).catch(() => {});
+        } catch (e3) {}
+      }
+    }
+    mountClock();
+    // Навбар мог ещё не существовать на DOMContentLoaded - страховка
+    setTimeout(mountClock, 1500);
+    setTimeout(mountClock, 5000);
   } catch (e) {
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('clock_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v2.3.0 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v2.5.2 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();
