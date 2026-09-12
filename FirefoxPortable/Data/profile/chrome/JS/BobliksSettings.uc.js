@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.14.0
+// @version         1.14.1
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.14.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.14.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -1280,18 +1280,19 @@
 
     // A1 «Клинок Живёт»: карточка-призрак на месте закрываемой вкладки —
     // CSS (.blade-ghost + ::before/::after) рисует угасание и искры.
-    // Хост — navigator-toolbox: фиксированные координаты rect вкладки
-    // валидны только внутри тулбокса, вне его призрак «уезжает»
+    // rect вкладки — VIEWPORT-координаты, а призрак позиционируется внутри
+    // тулбокса: вычитаем rect хоста, иначе призрак уезжает вниз на высоту шапки
     window.gBrowser.tabContainer.addEventListener('TabClose', (ev) => {
       try {
         const r = ev.target.getBoundingClientRect();
         if (!r.width) return;
         const host = window.document.getElementById('navigator-toolbox');
         if (!host) return;
+        const hr = host.getBoundingClientRect();
         const g = window.document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         g.className = 'blade-ghost';
-        g.style.left = r.left + 'px';
-        g.style.top = r.top + 'px';
+        g.style.left = (r.left - hr.left) + 'px';
+        g.style.top = (r.top - hr.top) + 'px';
         g.style.width = r.width + 'px';
         g.style.height = r.height + 'px';
         host.appendChild(g);
