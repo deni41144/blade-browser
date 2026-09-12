@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.13.0
+// @version         1.13.1
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.13.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.13.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -835,8 +835,6 @@
         sub('ИНТЕРФЕЙС');
         const sndOn = Services.prefs.getBoolPref('blade.sounds.on', true);
         row('Звуки интерфейса (GX)', { bladeSounds: sndOn ? 'off' : 'on' }, { on: sndOn });
-        const vtabsOn = Services.prefs.getBoolPref('sidebar.verticalTabs', false);
-        row('Вертикальные вкладки', { bladeVtabs: vtabsOn ? 'off' : 'on' }, { on: vtabsOn });
         const idleOn = Services.prefs.getBoolPref('blade.idle.on', true);
         row('Заставка простоя (3 мин)', { bladeIdle: idleOn ? 'off' : 'on' }, { on: idleOn });
         row('Очистить память', { bladePurge: '1' }, { noDot: true });
@@ -987,12 +985,6 @@
           }
           else if (ds.bladeSounds === 'on' || ds.bladeSounds === 'off') {
             Services.prefs.setBoolPref('blade.sounds.on', ds.bladeSounds === 'on');
-          }
-          else if (ds.bladeVtabs) {
-            // перечитываем преф в момент клика: dataset мог протухнуть
-            // между открытием меню и кликом (переключили в другом окне)
-            Services.prefs.setBoolPref('sidebar.verticalTabs',
-              !Services.prefs.getBoolPref('sidebar.verticalTabs', false));
           }
           else if (ds.bladeIdle) {
             Services.prefs.setBoolPref('blade.idle.on',
@@ -1156,19 +1148,16 @@
       });
     } catch (e) { mark('ERR attrsInit', e); }
 
-    // Вертикальные вкладки (натив FF155): атрибут для CSS-слоя, живое
-    // переключение при смене префа sidebar.verticalTabs
-    function syncVtabsAttr() {
-      try {
-        window.document.documentElement.toggleAttribute('data-blade-vtabs',
-          Services.prefs.getBoolPref('sidebar.verticalTabs', false));
-      } catch (e) {}
-    }
-    syncVtabsAttr();
-    Services.prefs.addObserver('sidebar.verticalTabs', syncVtabsAttr);
-    window.addEventListener('unload', () => {
-      try { Services.prefs.removeObserver('sidebar.verticalTabs', syncVtabsAttr); } catch (e) {}
-    }, { once: true });
+    // Вертикальные вкладки ОТКЛОНЕНЫ (решение владельца: непрактично).
+    // Страховка: если преф каким-то образом включён (нативный тумблер в
+    // контекстном меню тулбара) — табстрип уезжает в сайдбар, который наш
+    // CSS глухо прячет, и вкладки исчезают совсем. Гасим преф на старте.
+    try {
+      if (Services.prefs.getBoolPref('sidebar.verticalTabs', false)) {
+        Services.prefs.setBoolPref('sidebar.verticalTabs', false);
+        mark('vtabs off (отклонён)');
+      }
+    } catch (e) {}
 
 
     // Чистильщик первого запуска: расширения (SponsorBlock) открывают свой
@@ -1303,8 +1292,8 @@
           '#blade-splash img { width: 120px; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--accent, #ff2a2a) 75%, transparent));',
           '  animation: bladeSplashImgIn .55s cubic-bezier(.2,.9,.3,1.3) forwards; }',
           '#blade-splash .word { font-family: var(--blade-display, "Unbounded", "Segoe UI", sans-serif);',
-          '  color: var(--accent, #ff2a2a); font-weight: 800; font-size: 34px;',
-          '  letter-spacing: 16px; text-shadow: 0 0 24px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent), 0 0 8px var(--accent, #ff2a2a);',
+          '  color: var(--accent, #ff2a2a); font-weight: 800; font-size: 46px;',
+          '  letter-spacing: 20px; text-shadow: 0 0 32px color-mix(in srgb, var(--accent, #ff2a2a) 75%, transparent), 0 0 10px var(--accent, #ff2a2a);',
           '  animation: bladeSplashWordIn .7s cubic-bezier(.2,.8,.2,1) forwards; position: relative; }',
           '#blade-splash::after { content: ""; position: absolute; left: 50%; top: calc(50% + 72px); width: 240px; height: 2px;',
           '  margin-left: -120px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--accent, #ff2a2a) 50%, transparent);',
@@ -1550,8 +1539,6 @@
       visages: () => allVisages().map(v => ({ id: v.id, label: v.label })),
       applyVisage, saveVisage,
       toggleSounds() { const on = !Services.prefs.getBoolPref('blade.sounds.on', true); Services.prefs.setBoolPref('blade.sounds.on', on); return on; },
-      vtabs: () => Services.prefs.getBoolPref('sidebar.verticalTabs', false),
-      toggleVtabs() { const v = !Services.prefs.getBoolPref('sidebar.verticalTabs', false); Services.prefs.setBoolPref('sidebar.verticalTabs', v); return v; },
       toggleIdle() { const v = !Services.prefs.getBoolPref('blade.idle.on', true); Services.prefs.setBoolPref('blade.idle.on', v); return v; },
       backup() { launchBackup(); },
     };
