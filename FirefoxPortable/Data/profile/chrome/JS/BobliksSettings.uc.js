@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.10.1
+// @version         1.10.2
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.10.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.10.2 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -1251,6 +1251,9 @@
       // меткой — БЕЗ ребёнка .toolbarbutton-icon, на котором висит весь облик
       // кнопки (иконка btn_blade, рамка, ховер и пульсации тем из userChrome
       // 5.1 «живые темы»). Строим структуру сами — как BladeClock.
+      // ВАЖНО: для type:'custom' движок НЕ вызывает ни onBeforeCreated, ни
+      // onCreated (весь блок сборки в buildWidgetNode пропускается) — слушатель
+      // клика вешаем здесь же, в onBuild, иначе кнопка мертва.
       onBuild(doc) {
         const btn = doc.createXULElement('toolbarbutton');
         btn.id = WIDGET_ID;
@@ -1260,22 +1263,13 @@
         const icon = doc.createXULElement('image');
         icon.className = 'toolbarbutton-icon';
         btn.appendChild(icon);
+        btn.addEventListener('command', () => {
+          try {
+            const p = ensurePopup(btn.ownerDocument);
+            p.openPopup(btn, 'after_start', 0, 0, false, false);
+          } catch (e) { mark('ERR open ' + e); }
+        });
         return btn;
-      },
-      onBeforeCreated(doc) {
-        try { ensurePopup(doc); mark('OK popup'); } catch (e) { mark('ERR popup', e); }
-      },
-      onCreated(btn) {
-        try {
-          ensurePopup(btn.ownerDocument);
-          btn.addEventListener('command', () => {
-            try {
-              const p = ensurePopup(btn.ownerDocument);
-              p.openPopup(btn, 'after_start', 0, 0, false, false);
-            } catch (e) { mark('ERR open ' + e); }
-          });
-          mark('OK created');
-        } catch (e) { mark('ERR created', e); }
       },
       });
       }
