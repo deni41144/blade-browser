@@ -89,7 +89,10 @@ foreach ($p in 'BladeHTML', 'BladeURL') {
     $title = if ($p -eq 'BladeHTML') { 'Blade HTML Document' } else { 'Blade URL' }
     [Microsoft.Win32.Registry]::SetValue($pk, '', $title)
     [Microsoft.Win32.Registry]::SetValue("$pk\DefaultIcon", '', "$exe,0")
-    [Microsoft.Win32.Registry]::SetValue("$pk\shell\open\command", '', "`"$exe`"$profArg -osint -url `"%1`"")
+    # -osint УБРАН: в этой сборке движок молча выбрасывает запуск
+    # «-osint + -profile» (remoting не происходит, ссылка не открывается —
+    # проверено тестами). -url с %1 в кавычках безопасен и без osint
+    [Microsoft.Win32.Registry]::SetValue("$pk\shell\open\command", '', "`"$exe`"$profArg -url `"%1`"")
 }
 Write-Host 'Регистрация: Blade виден в Settings -> Default apps'
 
