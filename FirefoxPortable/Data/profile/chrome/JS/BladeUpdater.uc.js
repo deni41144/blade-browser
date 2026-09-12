@@ -139,20 +139,20 @@
       box-shadow: 0 14px 50px rgba(0,0,0,0.85), 0 0 30px color-mix(in srgb, var(--accent, #ff2a2a) 20%, transparent);
       overflow: hidden;
     }
-    .bu-wrap { width: 360px; font-family: 'Segoe UI', sans-serif; color: #e9e9ee; animation: bu-in .16s ease-out; }
+    .bu-wrap { width: 360px; font-family: var(--blade-ui, 'Rubik', 'Segoe UI', sans-serif); color: #e9e9ee; animation: bu-in .16s ease-out; }
     @keyframes bu-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
     .bu-head { display: flex; align-items: center; justify-content: space-between; gap: 9px; padding: 12px 14px 8px; }
-    .bu-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; text-shadow: 0 0 14px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent); }
-    .bu-pill { flex: none; font-size: 10.5px; font-weight: 700; color: var(--accent, #ff2a2a); border: 1px solid color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent); background: color-mix(in srgb, var(--accent, #ff2a2a) 12%, transparent); border-radius: 20px; padding: 2px 9px; }
-    .bu-legend { padding: 0 14px 2px; font-size: 15px; font-weight: 700; color: #fff; }
-    .bu-meta { padding: 0 14px 10px; font-size: 11px; color: #8f8f9c; }
-    .bu-body { max-height: 40vh; overflow-y: auto; padding: 4px 14px 10px; font-size: 12.5px; line-height: 1.55; color: #cfcfd8; white-space: pre-wrap; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent) transparent; }
+    .bu-title { font-family: var(--blade-display, 'Unbounded', sans-serif); font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; text-shadow: 0 0 14px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent); }
+    .bu-pill { flex: none; font-size: 10.5px; font-weight: 700; color: var(--accent, #ff2a2a); border: 1px solid color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent); background: color-mix(in srgb, var(--accent, #ff2a2a) 12%, transparent); border-radius: 20px; padding: 2px 9px; font-family: var(--blade-mono, 'JetBrains Mono', monospace); }
+    .bu-legend { padding: 0 14px 2px; font-size: 15px; font-weight: 700; color: #fff; font-family: var(--blade-ui, 'Rubik', sans-serif); }
+    .bu-meta { padding: 0 14px 10px; font-size: 11px; color: #8f8f9c; font-family: var(--blade-mono, 'JetBrains Mono', monospace); }
+    .bu-body { max-height: 40vh; overflow-y: auto; padding: 4px 14px 10px; font-size: 12.5px; line-height: 1.55; color: #cfcfd8; white-space: pre-wrap; font-family: var(--blade-ui, 'Rubik', sans-serif); scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent) transparent; }
     .bu-progress { display: flex; align-items: center; gap: 10px; padding: 6px 14px 4px; }
     .bu-track { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.09); overflow: hidden; }
     .bu-bar { height: 100%; background: var(--accent, #ff2a2a); transform: scaleX(0); transform-origin: left; transition: transform .18s ease-out; box-shadow: 0 0 8px color-mix(in srgb, var(--accent, #ff2a2a) 60%, transparent); }
-    .bu-pct { flex: none; width: 40px; text-align: right; font-size: 11px; font-weight: 700; color: var(--accent, #ff2a2a); font-family: consolas, monospace; }
+    .bu-pct { flex: none; width: 40px; text-align: right; font-size: 11px; font-weight: 700; color: var(--accent, #ff2a2a); font-family: var(--blade-mono, 'JetBrains Mono', monospace); }
     .bu-actions { display: flex; gap: 10px; padding: 10px 14px 14px; }
-    .bu-btn { flex: 1; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; padding: 8px 0; border-radius: 8px; cursor: pointer; }
+    .bu-btn { flex: 1; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; padding: 8px 0; border-radius: 8px; cursor: pointer; font-family: var(--blade-ui, 'Rubik', sans-serif); }
     .bu-accept { color: var(--accent, #ff2a2a); border: 1px solid color-mix(in srgb, var(--accent, #ff2a2a) 80%, transparent); }
     .bu-accept:hover { color: #fff; background: color-mix(in srgb, var(--accent, #ff2a2a) 20%, transparent); }
     .bu-ghost { color: #9a9aa6; border: 1px solid rgba(255,255,255,0.12); }

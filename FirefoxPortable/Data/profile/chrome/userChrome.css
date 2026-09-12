@@ -10,6 +10,39 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+/* ============================================================================
+   КАСТОМНАЯ ТИПОГРАФИКА BLADE (OFL: Unbounded, Rubik, JetBrains Mono)
+   ============================================================================ */
+@font-face {
+  font-family: 'blade-display';
+  src: url("fonts/Unbounded[wght].ttf") format('truetype');
+  font-weight: 200 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'blade-ui';
+  src: url("fonts/Rubik[wght].ttf") format('truetype');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'blade-ui';
+  src: url("fonts/Rubik-Italic[wght].ttf") format('truetype');
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'blade-mono';
+  src: url("fonts/JetBrainsMono[wght].ttf") format('truetype');
+  font-weight: 100 800;
+  font-display: swap;
+}
+
 :root, html|html {
   /* Дефолт = GX RED. Остальные темы включаются префами bobliks.theme.* (кнопка Bobliks в тулбаре) */
   --accent: #ff2a2a;
@@ -19,6 +52,11 @@
   --panel: #14141a;
   --panel-hover: #1e1e28;
   --text: #e8e8e8;
+
+  /* Кастомная типографика */
+  --blade-display: 'blade-display', 'Unbounded', 'Segoe UI', sans-serif;
+  --blade-ui: 'blade-ui', 'Rubik', 'Segoe UI', sans-serif;
+  --blade-mono: 'blade-mono', 'JetBrains Mono', 'Consolas', monospace;
 
   --lwt-accent-color: var(--bg) !important;
   --toolbar-bgcolor: var(--bg) !important;
@@ -1197,3 +1235,243 @@ toolbarbutton.bookmark-item:hover:not(.subviewbutton) {
   color: var(--accent, #ff2a2a) !important;
   background: color-mix(in srgb, var(--accent, #ff2a2a) 15%, transparent) !important;
 }
+
+/* ==========================================================================
+   19. КАСТОМНАЯ ТИПОГРАФИКА BLADE (Unbounded, Rubik, JetBrains Mono)
+   ========================================================================== */
+
+/* blade-display: акцентные заголовки и логотипы */
+.bp-logo,
+.bu-title,
+.bh-greet,
+.bh-date {
+  font-family: var(--blade-display) !important;
+}
+
+.bh-greet {
+  font-weight: 750 !important;
+}
+
+/* blade-mono: статус-строки, тикеры, счетчики и перформанс */
+#blade-hero-chronicle,
+.bh-status,
+.bu-meta,
+.bu-pct,
+.bp-perf-val,
+.bp-ver,
+.bp-dns-status {
+  font-family: var(--blade-mono) !important;
+}
+
+/* blade-ui: интерфейсные панели, списки, кнопки */
+.bp-row,
+.bp-lbl,
+.bp-tab,
+.bp-sub,
+.bp-btn,
+.bu-body,
+.bu-btn,
+.bu-legend {
+  font-family: var(--blade-ui) !important;
+}
+
+/* ==========================================================================
+   20. FINDBAR (Ctrl+F: компактная тёмная капсула сверху справа)
+   ========================================================================== */
+
+.browserContainer {
+  position: relative !important;
+}
+
+findbar {
+  position: absolute !important;
+  top: 0 !important;
+  right: 28px !important;
+  z-index: 100 !important;
+  background-color: var(--panel, #14141a) !important;
+  color: var(--text, #e8e8e8) !important;
+  border: 1px solid var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
+  border-top: none !important;
+  border-radius: 0 0 10px 10px !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.65) !important;
+  padding: 4px 10px !important;
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.18s ease-in-out !important;
+}
+
+findbar[hidden] {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: collapse !important;
+}
+
+findbar .findbar-container {
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+findbar .findbar-textbox {
+  background-color: #0a0a0e !important;
+  color: var(--text, #e8e8e8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  font-family: var(--blade-ui) !important;
+  outline: none !important;
+}
+
+findbar .findbar-textbox:focus {
+  border-color: var(--accent, #ff2a2a) !important;
+  box-shadow: 0 0 8px var(--accent-glow, rgba(255, 42, 42, 0.4)) !important;
+}
+
+findbar .findbar-textbox[status="notfound"] {
+  background-color: rgba(255, 42, 42, 0.22) !important;
+  border-color: var(--accent, #ff2a2a) !important;
+}
+
+findbar .findbar-find-previous,
+findbar .findbar-find-next,
+findbar .findbar-closebutton {
+  color: var(--text, #e8e8e8) !important;
+  fill: var(--text, #e8e8e8) !important;
+  border-radius: 6px !important;
+  padding: 3px 6px !important;
+  transition: background 0.15s ease, fill 0.15s ease !important;
+}
+
+findbar .findbar-find-previous:hover,
+findbar .findbar-find-next:hover,
+findbar .findbar-closebutton:hover {
+  background-color: color-mix(in srgb, var(--accent, #ff2a2a) 22%, transparent) !important;
+  color: var(--accent, #ff2a2a) !important;
+  fill: var(--accent, #ff2a2a) !important;
+}
+
+findbar .findbar-find-status,
+findbar .found-matches {
+  font-family: var(--blade-mono) !important;
+  font-size: 11px !important;
+  color: var(--accent, #ff2a2a) !important;
+}
+
+findbar checkbox,
+findbar .findbar-label {
+  font-family: var(--blade-ui) !important;
+  font-size: 12px !important;
+  color: var(--text, #e8e8e8) !important;
+}
+
+/* ==========================================================================
+   21. МЕНЮ ФИШЕК BLADE (menupopup, PanelUI, downloads, tooltip)
+   ========================================================================== */
+
+/* 21.1 Контекстные меню (menupopup) */
+menupopup {
+  --panel-background: rgba(12, 12, 16, 0.96) !important;
+  --panel-color: var(--text, #e8e8e8) !important;
+  --panel-border-color: rgba(255, 255, 255, 0.08) !important;
+  --panel-border-radius: 10px !important;
+  font-family: var(--blade-ui) !important;
+}
+
+menupopup::part(content) {
+  background: rgba(12, 12, 16, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  padding: 4px !important;
+}
+
+menuitem[_moz-menuactive="true"],
+menu[_moz-menuactive="true"] {
+  background-color: color-mix(in srgb, var(--accent, #ff2a2a) 15%, transparent) !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+}
+
+menuseparator {
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  margin: 4px 6px !important;
+}
+
+/* 21.2 Главное меню ≡ (PanelUI / #appMenu-popup) */
+#appMenu-popup {
+  --panel-background: rgba(16, 16, 22, 0.96) !important;
+  --panel-border-color: rgba(255, 255, 255, 0.08) !important;
+  --panel-border-radius: 12px !important;
+}
+
+#appMenu-popup::part(content) {
+  background: rgba(16, 16, 22, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+#appMenu-popup .subviewbutton {
+  font-family: var(--blade-ui) !important;
+  border-radius: 8px !important;
+  transition: background 0.12s ease !important;
+}
+
+#appMenu-popup .subviewbutton:hover {
+  background-color: color-mix(in srgb, var(--accent, #ff2a2a) 18%, transparent) !important;
+  color: #ffffff !important;
+}
+
+/* 21.3 Панель загрузок (#downloadsPanel) */
+#downloadsPanel {
+  --panel-background: rgba(16, 16, 22, 0.96) !important;
+  --panel-border-color: rgba(255, 255, 255, 0.08) !important;
+  --panel-border-radius: 12px !important;
+}
+
+#downloadsPanel::part(content) {
+  background: rgba(16, 16, 22, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+#downloadsListBox > richlistitem:hover {
+  background-color: color-mix(in srgb, var(--accent, #ff2a2a) 15%, transparent) !important;
+  border-radius: 8px !important;
+}
+
+#downloadsPanel progressmeter,
+#downloadsPanel progress {
+  accent-color: var(--accent, #ff2a2a) !important;
+}
+
+/* 21.4 Тултипы (tooltip) */
+tooltip {
+  appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: #14141a !important;
+  color: var(--text, #e8e8e8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  padding: 5px 10px !important;
+  font-family: var(--blade-ui) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55) !important;
+}
+
+tooltip label,
+tooltip .tooltip-label {
+  color: var(--text, #e8e8e8) !important;
+  font-family: var(--blade-ui) !important;
+}
+
+tooltip [class*="shortcut"],
+tooltip [class*="key"] {
+  font-family: var(--blade-mono) !important;
+  opacity: 0.8 !important;
+}
+
