@@ -1,6 +1,6 @@
 # Карта проекта Blade
 
-> Обновлено: 2026-09-12 · актуально для v1.7.3 «Лёгкая Сталь»
+> Обновлено: 2026-09-12 · актуально для v1.7.4 «Утренняя Сталь»
 > Кастомный браузер на базе Mozilla Firefox: брендинг-хирургия движка,
 > движок тем, автообновление через GitHub. Автор: Denis Bobliksov (Blade-Creations).
 
@@ -49,7 +49,7 @@ F:\firefox michael edition\
 │           ├── covers.css       ГЕНЕРИРУЕТСЯ BobliksCovers.uc.js — руками не править
 │           ├── JS\              10 uc.js-скриптов (загрузка через utils\ fx-autoconfig)
 │           ├── img\             Фоны bg_*.jpg, themes\<домен>\<тема>.jpg, covers\
-│           ├── resources\       blade-apply-update.ps1, set-blade-default.ps1
+│           ├── resources\       blade-apply-update.ps1, set-blade-default.ps1, blade-backup.ps1 (кнопка в меню B)
 │           └── utils\           Загрузчик uc.js (boot.sys.mjs и пр.)
 ├── Patches\
 │   ├── Build-Blade-Patch.ps1     Сборка патча из живого профиля
@@ -64,11 +64,11 @@ F:\firefox michael edition\
 | Скрипт | Версия | Роль |
 |---|---|---|
 | BladeCore.uc.js | 1.0.0 | Общий контракт `window.Blade`: THEMES, builtinBgs, bgPrefId, mark, шина событий, runPsEncoded. `@loadOrder 5` — исполняется до всех. ОТКЛЮЧАТЬ НЕЛЬЗЯ |
-| BobliksSettings.uc.js | 1.9.0 | Меню «B»: темы, фоны, DNS, система. `applyThemeSheet()` — USER_SHEET для живого переключения тем на ВСЕХ поверхностях |
+| BobliksSettings.uc.js | 1.10.0 | Меню «B»: темы (+авто-тема день/ночь), фоны, DNS, ПЕРФ-замеры, бэкап-кнопка, система; F1/Alt+B. `applyThemeSheet()` — USER_SHEET для живого переключения тем |
 | BladeUpdater.uc.js | 1.3.2 | Автопроверка GitHub (сутки), панель «Хроника обновлений», самолечение 401-токена, однократная регистрация дефолт-браузера, API `window.BladeUpdater` |
 | BobliksCovers.uc.js | 2.1.0 | Генератор covers.css (`@onlyonce` + перегенерация по префу `bobliks.covers.dirty`) |
-| BladeNewtab.uc.js | 1.0.3 | Hero-часы на новой вкладке (chrome-оверлей) |
-| BladeClock.uc.js | 2.0.1 | Часы+погода в тулбаре (ipwho.is + open-meteo) |
+| BladeNewtab.uc.js | 1.1.0 | Hero на новой вкладке: приветствие по времени, погода+прогноз 3 дня, тикер хроники (chrome-оверлей; данные Clock через шину BladeCore) |
+| BladeClock.uc.js | 2.1.0 | Часы+погода+прогноз в тулбаре (ipwho.is + open-meteo), публикует в шину clock:weather |
 | BladePerf.uc.js | 1.0.0 | Замер фаз старта окна (dcl/load/paint/ssr) → `perf_mark.txt` |
 | BobliksChromeStyle 1.2.0 / AboutStyle 1.0.1 / BladeSounds 1.0.1 | — | Стили хрома/about (incl. порт SIGNATURE), звуки |
 
@@ -123,6 +123,7 @@ UserChoice-хешем (алгоритм PS-SFTA, MIT). http/https: автома�
 | 1.7.1 | Багровая Заря | Регистрация в Windows, браузер по умолчанию, кнопка в меню B |
 | 1.7.2 | Укрощённая Тень | Фикс BladeUpdater 1.3.1: панель обновления не лезет на меню B/тулбар (закрытие меню, ожидание якоря, гвард layout) |
 | 1.7.3 | Лёгкая Сталь | Большая чистка: закрыты утечки (AboutStyle observer, createWidget, интервалы), мёртвый CSS (~175 строк)/12 мёртвых префов/BladeTiles-дубль удалены, сплеш не ловит клики, кэш скана img/, сеть часов по кэшу, BladeCore (общий контракт) + BladePerf (замер старта), порт SIGNATURE — «обнажение клинка» впервые работает. Не опубликован — на проверке |
+| 1.7.4 | Утренняя Сталь | Волна 1 «мелкого счастья»: приветствие+погода+прогноз на новой вкладке (шина clock:weather), тикер хроники, вкладка ПЕРФ, кнопка бэкапа (resources\blade-backup.ps1), авто-тема день/ночь (ручной выбор глушит авто), F1=меню. Не опубликован — на проверке |
 
 ## Конвенции (нарушать опасно)
 

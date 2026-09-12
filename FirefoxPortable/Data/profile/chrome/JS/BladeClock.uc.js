@@ -4,7 +4,7 @@
 //                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
 // @author          Blade-Creations
 // @include         main
-// @version         2.0.1
+// @version         2.1.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'blade-clock-widget';
@@ -92,14 +92,40 @@
       const geo = await resolveCoords();
       lastCity = geo.city;
       const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + geo.lat +
-        '&longitude=' + geo.lon + '&current=temperature_2m';
+        '&longitude=' + geo.lon + '&current=temperature_2m' +
+        '&daily=temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=auto';
       const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
       const data = await resp.json();
       const t = Math.round(data.current.temperature_2m);
       lastWeather = (t > 0 ? '+' : '') + t + '°';
+      // прогноз на 3 дня: [ { d, max, min } x 3 ] — absent/короткий daily = null
+      let forecast = null;
+      try {
+        const daily = data.daily;
+        if (daily && Array.isArray(daily.time) && daily.time.length >= 3 &&
+            Array.isArray(daily.temperature_2m_max) && Array.isArray(daily.temperature_2m_min)) {
+          forecast = [];
+          for (let i = 0; i < 3; i++) {
+            forecast.push({
+              d: new Date(daily.time[i]).toLocaleDateString('ru-RU', { weekday: 'short' }),
+              max: Math.round(daily.temperature_2m_max[i]),
+              min: Math.round(daily.temperature_2m_min[i])
+            });
+          }
+        }
+      } catch (e) {}
       try {
         setStr('blade.clock.weather', lastWeather);
         setStr('blade.clock.weatherStamp', String(Date.now()));
+        if (forecast) {
+          setStr('blade.clock.forecast', JSON.stringify(forecast));
+          setStr('blade.clock.forecastStamp', String(Date.now()));   // TTL как у погоды — 1 час
+        }
+      } catch (e) {}
+      // живое обновление hero-страницы, если шина уже есть
+      try {
+        if (window.Blade && window.Blade.bus)
+          window.Blade.bus.emit('clock:weather', { weather: lastWeather, city: lastCity, forecast: forecast });
       } catch (e) {}
     } catch (e) { /* сеть легла — показываем кэш/пусто */ }
   }
@@ -161,7 +187,7 @@
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('clock_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v2.0.1 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v2.1.0 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();

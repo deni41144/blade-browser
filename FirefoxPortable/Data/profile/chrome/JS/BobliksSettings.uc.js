@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.9.0
+// @version         1.10.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.9.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.10.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -41,6 +41,20 @@
         BLADE_CODENAME = (await IOUtils.readUTF8(cd.path)).trim();
       } catch (e) {}
     })();
+    // Замер старта окна (BladePerf пишет JS\perf_mark.txt, формат:
+    // «v1.0.0 <ISO-дата> dcl=NNms load=NNms …», часть фаз может отсутствовать).
+    // buildPopup синхронный — читаем файл один раз при старте в кэш, вкладка
+    // «ПЕРФ» при открытии перечитывает его и обновляет DOM на месте
+    let PERF_LINE = '';
+    const readPerfMark = async () => {
+      try {
+        const pd = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
+        pd.append('JS'); pd.append('perf_mark.txt');
+        PERF_LINE = (await IOUtils.readUTF8(pd.path)).replace(/^\uFEFF/, '').trim();
+      } catch (e) { PERF_LINE = ''; }
+      return PERF_LINE;
+    };
+    readPerfMark();
     try {
     // --- CustomizableUI: неубиваемый двойной фолбэк ---
     let CustomizableUI = null;
@@ -618,6 +632,40 @@
         });
       } catch (e) { mark('ERR pickBg ' + e); }
     }
+    // Локальное уведомление в nb окна (сигнатура FF155 — как notify() в
+    // BladeUpdater): appendNotification(type, {label, image, priority})
+    function notifyBlade(label) {
+      try {
+        const nb = window.gNotificationBox;
+        nb.appendNotification('blade-backup-notification', {
+          label,
+          image: 'chrome://browser/skin/notification-icons/popup.svg',
+          priority: nb.PRIORITY_INFO_HIGH,
+        }, [], false);
+      } catch (e) { mark('ERR notify ' + e); }
+    }
+    // Бэкап профиля: BladeCore.runPsEncoded гонит resources\blade-backup.ps1
+    // через powershell.exe -EncodedCommand (base64 UTF-16LE, без аргументов
+    // командной строки — пробелы в путях не рвутся)
+    function launchBackup() {
+      try {
+        const script = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
+        script.append('resources'); script.append('blade-backup.ps1');
+        if (!script.exists()) {
+          notifyBlade('нет chrome\\resources\\blade-backup.ps1');
+          return;
+        }
+        const q = (s) => String(s).replace(/'/g, "''");
+        const profDir = Services.dirsvc.get('ProfD', Ci.nsIFile).path;
+        const psLine = "& '" + q(script.path) + "' -ProfileDir '" + q(profDir) + "'";
+        try {
+          window.Blade.runPsEncoded(psLine);
+          notifyBlade('⚡ Бэкап профиля создаётся — архив появится в папке Backups рядом с браузером.');
+        } catch (e) {
+          notifyBlade('не удалось запустить бэкап: ' + e.message);
+        }
+      } catch (e) { mark('ERR backup ' + e); }
+    }
     // ПАНЕЛЬ МЕНЮ (GX, вкладочная): кастомный panel с HTML внутри.
     // Рамка/фон/тени — только через ::part(content): в FF155 попапы рисуются
     // в Shadow DOM (проверено ранее на панелях).
@@ -661,12 +709,17 @@
         from { opacity: 0; transform: translateX(8px); }
         to   { opacity: 1; transform: none; }
       }
+      /* Вкладка ПЕРФ: строки замеров — не строки-кнопки, отступ как у sub */
+      .bp-perf-val { padding: 2px 12px; }
+      .bp-perf-val .bp-lbl { font-size: 12px; color: #b9b9c4; padding: 2px 0; }
+      .bp-perf-hint { font-size: 11px; color: #8a8f98; padding: 2px 12px 6px; }
     `;
     const BP_TABS = [
       { id: 'theme',  label: 'ТЕМА' },
       { id: 'bg',     label: 'ФОН' },
       { id: 'tiles',  label: 'ПЛИТКИ' },
       { id: 'update', label: 'ОБНОВЫ' },
+      { id: 'perf',   label: 'ПЕРФ' },
       { id: 'system', label: 'СИСТЕМА' },
     ];
     function buildPopup(doc, popup) {
@@ -698,6 +751,15 @@
           row(t.label, { bobliksTheme: t.id }, { on: curTheme === t.id, chip: t.accent });
         }
         row('Конструктор темы…', { bladeLab: '1' }, { noDot: true });
+        // АВТО-ТЕМА: смена день/ночь по часам (8:00 / 20:00). Темы для слотов
+        // циклятся кликом по строке; ручной выбор темы при включённой авто
+        // её глушит — иначе циклер через минуту молча вернёт свою
+        sub('АВТО-ТЕМА');
+        const autoOn = Services.prefs.getBoolPref('blade.autotheme.on', false);
+        row('Смена день/ночь автоматически (8:00 / 20:00)', { bladeAutoTheme: autoOn ? 'off' : 'on' }, { on: autoOn });
+        const autoLbl = (id) => { const t = THEMES.find(x => x.id === id); return t ? t.label : id; };
+        row('Тема дня: ' + autoLbl(Services.prefs.getStringPref('blade.autotheme.day', 'grey')), { bladeAutoDay: '1' });
+        row('Тема ночи: ' + autoLbl(Services.prefs.getStringPref('blade.autotheme.night', 'blood')), { bladeAutoNight: '1' });
       } else if (tab === 'bg') {
         const curBg = activeBg();
         for (const b of getAllBgs()) {
@@ -727,6 +789,8 @@
         const sndOn = Services.prefs.getBoolPref('blade.sounds.on', true);
         row('Звуки интерфейса (GX)', { bladeSounds: sndOn ? 'off' : 'on' }, { on: sndOn });
         row('Очистить память', { bladePurge: '1' }, { noDot: true });
+        sub('БЭКАП');
+        row('Сохранить профиль в zip', { bladeBackup: '1' }, { noDot: true });
         sub('WINDOWS');
         row('Сделать браузером по умолчанию', { bladeDefault: '1' }, { noDot: true });
       } else if (tab === 'update') {
@@ -738,6 +802,30 @@
         row('Проверить сейчас', { bladeUpdate: 'check' }, { noDot: true });
         const updAuto = Services.prefs.getBoolPref('blade.update.auto', true);
         row('Автопроверка (раз в сутки)', { bladeUpdate: updAuto ? 'autooff' : 'autoon' }, { on: updAuto });
+      } else if (tab === 'perf') {
+        sub('СТАРТ ПОСЛЕДНЕГО ОКНА');
+        const box = mk('bp-perf-val');
+        const fill = (line) => {
+          box.textContent = '';
+          const addLine = (txt) => { const l = mk('bp-lbl'); l.textContent = txt; box.appendChild(l); };
+          const s = String(line || '').trim();
+          if (!s) { addLine('Замеров ещё нет — перезапусти браузер'); return; }
+          const parts = s.split(/\s+/);
+          addLine('Замер: ' + parts[0] + (parts[1] ? ' · ' + parts[1] : ''));
+          for (let i = 2; i < parts.length; i++) {
+            const m = /^([a-z]+)=(\d+)ms$/.exec(parts[i]);
+            if (m) addLine(m[1] + ' → ' + m[2] + ' ms');
+          }
+        };
+        body.appendChild(box);
+        // рендер из кэша — сразу; файл пишет текущая сессия, поэтому тут же
+        // перечитываем и подменяем числа на месте, без переоткрытия меню
+        fill(PERF_LINE);
+        readPerfMark().then((line) => { try { fill(line); } catch (e) { mark('ERR perfFill ' + e); } });
+        sub('ЧТО ЭТО');
+        const hint = mk('bp-perf-hint');
+        hint.textContent = 'dcl→load — скрипты · load→paint — отрисовка · ssr — сессия. Меньше — лучше.';
+        body.appendChild(hint);
       }
       // Перезапуск анимации въезда контента (reflow сбрасывает класс)
       body.classList.remove('bp-anim');
@@ -799,7 +887,14 @@
         const ds = rowEl.dataset;
         let close = false;
         try {
-          if (ds.bobliksTheme) setTheme(ds.bobliksTheme);
+          if (ds.bobliksTheme) {
+            // Ручная смена темы глушит авто-тему: иначе циклер через минуту
+            // молча вернёт свою (день/ночь) и решение юзера потеряется
+            if (Services.prefs.getBoolPref('blade.autotheme.on', false)) {
+              Services.prefs.setBoolPref('blade.autotheme.on', false);
+            }
+            setTheme(ds.bobliksTheme);
+          }
           else if (ds.bobliksBg) { await setBg(ds.bobliksBg); }
           else if (ds.bobliksEdit === 'on') { Services.prefs.setBoolPref('bobliks.dial.edit', true); }
           else if (ds.bobliksEdit === 'off') { Services.prefs.clearUserPref('bobliks.dial.edit'); }
@@ -839,6 +934,20 @@
           }
           else if (ds.bladeSounds === 'on' || ds.bladeSounds === 'off') {
             Services.prefs.setBoolPref('blade.sounds.on', ds.bladeSounds === 'on');
+          }
+          else if (ds.bladeBackup === '1') { close = true; launchBackup(); }
+          else if (ds.bladeAutoTheme === 'on') { Services.prefs.setBoolPref('blade.autotheme.on', true); }
+          else if (ds.bladeAutoTheme === 'off') { Services.prefs.setBoolPref('blade.autotheme.on', false); }
+          else if (ds.bladeAutoDay === '1' || ds.bladeAutoNight === '1') {
+            // Цикл темы слота: следующий id из THEMES без 'custom' — конструктор
+            // не может быть автослотом (у него нет фиксированного вида)
+            const isDay = (ds.bladeAutoDay === '1');
+            const prefName = isDay ? 'blade.autotheme.day' : 'blade.autotheme.night';
+            const curId = Services.prefs.getStringPref(prefName, isDay ? 'grey' : 'blood');
+            const list = THEMES.filter(t => t.id !== 'custom');
+            const cur = list.findIndex(t => t.id === curId);
+            const next = list[((cur < 0 ? 0 : cur) + 1) % list.length];
+            if (next) Services.prefs.setStringPref(prefName, next.id);
           }
           else if (ds.bladePickBg) { close = true; chooseCustomWallpaper(); }
           else if (ds.bladeLab) { close = true; openThemeLab(); }
@@ -1187,19 +1296,40 @@
         mkKey('blade-key-reader', 'F2', null, toggleReader);
         mkKey('blade-key-theme-prev', 'F2', 'shift', () => cycleTheme(-1));
         mkKey('blade-key-theme-next', 'F3', 'shift', () => cycleTheme(1));
-        // Alt+B: открыть меню Blade из любого места (раунд 20)
-        mkKey('blade-key-menu', 'B', 'alt', () => {
+        // Alt+B и F1: открыть меню Blade из любого места (раунд 20; F1 —
+        // клавиша справки свободна, дефолтную помощь Blade не использует)
+        const openBladeMenu = () => {
           try {
             const btn = window.document.getElementById(WIDGET_ID);
             const popup = ensurePopup(window.document);
             if (btn && popup) popup.openPopup(btn, 'after_start', 0, 0, false, false);
-          } catch (e) { mark('ERR altb ' + e); }
-        });
+          } catch (e) { mark('ERR menuKey ' + e); }
+        };
+        mkKey('blade-key-menu', 'B', 'alt', openBladeMenu);
+        mkKey('blade-key-menu-f1', 'VK_F1', null, openBladeMenu);
         mark('OK keys');
       } else {
         mark('ERR no mainKeyset');
       }
     } catch (e) { mark('ERR keys', e); }
+
+    // АВТО-ТЕМА ДЕНЬ/НОЧЬ: меняет тему по часам (8:00 / 20:00). Почему таймер,
+    // а не планировщик: окно живёт в своей сессии, cycles достаточно раз в
+    // минуту — граница часа ловится с точностью до 60 с, чего достаточно.
+    // Каждое окно циклит само (как и прочая живая синхронизация файла);
+    // setTheme идемпотентен — гонки между окнами безвредны.
+    function autoThemeTick() {
+      try {
+        if (!Services.prefs.getBoolPref('blade.autotheme.on', false)) return;
+        const hour = new Date().getHours();
+        const prefName = (hour >= 8 && hour < 20) ? 'blade.autotheme.day' : 'blade.autotheme.night';
+        const target = Services.prefs.getStringPref(prefName, prefName === 'blade.autotheme.day' ? 'grey' : 'blood');
+        if (activeTheme() !== target) setTheme(target);
+      } catch (e) { mark('ERR autoTheme ' + e); }
+    }
+    autoThemeTick();
+    const autoThemeTimer = setInterval(autoThemeTick, 60e3);
+    window.addEventListener('unload', () => { clearInterval(autoThemeTimer); }, { once: true });
 
     mark('OK widget');
   } catch (e) {
