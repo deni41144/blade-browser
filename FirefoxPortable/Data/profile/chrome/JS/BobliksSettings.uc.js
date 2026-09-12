@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.14.1
+// @version         1.14.2
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.14.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.14.2 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -1295,8 +1295,22 @@
         g.style.top = (r.top - hr.top) + 'px';
         g.style.width = r.width + 'px';
         g.style.height = r.height + 'px';
+        // Настоящие искры (драма-пас 1.9.2): каждая частица — div со своим
+        // вектором в --dx/--dy; CSS летит translate(var(--dx), var(--dy)) —
+        // настоящий радиальный разлёт, transform-only (композитор)
+        const H = 'http://www.w3.org/1999/xhtml';
+        for (let i = 0; i < 7; i++) {
+          const p = window.document.createElementNS(H, 'div');
+          p.className = 'blade-spark';
+          const ang = (Math.PI * 2 * i) / 7 + (Math.random() - 0.5) * 0.7;
+          const dist = 26 + Math.random() * 34;
+          p.style.setProperty('--dx', Math.round(Math.cos(ang) * dist) + 'px');
+          p.style.setProperty('--dy', Math.round(Math.sin(ang) * dist - 20) + 'px');
+          p.style.animationDelay = (Math.random() * 60) + 'ms';
+          g.appendChild(p);
+        }
         host.appendChild(g);
-        setTimeout(() => { try { g.remove(); } catch (e) {} }, 650);
+        setTimeout(() => { try { g.remove(); } catch (e) {} }, 850);
       } catch (e) {}
     });
 
