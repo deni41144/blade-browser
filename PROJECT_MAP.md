@@ -67,7 +67,7 @@ F:\firefox michael edition\
 │           ├── userChrome.css   Темы UI (~1400 строк, 10 тем, секция 18 SIGNATURE)
 │           ├── userContent.css  Темы newtab/сайтов/about: (~1050 строк)
 │           ├── covers.css       ГЕНЕРИРУЕТСЯ BobliksCovers.uc.js — руками не править
-│           ├── JS\              10 uc.js-скриптов (загрузка через utils\ fx-autoconfig)
+│           ├── JS\              11 uc.js-скриптов (загрузка через utils\ fx-autoconfig)
 │           ├── fonts\           Кастомные шрифты (OFL, кириллица): Unbounded/Rubik/JetBrainsMono — только относительные url("fonts/...")\n│           ├── img\             Фоны bg_*.jpg, themes\<домен>\<тема>.jpg, covers\
 │           ├── resources\       blade-apply-update.ps1, set-blade-default.ps1, blade-backup.ps1 (кнопка в меню B)
 │           └── utils\           Загрузчик uc.js (boot.sys.mjs и пр.)
