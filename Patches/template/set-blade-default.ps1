@@ -29,11 +29,28 @@ if (-not $EnginePath) {
         if (Test-Path (Join-Path $c 'firefox.exe')) { $EnginePath = $c; break }
     }
 }
+# BladeUpdater передаёт -EnginePath КОРНЕМ установки (...\Blade), а не папкой
+# движка — принимаем оба варианта
+if ($EnginePath -and -not (Test-Path (Join-Path $EnginePath 'firefox.exe'))) {
+    foreach ($sub in 'App\Blade', 'App\Firefox64') {
+        $cand = Join-Path $EnginePath $sub
+        if (Test-Path (Join-Path $cand 'firefox.exe')) { $EnginePath = $cand; break }
+    }
+}
 if (-not $EnginePath -or -not (Test-Path (Join-Path $EnginePath 'firefox.exe'))) {
     throw 'firefox.exe не найден. Укажи: -EnginePath <папка с firefox.exe>'
 }
 $exe = Join-Path $EnginePath 'firefox.exe'
-Write-Host "Движок: $exe"
+# Профиль установки: <корень>\Data\profile. БЕЗ -profile в командах реестра
+# внешние ссылки (из Discord/Telegram и т.д.) открывались в ДЕФОЛТНОМ профиле —
+# «голый Firefox» вместо Blade. -osint с -profile совместим (проверено по
+# BrowserContentHandler этой сборки)
+$root = Split-Path -Parent (Split-Path -Parent $EnginePath)
+$profileDir = Join-Path $root 'Data\profile'
+$profArg = ''
+if (Test-Path $profileDir) { $profArg = " -profile `"$profileDir`"" }
+else { Write-Host "ВНИМАНИЕ: профиль не найден ($profileDir) — регистрирую без -profile" }
+Write-Host "Движок: $exe | Профиль: $profileDir"
 
 # --- 1. Гигиена: мёртвые Firefox-регистрации (путь в команде не существует) ---
 $smi = 'HKCU:\Software\Clients\StartMenuInternet'
@@ -55,7 +72,7 @@ if (Test-Path $smi) {
 $reg = 'HKEY_CURRENT_USER\Software\Clients\StartMenuInternet\Blade'
 [Microsoft.Win32.Registry]::SetValue($reg, '', 'Blade')
 [Microsoft.Win32.Registry]::SetValue("$reg\DefaultIcon", '', "$exe,0")
-[Microsoft.Win32.Registry]::SetValue("$reg\shell\open\command", '', "`"$exe`"")
+[Microsoft.Win32.Registry]::SetValue("$reg\shell\open\command", '', "`"$exe`"$profArg")
 $cap = "$reg\Capabilities"
 [Microsoft.Win32.Registry]::SetValue($cap, 'ApplicationName', 'Blade')
 [Microsoft.Win32.Registry]::SetValue($cap, 'ApplicationIcon', "$exe,0")
@@ -72,7 +89,7 @@ foreach ($p in 'BladeHTML', 'BladeURL') {
     $title = if ($p -eq 'BladeHTML') { 'Blade HTML Document' } else { 'Blade URL' }
     [Microsoft.Win32.Registry]::SetValue($pk, '', $title)
     [Microsoft.Win32.Registry]::SetValue("$pk\DefaultIcon", '', "$exe,0")
-    [Microsoft.Win32.Registry]::SetValue("$pk\shell\open\command", '', "`"$exe`" -osint -url `"%1`"")
+    [Microsoft.Win32.Registry]::SetValue("$pk\shell\open\command", '', "`"$exe`"$profArg -osint -url `"%1`"")
 }
 Write-Host 'Регистрация: Blade виден в Settings -> Default apps'
 
