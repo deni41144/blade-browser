@@ -3,7 +3,7 @@
 // @description     Крупный неоновый блок часов/даты/погоды на новой вкладке (GX-стиль)
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.1.1
+// @version         1.2.0
 // ==/UserScript==
 (function () {
   if (window.BladeNewtabHero) return;
@@ -18,7 +18,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.1.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.2.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -47,9 +47,19 @@
       to   { opacity: 1; transform: none; }
     }
     #blade-hero .bh-greet {
-      font-size: 15px; font-weight: 600; letter-spacing: 6px;
-      text-transform: uppercase; color: rgba(255, 255, 255, 0.72);
-      margin-bottom: 10px; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+      font-size: 16px; font-weight: 800; letter-spacing: 10px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      /* кровь-градиент + двойное свечение — демонический облик */
+      background: linear-gradient(180deg,
+        color-mix(in srgb, var(--accent, #ff2a2a) 85%, #fff) 0%,
+        var(--accent, #ff2a2a) 40%,
+        color-mix(in srgb, var(--accent, #ff2a2a) 45%, #000) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent))
+              drop-shadow(0 0 28px color-mix(in srgb, var(--accent, #ff2a2a) 30%, transparent));
       /* Появляется и тает, оставляя чистые часы: подъём с opacity при входе,
          пауза, плавный уход вверх с растворением. Только transform/opacity —
          раскладку не дёргаем (margin-bottom на месте, элемент не схлопывается).
@@ -115,11 +125,6 @@
       text-transform: uppercase; color: rgba(255, 255, 255, 0.78);
       text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
     }
-    #blade-hero .bh-forecast {
-      margin-top: 8px; font-size: 12px; font-weight: 600; letter-spacing: 2px;
-      color: rgba(255, 255, 255, 0.55);
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
-    }
     #blade-hero .bh-status {
       margin-top: 12px; font-size: 11px; font-weight: 700; letter-spacing: 3px;
       color: var(--accent, #ff2a2a);
@@ -151,7 +156,6 @@
         '<div class="bh-greet"></div>' +
         '<div class="bh-clock"><span class="bh-hm">--:--</span><span class="bh-sec">--</span></div>' +
         '<div class="bh-date"></div>' +
-        '<div class="bh-forecast"></div>' +
         '<div class="bh-status">BLADE OS // ONLINE</div>' +
       '</div>';
     deck.appendChild(wrap);
@@ -161,50 +165,25 @@
     const dateEl = wrap.querySelector('.bh-date');
     const status = wrap.querySelector('.bh-status');
     const greetEl = wrap.querySelector('.bh-greet');
-    const forecastEl = wrap.querySelector('.bh-forecast');
 
-    // --- Погода/город/прогноз из кэша BladeClock (префы) ---
+    // --- Погода/город из кэша BladeClock (префы) ---
     function getStr(name) {
       try { return Services.prefs.getStringPref(name, ''); } catch (e) { return ''; }
-    }
-    function readForecast() {
-      try {
-        const arr = JSON.parse(getStr('blade.clock.forecast'));
-        if (Array.isArray(arr)) {
-          return arr.filter(x => x && typeof x.d === 'string' &&
-            isFinite(x.max) && isFinite(x.min));
-        }
-      } catch (e) {}
-      return null;
-    }
-    function renderForecast(arr) {
-      const parts = [];
-      if (arr) {
-        for (const it of arr.slice(0, 3)) {
-          parts.push(it.d + ' ' + (it.max > 0 ? '+' : '') + it.max + '° ' +
-            (it.min > 0 ? '+' : '') + it.min + '°');
-        }
-      }
-      const text = parts.join('  ·  ');
-      if (forecastEl.textContent !== text) forecastEl.textContent = text;
     }
     // data != null — пришло живьём из шины clock:weather, иначе читаем префы
     function refreshWeather(data) {
       try {
-        let weather = '', city = '', forecast = null;
+        let weather = '', city = '';
         if (data) {
           weather = data.weather || '';
           city = data.city || '';
-          if (Array.isArray(data.forecast)) forecast = data.forecast;
         } else {
           weather = getStr('blade.clock.weather');
           city = getStr('blade.clock.city');
-          forecast = readForecast();
         }
         const part = weather ? (city ? city + ' ' : '') + weather : '';
         const text = part ? 'BLADE OS // ONLINE  ·  ' + part : 'BLADE OS // ONLINE';
         if (status.textContent !== text) status.textContent = text;
-        renderForecast(forecast);
       } catch (e) {}
     }
     refreshWeather();
