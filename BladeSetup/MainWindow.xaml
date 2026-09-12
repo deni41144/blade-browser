@@ -1,0 +1,571 @@
+<Window x:Class="BladeSetup.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Blade Setup"
+        Width="580"
+        Height="420"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        Icon="Blade.ico"
+        Loaded="Window_Loaded">
+
+    <!-- Outer Window Frame with Neon/OLED styling -->
+    <Border CornerRadius="12"
+            BorderBrush="{StaticResource BrushBorderSubtle}"
+            BorderThickness="1"
+            ClipToBounds="True">
+        <Border.Background>
+            <RadialGradientBrush Center="0.5,1.1" GradientOrigin="0.5,1.1" RadiusX="0.85" RadiusY="0.65">
+                <GradientStop Color="#2c0507" Offset="0.0" />
+                <GradientStop Color="#100d12" Offset="0.5" />
+                <GradientStop Color="#09080a" Offset="1.0" />
+            </RadialGradientBrush>
+        </Border.Background>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- ======================================================== -->
+            <!-- TITLE BAR (DragMove enabled strictly here)               -->
+            <!-- ======================================================== -->
+            <Border x:Name="TitleBar"
+                    Grid.Row="0"
+                    Background="Transparent"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <!-- Left: Title indicator -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                        <Image RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True" Source="blade-logo-14.png" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="B L A D E   S E T U P"
+                                   Foreground="{StaticResource BrushTextMuted}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Right: Window controls -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource BladeCloseButtonStyle}"
+                                Content="—"
+                                Width="36"
+                                Height="36"
+                                Click="MinimizeButton_Click" />
+                        <Button Style="{StaticResource BladeCloseButtonStyle}"
+                                Content="✕"
+                                Width="38"
+                                Height="36"
+                                Click="CloseButton_Click" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ======================================================== -->
+            <!-- WIZARD SCREENS CONTAINER                                 -->
+            <!-- ======================================================== -->
+            <Grid Grid.Row="1" Margin="24,0,24,20">
+
+                <!-- ==================================================== -->
+                <!-- SCREEN 1: SPLASH & PATH                              -->
+                <!-- ==================================================== -->
+                <Grid x:Name="ScreenSplash" Visibility="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Logo and Title Area -->
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,4,0,14">
+                        <!-- Pulsing Logo with separated backing glow (preserves crisp image rendering) -->
+                        <Grid HorizontalAlignment="Center"
+                              RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <ScaleTransform x:Name="LogoScale" ScaleX="1.0" ScaleY="1.0" />
+                            </Grid.RenderTransform>
+                            <Grid.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                            <DoubleAnimation Storyboard.TargetName="LogoScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             From="0.95" To="1.05"
+                                                             Duration="0:0:1.5">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseInOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="LogoScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             From="0.95" To="1.05"
+                                                             Duration="0:0:1.5">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseInOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Grid.Triggers>
+
+                            <!-- Backing Glow: takes the DropShadowEffect offscreen shader so the Image stays crisp -->
+                            <Border Width="68" Height="68"
+                                    CornerRadius="16"
+                                    Background="#14080a"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="24" Opacity="0.65" ShadowDepth="0" />
+                                </Border.Effect>
+                            </Border>
+
+                            <!-- Sharp 1:1 Pre-resized Logo Image -->
+                            <Image x:Name="PulsingLogo"
+                                   Source="blade-logo-78.png"
+                                   Width="78"
+                                   Height="78"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   SnapsToDevicePixels="True"
+                                   RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Grid>
+
+                        <!-- Title B L A D E -->
+                        <TextBlock Text="B  L  A  D  E"
+                                   Foreground="{StaticResource BrushAccentRed}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="24"
+                                   FontWeight="Black"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,8,0,0">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#ff2a2a" BlurRadius="20" Opacity="0.5" ShadowDepth="0" />
+                            </TextBlock.Effect>
+                        </TextBlock>
+
+                        <!-- Version -->
+                        <TextBlock x:Name="VersionTextBlock"
+                                   Text="v…"
+                                   Foreground="{StaticResource BrushTextSecondary}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="12"
+                                   FontWeight="Medium"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0" />
+                    </StackPanel>
+
+                    <!-- Path Selection Card -->
+                    <Border Grid.Row="1"
+                            Background="{StaticResource BrushCardBg}"
+                            BorderBrush="{StaticResource BrushBorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16,12"
+                            VerticalAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="ПАПКА УСТАНОВКИ"
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,8" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="42" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="TargetFolderTextBox"
+                                         Grid.Column="0"
+                                         Style="{StaticResource BladeTextBoxStyle}"
+                                         TextWrapping="NoWrap" />
+                                <Button Grid.Column="2"
+                                        Style="{StaticResource BladeButtonStyle}"
+                                        Content="…"
+                                        Padding="0"
+                                        FontSize="14"
+                                        Click="BrowseFolder_Click" />
+                            </Grid>
+
+                            <CheckBox x:Name="CreateDesktopShortcutCheckBox"
+                                      Style="{StaticResource BladeCheckBoxStyle}"
+                                      Content="Создать ярлык на рабочем столе"
+                                      IsChecked="True"
+                                      Margin="0,12,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Bottom Action Button -->
+                    <Grid Grid.Row="2" Margin="0,16,0,0">
+                        <Button Style="{StaticResource BladeAccentButtonStyle}"
+                                Content="ДАЛЕЕ →"
+                                HorizontalAlignment="Right"
+                                Width="150"
+                                Height="40"
+                                Click="NextToLicenseButton_Click" />
+                    </Grid>
+                </Grid>
+
+                <!-- ==================================================== -->
+                <!-- SCREEN 2: LICENSE AGREEMENT                          -->
+                <!-- ==================================================== -->
+                <Grid x:Name="ScreenLicense" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- License Header -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ"
+                                   Foreground="{StaticResource BrushTextPrimary}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="15"
+                                   FontWeight="Bold" />
+                        <TextBlock Text="Пожалуйста, ознакомьтесь с условиями перед установкой Blade"
+                                   Foreground="{StaticResource BrushTextSecondary}"
+                                   FontSize="11"
+                                   Margin="0,2,0,0" />
+                    </StackPanel>
+
+                    <!-- License Text Box -->
+                    <Border Grid.Row="1"
+                            Background="#08080a"
+                            BorderBrush="{StaticResource BrushBorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="2">
+                        <TextBox x:Name="LicenseTextBox"
+                                 IsReadOnly="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 Background="Transparent"
+                                 Foreground="#b8b8c4"
+                                 BorderThickness="0"
+                                 FontFamily="Segoe UI, Consolas, sans-serif"
+                                 FontSize="11"
+                                 Padding="8"
+                                 CaretBrush="{StaticResource BrushAccentRed}" />
+                    </Border>
+
+                    <!-- Agreement Checkbox -->
+                    <CheckBox x:Name="AcceptLicenseCheckBox"
+                              Grid.Row="2"
+                              Style="{StaticResource BladeCheckBoxStyle}"
+                              Content="Я принимаю условия лицензии"
+                              IsChecked="False"
+                              Margin="0,12,0,0"
+                              Checked="AcceptLicenseCheckBox_Changed"
+                              Unchecked="AcceptLicenseCheckBox_Changed" />
+
+                    <!-- Bottom Buttons -->
+                    <Grid Grid.Row="3" Margin="0,14,0,0">
+                        <Button Style="{StaticResource BladeGhostButtonStyle}"
+                                Content="← НАЗАД"
+                                HorizontalAlignment="Left"
+                                Width="120"
+                                Height="38"
+                                Click="BackToSplashButton_Click" />
+
+                        <Button x:Name="InstallFromLicenseButton"
+                                Style="{StaticResource BladeAccentButtonStyle}"
+                                Content="УСТАНОВИТЬ"
+                                HorizontalAlignment="Right"
+                                Width="150"
+                                Height="38"
+                                IsEnabled="False"
+                                Opacity="0.4"
+                                Click="StartInstallButton_Click" />
+                    </Grid>
+                </Grid>
+
+                <!-- ==================================================== -->
+                <!-- SCREEN 3: INSTALLING & PROGRESS                      -->
+                <!-- ==================================================== -->
+                <Grid x:Name="ScreenInstalling" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Center Area: Logo + Status -->
+                    <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <!-- Dim glowing logo with separated backing glow -->
+                        <Grid HorizontalAlignment="Center">
+                            <Border Width="48" Height="48"
+                                    CornerRadius="12"
+                                    Background="#120608"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="16" Opacity="0.5" ShadowDepth="0" />
+                                </Border.Effect>
+                            </Border>
+                            <Image Source="blade-logo-56.png"
+                                   Width="56"
+                                   Height="56"
+                                   Opacity="0.9"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   SnapsToDevicePixels="True"
+                                   RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Grid>
+
+                        <TextBlock x:Name="InstallStageTextBlock"
+                                   Text="Подготовка к установке..."
+                                   Foreground="{StaticResource BrushTextPrimary}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,16,0,0" />
+
+                        <TextBlock x:Name="InstallDetailsTextBlock"
+                                   Text="Проверка файлов архива..."
+                                   Foreground="{StaticResource BrushTextSecondary}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <!-- Real Laser Progress Bar (User Fix 2) -->
+                    <Grid Grid.Row="1" Margin="20,10,20,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Progress Bar Container -->
+                        <Grid x:Name="ProgressBarTrack" Grid.Row="0" Height="4" SizeChanged="ProgressBarTrack_SizeChanged">
+                            <!-- Inactive Track -->
+                            <Border Background="#1c1c24" CornerRadius="2" />
+
+                            <!-- Active Real Progress Fill -->
+                            <Border x:Name="ProgressBarFill"
+                                    HorizontalAlignment="Left"
+                                    Width="0"
+                                    Background="{StaticResource BrushAccentRed}"
+                                    CornerRadius="2"
+                                    ClipToBounds="True">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="10" Opacity="0.85" ShadowDepth="0" />
+                                </Border.Effect>
+
+                                <!-- Laser Beam Animation Overlay on top of real progress -->
+                                <Rectangle x:Name="LaserBeamRect" Width="100" HorizontalAlignment="Left">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#00ff2a2a" Offset="0.0" />
+                                            <GradientStop Color="#ffff6666" Offset="0.5" />
+                                            <GradientStop Color="#ffffff" Offset="0.75" />
+                                            <GradientStop Color="#00ff2a2a" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                    <Rectangle.RenderTransform>
+                                        <TranslateTransform x:Name="LaserTranslate" X="-100" />
+                                    </Rectangle.RenderTransform>
+                                    <Rectangle.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetName="LaserTranslate"
+                                                                     Storyboard.TargetProperty="X"
+                                                                     From="-100" To="540"
+                                                                     Duration="0:0:1.6" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Rectangle.Triggers>
+                                </Rectangle>
+                            </Border>
+                        </Grid>
+
+                        <!-- Percent Indicator -->
+                        <Grid Grid.Row="1" Margin="0,6,0,0">
+                            <TextBlock x:Name="ProgressPercentTextBlock"
+                                       Text="0%"
+                                       Foreground="{StaticResource BrushAccentRed}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Right" />
+                        </Grid>
+                    </Grid>
+
+                    <!-- Bottom Cancel Action -->
+                    <Grid Grid.Row="2" Margin="0,10,0,0">
+                        <Button x:Name="CancelInstallButton"
+                                Style="{StaticResource BladeGhostButtonStyle}"
+                                Content="Отмена"
+                                HorizontalAlignment="Center"
+                                Padding="20,6"
+                                Click="CancelInstallButton_Click" />
+                    </Grid>
+                </Grid>
+
+                <!-- ==================================================== -->
+                <!-- SCREEN 4: DONE & LAUNCH                              -->
+                <!-- ==================================================== -->
+                <Grid x:Name="ScreenDone" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <!-- Icon with separated backing glow -->
+                        <Grid HorizontalAlignment="Center">
+                            <Border Width="64" Height="64"
+                                    CornerRadius="16"
+                                    Background="#14080a"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="28" Opacity="0.75" ShadowDepth="0" />
+                                </Border.Effect>
+                            </Border>
+                            <Image Source="blade-logo-72.png"
+                                   Width="72"
+                                   Height="72"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   SnapsToDevicePixels="True"
+                                   RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Grid>
+
+                        <!-- Victory Title -->
+                        <TextBlock Text="⚡ BLADE ГОТОВ К БОЮ"
+                                   Foreground="{StaticResource BrushAccentRed}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="22"
+                                   FontWeight="Black"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,16,0,0">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#ff2a2a" BlurRadius="18" Opacity="0.6" ShadowDepth="0" />
+                            </TextBlock.Effect>
+                        </TextBlock>
+
+                        <TextBlock Text="Установка завершена успешно!"
+                                   Foreground="{StaticResource BrushTextPrimary}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="13"
+                                   FontWeight="Medium"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,6,0,0" />
+
+                        <TextBlock x:Name="DoneTargetDirectoryTextBlock"
+                                   Text=""
+                                   Foreground="{StaticResource BrushTextSecondary}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,0" />
+
+                        <CheckBox x:Name="DoneDesktopShortcutCheckBox"
+                                  Style="{StaticResource BladeCheckBoxStyle}"
+                                  Content="Добавить ярлык на рабочий стол"
+                                  IsChecked="True"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,16,0,0"
+                                  Checked="DoneDesktopShortcutCheckBox_Changed"
+                                  Unchecked="DoneDesktopShortcutCheckBox_Changed" />
+                    </StackPanel>
+
+                    <!-- Bottom Action Buttons -->
+                    <Grid Grid.Row="1" Margin="0,14,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Style="{StaticResource BladeAccentButtonStyle}"
+                                    Content="ЗАПУСТИТЬ BLADE"
+                                    Width="180"
+                                    Height="42"
+                                    Margin="0,0,12,0"
+                                    Click="LaunchBladeButton_Click" />
+
+                            <Button Style="{StaticResource BladeGhostButtonStyle}"
+                                    Content="ВЫЙТИ"
+                                    Width="120"
+                                    Height="42"
+                                    Click="ExitButton_Click" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+            </Grid>
+
+            <!-- ======================================================== -->
+            <!-- IN-WINDOW MODAL DIALOG OVERLAY                           -->
+            <!-- ======================================================== -->
+            <Grid x:Name="ModalDialogOverlay"
+                  Grid.Row="0"
+                  Grid.RowSpan="2"
+                  Background="#e008080a"
+                  Visibility="Collapsed">
+                <Border Width="460"
+                        Background="{StaticResource BrushCardBg}"
+                        BorderBrush="{StaticResource BrushBorderSubtle}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="20"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000" BlurRadius="25" Opacity="0.8" ShadowDepth="4" />
+                    </Border.Effect>
+                    <StackPanel>
+                        <!-- Modal Title -->
+                        <TextBlock x:Name="ModalDialogTitle"
+                                   Text="Сообщение"
+                                   Foreground="{StaticResource BrushAccentRed}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,8">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#ff2a2a" BlurRadius="12" Opacity="0.4" ShadowDepth="0" />
+                            </TextBlock.Effect>
+                        </TextBlock>
+
+                        <!-- Modal Message -->
+                        <TextBlock x:Name="ModalDialogMessage"
+                                   Text=""
+                                   Foreground="{StaticResource BrushTextPrimary}"
+                                   FontFamily="Segoe UI, sans-serif"
+                                   FontSize="12.5"
+                                   TextWrapping="Wrap"
+                                   LineHeight="18"
+                                   Margin="0,0,0,18" />
+
+                        <!-- Modal Buttons -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="ModalSecondaryButton"
+                                    Style="{StaticResource BladeGhostButtonStyle}"
+                                    Content="Отмена"
+                                    Width="110"
+                                    Height="36"
+                                    Margin="0,0,10,0"
+                                    Click="ModalSecondaryButton_Click" />
+
+                            <Button x:Name="ModalPrimaryButton"
+                                    Style="{StaticResource BladeAccentButtonStyle}"
+                                    Content="ОК"
+                                    Width="120"
+                                    Height="36"
+                                    Click="ModalPrimaryButton_Click" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </Border>
+</Window>
