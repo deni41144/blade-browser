@@ -134,10 +134,10 @@ html|html.blade-newwin #nav-bar::before,
     opacity: 0;
   }
   20% {
-    opacity: 0.9;
+    opacity: 0.95;
   }
   75% {
-    opacity: 0.9;
+    opacity: 0.95;
   }
   100% {
     transform: translateX(120%);
@@ -756,22 +756,11 @@ html|html:-moz-window-inactive #bobliks-settings-button .toolbarbutton-icon {
    не трогаем. Селекторы усилены (:root, [data-blade-theme]) — иначе
    !important-каскад тем ниже по файлу перебивал бы это отключение
    ========================================================================== */
-@media (prefers-reduced-motion: reduce) {
-  html|html[data-blade-theme] #navigator-toolbox::before,
-  html|html[data-blade-theme] #navigator-toolbox::after,
-  html|html:root[data-blade-theme] #navigator-toolbox[data-blade-loading="1"]::after,
-  html|html[data-blade-theme] #bobliks-settings-button .toolbarbutton-icon,
-  .tabbrowser-tab[busy] .tab-background,
-  html|html:root .tabbrowser-tab[fadein] .tab-background,
-  html|html:root .tabbrowser-tab[selected] .tab-background::before,
-  html|html:root .tabbrowser-tab:hover:not([selected]) .tab-background::after,
-  :root menupopup,
-  :root panel,
-  html|html:root menupopup,
-  html|html:root panel {
-    animation: none !important;
-  }
-}
+/* Блок «prefers-reduced-motion» УДАЛЁН (урок 1.9.2): user.js форсит
+   ui.prefersReducedMotion=0 для всех — медиазапрос никогда не должен
+   срабатывать, а если преф где-то не применится, блок молча гасил ВСЕ
+   анимации клинка (дважды расследовали «почему ничего не видно»).
+   Клинок не спрашивает разрешения у Windows — решение владельца v1.7.6. */
 
 /* Кейфреймы — строго на верхнем уровне файла */
 @keyframes blade-live-heartbeat {
@@ -1319,7 +1308,7 @@ tab[soundplaying] .tab-background,
   animation: blade-tab-in 0.18s ease-out !important;
 }
 
-/* A2: Слэш-разрез при открытии новой вкладки (однократный 0.4s) */
+/* A2: Слэш-разрез при открытии новой вкладки (однократный 0.7s) */
 .tabbrowser-tab[fadein] .tab-content {
   position: relative !important;
   overflow: hidden !important;
@@ -1334,15 +1323,16 @@ tab[soundplaying] .tab-background,
   right: 0 !important;
   pointer-events: none !important;
   z-index: 10 !important;
-  background: linear-gradient(115deg, transparent 0%, transparent 27.5%, var(--accent, #ff2a2a) 44%, #ffffff 50%, var(--accent, #ff2a2a) 56%, transparent 72.5%, transparent 100%) !important;
+  background: linear-gradient(115deg, transparent 0%, transparent 20%, var(--accent, #ff2a2a) 42%, #ffffff 50%, var(--accent, #ff2a2a) 58%, transparent 80%, transparent 100%) !important;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent) !important;
   transform: translateX(-130%) skewX(-18deg) !important;
-  animation: blade-tab-slash 0.4s ease-out forwards !important;
+  animation: blade-tab-slash 0.7s ease-out forwards !important;
 }
 
 @keyframes blade-tab-slash {
   from {
     transform: translateX(-130%) skewX(-18deg);
-    opacity: 0.9;
+    opacity: 0.95;
   }
   to {
     transform: translateX(130%) skewX(-18deg);
@@ -1410,38 +1400,44 @@ toolbarbutton.bookmark-item:hover:not(.subviewbutton) {
   to   { transform: translateX(100%); }
 }
 
-/* --- «Корона» активной вкладки: ромб 5×5 по центру неонового
-       подчёркивания (секция 17), лёгкий пульс opacity.
-       A7: Воспламенение короны при переключении — one-shot вспышка scale(2.2)->(1) 0.35s --- */
+/* --- «Корона» активной вкладки: ромб 8×8 по центру неонового
+       подчёркивания (секция 17), раскалённое белое ядро + усиленный пульс.
+       A7: Воспламенение короны при переключении — one-shot вспышка scale(2.6)->(1) 0.6s --- */
 .tabbrowser-tab[selected] .tab-background::before {
   content: "" !important;
   position: absolute !important;
   left: 50% !important;
-  bottom: -1px !important;
-  width: 5px !important;
-  height: 5px !important;
-  margin-left: -2.5px !important;
-  background: var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 10px var(--accent, #ff2a2a), 0 0 4px #ffffff !important;
+  bottom: -2px !important;
+  width: 8px !important;
+  height: 8px !important;
+  margin-left: -4px !important;
+  background: radial-gradient(circle, #ffffff 0%, var(--accent, #ff2a2a) 55%, transparent 100%) !important;
+  box-shadow: 0 0 14px var(--accent, #ff2a2a), 0 0 28px color-mix(in srgb, var(--accent, #ff2a2a) 60%, transparent), 0 0 6px #ffffff !important;
   transform: rotate(45deg) !important;
   z-index: 2 !important;
-  animation: blade-crown-ignite 0.35s cubic-bezier(0.2, 0.8, 0.25, 1) forwards, blade-crown-pulse 3s ease-in-out 0.35s infinite !important;
+  animation: blade-crown-ignite 0.6s cubic-bezier(0.2, 0.8, 0.25, 1) forwards, blade-crown-pulse 3s ease-in-out 0.6s infinite !important;
 }
 
 @keyframes blade-crown-ignite {
   0% {
-    transform: rotate(45deg) scale(2.2);
+    transform: rotate(45deg) scale(2.6);
     opacity: 1;
   }
   100% {
     transform: rotate(45deg) scale(1);
-    opacity: 0.95;
+    opacity: 1;
   }
 }
 
 @keyframes blade-crown-pulse {
-  0%, 100% { opacity: 0.55; transform: rotate(45deg) scale(1); }
-  50%      { opacity: 1;    transform: rotate(45deg) scale(1); }
+  0%, 100% {
+    opacity: 0.6;
+    transform: rotate(45deg) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(45deg) scale(1.25);
+  }
 }
 
 /* --- Confirmation hint («Ссылка скопирована» и т.п.): тёмная капсула
@@ -1757,11 +1753,11 @@ tooltip [class*="key"] {
   pointer-events: none !important;
   z-index: 1000 !important;
   border-radius: 8px 8px 0 0 !important;
-  background: color-mix(in srgb, var(--accent, #ff2a2a) 22%, #14141a) !important;
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 35%, #14141a) !important;
   border: 1px solid var(--accent, #ff2a2a) !important;
   border-bottom: none !important;
   box-shadow: 0 0 16px var(--accent-glow, rgba(255, 42, 42, 0.45)), 0 -2px 8px var(--accent, #ff2a2a) !important;
-  animation: blade-ghost-fade 0.55s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
+  animation: blade-ghost-fade 0.8s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
 }
 
 @keyframes blade-ghost-fade {
@@ -1782,61 +1778,54 @@ tooltip [class*="key"] {
 .blade-ghost::before {
   content: "" !important;
   position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  margin: auto !important;
   width: 2.5px !important;
   height: 2.5px !important;
   border-radius: 50% !important;
   background: #ffffff !important;
   box-shadow:
-    -20px -14px 0 0.5px var(--accent, #ff2a2a),
-     24px -18px 0 0.5px #ffffff,
-    -32px  10px 0 0.5px var(--accent, #ff2a2a),
-     34px  14px 0 0.5px var(--accent, #ff2a2a),
-     -9px -22px 0 0.5px #ffffff,
-     14px  18px 0 0.5px var(--accent, #ff2a2a) !important;
-  animation: blade-sparks-scatter-1 0.55s ease-out forwards !important;
+    -26px -16px 0 0.5px var(--accent, #ff2a2a),
+     30px -20px 0 0.5px #ffffff,
+    -38px  12px 0 0.5px var(--accent, #ff2a2a),
+     40px  16px 0 0.5px var(--accent, #ff2a2a),
+    -12px -26px 0 0.5px #ffffff,
+     18px  22px 0 0.5px var(--accent, #ff2a2a),
+    -44px  -8px 0 0.5px #ffffff,
+     34px  -6px 0 0.5px var(--accent, #ff2a2a) !important;
+  animation: blade-sparks-scatter 0.65s ease-out forwards !important;
 }
 
-@keyframes blade-sparks-scatter-1 {
+@keyframes blade-sparks-scatter {
   0% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(0.4);
-  }
-  50% {
-    opacity: 0.9;
+    transform: scale(0.5) translateY(0);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(2.6);
+    transform: scale(1.6) translateY(-14px);
   }
 }
 
 .blade-ghost::after {
   content: "" !important;
   position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  width: 2px !important;
-  height: 2px !important;
-  border-radius: 50% !important;
-  background: var(--accent, #ff2a2a) !important;
-  box-shadow:
-    -38px  -6px 0 0.5px #ffffff,
-     18px -26px 0 0.5px var(--accent, #ff2a2a),
-    -14px  24px 0 0.5px var(--accent, #ff2a2a),
-     28px  -4px 0 0.5px #ffffff !important;
-  animation: blade-sparks-scatter-2 0.55s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  border-radius: 8px 8px 0 0 !important;
+  background: radial-gradient(ellipse at center, #ffffff 0%, rgba(255, 255, 255, 0.85) 20%, color-mix(in srgb, var(--accent, #ff2a2a) 65%, transparent) 50%, transparent 75%) !important;
+  animation: blade-ghost-flash 0.65s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
 }
 
-@keyframes blade-sparks-scatter-2 {
+@keyframes blade-ghost-flash {
   0% {
     opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg) scale(0.3);
+    transform: scale(0.5);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) rotate(24deg) scale(3.0);
+    transform: scale(1.4);
   }
 }
 
@@ -1846,7 +1835,7 @@ html|html.blade-loaded .urlbar-background,
   border: 1px solid var(--accent, #ff2a2a) !important;
   border-color: var(--accent, #ff2a2a) !important;
   box-shadow: 0 0 24px var(--accent-glow, rgba(255, 42, 42, 0.75)), inset 0 0 12px var(--accent-soft, rgba(255, 42, 42, 0.45)) !important;
-  animation: blade-loaded-pulse 0.7s ease-out forwards !important;
+  animation: blade-loaded-pulse 0.8s ease-out forwards !important;
 }
 
 @keyframes blade-loaded-pulse {
