@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.11.0
+// @version         1.12.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.11.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.12.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -86,6 +86,14 @@
       } catch (e) { mark('ERR selSync ' + e); }
     }
     const BUILTIN_BGS = window.Blade.builtinBgs;
+    // Облики — готовые сочетания «тема + фон», один клик вместо двух меню
+    const BLADE_VISAGES = [
+      { id: 'hunter', label: 'Кровавый Охотник', theme: 'blood',    bg: 'bloodmoon' },
+      { id: 'coder',  label: 'Полуночный Кодер', theme: 'midnight', bg: 'midnight' },
+      { id: 'neon',   label: 'Неоновый Город',   theme: 'purple',   bg: 'emberflow' },
+      { id: 'volt',   label: 'Высокое Напряжение', theme: 'volt',   bg: 'voltbg' },
+      { id: 'cherry', label: 'Вишнёвый Сад',     theme: 'cherry',   bg: 'cherrybg' },
+    ];
     function getImgDir() {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('img');
@@ -599,6 +607,37 @@
       applyThemeSheet(activeTheme());
       mark('OK setBg=' + bgId);
     }
+    // --- ОБЛИКИ КЛИНКА: пресеты «тема + фон» одним кликом ---
+    function userVisage() {
+      // fail-soft: битый JSON или отсутствие префа — просто нет «своего» облика
+      try {
+        const raw = Services.prefs.getStringPref('blade.visage.mine', '');
+        if (!raw) return null;
+        const v = JSON.parse(raw);
+        if (v && typeof v.theme === 'string' && typeof v.bg === 'string') return v;
+        return null;
+      } catch (e) { return null; }
+    }
+    function allVisages() {
+      const list = BLADE_VISAGES.slice();
+      const mine = userVisage();
+      if (mine) list.push({ id: 'mine', label: 'Мой Облик', theme: mine.theme, bg: mine.bg });
+      return list;
+    }
+    function applyVisage(id) {
+      const v = allVisages().find(x => x.id === id);
+      if (!v) { mark('FAIL visage ' + id); return; }
+      setTheme(v.theme);
+      setBg(v.bg);
+      mark('OK visage ' + id);
+    }
+    function saveVisage() {
+      // Пользовательский слот независим: совпадение с builtin-обликом не
+      // мешает — сохраняем текущее сочетание как есть
+      Services.prefs.setStringPref('blade.visage.mine',
+        JSON.stringify({ theme: activeTheme(), bg: activeBg() }));
+      mark('OK visage saved');
+    }
     // Проводник: init требует BrowsingContext (window больше не конвертится —
     // раунд 23), open() — callback-based (Promise-вариант от Gemini ждал бы
     // undefined). Имя файла: транслит-безопасное + таймстамп от коллизий
@@ -751,6 +790,14 @@
           row(t.label, { bobliksTheme: t.id }, { on: curTheme === t.id, chip: t.accent });
         }
         row('Конструктор темы…', { bladeLab: '1' }, { noDot: true });
+        // ОБЛИКИ: готовое сочетание «тема + фон» одним кликом; «Мой Облик»
+        // появляется только после первого сохранения
+        sub('ОБЛИКИ');
+        const curBgV = activeBg();
+        for (const v of allVisages()) {
+          row(v.label, { bladeVisage: v.id }, { on: (curTheme === v.theme && curBgV === v.bg) });
+        }
+        row('Сохранить текущее как «Мой Облик»', { bladeVisageSave: '1' }, { noDot: true });
         // АВТО-ТЕМА: смена день/ночь по часам (8:00 / 20:00). Темы для слотов
         // циклятся кликом по строке; ручной выбор темы при включённой авто
         // её глушит — иначе циклер через минуту молча вернёт свою
@@ -896,6 +943,8 @@
             setTheme(ds.bobliksTheme);
           }
           else if (ds.bobliksBg) { await setBg(ds.bobliksBg); }
+          else if (ds.bladeVisage) { try { applyVisage(ds.bladeVisage); } catch (e) { mark('ERR visage ' + e); } }
+          else if (ds.bladeVisageSave === '1') { try { saveVisage(); } catch (e) { mark('ERR visageSave ' + e); } }
           else if (ds.bobliksEdit === 'on') { Services.prefs.setBoolPref('bobliks.dial.edit', true); }
           else if (ds.bobliksEdit === 'off') { Services.prefs.clearUserPref('bobliks.dial.edit'); }
           else if (ds.bladeReader === 'on' || ds.bladeReader === 'off') {
@@ -1340,6 +1389,20 @@
     autoThemeTick();
     const autoThemeTimer = setInterval(autoThemeTick, 60e3);
     window.addEventListener('unload', () => { clearInterval(autoThemeTimer); }, { once: true });
+
+    // ---- API для будущей командной палитры (по образцу window.BladeUpdater) ----
+    // Гварда не нужно: fx-autoconfig запускает скрипт один раз на окно, а при
+    // повторном запуске в том же окне ссылка просто перезапишется на свежие
+    // функции того же скоупа — состояния не ломаются
+    window.BladeSettings = {
+      themes: () => THEMES.map(t => ({ id: t.id, label: t.label })),
+      bgs: () => getAllBgs().map(b => ({ id: b.id, label: b.label })),
+      setTheme, setBg,
+      visages: () => allVisages().map(v => ({ id: v.id, label: v.label })),
+      applyVisage, saveVisage,
+      toggleSounds() { const on = !Services.prefs.getBoolPref('blade.sounds.on', true); Services.prefs.setBoolPref('blade.sounds.on', on); return on; },
+      backup() { launchBackup(); },
+    };
 
     mark('OK widget');
   } catch (e) {

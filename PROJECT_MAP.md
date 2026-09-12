@@ -1,6 +1,6 @@
 # Карта проекта Blade
 
-> Обновлено: 2026-09-12 · актуально для v1.8.1 «Живой Клинок»
+> Обновлено: 2026-09-12 · актуально для v1.9.0 «Тёмный Терминал»
 > Кастомный браузер на базе Mozilla Firefox: брендинг-хирургия движка,
 > движок тем, автообновление через GitHub. Автор: Denis Bobliksov (Blade-Creations).
 
@@ -84,11 +84,12 @@ F:\firefox michael edition\
 | Скрипт | Версия | Роль |
 |---|---|---|
 | BladeCore.uc.js | 1.0.0 | Общий контракт `window.Blade`: THEMES, builtinBgs, bgPrefId, mark, шина событий, runPsEncoded. `@loadOrder 5` — исполняется до всех. ОТКЛЮЧАТЬ НЕЛЬЗЯ |
-| BobliksSettings.uc.js | 1.11.0 | Меню «B»: темы (+авто-тема день/ночь), фоны, DNS, ПЕРФ-замеры, бэкап-кнопка, система; F1/Alt+B. `applyThemeSheet()` — USER_SHEET для живого переключения тем |
+| BobliksSettings.uc.js | 1.12.0 | Меню «B»: темы (+авто-тема день/ночь), фоны, DNS, ПЕРФ-замеры, бэкап-кнопка, система; F1/Alt+B. `applyThemeSheet()` — USER_SHEET для живого переключения тем |
 | BladeUpdater.uc.js | 1.3.4 | Автопроверка GitHub (сутки), панель «Хроника обновлений», самолечение 401-токена, однократная регистрация дефолт-браузера, API `window.BladeUpdater` |
 | BobliksCovers.uc.js | 2.1.0 | Генератор covers.css (`@onlyonce` + перегенерация по префу `bobliks.covers.dirty`) |
 | BladeNewtab.uc.js | 1.2.0 | Hero на новой вкладке: приветствие по времени, погода+прогноз 3 дня, тикер хроники (chrome-оверлей; данные Clock через шину BladeCore) |
 | BladeClock.uc.js | 2.2.0 | Часы+погода+прогноз в тулбаре (ipwho.is + open-meteo), публикует в шину clock:weather |
+| BladePalette.uc.js | 1.0.0 | Командная палитра Ctrl+K (терминал): темы/фоны/облики/действия, register() для будущих команд, API window.BladePalette |
 | BladePerf.uc.js | 1.0.0 | Замер фаз старта окна (dcl/load/paint/ssr) → `perf_mark.txt` |
 | BobliksChromeStyle 1.3.0 / AboutStyle 1.0.1 / BladeSounds 1.1.0 | — | Стили хрома/about (incl. порт SIGNATURE), звуки |
 
@@ -148,7 +149,8 @@ UserChoice-хешем (алгоритм PS-SFTA, MIT). http/https: автома�
 | 1.7.6 | Живое Сердце | Кнопка B восстановлена: FF155 строил голую кнопку без .toolbarbutton-icon (весь облик/пульсации тем висели на нём) — виджет переведён на type:custom+onBuild с ребёнком-иконкой; ВАЖНО: для type:custom движок не вызывает onCreated/onBeforeCreated — слушатель клика обязан жить в onBuild (урок 1.10.1: кнопка умерла); корень «нет анимаций тем» — Windows с выключенными клиент-анимациями давал prefers-reduced-motion:reduce, v1.7.0-блок гасил всё — user.js форсит ui.prefersReducedMotion=0. Опубликован 2026-09-12 |
 | 1.7.7 | Родной Дом | Внешние ссылки открываются в профиле Blade: команды реестра (StartMenuInternet + BladeURL/BladeHTML) теперь с -profile и БЕЗ -osint (движок молча игнорирует osint+profile при remoting — проверено тестами A/B/C); set-blade-default.ps1 принимает EnginePath и корнем, и папкой движка. Друзьям после апдейта — один клик «Сделать браузером по умолчанию». Опубликован 2026-09-12 |
 | 1.8.0 | Кровавая Гравюра | Дизайн-волна (вёрстка — Gemini/Antigravity по gemini-prompt-design.md, верифицировано GLM): кастомная типографика (Unbounded/Rubik/JetBrains Mono, chrome\fonts, OFL), своя страница ошибок (лиса скрыта), капсульный findbar, контекстные меню/PanelUI/загрузки/тултипы — тёмное стекло + единые радиусы. Отдельно не публиковался — вошёл в 1.8.1 |
-| 1.8.1 | Живой Клинок | «Живой» слой: атмосферные осадки newtab (дождь/гроза/снег/звёзды/туман по blade.weather.*), слэш по плиткам (заменил голографический блик), пульс музыки (tab[soundplaying] + :has), ночная забота ([data-blade-night]/blade.night, тёплые дельты тем), звуковой пакет (шинг старта/фанфара/чим, WebAudio-синтез, blade.sounds.volume). CSS — Gemini (верифицировано GLM), инженерия — GLM. Не опубликован — на визуальной проверке |
+| 1.8.1 | Живой Клинок | «Живой» слой: атмосферные осадки newtab (дождь/гроза/снег/звёзды/туман по blade.weather.*), слэш по плиткам (заменил голографический блик), пульс музыки (tab[soundplaying] + :has), ночная забота ([data-blade-night]/blade.night, тёплые дельты тем), звуковой пакет (шинг старта/фанфара/чим, WebAudio-синтез, blade.sounds.volume). CSS — Gemini (верифицировано GLM), инженерия — GLM. Не опубликован — вошёл в 1.9.0 |
+| 1.9.0 | Тёмный Терминал | Палитра Ctrl+K (BladePalette: фильтр/стрелки/Enter, API window.BladeSettings из Settings 1.12.0) + Облики Клинка (5 пресетов тема+фон + слот «Мой Облик», преф blade.visage.mine). Не опубликован — на проверке |
 
 ## Конвенции (нарушать опасно)
 
