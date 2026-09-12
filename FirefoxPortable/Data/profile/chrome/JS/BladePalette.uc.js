@@ -4,7 +4,7 @@
 //                  облики, обновления и быстрые действия браузера
 // @author          Blade-Creations
 // @include         main
-// @version         1.0.0
+// @version         1.0.1
 // ==/UserScript==
 (function () {
   if (window.BladePalette) return; // анти-дубль: uc.js исполняется в каждом окне
@@ -20,7 +20,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.0.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.0.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -244,6 +244,27 @@
         const on = Services.prefs.getBoolPref('blade.reader.on', false);
         Services.prefs.setBoolPref('blade.reader.on', !on);
         Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', on ? 2 : 1);
+      },
+    });
+    register({
+      id: 'blade-cmd-vtabs',
+      label: 'Вкладки: вертикальные вкл/выкл',
+      hint: 'силуэт',
+      kw: 'вертикальные вкладки vtabs sidebar',
+      // Живое переключение — BobliksSettings вешает [data-blade-vtabs] на html по observer
+      fn: () => {
+        const v = !Services.prefs.getBoolPref('sidebar.verticalTabs', false);
+        Services.prefs.setBoolPref('sidebar.verticalTabs', v);
+      },
+    });
+    register({
+      id: 'blade-cmd-idle',
+      label: 'Заставка простоя: вкл/выкл',
+      hint: 'атмосфера',
+      kw: 'заставка idle скринсейвер',
+      fn: () => {
+        const v = !Services.prefs.getBoolPref('blade.idle.on', true);
+        Services.prefs.setBoolPref('blade.idle.on', v);
       },
     });
   }
