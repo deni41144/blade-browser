@@ -16,6 +16,7 @@
 | Зарегистрировать браузером по умолчанию | `powershell -File Patches\template\set-blade-default.ps1` |
 | Бэкап профиля | `Blade-Backup.bat` |
 | Диагностика кастома | смотреть `chrome\JS\*_mark.txt` (живой профиль) или `Blade-Diagnostic.bat` |
+| История проекта | `git log --oneline` / `git status` — репозиторий в корне; личное и артефакты (профиль, Backups, zip, Output/bin/obj) в `.gitignore` |
 
 ## Два дома проекта
 
