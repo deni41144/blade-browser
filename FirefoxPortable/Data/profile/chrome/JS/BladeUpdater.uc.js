@@ -3,7 +3,7 @@
 // @description     Автопроверка и установка обновлений Blade с GitHub (приватный репо, в один клик)
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.3.2
+// @version         1.3.3
 // ==/UserScript==
 (function () {
   if (window.BladeUpdater) return;
@@ -36,7 +36,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.3.2 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.3.3 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -192,7 +192,9 @@
   function openPanelNearAnchor(panel, anchor) {
     const open = () => {
       try {
-        panel.openPopup(anchor, 'after_start', 0, 0, false, false);
+        // y=8: after_start даёт нулевой зазор — заголовок панели со свечением
+        // клеится к иконке Blade; небольшой отступ опускает чейнджлог ниже
+        panel.openPopup(anchor, 'after_start', 0, 8, false, false);
         panelVisible = true;
       } catch (e) { mark('ERR openPanel ' + e); }
     };
