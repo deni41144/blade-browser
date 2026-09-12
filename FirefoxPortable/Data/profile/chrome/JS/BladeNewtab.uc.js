@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name            Blade Newtab Hero
-// @description     Приветствие и дата на новой вкладке (GX-стиль). Часы убраны
-//                  в v1.3.0: время/погода уже живут в навбаре (BladeClock) —
-//                  на главной оставляем только то, чего в навбаре нет.
+// @description     Hero-циферблат поверх всех страниц (GX-стиль). На главной
+//                  (about:newtab/home) часы прячутся — время уже в навбаре
+//                  (BladeClock), дубль не нужен; приветствие/дата/статус остаются.
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.3.0
+// @version         1.4.0
 // ==/UserScript==
 (function () {
   if (window.BladeNewtabHero) return;
@@ -20,16 +20,17 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.3.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.4.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
 
   // ВАЖНО: about:newtab в FF155 — builtin-addon в REMOTE-процессе (проверено:
   // isRemoteBrowser=true, document-element-inserted в родителя не приходит).
-  // Поэтому hero рисуется в ОКНЕ (chrome), поверх зоны контента, и показываются
-  // только когда выбран about:newtab/about:home. Акцент — chrome-переменная
-  // --accent из userChrome.css: переключается темами живьём (data-blade-theme).
+  // Поэтому hero рисуется в ОКНЕ (chrome), поверх зоны контента, и виден на
+  // ВСЕХ страницах (кроме фуллскрина); на about:newtab/home часы прячем —
+  // их дублирует навбар. Акцент — chrome-переменная --accent из
+  // userChrome.css: переключается темами живьём (data-blade-theme).
   const HERO_CSS = `
     #browser { position: relative; }
     #blade-hero-wrap {
@@ -38,9 +39,18 @@
       justify-content: center; align-items: flex-start;
     }
     #blade-hero-wrap.blade-on { display: flex; }
+    /* Главная: время уже в навбар-часах — циферблат прячем, остальное живёт */
+    #blade-hero-wrap.blade-no-clock .bh-clock { display: none; }
+    /* Хроника обновлений — уголок главной, на обычных сайтах не висит */
+    #blade-hero-wrap:not(.blade-no-clock) #blade-hero-chronicle { display: none; }
     #blade-hero {
       position: relative;
       margin-top: 10vh; text-align: center;
+      padding: 30px 80px 24px;
+      /* Тёмная подложка: на светлых сайтах белый циферблат без неё теряется.
+         Статический градиент — без backdrop-filter (конвенция перфа) */
+      background: radial-gradient(ellipse at center,
+        rgba(9, 9, 15, 0.62) 0%, rgba(9, 9, 15, 0.35) 48%, transparent 72%);
       font-family: 'Segoe UI', sans-serif; user-select: none;
       animation: blade-hero-in .9s cubic-bezier(.2,.7,.3,1) both;
     }
@@ -63,7 +73,7 @@
       color: transparent;
       filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent))
               drop-shadow(0 0 28px color-mix(in srgb, var(--accent, #ff2a2a) 30%, transparent));
-      /* Появляется и тает, оставляя дату и статус: подъём с opacity при входе,
+      /* Появляется и тает, оставляя чистые часы: подъём с opacity при входе,
          пауза, плавный уход вверх с растворением. Только transform/opacity —
          раскладку не дёргаем (margin-bottom на месте, элемент не схлопывается).
          Перезапуск сам: blade-on переключает display none<->flex (updateVisible). */
@@ -77,7 +87,21 @@
       78%  { opacity: 0; transform: translateY(-6px); }
       100% { opacity: 0; }
     }
-    /* Атмосферные «уголки» за hero: два радиальных пятна акцента,
+    #blade-hero .bh-clock {
+      font-size: 88px; font-weight: 200; line-height: 1; letter-spacing: 6px;
+      color: #f4f4f8;
+      text-shadow:
+        0 0 22px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent),
+        0 0 70px color-mix(in srgb, var(--accent, #ff2a2a) 22%, transparent);
+      animation: blade-hero-breathe 3.6s ease-in-out infinite;
+    }
+    /* Дыхание на opacity: filter: drop-shadow в keyframes дёргал
+       перерисовку фильтра каждый кадр; свечение живёт статикой в text-shadow */
+    @keyframes blade-hero-breathe {
+      0%, 100% { opacity: 0.92; }
+      50%      { opacity: 1; }
+    }
+    /* Атмосферные «уголки» за часами: два радиальных пятна акцента,
        медленный дрейф transform + лёгкий пульс opacity (композит, дёшево) */
     #blade-hero::before, #blade-hero::after {
       content: '';
@@ -103,6 +127,11 @@
     @keyframes blade-hero-drift-b {
       from { transform: translate(18px, 10px);   opacity: 0.5; }
       to   { transform: translate(-18px, -10px); opacity: 0.9; }
+    }
+    #blade-hero .bh-sec {
+      font-size: 26px; font-weight: 300; letter-spacing: 2px;
+      color: color-mix(in srgb, var(--accent, #ff2a2a) 78%, white);
+      margin-left: 10px; vertical-align: 14px;
     }
     #blade-hero .bh-date {
       font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
@@ -140,11 +169,14 @@
     wrap.innerHTML =
       '<div id="blade-hero">' +
         '<div class="bh-greet"></div>' +
+        '<div class="bh-clock"><span class="bh-hm">--:--</span><span class="bh-sec">--</span></div>' +
         '<div class="bh-date"></div>' +
         '<div class="bh-status">BLADE OS // ONLINE</div>' +
       '</div>';
     deck.appendChild(wrap);
 
+    const hm = wrap.querySelector('.bh-hm');
+    const sec = wrap.querySelector('.bh-sec');
     const dateEl = wrap.querySelector('.bh-date');
     const status = wrap.querySelector('.bh-status');
     const greetEl = wrap.querySelector('.bh-greet');
@@ -179,14 +211,18 @@
       return 'Доброй ночи';
     }
 
-    // Секундных часов в hero больше нет: контент меняется максимум раз в
-    // минуту, поэтому тик редкий. DOM трогаем только когда hero виден
-    // (класс blade-on), дату — не чаще раза в минуту (день меняется редко)
+    // Тик дешевле: DOM трогаем только когда hero виден (класс blade-on);
+    // секундную ветку — только когда циферблат показан (на главной он скрыт).
+    // Дату — не чаще раза в минуту (день меняется редко)
     let lastMinute = -1;
     function tick() {
       try {
         if (!wrap.classList.contains('blade-on')) return;
         const d = new Date();
+        if (!wrap.classList.contains('blade-no-clock')) {
+          hm.textContent = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+          sec.textContent = d.toLocaleTimeString('ru-RU', { second: '2-digit' }).padStart(2, '0');
+        }
         if (d.getMinutes() !== lastMinute) {
           lastMinute = d.getMinutes();
           dateEl.textContent = d.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -196,12 +232,16 @@
       } catch (e) {}
     }
     tick();
-    const tickTimer = window.setInterval(tick, 30000);
+    const tickTimer = window.setInterval(tick, 1000);
 
     function updateVisible() {
       try {
+        // Фуллскрин (видео/презентация) — циферблат не нужен
+        const fs = window.fullScreen || doc.fullscreenElement;
         const u = window.gBrowser.currentURI ? window.gBrowser.currentURI.spec : '';
-        wrap.classList.toggle('blade-on', /^about:(newtab|home)/.test(u));
+        const isNew = /^about:(newtab|home)/.test(u);
+        wrap.classList.toggle('blade-on', !fs);
+        wrap.classList.toggle('blade-no-clock', isNew);
         // hero только что показался — рисуем сразу, не ждём следующего тика
         if (wrap.classList.contains('blade-on')) {
           tick();
@@ -212,6 +252,7 @@
     const progListener = { onLocationChange() { updateVisible(); } };
     window.gBrowser.addTabsProgressListener(progListener);
     window.gBrowser.tabContainer.addEventListener('TabSelect', updateVisible);
+    window.addEventListener('fullscreenchange', updateVisible);
 
     // --- Тикер хроники: строка 1 (заголовок) + первая непустая после неё ---
     try {
@@ -248,6 +289,7 @@
     window.addEventListener('unload', () => {
       try { window.clearInterval(tickTimer); } catch (e) {}
       try { window.gBrowser.removeTabsProgressListener(progListener); } catch (e) {}
+      try { window.removeEventListener('fullscreenchange', updateVisible); } catch (e) {}
       try {
         if (busHandler && window.Blade && window.Blade.bus)
           window.Blade.bus.off('clock:weather', busHandler);
