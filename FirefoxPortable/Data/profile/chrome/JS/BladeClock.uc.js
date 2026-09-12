@@ -4,7 +4,7 @@
 //                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
 // @author          Blade-Creations
 // @include         main
-// @version         2.2.0
+// @version         2.3.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'blade-clock-widget';
@@ -73,11 +73,21 @@
   }
 
   let lastWeather = '';
+  let lastKind = '';
   let lastCity = getStr('blade.clock.city');
 
   // Вид атмосферы по WMO-коду open-meteo. Ровно один kind активен —
   // остальное из списка чистим (смена погоды не должна оставлять хвосты)
   const WEATHER_KINDS = ['clear', 'clouds', 'rain', 'snow', 'thunder', 'fog'];
+  // A10 «Клинок Живёт»: глиф вида погоды в виджете (стилит CSS)
+  const WEATHER_GLYPHS = { clear: '☀', clouds: '☁', rain: '☂', snow: '❄', thunder: '⚡', fog: '🌫' };
+  function currentKind() {
+    if (lastKind) return lastKind;
+    for (const k of WEATHER_KINDS) {
+      try { if (Services.prefs.getBoolPref('blade.weather.' + k, false)) return k; } catch (e) {}
+    }
+    return '';
+  }
   function weatherKind(code) {
     if (code >= 95) return 'thunder';
     if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'snow';
@@ -117,6 +127,7 @@
       const wc = (data.current && typeof data.current.weather_code === 'number')
         ? data.current.weather_code : 0;
       const kind = weatherKind(wc);
+      lastKind = kind;
       // прогноз на 3 дня: [ { d, max, min } x 3 ] — absent/короткий daily = null
       let forecast = null;
       try {
@@ -174,6 +185,10 @@
       btn.id = WIDGET_ID;
       const span = doc.createElementNS('http://www.w3.org/1999/xhtml', 'span');
       span.className = 'blade-clock-text';
+      // A10 «Клинок Живёт»: глиф погоды первым, текст часов/погоды — после
+      const glyph = doc.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+      glyph.className = 'blade-weather-glyph';
+      btn.appendChild(glyph);
       btn.appendChild(span);
       const update = () => {
         const weatherPart = lastWeather ? (lastCity ? lastCity + ' ' : '') + lastWeather : '';
@@ -196,6 +211,11 @@
           if (Services.prefs.getBoolPref('blade.night', false) !== night)
             Services.prefs.setBoolPref('blade.night', night);
         } catch (e) {}
+        // A10: глиф погоды — тот же принцип «DOM только при изменении»,
+        // что и у span выше; ясной ночью солнце превращается в звёзды
+        let g = WEATHER_GLYPHS[currentKind()] || '';
+        if (g === '☀' && night) g = '✨';
+        if (glyph.textContent !== g) glyph.textContent = g;
       };
       update();
       const tick = setInterval(update, 10e3);   // обновление раз в 10 сек (легко)
@@ -222,7 +242,7 @@
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('clock_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v2.2.0 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v2.3.0 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();
