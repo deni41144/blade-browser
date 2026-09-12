@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name            Blade Newtab Hero
-// @description     Hero-циферблат поверх всех страниц (GX-стиль). На главной
-//                  (about:newtab/home) часы прячутся — время уже в навбаре
-//                  (BladeClock), дубль не нужен; приветствие/дата/статус остаются.
+// @description     Hero-циферблат на новой вкладке (GX-стиль): приветствие,
+//                  большие часы, дата, статус, хроника. Только about:newtab/home —
+//                  на остальных страницах время показывают навбар-часы
+//                  (BladeClock 2.6.0 сам прячется на главной: дублей нет).
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.4.0
+// @version         1.5.0
 // ==/UserScript==
 (function () {
   if (window.BladeNewtabHero) return;
@@ -20,17 +21,18 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.4.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.5.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
 
   // ВАЖНО: about:newtab в FF155 — builtin-addon в REMOTE-процессе (проверено:
   // isRemoteBrowser=true, document-element-inserted в родителя не приходит).
-  // Поэтому hero рисуется в ОКНЕ (chrome), поверх зоны контента, и виден на
-  // ВСЕХ страницах (кроме фуллскрина); на about:newtab/home часы прячем —
-  // их дублирует навбар. Акцент — chrome-переменная --accent из
-  // userChrome.css: переключается темами живьём (data-blade-theme).
+  // Поэтому hero рисуется в ОКНЕ (chrome), поверх зоны контента, и показывается
+  // только когда выбран about:newtab/about:home — раскладка «у каждой странице
+  // свой часы»: главная — большие Hero, остальные — навбар (BladeClock).
+  // Акцент — chrome-переменная --accent из userChrome.css: переключается
+  // темами живьём (data-blade-theme).
   const HERO_CSS = `
     #browser { position: relative; }
     #blade-hero-wrap {
@@ -39,18 +41,9 @@
       justify-content: center; align-items: flex-start;
     }
     #blade-hero-wrap.blade-on { display: flex; }
-    /* Главная: время уже в навбар-часах — циферблат прячем, остальное живёт */
-    #blade-hero-wrap.blade-no-clock .bh-clock { display: none; }
-    /* Хроника обновлений — уголок главной, на обычных сайтах не висит */
-    #blade-hero-wrap:not(.blade-no-clock) #blade-hero-chronicle { display: none; }
     #blade-hero {
       position: relative;
       margin-top: 10vh; text-align: center;
-      padding: 30px 80px 24px;
-      /* Тёмная подложка: на светлых сайтах белый циферблат без неё теряется.
-         Статический градиент — без backdrop-filter (конвенция перфа) */
-      background: radial-gradient(ellipse at center,
-        rgba(9, 9, 15, 0.62) 0%, rgba(9, 9, 15, 0.35) 48%, transparent 72%);
       font-family: 'Segoe UI', sans-serif; user-select: none;
       animation: blade-hero-in .9s cubic-bezier(.2,.7,.3,1) both;
     }
@@ -211,18 +204,15 @@
       return 'Доброй ночи';
     }
 
-    // Тик дешевле: DOM трогаем только когда hero виден (класс blade-on);
-    // секундную ветку — только когда циферблат показан (на главной он скрыт).
-    // Дату — не чаще раза в минуту (день меняется редко)
+    // Тик дешевле: DOM трогаем только когда hero виден (класс blade-on),
+    // дату — не чаще раза в минуту (день меняется редко)
     let lastMinute = -1;
     function tick() {
       try {
         if (!wrap.classList.contains('blade-on')) return;
         const d = new Date();
-        if (!wrap.classList.contains('blade-no-clock')) {
-          hm.textContent = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-          sec.textContent = d.toLocaleTimeString('ru-RU', { second: '2-digit' }).padStart(2, '0');
-        }
+        hm.textContent = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        sec.textContent = d.toLocaleTimeString('ru-RU', { second: '2-digit' }).padStart(2, '0');
         if (d.getMinutes() !== lastMinute) {
           lastMinute = d.getMinutes();
           dateEl.textContent = d.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -236,12 +226,8 @@
 
     function updateVisible() {
       try {
-        // Фуллскрин (видео/презентация) — циферблат не нужен
-        const fs = window.fullScreen || doc.fullscreenElement;
         const u = window.gBrowser.currentURI ? window.gBrowser.currentURI.spec : '';
-        const isNew = /^about:(newtab|home)/.test(u);
-        wrap.classList.toggle('blade-on', !fs);
-        wrap.classList.toggle('blade-no-clock', isNew);
+        wrap.classList.toggle('blade-on', /^about:(newtab|home)/.test(u));
         // hero только что показался — рисуем сразу, не ждём следующего тика
         if (wrap.classList.contains('blade-on')) {
           tick();
@@ -252,7 +238,6 @@
     const progListener = { onLocationChange() { updateVisible(); } };
     window.gBrowser.addTabsProgressListener(progListener);
     window.gBrowser.tabContainer.addEventListener('TabSelect', updateVisible);
-    window.addEventListener('fullscreenchange', updateVisible);
 
     // --- Тикер хроники: строка 1 (заголовок) + первая непустая после неё ---
     try {
@@ -289,7 +274,6 @@
     window.addEventListener('unload', () => {
       try { window.clearInterval(tickTimer); } catch (e) {}
       try { window.gBrowser.removeTabsProgressListener(progListener); } catch (e) {}
-      try { window.removeEventListener('fullscreenchange', updateVisible); } catch (e) {}
       try {
         if (busHandler && window.Blade && window.Blade.bus)
           window.Blade.bus.off('clock:weather', busHandler);

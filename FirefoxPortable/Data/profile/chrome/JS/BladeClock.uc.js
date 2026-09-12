@@ -4,7 +4,7 @@
 //                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
 // @author          Blade-Creations
 // @include         main
-// @version         2.5.2
+// @version         2.6.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'blade-clock-widget';
@@ -197,6 +197,17 @@
       glyph.className = 'blade-weather-glyph';
       btn.appendChild(glyph);
       btn.appendChild(span);
+      // v2.6.0 «у каждой странице свой часы»: на about:newtab/home время
+      // показывает большой Hero (BladeNewtab) — навбар-часы прячем, дублей
+      // нет. Определено ДО update: update зовёт это в каждом тике.
+      const syncVisibility = () => {
+        try {
+          const gb = doc.defaultView.gBrowser;
+          const u = gb && gb.currentURI ? gb.currentURI.spec : '';
+          const hide = /^about:(newtab|home)/.test(u);
+          if (btn.hidden !== hide) btn.hidden = hide;
+        } catch (e) {}
+      };
       const update = () => {
         const weatherPart = lastWeather ? (lastCity ? lastCity + ' ' : '') + lastWeather : '';
         const text = weatherPart ? timeString() + '  ·  ' + weatherPart : timeString();
@@ -222,11 +233,22 @@
           if (Services.prefs.getBoolPref('blade.night', false) !== night)
             Services.prefs.setBoolPref('blade.night', night);
         } catch (e) {}
+        syncVisibility();   // страховка: даже если слушатели не встали, тик исправит видимость
       };
       update();
       const tick = setInterval(update, 10e3);
       doc.defaultView.addEventListener('unload', () => clearInterval(tick));
       btn.addEventListener('click', () => fetchWeather(true));
+      // Живое скрытие при переходах: слушатели замыкаются на этот btn
+      try {
+        const win = doc.defaultView;
+        const pl = { onLocationChange() { syncVisibility(); } };
+        win.gBrowser.addTabsProgressListener(pl);
+        win.gBrowser.tabContainer.addEventListener('TabSelect', syncVisibility);
+        win.addEventListener('unload', () => {
+          try { win.gBrowser.removeTabsProgressListener(pl); } catch (e) {}
+        });
+      } catch (e) {}
       return btn;
     }
 
@@ -245,7 +267,7 @@
         try {
           const d2 = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
           d2.append('JS'); d2.append('clock_mark.txt');
-          IOUtils.writeUTF8(d2.path, 'v2.5.2 MOUNT_ERR ' + e).catch(() => {});
+          IOUtils.writeUTF8(d2.path, 'v2.6.0 MOUNT_ERR ' + e).catch(() => {});
         } catch (e3) {}
       }
     }
@@ -257,7 +279,7 @@
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('clock_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v2.5.2 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v2.6.0 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();
