@@ -3,7 +3,7 @@
 // @description     Автопроверка и установка обновлений Blade с GitHub (приватный репо, в один клик)
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.3.3
+// @version         1.3.4
 // ==/UserScript==
 (function () {
   if (window.BladeUpdater) return;
@@ -36,7 +36,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.3.3 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.3.4 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -665,6 +665,8 @@
         const m = /^OK\s+v?([\d.]+)\s*->\s*v?([\d.]+)/.exec(txt);
         const shown = await showChroniclePanel(m ? m[2] : '');
         if (!shown) notify('⚡ Blade обновлён: ' + txt.replace(/^OK\s*/, ''));
+        // Фанфара «клинок обновлён» (BladeSounds 1.1+; тихо, если звуки выключены)
+        try { if (window.BladeSounds && window.BladeSounds.fanfare) window.BladeSounds.fanfare(); } catch (e) {}
       } else if (txt.startsWith('ERR')) {
         notifyError('обновление не удалось — ' + txt.replace(/^ERR\s*/, ''));
       }
