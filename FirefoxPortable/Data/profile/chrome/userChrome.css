@@ -443,6 +443,55 @@ menuseparator {
 :root[data-blade-theme="red"] ::selection, html|html[data-blade-theme="red"] ::selection { background-color: #ff2a2a !important; color: #ffffff !important; }
 
 /* ==========================================================================
+   НОЧНАЯ ЗАБОТА (22:00–6:00, «Живой Клинок»)
+   Хром: [data-blade-night] на html. Мягкий тёплый полумрак интерфейса
+   без тяжёлых фильтров. Темы продолжают работать поверх.
+   ========================================================================== */
+:root[data-blade-night],
+html|html[data-blade-night] {
+  --bg: #0e0909;
+  --panel: #171112;
+  --panel-hover: #22181a;
+  --lwt-accent-color: var(--bg) !important;
+  --toolbar-bgcolor: var(--bg) !important;
+}
+
+/* Ночные дельты для тем (глубже и теплее тон подложки) */
+:root[data-blade-night][data-blade-theme="purple"], html|html[data-blade-night][data-blade-theme="purple"] {
+  --bg: #0e0811; --panel: #180f1b; --panel-hover: #241629;
+}
+:root[data-blade-night][data-blade-theme="green"], html|html[data-blade-night][data-blade-theme="green"] {
+  --bg: #070a06; --panel: #0f160f; --panel-hover: #162216;
+}
+:root[data-blade-night][data-blade-theme="grey"], html|html[data-blade-night][data-blade-theme="grey"] {
+  --bg: #100f0d; --panel: #181715; --panel-hover: #23211e;
+}
+:root[data-blade-night][data-blade-theme="orange"], html|html[data-blade-night][data-blade-theme="orange"] {
+  --bg: #0e0906; --panel: #19110b; --panel-hover: #261910;
+}
+:root[data-blade-night][data-blade-theme="cherry"], html|html[data-blade-night][data-blade-theme="cherry"] {
+  --bg: #120406; --panel: #1c080d; --panel-hover: #2b0d14;
+}
+:root[data-blade-night][data-blade-theme="volt"], html|html[data-blade-night][data-blade-theme="volt"] {
+  --bg: #0e0c03; --panel: #171407; --panel-hover: #252009;
+}
+:root[data-blade-night][data-blade-theme="midnight"], html|html[data-blade-night][data-blade-theme="midnight"] {
+  --bg: #04050d; --panel: #090c1a; --panel-hover: #0f1429;
+}
+:root[data-blade-night][data-blade-theme="blood"], html|html[data-blade-night][data-blade-theme="blood"] {
+  --bg: #0e0405; --panel: #18080a; --panel-hover: #260c10;
+}
+:root[data-blade-night][data-blade-theme="red"], html|html[data-blade-night][data-blade-theme="red"] {
+  --bg: #0e0909; --panel: #171112; --panel-hover: #22181a;
+}
+
+/* Мягкое тёплое свечение рамки тулбара ночью */
+:root[data-blade-night] #navigator-toolbox,
+html|html[data-blade-night] #navigator-toolbox {
+  box-shadow: 0 -1px 0 rgba(255, 170, 90, 0.08) inset !important;
+}
+
+/* ==========================================================================
    5.1 ЖИВЫЕ ТЕМЫ: у каждой темы СВОЙ эффект на весь тулбар (::before)
    + усиленная акцентная линия (::after) + B-кнопка. Только transform/opacity
    = композитор. На неактивном окне — стоп-кадр.
@@ -969,6 +1018,32 @@ html|html[data-blade-theme] #navigator-toolbox[data-blade-loading="1"]::after {
 .tab-icon-sound[soundplaying] {
   fill: var(--accent, #ff2a2a) !important;
   filter: drop-shadow(0 0 4px var(--accent, #ff2a2a)) !important;
+}
+
+/* --- ПУЛЬС МУЗЫКИ («Живой Клинок») --- */
+
+/* 1. Звуковая вкладка дышит: мягкая opacity-пульсация (1.6s) в акцентном свечении */
+tab[soundplaying] .tab-background,
+.tabbrowser-tab[soundplaying] .tab-background {
+  box-shadow: 0 0 10px var(--accent-soft, rgba(255, 42, 42, 0.35)), inset 0 0 4px var(--accent-soft, rgba(255, 42, 42, 0.25)) !important;
+  animation: blade-music-tab-pulse 1.6s ease-in-out infinite alternate !important;
+}
+@keyframes blade-music-tab-pulse {
+  from { opacity: 0.85; }
+  to   { opacity: 1.0; }
+}
+
+/* 2. Клинок слушает: усиленное «дыхание» кнопки Bobliks при звучании звука.
+   Анимация на самом #bobliks-settings-button сохраняет независимые анимации тем на .toolbarbutton-icon */
+#navigator-toolbox:has(tab[soundplaying]) #bobliks-settings-button,
+#navigator-toolbox:has(.tabbrowser-tab[soundplaying]) #bobliks-settings-button {
+  box-shadow: 0 0 8px var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
+  border-radius: 8px !important;
+  animation: blade-music-blade-listen 1.2s ease-in-out infinite alternate !important;
+}
+@keyframes blade-music-blade-listen {
+  from { opacity: 0.82; }
+  to   { opacity: 1.0; }
 }
 
 /* ==========================================================================
