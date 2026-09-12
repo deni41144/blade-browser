@@ -4,7 +4,7 @@
 //                  облики, обновления и быстрые действия браузера
 // @author          Blade-Creations
 // @include         main
-// @version         1.0.2
+// @version         1.1.0
 // ==/UserScript==
 (function () {
   if (window.BladePalette) return; // анти-дубль: uc.js исполняется в каждом окне
@@ -20,7 +20,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.0.2 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.1.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -268,6 +268,12 @@
       background: rgba(10, 10, 14, 0.97);
       box-shadow: 0 14px 50px rgba(0,0,0,0.85), 0 0 30px color-mix(in srgb, var(--accent, #ff2a2a) 18%, transparent);
       overflow: hidden;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    /* A12: Пульс ввода в палитре (GLM контракт: класс .blp-typing на wrap) */
+    #blade-palette:has(.blp-typing)::part(content) {
+      border-color: var(--accent, #ff2a2a);
+      box-shadow: 0 14px 50px rgba(0,0,0,0.85), 0 0 38px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent);
     }
     .blp-wrap {
       position: relative; /* якорь для ::before-приглашения ❯ у инпута */
@@ -334,8 +340,30 @@
     .blp-row.on .blp-hint { color: rgba(255,255,255,0.75); }
     .blp-empty { padding: 14px 12px; font-size: 12px; color: #6f6f7c; font-family: var(--blade-mono, 'JetBrains Mono', 'Consolas', monospace); }
     .blp-foot {
+      position: relative;
       padding: 8px 16px 10px; font-size: 9.5px; color: #9a9aa6; opacity: .5;
       font-family: var(--blade-mono, 'JetBrains Mono', 'Consolas', monospace);
+      transition: opacity .15s ease;
+    }
+    .blp-wrap.blp-typing .blp-foot {
+      opacity: .85;
+    }
+    .blp-foot::after {
+      content: '●';
+      position: absolute; right: 16px; top: 8px;
+      font-size: 8px; color: var(--accent, #ff2a2a);
+      opacity: 0;
+      text-shadow: 0 0 6px var(--accent, #ff2a2a);
+      transition: opacity .15s ease;
+      pointer-events: none;
+    }
+    .blp-wrap.blp-typing .blp-foot::after {
+      opacity: 1;
+      animation: blp-cursor-blink .3s ease-in-out infinite alternate;
+    }
+    @keyframes blp-cursor-blink {
+      from { opacity: .35; transform: scale(.8); }
+      to   { opacity: 1;   transform: scale(1.2); }
     }
   `;
 
@@ -391,12 +419,25 @@
         filtered = [];
         selIdx = -1;
         listEl.textContent = '';
+        // A12: сброс пульса ввода при закрытии — класс и таймер не должны
+        // пережить палитру (иначе открытая снова панель мигает «вводом»)
+        wrap.classList.remove('blp-typing');
+        clearTimeout(typingTimer);
       } catch (e) {}
     });
     inp.addEventListener('input', () => {
       try { renderList(inp.value); } catch (e) { mark('ERR input ' + e); }
     });
     inp.addEventListener('keydown', onKeydown);
+    // A12 «Клинок Живёт»: живой отклик на ввод — класс на wrap, гаснет через 300мс
+    let typingTimer = null;
+    inp.addEventListener('input', () => {
+      try {
+        wrap.classList.add('blp-typing');
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => { try { wrap.classList.remove('blp-typing'); } catch (e) {} }, 300);
+      } catch (e) {}
+    });
     return p;
   }
 
