@@ -89,13 +89,143 @@ html|sidebar-main {
   display: none !important;
 }
 
-/* Вертикальные вкладки (натив FF155, преф sidebar.verticalTabs): когда
-   включены — атрибут [data-blade-vtabs] (ставит BobliksSettings) снимает
-   глухое скрытие; стилизацию колонки делает CSS-волна «Новый Силуэт» */
-html|html[data-blade-vtabs] #sidebar-container,
-html|html[data-blade-vtabs] #sidebar-box,
+/* Вертикальные вкладки Blade (натив FF155, преф sidebar.verticalTabs):
+   когда включены — атрибут [data-blade-vtabs] на <html> активирует колонку */
+html|html[data-blade-vtabs] #sidebar-container {
+  display: flex !important;
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  background: color-mix(in srgb, var(--bg) 82%, transparent) !important;
+  border-right: 1px solid var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
+  border-inline-end: 1px solid var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
+}
+
+html|html[data-blade-vtabs] #sidebar-launcher-splitter {
+  display: none !important; /* отключаем ресайз/расширение на границе — перф */
+}
+
 html|html[data-blade-vtabs] html|sidebar-main {
   display: flex !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+html|html[data-blade-vtabs] #vertical-tabs {
+  display: flex !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] {
+  width: 100% !important;
+}
+
+html|html[data-blade-vtabs] #tabbrowser-arrowscrollbox[orient="vertical"] {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--accent-soft, rgba(255, 42, 42, 0.4)) transparent !important;
+}
+
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tabbrowser-tab {
+  min-height: 34px !important;
+  margin: 2px 6px !important;
+  border-radius: 8px !important;
+}
+
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tab-background {
+  border-radius: 8px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease !important;
+}
+
+/* Ховер неактивной вкладки: подложка 8% */
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tabbrowser-tab:hover:not([selected]) .tab-background {
+  background: color-mix(in srgb, var(--accent) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent) 18%, transparent) !important;
+}
+
+/* Активная вкладка: акцентная подложка 16% + ромб-корона слева */
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tabbrowser-tab[selected] .tab-background {
+  background: color-mix(in srgb, var(--accent) 16%, transparent) !important;
+  border-color: var(--accent-soft, rgba(255, 42, 42, 0.4)) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 25%, transparent) !important;
+  position: relative !important;
+}
+
+/* Ромб-корона активной вертикальной вкладки: слева по центру */
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tabbrowser-tab[selected] .tab-background::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -2px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  right: auto !important;
+  width: 5px !important;
+  height: 5px !important;
+  margin-left: 0 !important;
+  margin-top: -2.5px !important;
+  background: var(--accent, #ff2a2a) !important;
+  box-shadow: 0 0 6px var(--accent, #ff2a2a) !important;
+  transform: rotate(45deg) !important;
+  z-index: 2 !important;
+  animation: blade-crown-pulse 3s ease-in-out infinite !important;
+}
+
+/* Акцентная левая грань активной вертикальной вкладки */
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tabbrowser-tab[selected] .tab-background::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 15% !important;
+  bottom: 15% !important;
+  right: auto !important;
+  width: 2px !important;
+  height: auto !important;
+  border-radius: 2px !important;
+  background: var(--accent, #ff2a2a) !important;
+  box-shadow: 0 0 6px var(--accent, #ff2a2a) !important;
+}
+
+/* Текст и иконка вертикальной вкладки */
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tab-content {
+  padding: 0 8px 0 12px !important;
+}
+
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tab-icon-image,
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tab-icon-stack {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  margin-inline-end: 8px !important;
+}
+
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tab-label {
+  font-family: var(--blade-ui, 'Rubik', sans-serif) !important;
+  font-size: 12px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Звуковая вкладка в вертикальном режиме: музыкальный пульс проекта */
+html|html[data-blade-vtabs] #tabbrowser-tabs[orient="vertical"] .tabbrowser-tab[soundplaying] .tab-background {
+  box-shadow: 0 0 10px var(--accent-soft, rgba(255, 42, 42, 0.35)), inset 0 0 4px var(--accent-soft, rgba(255, 42, 42, 0.25)) !important;
+  animation: blade-music-tab-pulse 1.6s ease-in-out infinite alternate !important;
+}
+
+/* Кнопка создания новой вкладки в вертикальном режиме */
+html|html[data-blade-vtabs] #vertical-tabs-newtab-button,
+html|html[data-blade-vtabs] #tabbrowser-arrowscrollbox[orient="vertical"] #tabs-newtab-button {
+  margin: 4px 6px !important;
+  border-radius: 8px !important;
+  color: var(--text) !important;
+}
+
+html|html[data-blade-vtabs] #vertical-tabs-newtab-button:hover,
+html|html[data-blade-vtabs] #tabbrowser-arrowscrollbox[orient="vertical"] #tabs-newtab-button:hover {
+  background: color-mix(in srgb, var(--accent) 15%, transparent) !important;
+  color: var(--accent) !important;
 }
 
 #navigator-toolbox {
@@ -103,9 +233,21 @@ html|html[data-blade-vtabs] html|sidebar-main {
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent) !important;
 }
 
+/* Плавающая капсула навбара («Новый Силуэт»): парит над контентом в стиле Arc */
 #nav-bar {
-  background: transparent !important;
-  border: none !important;
+  margin: 6px 10px 4px !important;
+  border-radius: 14px !important;
+  background: color-mix(in srgb, var(--panel) 88%, transparent) !important;
+  border: 1px solid var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* При фокусе адресной строки: акцентная рамка капсулы и статическое свечение */
+#nav-bar:has(#urlbar[focused]),
+#nav-bar:has(.urlbar[focused]) {
+  border-color: var(--accent, #ff2a2a) !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45), 0 0 14px color-mix(in srgb, var(--accent, #ff2a2a) 40%, transparent) !important;
 }
 
 #nav-bar toolbarbutton {
