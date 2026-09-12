@@ -990,12 +990,16 @@ panel:not(#bobliks-settings-popup):not(#blade-update-panel) {
   border-radius: 7px !important;
   border: 1px solid var(--accent-soft) !important;
   list-style-image: url("img/btn_blade.png") !important;
+  /* Криминалистика 1.9.2: глиф btn_blade тёмно-красный на тёмном фоне —
+     контраст 1.4:1, «кнопка убита». Статичный фильтр (вне keyframes — можно)
+     вытягивает яркость и даёт акцентную подсветку силуэту */
+  filter: brightness(1.7) saturate(1.3) drop-shadow(0 0 6px var(--accent)) !important;
   transition: filter 0.15s ease-out !important;
 }
 
 #bobliks-settings-button:hover .toolbarbutton-icon,
 #bobliks-settings-button[open] .toolbarbutton-icon {
-  filter: drop-shadow(0 0 5px var(--accent-soft)) brightness(1.2) !important;
+  filter: brightness(2) saturate(1.4) drop-shadow(0 0 9px var(--accent)) drop-shadow(0 0 3px #ffffff) !important;
 }
 
 /* --- Попап кнопки Bobliks: акриловое стекло + рамка темы (живая смена) --- */
@@ -1776,35 +1780,43 @@ tooltip [class*="key"] {
 }
 
 .blade-ghost::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  pointer-events: none !important;
-  margin: auto !important;
-  width: 2.5px !important;
-  height: 2.5px !important;
-  border-radius: 50% !important;
-  background: #ffffff !important;
-  box-shadow:
-    -26px -16px 0 0.5px var(--accent, #ff2a2a),
-     30px -20px 0 0.5px #ffffff,
-    -38px  12px 0 0.5px var(--accent, #ff2a2a),
-     40px  16px 0 0.5px var(--accent, #ff2a2a),
-    -12px -26px 0 0.5px #ffffff,
-     18px  22px 0 0.5px var(--accent, #ff2a2a),
-    -44px  -8px 0 0.5px #ffffff,
-     34px  -6px 0 0.5px var(--accent, #ff2a2a) !important;
-  animation: blade-sparks-scatter 0.65s ease-out forwards !important;
+  /* Прежние псевдоискры (8 точек box-shadow «растягивались вверх», а не
+     разлетались) заменены настоящими частицами .blade-spark ниже —
+     каждая летит по своему вектору --dx/--dy, transform-only */
+  content: none !important;
 }
 
-@keyframes blade-sparks-scatter {
+/* Настоящие искры: JS спавнит 7 частиц с индивидуальными векторами */
+.blade-spark {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 3px !important;
+  height: 3px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 7px var(--accent, #ff2a2a), 0 0 3px #ffffff !important;
+  pointer-events: none !important;
+  animation: blade-spark-fly 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) forwards !important;
+}
+
+.blade-spark:nth-child(even) {
+  background: var(--accent, #ff2a2a) !important;
+  box-shadow: 0 0 7px #ffffff, 0 0 3px var(--accent, #ff2a2a) !important;
+}
+
+@keyframes blade-spark-fly {
   0% {
     opacity: 1;
-    transform: scale(0.5) translateY(0);
+    transform: translate(0, 0) scale(1.2);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(calc(var(--dx, 0px) * 0.35), calc(var(--dy, -40px) * 0.35)) scale(1);
   }
   100% {
     opacity: 0;
-    transform: scale(1.6) translateY(-14px);
+    transform: translate(var(--dx, 0px), var(--dy, -40px)) scale(0.2);
   }
 }
 
@@ -1967,3 +1979,13 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
 }
 
 
+
+
+/* Часы-виджет: label-текст (нативный) в стиле Blade — моно, акцент, свечение */
+#blade-clock-widget {
+  font-family: var(--blade-mono, consolas, monospace) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--accent, #ff2a2a) !important;
+}
+#blade-clock-widget:hover { color: #ffffff !important; }
