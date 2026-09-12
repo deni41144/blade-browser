@@ -14,6 +14,39 @@
 @import "covers.css";
 
 /* ============================================================================
+   КАСТОМНАЯ ТИПОГРАФИКА BLADE (OFL: Unbounded, Rubik, JetBrains Mono)
+   ============================================================================ */
+@font-face {
+  font-family: 'blade-display';
+  src: url("fonts/Unbounded[wght].ttf") format('truetype');
+  font-weight: 200 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'blade-ui';
+  src: url("fonts/Rubik[wght].ttf") format('truetype');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'blade-ui';
+  src: url("fonts/Rubik-Italic[wght].ttf") format('truetype');
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'blade-mono';
+  src: url("fonts/JetBrainsMono[wght].ttf") format('truetype');
+  font-weight: 100 800;
+  font-display: swap;
+}
+
+/* ============================================================================
    0. ДВИЖОК ТЕМ (синхронизирован с userChrome.css и кнопкой Bobliks)
    Дефолт = GX RED. Темы включаются префами bobliks.theme.* (кнопка "B").
    -moz-pref() обновляется ЖИВО, без перезапуска браузера.
@@ -25,6 +58,11 @@
   --bob-accent-contrast: #ffffff;
   --bob-accent-soft: rgba(255, 42, 42, 0.35);
   --bob-page: #0a0a0c;
+
+  /* Кастомная типографика */
+  --blade-display: 'blade-display', 'Unbounded', 'Segoe UI', sans-serif;
+  --blade-ui: 'blade-ui', 'Rubik', 'Segoe UI', sans-serif;
+  --blade-mono: 'blade-mono', 'JetBrains Mono', 'Consolas', monospace;
 }
 
 /* Базовое выделение (дефолт GX Red); тематические блоки ниже перекрашивают.
@@ -662,9 +700,13 @@
     --in-content-link-color: color-mix(in srgb, var(--bob-accent) 75%, white) !important;
     --in-content-link-color-hover: var(--bob-accent) !important;
     --border-color: color-mix(in srgb, var(--bob-accent) 25%, transparent) !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--bob-accent, #ff2a2a) #0a0a0c !important;
   }
 
-  body {
+  html, body {
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--bob-accent, #ff2a2a) #0a0a0c !important;
     background: #0a0a0c !important;
   }
 }
@@ -704,42 +746,173 @@ input, textarea, [contenteditable] {
    Изображения/видео/iframe реинвертируются, чтобы не стать негативом.
    ========================================================================== */
 /* ==========================================================================
-   13. BLADE: кастомные страницы ошибок и безопасности
+   13. BLADE: ФИРМЕННЫЕ СТРАНИЦЫ ОШИБОК И БЕЗОПАСНОСТИ (about:neterror, certerror)
    ========================================================================== */
-@-moz-document url-prefix("about:neterror"), url-prefix("about:certerror") {
+@-moz-document url-prefix("about:neterror"),
+               url-prefix("about:certerror"),
+               url-prefix("about:httpsonlyerror") {
+
+  /* Базовый тёмный фон с лёгким радиальным виньетированием под акцент темы */
   html, body {
-    background: var(--bob-page, #0a0a0c) !important;
+    background: radial-gradient(ellipse 70% 50% at 50% 25%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 12%, transparent), transparent 75%), #0a0a0e !important;
     color: #e8e8e8 !important;
+    font-family: var(--blade-ui) !important;
+    min-height: 100vh !important;
   }
+
+  /* Фирменная акцентная линия 2px со свечением по верхнему краю окна */
+  body::before {
+    content: "" !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 2px !important;
+    background: var(--bob-accent, #ff2a2a) !important;
+    box-shadow: 0 0 12px var(--bob-accent, #ff2a2a) !important;
+    z-index: 99999 !important;
+  }
+
+  /* Полное скрытие иллюстраций Firefox (маскот лисы Kit, SVG-картинки) */
+  .img-container,
+  .img-container > img,
+  .felt-privacy-container > .img-container,
+  .suggestion-box,
+  [class*="illustration"] {
+    display: none !important;
+  }
+
+  .title {
+    background-image: none !important;
+    padding-inline-start: 0 !important;
+    margin-inline-start: 0 !important;
+  }
+
+  /* Контейнер страницы */
   .container {
     background: transparent !important;
     color: #e8e8e8 !important;
-    max-width: 640px !important;
+    max-width: 680px !important;
   }
-  .title-text, h1 {
+
+  /* Заголовок ошибки */
+  .title-text, h1, h2 {
+    font-family: var(--blade-display) !important;
+    font-weight: 800 !important;
+    font-size: 26px !important;
+    letter-spacing: 0.5px !important;
     color: var(--bob-accent, #ff2a2a) !important;
-    font-weight: 700 !important;
-    text-shadow: 0 0 18px color-mix(in srgb, var(--bob-accent, #ff2a2a) 40%, transparent) !important;
+    text-shadow: 0 0 20px color-mix(in srgb, var(--bob-accent, #ff2a2a) 45%, transparent) !important;
+    margin-bottom: 16px !important;
   }
-  #errorShortDesc, #errorLongDesc, #neterrorTryAgainButton {
-    color: rgba(232, 232, 232, 0.8) !important;
-    background: transparent !important;
-    border: none !important;
+
+  /* Описания ошибки */
+  #errorShortDesc,
+  #errorShortDesc2,
+  #errorLongDesc,
+  #errorWhatToDoTitle,
+  #errorWhatToDoText,
+  p, li {
+    font-family: var(--blade-ui) !important;
+    font-size: 14px !important;
+    line-height: 1.65 !important;
+    color: rgba(232, 232, 238, 0.85) !important;
   }
-  .button, button {
-    background: var(--bob-accent, #ff2a2a) !important;
-    color: #ffffff !important;
-    border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent) !important;
-    border-radius: 8px !important;
-    padding: 8px 18px !important;
+
+  /* Домен, failing-URL и коды ошибок */
+  span[data-l10n-name="hostname"],
+  #cert_domain_link,
+  #errorCode,
+  .hostname,
+  pre, code {
+    font-family: var(--blade-mono) !important;
+    font-size: 13px !important;
+    color: var(--bob-accent, #ff2a2a) !important;
+    word-break: break-all !important;
   }
-  .button:hover, button:hover {
-    background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 80%, white) !important;
-    box-shadow: 0 0 14px color-mix(in srgb, var(--bob-accent, #ff2a2a) 45%, transparent) !important;
+
+  /* Кнопки в стиле Blade */
+  .button-container {
+    margin-top: 24px !important;
+    gap: 12px !important;
   }
-  .advanced-panel, #advancedPanelButtonContainer,
+
+  button,
+  .button,
+  #neterrorTryAgainButton,
+  #returnButton,
+  #advancedButton,
   #exceptionDialogButton {
+    background: #14141a !important;
+    color: #ffffff !important;
+    font-family: var(--blade-ui) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 45%, transparent) !important;
+    border-radius: 8px !important;
+    padding: 9px 20px !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+  }
+
+  button.primary,
+  #neterrorTryAgainButton,
+  #returnButton {
+    background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 25%, #14141a) !important;
+    border-color: var(--bob-accent, #ff2a2a) !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--bob-accent, #ff2a2a) 25%, transparent) !important;
+  }
+
+  button:hover,
+  .button:hover,
+  #neterrorTryAgainButton:hover,
+  #returnButton:hover,
+  #advancedButton:hover,
+  #exceptionDialogButton:hover {
+    background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 40%, #14141a) !important;
+    border-color: var(--bob-accent, #ff2a2a) !important;
+    box-shadow: 0 0 16px color-mix(in srgb, var(--bob-accent, #ff2a2a) 50%, transparent) !important;
+    color: #ffffff !important;
+  }
+
+  /* Сохранение clinical-режимов сертификатов (certerror): детализация и панель исключений */
+  .advanced-panel,
+  #badCertAdvancedPanel,
+  .advanced-panel-container {
+    background: rgba(16, 16, 22, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-left: 2px solid var(--bob-accent, #ff2a2a) !important;
+    border-radius: 8px !important;
     color: #e8e8e8 !important;
+    padding: 16px !important;
+    margin-top: 20px !important;
+  }
+
+  #badCertTechnicalInfo,
+  #certificateErrorText {
+    font-family: var(--blade-mono) !important;
+    font-size: 11.5px !important;
+    line-height: 1.5 !important;
+    background: rgba(10, 10, 14, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 6px !important;
+    color: #a5a5b5 !important;
+    padding: 12px !important;
+    margin: 12px 0 !important;
+    word-break: break-all !important;
+  }
+
+  #advancedPanelButtonContainer {
+    background: transparent !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    margin-top: 14px !important;
+    padding: 0 !important;
+  }
+
+  a, a:link, a:visited {
+    color: var(--bob-accent, #ff2a2a) !important;
   }
 }
 
@@ -772,21 +945,29 @@ input, textarea, [contenteditable] {
     background: #0a0a0c !important;
   }
   body {
-    background: radial-gradient(ellipse 60% 45% at 50% 85%, rgba(150, 10, 10, 0.35), transparent 70%), #060404 !important;
+    background: radial-gradient(ellipse 60% 45% at 50% 85%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 25%, transparent), transparent 70%), #060404 !important;
     color: #e8e8e8 !important;
+    font-family: var(--blade-ui) !important;
   }
   .container { color: #e8e8e8 !important; }
+  .title, h1, h2 {
+    font-family: var(--blade-display) !important;
+    font-weight: 750 !important;
+    color: var(--bob-accent, #ff2a2a) !important;
+    text-shadow: 0 0 16px color-mix(in srgb, var(--bob-accent, #ff2a2a) 40%, transparent) !important;
+  }
   .logo {
-    filter: saturate(2) drop-shadow(0 0 12px rgba(255, 42, 42, 0.6)) !important;
+    filter: saturate(2) drop-shadow(0 0 14px color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent)) !important;
   }
   .search-inner-wrapper input {
     background: #14141a !important;
     color: #e8e8e8 !important;
+    font-family: var(--blade-ui) !important;
     border: 1px solid var(--bob-accent, #ff2a2a) !important;
     border-radius: 8px !important;
   }
   a { color: var(--bob-accent, #ff2a2a) !important; }
-  p { color: #b8b8c0 !important; }
+  p { color: #b8b8c0 !important; font-family: var(--blade-ui) !important; }
 }
 
 /* ==========================================================================
@@ -1038,5 +1219,10 @@ input, textarea, [contenteditable] {
   .top-site-outer:hover .tile {
     transform: translateY(-3px) scale(1.02) !important;
     box-shadow: 0 6px 22px color-mix(in srgb, var(--bob-accent) 30%, transparent) !important;
+  }
+
+  /* CYBER-HUD версии (шрифт blade-mono) */
+  .outer-wrapper::after {
+    font-family: var(--blade-mono) !important;
   }
 }
