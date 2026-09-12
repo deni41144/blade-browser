@@ -1,0 +1,167 @@
+// ==UserScript==
+// @name            Blade Clock
+// @description     Часы + погода в тулбаре. Город определяется по IP (ipwho.is),
+//                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
+// @author          Blade-Creations
+// @include         main
+// @version         2.0.1
+// ==/UserScript==
+(function () {
+  const WIDGET_ID = 'blade-clock-widget';
+  const FALLBACK = { lat: 48.47, lon: 35.04, city: 'Дніпро' };   // если всё недоступно
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function timeString() {
+    const d = new Date();
+    return pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  function getStr(name) {
+    try { return Services.prefs.getStringPref(name, ''); } catch (e) { return ''; }
+  }
+  function setStr(name, v) {
+    try { Services.prefs.setStringPref(name, v); } catch (e) {}
+  }
+
+  // --- Координаты: ручной город > IP-геолокация > кэш > Дніпро ---
+  async function resolveCoords() {
+    // 1. Ручной город (перезаписывает всё)
+    const manual = getStr('blade.clock.cityQuery').trim();
+    if (manual) {
+      // Тот же город в свежем кэше — без сети: геокодинг не ходит при каждом вызове
+      const geoStamp = Number(getStr('blade.clock.geoStamp') || '0');
+      if (Date.now() - geoStamp < 24 * 3600e3 &&
+          getStr('blade.clock.city').trim().toLowerCase() === manual.toLowerCase()) {
+        const lat = Number(getStr('blade.clock.lat'));
+        const lon = Number(getStr('blade.clock.lon'));
+        if (lat && lon) return { lat, lon, city: manual };
+      }
+      try {
+        const url = 'https://geocoding-api.open-meteo.com/v1/search?count=1&language=ru&name=' + encodeURIComponent(manual);
+        const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        const d = await r.json();
+        if (d.results && d.results.length) {
+          const geo = { lat: d.results[0].latitude, lon: d.results[0].longitude, city: d.results[0].name || manual };
+          // кэшируем и ручной город — ранний выход выше сработает со второго раза
+          setStr('blade.clock.lat', String(geo.lat));
+          setStr('blade.clock.lon', String(geo.lon));
+          setStr('blade.clock.city', geo.city);
+          setStr('blade.clock.geoStamp', String(Date.now()));
+          return geo;
+        }
+      } catch (e) {}
+    }
+    // 2. Свежий кэш геолокации (сутки)
+    const geoStamp = Number(getStr('blade.clock.geoStamp') || '0');
+    if (Date.now() - geoStamp < 24 * 3600e3) {
+      const lat = Number(getStr('blade.clock.lat'));
+      const lon = Number(getStr('blade.clock.lon'));
+      if (lat && lon) return { lat, lon, city: getStr('blade.clock.city') || FALLBACK.city };
+    }
+    // 3. IP-геолокация
+    try {
+      const r = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(8000) });
+      const d = await r.json();
+      if (d && d.success && isFinite(d.latitude) && isFinite(d.longitude)) {
+        setStr('blade.clock.lat', String(d.latitude));
+        setStr('blade.clock.lon', String(d.longitude));
+        setStr('blade.clock.city', d.city || '');
+        setStr('blade.clock.geoStamp', String(Date.now()));
+        return { lat: d.latitude, lon: d.longitude, city: d.city || '' };
+      }
+    } catch (e) {}
+    return FALLBACK;
+  }
+
+  let lastWeather = '';
+  let lastCity = getStr('blade.clock.city');
+  function cachedWeather() {
+    try {
+      const saved = getStr('blade.clock.weather');
+      const stamp = Number(getStr('blade.clock.weatherStamp') || '0');
+      if (saved && Date.now() - stamp < 3600e3) return saved;   // кэш на час
+    } catch (e) {}
+    return '';
+  }
+
+  async function fetchWeather(force) {
+    if (!force) {
+      const cached = cachedWeather();
+      if (cached) { lastWeather = cached; return; }   // кэш на час
+    }
+    try {
+      const geo = await resolveCoords();
+      lastCity = geo.city;
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + geo.lat +
+        '&longitude=' + geo.lon + '&current=temperature_2m';
+      const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      const data = await resp.json();
+      const t = Math.round(data.current.temperature_2m);
+      lastWeather = (t > 0 ? '+' : '') + t + '°';
+      try {
+        setStr('blade.clock.weather', lastWeather);
+        setStr('blade.clock.weatherStamp', String(Date.now()));
+      } catch (e) {}
+    } catch (e) { /* сеть легла — показываем кэш/пусто */ }
+  }
+
+  try {
+    lastWeather = cachedWeather();
+    // стартовая загрузка с задержкой: не спорим со стартапом окна
+    setTimeout(() => fetchWeather(), 15000);
+
+    let CustomizableUI = null;
+    try { CustomizableUI = window.CustomizableUI; } catch (e0) {}
+    if (!CustomizableUI) {
+      try { CustomizableUI = ChromeUtils.importESModule('resource:///modules/CustomizableUI.sys.mjs').CustomizableUI; } catch (e1) {}
+    }
+    if (!CustomizableUI) return;
+
+    // интервал только после CUI-гварда и со снятием на unload:
+    // раньше создавался в каждом окне до гварда и не гасился никогда
+    const weatherTimer = setInterval(() => fetchWeather(), 30 * 60e3);   // каждые 30 минут
+    window.addEventListener('unload', () => clearInterval(weatherTimer));
+
+    function makeNode(doc) {
+      const btn = doc.createXULElement('toolbarbutton');
+      btn.id = WIDGET_ID;
+      const span = doc.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+      span.className = 'blade-clock-text';
+      btn.appendChild(span);
+      const update = () => {
+        const weatherPart = lastWeather ? (lastCity ? lastCity + ' ' : '') + lastWeather : '';
+        const text = weatherPart ? timeString() + '  ·  ' + weatherPart : timeString();
+        const tt = 'Blade: часы и погода' + (lastCity ? ' (' + lastCity + ')' : '') +
+          '. Свой город: преф blade.clock.cityQuery';
+        // пишем DOM только при изменении: 5 тиков из 6 пишут те же строки
+        if (span.textContent !== text) span.textContent = text;
+        if (btn.getAttribute('tooltiptext') !== tt) btn.setAttribute('tooltiptext', tt);
+      };
+      update();
+      const tick = setInterval(update, 10e3);   // обновление раз в 10 сек (легко)
+      // таймер гасим при закрытии ИМЕННО ЭТОГО окна: makeNode вызывается для
+      // каждого окна, а window в замыкании — всегда первое (Gemini: утечка)
+      doc.defaultView.addEventListener('unload', () => clearInterval(tick));
+      btn.addEventListener('click', () => fetchWeather(true));
+      return btn;
+    }
+
+    // Защита от дублирования при повторном окне (Gemini раунд 24):
+    // без getWidget + label createWidget падает с TypeError
+    if (CustomizableUI.getWidget(WIDGET_ID)) return;
+
+    CustomizableUI.createWidget({
+      id: WIDGET_ID,
+      type: 'custom',
+      label: 'Blade Clock',
+      tooltiptext: 'Часы и погода Blade',
+      defaultArea: CustomizableUI.AREA_NAVBAR,
+      onBuild: makeNode
+    });
+  } catch (e) {
+    try {
+      const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
+      d.append('JS'); d.append('clock_mark.txt');
+      IOUtils.writeUTF8(d.path, 'v2.0.1 ERR ' + e).catch(() => {});
+    } catch (e2) {}
+  }
+})();

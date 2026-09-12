@@ -1,0 +1,60 @@
+# Blade — .gitignore
+# Правило одно: ЛИЧНОЕ И БИНАРНЫЕ АРТЕФАКТЫ НЕ КОММИТИМ.
+# Источник правды для патчей: FirefoxPortable/Data/profile/{chrome, user.js}.
+# (Содержимое chrome/ и user.js уже публично — уходит друзьям в патч-релизах.)
+
+# --- бэкапы и собранные релизы/артефакты ---
+Backups/
+Blade-Release-v1.4.2/
+Patches/build/
+*.zip
+*.sha256
+BladeSetup/Output/
+BladeSetup/bin/
+BladeSetup/obj/
+Installer/Output/
+Installer/OutputTest/
+
+# --- dev-профиль: только исходники кастома, остальное личное ---
+FirefoxPortable/Data/*
+!FirefoxPortable/Data/profile/
+FirefoxPortable/Data/profile/*
+!FirefoxPortable/Data/profile/chrome/
+!FirefoxPortable/Data/profile/user.js
+
+# --- генераты и диагностика внутри chrome ---
+FirefoxPortable/Data/profile/chrome/covers.css
+FirefoxPortable/Data/profile/chrome/JS/*_mark.txt
+FirefoxPortable/Data/profile/chrome/JS/*_log.txt
+FirefoxPortable/Data/profile/chrome/JS/update_chronicle.txt
+
+# --- портабельные потроха и локальные ярлыки ---
+FirefoxPortable/App/
+FirefoxPortable/Other/
+FirefoxPortable/DefaultData/
+*.lnk
+
+# --- вторая линия обороны: личные файлы профиля, если когда-нибудь
+#     окажутся вне игноров выше (guard-паттерн как в Publish-Blade-Update 2c).
+#     ЛУЧШЕ ПЕРЕСТРАХОВАТЬСЯ, ЧЕМ УТЕЧЬ ЛОГИНЫ/ИСТОРИЮ. ---
+prefs.js
+logins.json
+key*.db
+cert9.db
+places.sqlite*
+cookies.sqlite*
+formhistory.sqlite*
+favicons.sqlite*
+permissions.sqlite*
+content-prefs.sqlite*
+storage.sqlite
+sessionstore*
+search.json.mozlz4
+datareporting/
+bookmarkbackups/
+minidumps/
+crashes/
+saved-telemetry-pings/
+storage/
+cache2/
+startupCache/

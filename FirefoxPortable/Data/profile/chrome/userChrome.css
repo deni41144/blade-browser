@@ -1,0 +1,1199 @@
+/* ============================================================================
+   userChrome.css — Bobliks-Creations theme ENGINE для ИНТЕРФЕЙСА Firefox
+   Требует: toolkit.legacyUserProfileCustomizations.stylesheets = true (уже в user.js)
+
+   ТЕМЫ: палитра задаётся переменными ниже. Раскомментируй нужный блок
+   ТЕМЫ ПАЛИТРЫ (только ОДИН блок активен):
+     GX RED (дефолт) / NEON PURPLE / CYBER GREEN / MINIMAL GREY / BLOOD ORANGE
+   ============================================================================ */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+:root, html|html {
+  /* Дефолт = GX RED. Остальные темы включаются префами bobliks.theme.* (кнопка Bobliks в тулбаре) */
+  --accent: #ff2a2a;
+  --accent-soft: rgba(255, 42, 42, 0.35);
+  --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent);
+  --bg: #0a0a0c;
+  --panel: #14141a;
+  --panel-hover: #1e1e28;
+  --text: #e8e8e8;
+
+  --lwt-accent-color: var(--bg) !important;
+  --toolbar-bgcolor: var(--bg) !important;
+  --toolbar-field-background-color: var(--panel) !important;
+  --toolbar-field-color: var(--text) !important;
+  --toolbar-field-border-color: var(--accent-soft) !important;
+  scrollbar-color: var(--accent) var(--bg) !important;
+}
+
+/* Базовое выделение интерфейса (дефолт GX Red); темы перекрашивают ниже. */
+*|*::selection {
+  background-color: #ff2a2a !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   1. ПАНЕЛЬ ВКЛАДОК И НАВИГАЦИИ
+   ========================================================================== */
+
+/* Левая вертикальная панель (sidebar launcher) — выпилена.
+   ВАЖНО: sidebar-main здесь — это HTML-тег <sidebar-main>, а не id!
+   Поэтому пишем через второй namespace: html|sidebar-main
+   (объявление @namespace html перенесено в начало файла — по спецификации
+   @namespace должен идти до всех стилевых правил, иначе игнорируется). */
+
+#sidebar-container,
+#sidebar-box,
+#sidebar-launcher-splitter,
+html|sidebar-main {
+  display: none !important;
+}
+
+#navigator-toolbox {
+  background: var(--bg) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent) !important;
+}
+
+#nav-bar {
+  background: transparent !important;
+  border: none !important;
+}
+
+#nav-bar toolbarbutton {
+  color: var(--text) !important;
+  border-radius: 6px !important;
+  transition: background 0.15s ease !important;
+}
+
+#nav-bar toolbarbutton:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent) !important;
+}
+
+/* ==========================================================================
+   1.1 ИНДИКАЦИЯ ЗАГРУЗКИ ВКЛАДКИ (GX: красная пульсация)
+   ========================================================================== */
+
+.tabbrowser-tab[busy] .tab-background {
+  animation: gx-busy-pulse 1.1s ease-in-out infinite !important;
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent) !important;
+}
+
+.tabbrowser-tab[busy] .tab-label {
+  color: var(--accent) !important;
+}
+
+.tab-throbber {
+  fill: var(--accent) !important;
+}
+
+/* раунд 1: box-shadow→opacity, перф — занятая вкладка «дышит» фоном */
+@keyframes gx-busy-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+/* ==========================================================================
+   2. ВКЛАДКИ
+   ========================================================================== */
+
+.tab-background {
+  background: #14141a !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-bottom: none !important;
+  border-radius: 8px 8px 0 0 !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease !important;
+}
+
+.tabbrowser-tab:hover:not([selected]) .tab-background {
+  background: #1a1a22 !important;
+  border-color: var(--accent-soft) !important;
+}
+
+.tabbrowser-tab[selected] .tab-background {
+  background: #1e1e28 !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 -2px 14px color-mix(in srgb, var(--accent) 40%, transparent) !important;
+}
+
+.tab-label {
+  color: rgba(232, 232, 232, 0.7) !important;
+}
+
+.tabbrowser-tab[selected] .tab-label {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.tab-close-button {
+  filter: invert(1);
+  opacity: 0.6;
+}
+
+.tabbrowser-tab:hover .tab-close-button {
+  opacity: 1;
+}
+
+/* Чистые вкладки (раунд 20): крестик скрыт на неактивных, проявляется при
+   ховере вкладки; активная — всегда с крестиком. Нет «забора» из крестиков */
+.tabbrowser-tab:not([selected]):not(:hover) .tab-close-button {
+  visibility: collapse !important;
+}
+
+/* Терминальная адресная строка: служебные иконки приглушены в покое,
+   оживают при наведении/фокусе */
+#urlbar .urlbar-page-action,
+#urlbar #reader-mode-button,
+#urlbar #tracking-protection-icon-container {
+  opacity: 0.35 !important;
+  transition: opacity 0.15s ease !important;
+}
+#urlbar:hover .urlbar-page-action,
+#urlbar[focused] .urlbar-page-action,
+#urlbar:hover #reader-mode-button,
+#urlbar[focused] #reader-mode-button,
+#urlbar:hover #tracking-protection-icon-container,
+#urlbar[focused] #tracking-protection-icon-container {
+  opacity: 1 !important;
+}
+
+/* ==========================================================================
+   3. АДРЕСНАЯ СТРОКА (GX-капсула)
+   ========================================================================== */
+
+/* Выпадающая панель подсказок (urlbarView): всю покраску даёт инъекция
+   BobliksChromeStyle.uc.js (документные стили не достают HTML-элементов
+   движка); здесь только переменные панелей — на случай новых классов движка */
+.urlbarView {
+  --panel-background: rgba(12, 12, 16, 0.85) !important;
+  --panel-color: var(--text) !important;
+  --panel-border-color: color-mix(in srgb, var(--accent) 45%, transparent) !important;
+}
+
+/* ==========================================================================
+   4. ПАНЕЛЬ ЗАКЛАДОК
+   ========================================================================== */
+
+/* Прозрачная: панель закладок не должна глухо замазывать живые эффекты
+   тем (аврора Midnight) — тёмную подложку даёт сам тулбокс (Gemini раунд 11) */
+#PersonalToolbar {
+  background: transparent !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Pill-закладки (Gemini раунд 12): парящие неоновые капсулы вместо плоской
+   серой полосы — арт обоев на новой вкладке больше не перекрывается.
+   Рефактор FPS (v1.6): backdrop-filter на КАЖДОЙ закладке = N постоянных
+   backdrop-слоёв; заменён на чуть более плотную подложку — визуально то же */
+toolbarbutton.bookmark-item:not(.subviewbutton) {
+  background: rgba(20, 20, 26, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  color: var(--text) !important;
+  padding: 3px 10px !important;
+  margin: 0 4px !important;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+toolbarbutton.bookmark-item:hover:not(.subviewbutton) {
+  background: color-mix(in srgb, var(--accent) 20%, #14141a) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent) !important;
+}
+
+/* ==========================================================================
+   5. КОНТЕКСТНЫЕ МЕНЮ И ВСПЛЫВАШКИ (тёмные, с красным ховером)
+   ========================================================================== */
+
+menupopup,
+panel {
+  /* Твёрдая тёмная база для ВСЕХ панелей, включая попапы расширений:
+    глобальный акрил здесь ломал отрисовку расширений (раунд 8). Стекло —
+    только нативным меню ниже */
+  --panel-background: #14141a !important;
+  --panel-color: #e8e8e8 !important;
+  --panel-border-color: rgba(255, 255, 255, 0.09) !important;
+  appearance: none !important;
+  background-color: #14141a !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06) inset !important;
+}
+
+/* Акриловое стелс-стекло — ТОЛЬКО нативным меню (menupopup) и нашим
+   попапам: тут нет контента расширений, блюр безопасен */
+menupopup,
+#appMenu-popup {
+  --panel-background: rgba(12, 12, 16, 0.85) !important;
+  background-color: rgba(12, 12, 16, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  border-radius: 10px !important;
+}
+
+menupopup > menuitem,
+menupopup > menu {
+  appearance: none !important;
+  color: var(--text) !important;
+  margin: 2px 6px !important;
+  padding-block: 4px !important;
+  border-radius: 6px !important;
+}
+
+menupopup > menuitem[_moz-menuactive="true"],
+menupopup > menu[_moz-menuactive="true"] {
+  background-color: color-mix(in srgb, var(--accent) 28%, transparent) !important;
+  color: #ffffff !important;
+}
+
+menuseparator {
+  appearance: none !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  margin: 4px 10px !important;
+}
+
+/* ==========================================================================
+   THEME SWITCHER: темы включаются префами (кнопка Bobliks в тулбаре).
+   Работает живьём через -moz-pref(), БЕЗ перезапуска браузера.
+   ========================================================================== */
+
+/* --- NEON PURPLE --- */
+@media -moz-pref("bobliks.theme.purple") {
+  :root, html|html {
+    --accent: #b44bff;
+    --accent-soft: rgba(180, 75, 255, 0.35);
+    --bg: #0c0a10;
+    --panel: #16121c;
+    --panel-hover: #221a2e;
+    --text: #ece6f2;
+  }
+  ::selection { background-color: #b44bff !important; color: #ffffff !important; }
+}
+
+/* --- CYBER GREEN --- */
+@media -moz-pref("bobliks.theme.green") {
+  :root, html|html {
+    --accent: #00ff88;
+    --accent-soft: rgba(0, 255, 136, 0.3);
+    --bg: #060a08;
+    --panel: #0e1612;
+    --panel-hover: #14241c;
+    --text: #e2f2ea;
+  }
+  ::selection { background-color: #00ff88 !important; color: #000000 !important; }
+}
+
+/* --- MINIMAL GREY --- */
+@media -moz-pref("bobliks.theme.grey") {
+  :root, html|html {
+    --accent: #8a8f98;
+    --accent-soft: rgba(138, 143, 152, 0.35);
+    --bg: #0e0f11;
+    --panel: #17181b;
+    --panel-hover: #212327;
+    --text: #e6e7e9;
+  }
+  ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
+}
+
+/* --- BLOOD ORANGE --- */
+@media -moz-pref("bobliks.theme.orange") {
+  :root, html|html {
+    --accent: #ff6a1f;
+    --accent-soft: rgba(255, 106, 31, 0.35);
+    --bg: #0c0a08;
+    --panel: #171310;
+    --panel-hover: #241c16;
+    --text: #f2ece6;
+  }
+  ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
+}
+
+/* --- CHERRY (вишнёвая) --- */
+@media -moz-pref("bobliks.theme.cherry") {
+  :root, html|html {
+    --accent: #d02d4e;
+    --accent-soft: rgba(208, 45, 78, 0.38);
+    --bg: #100508;
+    --panel: #1c0a10;
+    --panel-hover: #2b1119;
+    --text: #f2e2e6;
+  }
+  ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
+}
+
+/* --- VOLT YELLOW (вольт-жёлтая) --- */
+@media -moz-pref("bobliks.theme.volt") {
+  :root, html|html {
+    --accent: #fff820;
+    --accent-soft: rgba(255, 248, 32, 0.35);
+    --bg: #0d0d05;
+    --panel: #17150a;
+    --panel-hover: #25220d;
+    --text: #f2f2dc;
+  }
+  ::selection { background-color: #fff820 !important; color: #000000 !important; }
+}
+
+/* --- MIDNIGHT BLUE (сине-чёрная) --- */
+@media -moz-pref("bobliks.theme.midnight") {
+  :root, html|html {
+    --accent: #2f6bff;
+    --accent-soft: rgba(47, 107, 255, 0.38);
+    --bg: #04060d;
+    --panel: #0a101d;
+    --panel-hover: #101a2e;
+    --text: #e0e8f5;
+  }
+  ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
+}
+
+/* --- DEMONIC BLOOD (кроваво-демоническая) --- */
+@media -moz-pref("bobliks.theme.blood") {
+  :root, html|html {
+    --accent: #a80f0f;
+    --accent-soft: rgba(168, 15, 15, 0.38);
+    --bg: #0d0506;
+    --panel: #170a0c;
+    --panel-hover: #251014;
+    --text: #efe3e3;
+  }
+  ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
+}
+
+/* --- АТРИБУТНЫЕ ДУБЛИ ТЕМ (живое переключение) -----------------------------
+   -moz-pref() в юзер-стилях иногда замерзает до перезапуска: префы меняются,
+   а стили не переоцениваются. Кнопка "B" ставит data-blade-theme на
+   #main-window (= :root) — обычный пересчёт стилей срабатывает всегда.
+   Специфичность (0,1,1) бьёт преф-блоки выше (0,0,1). */
+:root[data-blade-theme="purple"], html|html[data-blade-theme="purple"] {
+  --accent: #b44bff; --accent-soft: rgba(180, 75, 255, 0.35); --bg: #0c0a10; --panel: #16121c; --panel-hover: #221a2e; --text: #ece6f2;
+}
+:root[data-blade-theme="purple"] ::selection, html|html[data-blade-theme="purple"] ::selection { background-color: #b44bff !important; color: #ffffff !important; }
+:root[data-blade-theme="green"], html|html[data-blade-theme="green"] {
+  --accent: #00ff88; --accent-soft: rgba(0, 255, 136, 0.3); --bg: #060a08; --panel: #0e1612; --panel-hover: #14241c; --text: #e2f2ea;
+}
+:root[data-blade-theme="green"] ::selection, html|html[data-blade-theme="green"] ::selection { background-color: #00ff88 !important; color: #000000 !important; }
+:root[data-blade-theme="grey"], html|html[data-blade-theme="grey"] {
+  --accent: #8a8f98; --accent-soft: rgba(138, 143, 152, 0.35); --bg: #0e0f11; --panel: #17181b; --panel-hover: #212327; --text: #e6e7e9;
+}
+:root[data-blade-theme="grey"] ::selection, html|html[data-blade-theme="grey"] ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
+:root[data-blade-theme="orange"], html|html[data-blade-theme="orange"] {
+  --accent: #ff6a1f; --accent-soft: rgba(255, 106, 31, 0.35); --bg: #0c0a08; --panel: #171310; --panel-hover: #241c16; --text: #f2ece6;
+}
+:root[data-blade-theme="orange"] ::selection, html|html[data-blade-theme="orange"] ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
+:root[data-blade-theme="cherry"], html|html[data-blade-theme="cherry"] {
+  --accent: #d02d4e; --accent-soft: rgba(208, 45, 78, 0.38); --bg: #100508; --panel: #1c0a10; --panel-hover: #2b1119; --text: #f2e2e6;
+}
+:root[data-blade-theme="cherry"] ::selection, html|html[data-blade-theme="cherry"] ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
+:root[data-blade-theme="volt"], html|html[data-blade-theme="volt"] {
+  --accent: #fff820; --accent-soft: rgba(255, 248, 32, 0.35); --bg: #0d0d05; --panel: #17150a; --panel-hover: #25220d; --text: #f2f2dc;
+}
+:root[data-blade-theme="volt"] ::selection, html|html[data-blade-theme="volt"] ::selection { background-color: #fff820 !important; color: #000000 !important; }
+:root[data-blade-theme="midnight"], html|html[data-blade-theme="midnight"] {
+  --accent: #2f6bff; --accent-soft: rgba(47, 107, 255, 0.38); --bg: #04060d; --panel: #0a101d; --panel-hover: #101a2e; --text: #e0e8f5;
+}
+:root[data-blade-theme="midnight"] ::selection, html|html[data-blade-theme="midnight"] ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
+:root[data-blade-theme="blood"], html|html[data-blade-theme="blood"] {
+  --accent: #a80f0f; --accent-soft: rgba(168, 15, 15, 0.38); --bg: #0d0506; --panel: #170a0c; --panel-hover: #251014; --text: #efe3e3;
+}
+:root[data-blade-theme="blood"] ::selection, html|html[data-blade-theme="blood"] ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
+/* red-дубль: возврат на дефолт должен перебивать застрявший преф-блок темы */
+:root[data-blade-theme="red"], html|html[data-blade-theme="red"] {
+  --accent: #ff2a2a; --accent-soft: rgba(255, 42, 42, 0.35); --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent); --bg: #0a0a0c; --panel: #14141a; --panel-hover: #1e1e28; --text: #e8e8e8;
+}
+:root[data-blade-theme="red"] ::selection, html|html[data-blade-theme="red"] ::selection { background-color: #ff2a2a !important; color: #ffffff !important; }
+
+/* ==========================================================================
+   5.1 ЖИВЫЕ ТЕМЫ: у каждой темы СВОЙ эффект на весь тулбар (::before)
+   + усиленная акцентная линия (::after) + B-кнопка. Только transform/opacity
+   = композитор. На неактивном окне — стоп-кадр.
+   ========================================================================== */
+#navigator-toolbox {
+  position: relative !important;
+}
+/* Носитель эффектов на весь тулбокс: по умолчанию выключен (opacity 0) */
+#navigator-toolbox::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  /* БЕЗ !important: CSS-анимации не перебивают !important-каскад,
+     а тут opacity анимируется — иначе все оверлеи вечно невидимы */
+  opacity: 0;
+}
+/* Акцентная линия под тулбоксом */
+#navigator-toolbox::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -1px !important;
+  height: 3px !important;
+  pointer-events: none !important;
+  z-index: 999 !important;
+  /* background-image ОТДЕЛЬНЫМ свойством: shorthand с !important прибил бы
+     background-position и заблокировал анимации сканов/бликов */
+  background-image: linear-gradient(90deg, transparent 0%, var(--accent) 15%, var(--accent) 85%, transparent 100%) !important;
+  opacity: 0.6; /* не !important — линия анимируется по opacity */
+}
+
+/* --- GX RED: ПУЛЬС КЛИНКА — красное зарево поднимается по тулбару,
+       линия и B-кнопка бьются двойным ударом сердца --- */
+html|html[data-blade-theme="red"] #navigator-toolbox::before {
+  background: radial-gradient(ellipse 70% 130% at 50% 115%, var(--accent-soft), transparent 70%) !important;
+  animation: blade-live-heartbeat 2.8s ease-in-out infinite !important;
+}
+html|html[data-blade-theme="red"] #navigator-toolbox::after {
+  animation: blade-live-heartbeat-strong 2.8s ease-in-out infinite !important;
+}
+html|html[data-blade-theme="red"] #bobliks-settings-button .toolbarbutton-icon {
+  animation: blade-live-blade-beat 2.8s ease-in-out infinite !important;
+}
+
+/* --- DEMONIC BLOOD: КРОВАВЫЙ ТУМАН — тёмно-багровая дымка дышит в тулбаре --- */
+html|html[data-blade-theme="blood"] #navigator-toolbox::before {
+  background: radial-gradient(ellipse 85% 110% at 50% 55%, rgba(140, 10, 10, 0.55), transparent 75%) !important;
+  animation: blade-live-breathe 5s ease-in-out infinite !important;
+}
+html|html[data-blade-theme="blood"] #navigator-toolbox::after {
+  animation: blade-live-breathe-strong 5s ease-in-out infinite !important;
+}
+html|html[data-blade-theme="blood"] #bobliks-settings-button .toolbarbutton-icon {
+  animation: blade-live-button-breathe 5s ease-in-out infinite !important;
+}
+
+/* --- NEON PURPLE: НЕОНОВАЯ ВЫВЕСКА — фиолетовое свечение панели мигает
+       как неисправная трубка --- */
+html|html[data-blade-theme="purple"] #navigator-toolbox::before {
+  background: linear-gradient(90deg, transparent, rgba(180, 75, 255, 0.35) 18%, rgba(180, 75, 255, 0.35) 82%, transparent) !important;
+  animation: blade-live-neon 7s linear infinite !important;
+}
+html|html[data-blade-theme="purple"] #navigator-toolbox::after {
+  height: 4px !important;
+  animation: blade-live-neon-strong 7s linear infinite !important;
+}
+html|html[data-blade-theme="purple"] #bobliks-settings-button .toolbarbutton-icon {
+  animation: blade-live-neon-btn 7s linear infinite !important;
+}
+
+/* --- CYBER GREEN: ТЕРМИНАЛ — бегущие сканлайны по всему тулбару + луч --- */
+html|html[data-blade-theme="green"] #navigator-toolbox::before {
+  inset: -3px 0 !important;
+  background: repeating-linear-gradient(0deg, rgba(0, 255, 136, 0.09) 0 1px, transparent 1px 3px) !important;
+  opacity: 1 !important;
+  animation: blade-live-scanlines 0.9s steps(3) infinite !important;
+}
+html|html[data-blade-theme="green"] #navigator-toolbox::after {
+  right: auto !important;
+  width: 32% !important;
+  background-image: linear-gradient(90deg, transparent, var(--accent), transparent) !important;
+  animation: blade-beam-run 5.5s linear infinite !important;
+}
+html|html[data-blade-theme="green"] #navigator-toolbox {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
+}
+
+/* --- MINIMAL GREY: ПОЛИРОВАННАЯ СТАЛЬ — металлический отблеск тулбара,
+       раз в 12 секунд пробегает блик --- */
+html|html[data-blade-theme="grey"] #navigator-toolbox {
+  background: linear-gradient(180deg, #1a1b1f 0%, var(--bg) 100%) !important;
+}
+html|html[data-blade-theme="grey"] #navigator-toolbox::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, transparent 35%) !important;
+  opacity: 1 !important;
+}
+html|html[data-blade-theme="grey"] #navigator-toolbox::after {
+  right: auto !important;
+  width: 26% !important;
+  background-image: linear-gradient(90deg, transparent, #e8ecf2, transparent) !important;
+  animation: blade-glint-run 12s ease-in-out infinite !important;
+}
+html|html[data-blade-theme="grey"] #navigator-toolbox {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
+}
+
+/* --- BLOOD ORANGE: ПЛАМЯ — оранжевое зарево огня лижет низ тулбара --- */
+html|html[data-blade-theme="orange"] #navigator-toolbox::before {
+  background: linear-gradient(0deg, rgba(255, 106, 31, 0.5) 0%, rgba(255, 70, 10, 0.2) 45%, transparent 80%) !important;
+  animation: blade-live-ember 3.4s linear infinite !important;
+}
+html|html[data-blade-theme="orange"] #navigator-toolbox::after {
+  animation: blade-live-ember-strong 3.4s linear infinite !important;
+}
+html|html[data-blade-theme="orange"] #bobliks-settings-button .toolbarbutton-icon {
+  animation: blade-live-ember-btn 3.4s linear infinite !important;
+}
+
+/* --- CHERRY: САКУРА — мягкие вишнёвые отсветы по углам дышат --- */
+html|html[data-blade-theme="cherry"] #navigator-toolbox::before {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(208, 45, 78, 0.4), transparent 45%),
+    radial-gradient(circle at 88% 0%, rgba(255, 130, 160, 0.25), transparent 45%) !important;
+  animation: blade-live-cherry 4s ease-in-out infinite !important;
+}
+html|html[data-blade-theme="cherry"] #navigator-toolbox::after {
+  animation: blade-live-cherry-strong 4s ease-in-out infinite !important;
+}
+html|html[data-blade-theme="cherry"] #bobliks-settings-button .toolbarbutton-icon {
+  animation: blade-live-cherry-btn 4s ease-in-out infinite !important;
+}
+
+/* --- MIDNIGHT BLUE: СЕВЕРНОЕ СИЯНИЕ — живое (Gemini раунд 11):
+   свечение поднимается от низа тулбара и дрейфует 6.5с (не 22 —
+   улитка выглядела статикой), линия бежит неоновой волной,
+   кнопка B переливается кибер-неоном --- */
+html|html[data-blade-theme="midnight"] #navigator-toolbox::before {
+  inset: 0 -20% !important;
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, rgba(0, 212, 255, 0.28), rgba(47, 107, 255, 0.22), transparent 70%) !important;
+  opacity: 0.9 !important;
+  animation: blade-live-aurora-drift 6.5s ease-in-out infinite alternate !important;
+}
+html|html[data-blade-theme="midnight"] #navigator-toolbox::after {
+  height: 3px !important;
+  right: auto !important;
+  width: 60% !important;
+  background-image: linear-gradient(90deg, transparent, #00d4ff, #2f6bff, #7b5bff, #00d4ff, transparent) !important;
+  animation: blade-beam-run 4.5s linear infinite !important;
+}
+html|html[data-blade-theme="midnight"] #navigator-toolbox {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
+}
+html|html[data-blade-theme="midnight"] #bobliks-settings-button .toolbarbutton-icon {
+  /* раунд 6: filter→opacity, перф — неоновый ореол кнопки статичен,
+     keyframes ниже пульсирует только opacity */
+  filter: drop-shadow(0 0 3px #2f6bff) drop-shadow(0 0 4px #00d4ff) !important;
+  animation: blade-live-aurora-btn 3.5s ease-in-out infinite alternate !important;
+}
+/* hover-отклик сохраняем: статичный ореол (1,3,1) перебивал бы общий
+   hover-фильтр (1,2,0) — дублируем его для Midnight */
+html|html[data-blade-theme="midnight"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="midnight"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 6px #00d4ff) brightness(1.2) !important;
+}
+
+/* --- VOLT YELLOW: ЭЛЕКТРИЧЕСТВО — импульс тока по линии, а пока печатешь
+       в адресной строке — она гудит электричеством --- */
+html|html[data-blade-theme="volt"] #navigator-toolbox::after {
+  right: auto !important;
+  width: 30% !important;
+  height: 4px !important;
+  background-image: linear-gradient(90deg, transparent, var(--accent), transparent) !important;
+  animation: blade-beam-run 1.5s linear infinite !important;
+}
+html|html[data-blade-theme="volt"] #navigator-toolbox {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
+}
+
+/* Стоп-кадр на неактивном окне — ВЫКЛЮЧЕНО НАВСЕГДА (проверено дважды):
+   в FF155 :-moz-window-inactive матчит и АКТИВНОЕ окно — правило ставит
+   паузу всегда (getAnimations: paused=3 при верифицированном foreground).
+   Цена всегда-бегущих анимаций измерена: 0.0–0.1% ядра — приемлемо.
+html|html:-moz-window-inactive #navigator-toolbox::before,
+html|html:-moz-window-inactive #navigator-toolbox::after,
+html|html:-moz-window-inactive #bobliks-settings-button .toolbarbutton-icon {
+  animation-play-state: paused !important;
+}
+*/
+
+/* ==========================================================================
+   5.2 REDUCED MOTION (v1.7): системная настройка «меньше анимаций» гасит
+   все blade/gx-анимации; свечения и линии остаются статикой, transition'ы
+   не трогаем. Селекторы усилены (:root, [data-blade-theme]) — иначе
+   !important-каскад тем ниже по файлу перебивал бы это отключение
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html|html[data-blade-theme] #navigator-toolbox::before,
+  html|html[data-blade-theme] #navigator-toolbox::after,
+  html|html:root[data-blade-theme] #navigator-toolbox[data-blade-loading="1"]::after,
+  html|html[data-blade-theme] #bobliks-settings-button .toolbarbutton-icon,
+  .tabbrowser-tab[busy] .tab-background,
+  html|html:root .tabbrowser-tab[fadein] .tab-background,
+  html|html:root .tabbrowser-tab[selected] .tab-background::before,
+  html|html:root .tabbrowser-tab:hover:not([selected]) .tab-background::after,
+  :root menupopup,
+  :root panel,
+  html|html:root menupopup,
+  html|html:root panel {
+    animation: none !important;
+  }
+}
+
+/* Кейфреймы — строго на верхнем уровне файла */
+@keyframes blade-live-heartbeat {
+  0%, 45%, 100% { opacity: 0.25; }
+  10% { opacity: 0.8; }
+  20% { opacity: 0.3; }
+  30% { opacity: 0.75; }
+}
+@keyframes blade-live-heartbeat-strong {
+  0%, 45%, 100% { opacity: 0.4; }
+  10% { opacity: 1; }
+  20% { opacity: 0.45; }
+  30% { opacity: 0.95; }
+}
+/* раунд 2: filter→opacity, перф (двойной удар сердца — тот же ритм) */
+@keyframes blade-live-blade-beat {
+  0%, 45%, 100% { transform: scale(1); opacity: 0.8; }
+  10% { transform: scale(1.1); opacity: 1; }
+  20% { transform: scale(1); opacity: 0.96; }
+  30% { transform: scale(1.06); opacity: 0.93; }
+  42% { transform: scale(1); opacity: 0.8; }
+}
+@keyframes blade-live-breathe {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.75; }
+}
+@keyframes blade-live-breathe-strong {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 0.95; }
+}
+/* раунд 3: filter→opacity, перф */
+@keyframes blade-live-button-breathe {
+  0%, 100% { opacity: 0.82; }
+  50%      { opacity: 1; }
+}
+@keyframes blade-live-neon {
+  0%, 100% { opacity: 0.55; }
+  3%  { opacity: 0.1; }
+  6%  { opacity: 0.5; }
+  9%  { opacity: 0.2; }
+  12% { opacity: 0.65; }
+  46% { opacity: 0.45; }
+  49% { opacity: 0.15; }
+  52% { opacity: 0.6; }
+  80% { opacity: 0.7; }
+}
+@keyframes blade-live-neon-strong {
+  0%, 100% { opacity: 0.85; }
+  3%  { opacity: 0.15; }
+  6%  { opacity: 0.8; }
+  9%  { opacity: 0.3; }
+  12% { opacity: 0.95; }
+  46% { opacity: 0.65; }
+  49% { opacity: 0.25; }
+  52% { opacity: 0.85; }
+  80% { opacity: 1; }
+}
+/* раунд 4: filter→opacity, перф (мерцание неисправной трубки — тот же ритм) */
+@keyframes blade-live-neon-btn {
+  0%, 100% { opacity: 0.96; }
+  3%  { opacity: 0.75; }
+  6%  { opacity: 0.94; }
+  9%  { opacity: 0.83; }
+  12% { opacity: 1; }
+  46% { opacity: 0.88; }
+  49% { opacity: 0.77; }
+  52% { opacity: 0.98; }
+}
+@keyframes blade-live-scanlines {
+  from { transform: translateY(0); }
+  to   { transform: translateY(3px); }
+}
+/* РЕФАКТОР FPS (v1.6): бывшие background-position анимации лучей
+   (scan/glint/aurora-flow/charge) переведены на transform — композитор,
+   ноль repaints. Луч = узкий ::after, едущий translateX'ом; статичная
+   линия под ним — inset box-shadow тулбокса. */
+@keyframes blade-beam-run {
+  0%   { transform: translateX(-110%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(380%); opacity: 0; }
+}
+@keyframes blade-glint-run {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  2%   { opacity: 1; }
+  10%  { opacity: 1; }
+  12%, 100% { transform: translateX(480%); opacity: 0; }
+}
+@keyframes blade-live-ember {
+  0%, 100% { opacity: 0.4; }
+  9%  { opacity: 0.7; }
+  14% { opacity: 0.45; }
+  23% { opacity: 0.95; }
+  31% { opacity: 0.5; }
+  44% { opacity: 0.85; }
+  52% { opacity: 0.4; }
+  71% { opacity: 0.9; }
+  79% { opacity: 0.45; }
+}
+@keyframes blade-live-ember-strong {
+  0%, 100% { opacity: 0.55; }
+  9%  { opacity: 0.8; }
+  14% { opacity: 0.6; }
+  23% { opacity: 1; }
+  31% { opacity: 0.65; }
+  44% { opacity: 0.9; }
+  52% { opacity: 0.55; }
+  71% { opacity: 0.95; }
+  79% { opacity: 0.6; }
+}
+/* раунд 5: filter→opacity, перф */
+@keyframes blade-live-ember-btn {
+  0%, 100% { opacity: 0.84; }
+  23% { opacity: 0.95; }
+  31% { opacity: 0.78; }
+  71% { opacity: 1; }
+}
+@keyframes blade-live-cherry {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 0.9; }
+}
+@keyframes blade-live-cherry-strong {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.85; }
+}
+@keyframes blade-live-cherry-btn {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+@keyframes blade-live-aurora-drift {
+  from { transform: translateX(-22%); }
+  to   { transform: translateX(22%); }
+}
+/* раунд 6: filter→opacity, перф; статичный неоновый ореол — drop-shadow
+   в правиле иконки Midnight выше */
+@keyframes blade-live-aurora-btn {
+  from { opacity: 0.8; }
+  to   { opacity: 1; }
+}
+
+/* ==========================================================================
+   6. ФИНАЛЬНЫЙ ПОЛИШ (Bobliks-Creations final)
+   ========================================================================== */
+
+/* --- Statuspanel (ссылка в углу при наведении) — тёмная капсула --- */
+#statuspanel {
+  appearance: none !important;
+}
+
+#statuspanel .statuspanel-label {
+  background: rgba(10, 10, 12, 0.92) !important;
+  color: var(--text) !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent) !important;
+  border-radius: 6px !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* --- Тултипы — тёмные с красной рамкой --- */
+tooltip {
+  appearance: none !important;
+  background: #14141a !important;
+  color: var(--text) !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent) !important;
+  border-radius: 6px !important;
+  padding: 5px 9px !important;
+  font-size: 12px !important;
+}
+
+/* --- Меню открываются с лёгким fade+drop (v1.6: 0.14с + микросдвиг —
+       мягче резкого 0.08; transform на popup безопасен в FF155).
+       Наши попапы (.bp-wrap/.bu-wrap) имеют собственные анимации —
+       исключаем их, чтобы не задваивать fade --- */
+menupopup,
+panel:not(#bobliks-settings-popup):not(#blade-update-panel) {
+  animation: gx-menu-fade 0.14s ease-out !important;
+}
+
+@keyframes gx-menu-fade {
+  from { opacity: 0.4; transform: translateY(-3px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ==== Кнопка Bobliks (настройки тем/фона) ==== */
+#bobliks-settings-button {
+  list-style-image: none !important;
+}
+
+#bobliks-settings-button .toolbarbutton-icon {
+  width: 27px !important;
+  height: 27px !important;
+  padding: 1px !important;
+  border-radius: 7px !important;
+  border: 1px solid var(--accent-soft) !important;
+  list-style-image: url("img/btn_blade.png") !important;
+  transition: filter 0.15s ease-out !important;
+}
+
+#bobliks-settings-button:hover .toolbarbutton-icon,
+#bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 5px var(--accent-soft)) brightness(1.2) !important;
+}
+
+/* --- Попап кнопки Bobliks: акриловое стекло + рамка темы (живая смена) --- */
+#bobliks-settings-popup {
+  appearance: none !important;
+  background: rgba(12, 12, 16, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  color: var(--text) !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06) inset !important;
+}
+
+/* ==========================================================================
+   7. ФУЛЛ-ТЕМА: рамка окна и выделение текста под активный акцент
+   ========================================================================== */
+
+/* Обводка всего окна цветом активной темы.
+   В Firefox 155 browser.xhtml — уже HTML-документ, и обычные border на
+   #main-window под Windows не рисуются. Рабочий механизм: красим html|body
+   акцентом (html| обязанателен — дефолтный namespace файла XUL), а тулбокс и
+   #browser сдвигаем маргинами внутрь — в зазоре остаётся цветная кайма.
+   ВАЖНО: только #main-window > body! Голый html|body заливал красным ЛЮБОЙ
+   chrome-диалог (например, конструктор тем) — скриншот-аудит Gemini раунд 3 */
+#main-window > html|body {
+  background: var(--accent) !important;
+}
+#navigator-toolbox {
+  margin: 2px !important;
+  margin-bottom: 0 !important;
+}
+#browser {
+  margin: 2px !important;
+  margin-top: 0 !important;
+}
+/* В полноэкранном и развёрнутом окне рамку убираем: fullscreen — не лезет
+   поверх видео/игр, maximized — 2px зазор по краям ломает закон Фиттса
+   (рывок мыши в угол попадает в кайму, а не в кнопку закрытия) */
+html|html[inFullscreen] #navigator-toolbox,
+html|html[inFullscreen] #browser,
+html|html[sizemode="maximized"] #navigator-toolbox,
+html|html[sizemode="maximized"] #browser {
+  margin: 0 !important;
+}
+
+/* ==========================================================================
+   8. ЧИСТЫЙ ЛИСТ: следы Mozilla в интерфейсе
+   ========================================================================== */
+
+/* Кнопка Mozilla-аккаунта (Sync) в тулбаре — вырезана */
+#fxa-toolbar-menu-button,
+#wrapper-fxa-toolbar-menu-button {
+  display: none !important;
+}
+
+/* Строка входа в Mozilla-аккаунт в главном меню (≡) — включая новый
+   промо-баннер с лисёнком из FF130+ (скриншот-аудит Gemini раунд 3).
+   В FF155 живы только id с двойкой (appMenu-fxa-status2/label2) */
+#appMenu-fxa-status2,
+#appMenu-fxa-text,
+#appMenu-fxa-separator,
+#appMenu-fxa-sign-in-promo,
+#PanelUI-fxa-cta-menu {
+  display: none !important;
+}
+
+/* About-диалог стилизуется инъекцией из BobliksSettings (userChrome.css
+   не применяется к диалоговым окнам — проверено). */
+
+/* ==========================================================================
+   11. ПЕРЕВОДЧИК: кнопка в адресной строке в стиле Blade (панель уже тёмная
+   из общих правил menupopup/panel)
+   ========================================================================== */
+#translations-button {
+  fill: var(--accent, #ff2a2a) !important;
+}
+#translations-button:is([active="true"], :hover) {
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 22%, transparent) !important;
+  border-radius: 6px !important;
+}
+#full-page-translations-panel .panel-header,
+#full-page-translations-panel label,
+#full-page-translations-panel description,
+#full-page-translations-panel menulist {
+  color: #e8e8e8 !important;
+}
+
+/* ==========================================================================
+   12. BLADE: ЛАЗЕРНЫЙ ЛУЧ ЗАГРУЗКИ + ЭКВАЛАЙЗЕР ВКЛАДОК (раунд 6)
+   ========================================================================== */
+
+/* Пока активная вкладка грузится (атрибут ставит BobliksSettings по TabAttrModified),
+   линия под тулбаром превращается в бегущий лазерный луч цвета темы */
+html|html[data-blade-theme] #navigator-toolbox[data-blade-loading="1"]::after {
+  /* раунд 8: background-position→transform, перф — лучом становится сам
+     ::after (ширина 40% трека), едет translateX'ом; геометрия и ритм
+     как у прежнего background-position (-40%→140%) */
+  left: 0 !important;
+  right: auto !important;
+  width: 40% !important;
+  background: linear-gradient(90deg, transparent, var(--accent), #ffffff, var(--accent), transparent) !important;
+  animation: blade-laser-load 0.8s linear infinite !important;
+}
+@keyframes blade-laser-load {
+  from { transform: translateX(-60%); }
+  to   { transform: translateX(210%); }
+}
+
+/* Вкладка со звуком (YouTube/музыка): иконка динамика горит цветом темы */
+.tab-icon-sound[soundplaying] {
+  fill: var(--accent, #ff2a2a) !important;
+  filter: drop-shadow(0 0 4px var(--accent, #ff2a2a)) !important;
+}
+
+/* ==========================================================================
+   13. КИНЕТИЧЕСКИЕ ВКЛАДКИ (раунд 7). Тоннельный фокус ВЫРЕЗАН (раунд 8):
+   на about:newtab адресная строка в автофокусе — тулбар был бы вечно затемнён
+   ========================================================================== */
+
+/* Кинетические вкладки: микро-лифт при ховере вместо смены подсветки,
+   мгновенное схлопывание при закрытии */
+.tabbrowser-tab .tab-stack {
+  transition: transform 90ms cubic-bezier(0, 0, 0.2, 1) !important;
+}
+.tabbrowser-tab:hover:not([selected]) .tab-stack {
+  transform: translateY(-1.5px);
+}
+.tabbrowser-tab[closing] .tab-stack {
+  transform: scale(0.92) !important;
+  opacity: 0 !important;
+  transition: transform 80ms ease, opacity 80ms ease !important;
+}
+
+/* ==========================================================================
+   15. ГЛАВНОЕ МЕНЮ (≡) И СИСТЕМНЫЕ ПАНЕЛИ (раунд 15, Shadow DOM фикс):
+   видимая поверхность панелей — html:slot[part=content] В ТЕНИ, движок красит
+   её из --panel-background-color (без -color переменную не читает!) дефолтным
+   серым rgb(66,65,77). Пробиваем тень через ::part() и задаём обе переменные
+   ========================================================================== */
+#appMenu-popup,
+#downloadsPanel,
+#unified-extensions-panel,
+#widget-overflow,
+#permission-popup,
+#identity-popup,
+#protections-popup {
+  --panel-background-color: rgba(12, 12, 16, 0.85) !important;
+  --panel-background: rgba(12, 12, 16, 0.85) !important;
+  --panel-color: var(--text) !important;
+  --panel-border-color: color-mix(in srgb, var(--accent) 45%, transparent) !important;
+}
+#appMenu-popup::part(content),
+#downloadsPanel::part(content),
+#unified-extensions-panel::part(content),
+#widget-overflow::part(content),
+#permission-popup::part(content),
+#identity-popup::part(content),
+#protections-popup::part(content) {
+  background: rgba(12, 12, 16, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75),
+              0 0 16px color-mix(in srgb, var(--accent) 25%, transparent) !important;
+}
+/* внутренние контейнеры прозрачные */
+#appMenu-popup panelmultiview,
+#appMenu-popup panelview,
+#appMenu-popup .panel-subview-body {
+  background: transparent !important;
+}
+/* строки меню: ховер цветом активной темы (в т.ч. кастомной) */
+#appMenu-popup .subviewbutton,
+#downloadsPanel .subviewbutton,
+#unified-extensions-panel .subviewbutton,
+#widget-overflow .subviewbutton {
+  color: var(--text) !important;
+  border-radius: 6px !important;
+  margin: 1px 4px !important;
+  padding: 6px 10px !important;
+  transition: background 0.12s ease !important;
+}
+#appMenu-popup .subviewbutton:hover,
+#appMenu-popup .subviewbutton[_moz-menuactive="true"],
+#downloadsPanel .subviewbutton:hover,
+#unified-extensions-panel .subviewbutton:hover,
+#widget-overflow .subviewbutton:hover {
+  background-color: color-mix(in srgb, var(--accent) 22%, transparent) !important;
+  color: #ffffff !important;
+}
+/* иконки и стрелочки (>) в цвет темы */
+#appMenu-popup .subviewbutton-iconic > .toolbarbutton-icon,
+#appMenu-popup .subviewbutton-nav::after {
+  fill: var(--accent) !important;
+  color: var(--accent) !important;
+}
+/* кнопка «Назад» вложенных подменю */
+#appMenu-popup .panel-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding-bottom: 4px !important;
+}
+#appMenu-popup .subviewbutton-back:hover {
+  background-color: color-mix(in srgb, var(--accent) 25%, transparent) !important;
+}
+#appMenu-popup .subviewbutton-back image {
+  fill: var(--accent) !important;
+}
+/* разделители и кнопки масштаба */
+#appMenu-popup toolbarseparator,
+#appMenu-popup .panel-subview-separator {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  margin: 4px 10px !important;
+}
+#appMenu-zoomReset-button:hover,
+#appMenu-zoomReduce-button:hover,
+#appMenu-zoomEnlarge-button:hover,
+#appMenu-fullscreen-button:hover {
+  background-color: color-mix(in srgb, var(--accent) 25%, transparent) !important;
+}
+
+/* ==========================================================================
+   16. MUTE ХИТБОКС (раунд 21): кликабельная зона динамика вкладки 24×24
+   вместо крошечных 12×12 — глушим звук вслепую одним кликом
+   ========================================================================== */
+.tab-icon-sound {
+  padding: 6px !important;
+  margin: -6px !important;
+  border-radius: 6px !important;
+}
+.tab-icon-sound:hover {
+  background: color-mix(in srgb, var(--accent) 25%, transparent) !important;
+}
+
+/* ==========================================================================
+   17. NEON REFORGE (v1.6): вкладки, URLbar, закладки
+   Принцип: transform/opacity — композитор, ноль layout-анимаций
+   ========================================================================== */
+
+/* --- Вкладка: hover-lift (приподнимается навстречу курсору) --- */
+.tab-content {
+  transition: transform 0.15s ease !important;
+}
+.tabbrowser-tab:not([selected]):hover .tab-content {
+  transform: translateY(-1px) !important;
+}
+
+/* --- Новая вкладка: мягкое появление снизу --- */
+@keyframes blade-tab-in {
+  from { transform: translateY(7px) scale(0.97); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.tabbrowser-tab[fadein] .tab-background {
+  animation: blade-tab-in 0.18s ease-out !important;
+}
+
+/* --- Активная вкладка: неоновое подчёркивание с свечением --- */
+.tabbrowser-tab[selected] .tab-background {
+  position: relative !important;
+}
+.tabbrowser-tab[selected] .tab-background::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 12% !important;
+  right: 12% !important;
+  bottom: 0 !important;
+  height: 2px !important;
+  border-radius: 2px 2px 0 0 !important;
+  background: var(--accent) !important;
+  box-shadow: 0 0 9px var(--accent), 0 0 2px var(--accent) !important;
+}
+
+/* --- URLbar «зарядка»: v1.6.1 вращающаяся дуга и пульс свечения капсулы
+       убраны; «обнажение клинка» (SIGNATURE v1.7) портировано в инъекцию
+       BobliksChromeStyle.uc.js (id-селектор капсулы в FF155 мёртв) --- */
+
+/* --- Закладки: hover-lift в тон вкладкам --- */
+toolbarbutton.bookmark-item:hover:not(.subviewbutton) {
+  transform: translateY(-1px) !important;
+}
+
+/* ==========================================================================
+   18. BLADE SIGNATURE (v1.7): фирменные элементы — «обнажение клинка»,
+   блик по вкладке, «корона» активной вкладки, капсулы-подсказки.
+   Всё на transform/opacity — композитор, ноль layout/paint-анимаций
+   ========================================================================== */
+
+/* --- «Обнажение клинка» (SIGNATURE v1.7) перенесено в инъекцию
+       BobliksChromeStyle.uc.js — живые селекторы капсулы по классу --- */
+
+/* --- Блик по вкладке (hover): диагональный световой штрих пробегает
+       один раз за наведение. Носитель — полоса шириной во вкладку, сам
+       блик первые 120px градиента: вход и выход всегда за краем,
+       без «скачка» на широких вкладках. ::after активной вкладки занят
+       подчёркиванием — блик только на неактивных --- */
+.tabbrowser-tab:hover:not([selected]) .tab-background {
+  position: relative !important;
+  overflow: hidden !important;
+}
+.tabbrowser-tab:hover:not([selected]) .tab-background::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: linear-gradient(115deg, transparent 0, rgba(255, 255, 255, 0.16) 60px, transparent 120px) !important;
+  transform: translateX(-100%) !important;
+  pointer-events: none !important;
+  animation: blade-tab-sheen 0.5s ease-out !important;
+}
+@keyframes blade-tab-sheen {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* --- «Корона» активной вкладки: ромб 5×5 по центру неонового
+       подчёркивания (секция 17), лёгкий пульс opacity --- */
+.tabbrowser-tab[selected] .tab-background::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -1px !important;
+  width: 5px !important;
+  height: 5px !important;
+  margin-left: -2.5px !important;
+  background: var(--accent, #ff2a2a) !important;
+  box-shadow: 0 0 6px var(--accent, #ff2a2a) !important;
+  transform: rotate(45deg) !important;
+  z-index: 2 !important;
+  animation: blade-crown-pulse 3s ease-in-out infinite !important;
+}
+@keyframes blade-crown-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+/* --- Confirmation hint («Ссылка скопирована» и т.п.): тёмная капсула
+       с акцентной левой гранью, без блюра. Поверхность панели может
+       жить в Shadow DOM — красим и переменные, и ::part(content) --- */
+#confirmation-hint {
+  --panel-background: #14141a !important;
+  --panel-background-color: #14141a !important;
+  --panel-color: var(--text) !important;
+  --panel-border-color: rgba(255, 255, 255, 0.09) !important;
+  background-color: #14141a !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-left: 2px solid var(--accent, #ff2a2a) !important;
+  border-radius: 8px !important;
+}
+#confirmation-hint::part(content) {
+  background: #14141a !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-left: 2px solid var(--accent, #ff2a2a) !important;
+  border-radius: 8px !important;
+}
+#confirmation-hint .confirmation-hint-message,
+#confirmation-hint .confirmation-hint-description {
+  color: var(--text) !important;
+}
+
+/* --- Инфобары (сохранение паролей, геолокация...): в FF155 это Lit
+       Shadow DOM — документные стили внутрь не проникают, блок удалён
+       (v1.2, аудит FF155) --- */
+
+/* --- Стрелки прокрутки вкладок: в покое приглушены, при наведении —
+       акцент темы --- */
+#scrollbutton-up,
+#scrollbutton-down {
+  fill: color-mix(in srgb, var(--text, #e8e8e8) 45%, transparent) !important;
+  color: color-mix(in srgb, var(--text, #e8e8e8) 45%, transparent) !important;
+  transition: fill 0.15s ease, color 0.15s ease !important;
+}
+#scrollbutton-up:not([disabled]):hover,
+#scrollbutton-down:not([disabled]):hover {
+  fill: var(--accent, #ff2a2a) !important;
+  color: var(--accent, #ff2a2a) !important;
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 15%, transparent) !important;
+}
