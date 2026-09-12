@@ -79,7 +79,9 @@
   }
 
   // «Шинг» — обнажение клинка при старте браузера: полосовой шум с восходящим
-  // свипом (металл по ножнам) + низкий тук тела + поющий обертон
+  // свипом (металл по ножнам) + низкий тук тела + поющий обертон.
+  // v1.1.1: тихий шёпот, не вспышка — пик -9дБ, атака мягче, фильтр шире
+  // (Q 6 вместо 9: резонанс меньше колет уши), свип не выше 3800 Гц
   function shing() {
     if (!enabled()) return;
     const c = ensureCtx();
@@ -95,17 +97,17 @@
       src.buffer = buf;
       const bp = c.createBiquadFilter();
       bp.type = 'bandpass';
-      bp.Q.value = 9;
-      bp.frequency.setValueAtTime(1100, t);
-      bp.frequency.exponentialRampToValueAtTime(4600, t + 0.4);
+      bp.Q.value = 6;
+      bp.frequency.setValueAtTime(900, t);
+      bp.frequency.exponentialRampToValueAtTime(3800, t + 0.4);
       const g = c.createGain();
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.14 * v, t + 0.012);
+      g.gain.linearRampToValueAtTime(0.05 * v, t + 0.025);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
       src.connect(bp); bp.connect(g); g.connect(c.destination);
       src.start(t); src.stop(t + 0.55);
-      tone(0, 190, 0.09, 0.10 * v, 'sine');          // тело удара
-      tone(0.02, 1500, 0.42, 0.05 * v, 'sine', 3400); // поющий свип
+      tone(0, 170, 0.10, 0.04 * v, 'sine');           // тело удара
+      tone(0.02, 1200, 0.42, 0.025 * v, 'sine', 3000); // поющий свип
     } catch (e) {}
   }
 
@@ -171,7 +173,7 @@
     const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
     d.append('JS');
     d.append('sounds_mark.txt');
-    IOUtils.writeUTF8(d.path, 'v1.1.0 START').catch(() => {});
+    IOUtils.writeUTF8(d.path, 'v1.1.1 START').catch(() => {});
   } catch (e) {}
 
   window.BladeSounds = { blip, shing, fanfare, chime };
