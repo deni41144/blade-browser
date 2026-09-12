@@ -50,6 +50,8 @@ $junk = @(
     # переименуй осмысленно и убери отсюда)
     'img\Без названия.jpg',
     'img\themes\gx-red_acheron.jpg', 'img\themes\README.txt', 'img\covers\README.txt',
+    # диагностические uc.js дела часов (1.9.2) — друзьям не нужны
+    'JS\BladeDiag.uc.js', 'JS\BladeDiag2.uc.js',
     'JS\tiles_log.txt'
 )
 foreach ($j in $junk) {
