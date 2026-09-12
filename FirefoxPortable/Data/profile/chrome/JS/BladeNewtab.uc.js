@@ -3,7 +3,7 @@
 // @description     Крупный неоновый блок часов/даты/погоды на новой вкладке (GX-стиль)
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.1.0
+// @version         1.1.1
 // ==/UserScript==
 (function () {
   if (window.BladeNewtabHero) return;
@@ -18,7 +18,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.1.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.1.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -50,6 +50,19 @@
       font-size: 15px; font-weight: 600; letter-spacing: 6px;
       text-transform: uppercase; color: rgba(255, 255, 255, 0.72);
       margin-bottom: 10px; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+      /* Появляется и тает, оставляя чистые часы: подъём с opacity при входе,
+         пауза, плавный уход вверх с растворением. Только transform/opacity —
+         раскладку не дёргаем (margin-bottom на месте, элемент не схлопывается).
+         Перезапуск сам: blade-on переключает display none<->flex (updateVisible). */
+      opacity: 0;
+      animation: blade-greet-life 7s ease forwards;
+    }
+    @keyframes blade-greet-life {
+      0%   { opacity: 0; transform: translateY(8px); }
+      10%  { opacity: 1; transform: none; }
+      55%  { opacity: 1; }
+      78%  { opacity: 0; transform: translateY(-6px); }
+      100% { opacity: 0; }
     }
     #blade-hero .bh-clock {
       font-size: 88px; font-weight: 200; line-height: 1; letter-spacing: 6px;

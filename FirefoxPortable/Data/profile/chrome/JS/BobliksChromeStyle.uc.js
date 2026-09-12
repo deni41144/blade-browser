@@ -6,7 +6,7 @@
 //                  Используют переменные тем — переключение живое.
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.2.0
+// @version         1.2.1
 // ==/UserScript==
 (function () {
   /* Селекторы выделения (мёртвый #urlbar-scheme удалён в v1.2) */
@@ -58,15 +58,23 @@
 
   /* Порт SIGNATURE из userChrome (id был мёртв с FF155): «обнажение клинка» —
      при фокусе адресной строки снизу капсулы выдвигается акцентная линия
-     (scaleX от центра). Правила дословно из userChrome секции 18, селекторы
-     заменены на живые по классу капсулы. */
+     (scaleX от центра). v1.2.1 — сверка с omni.ja (urlbar-searchbar.css,
+     UrlbarInput.mjs): (1) движок сам позиционирует .urlbar-background
+     (position:absolute + inset:0), а наш position:relative !important
+     схлопывал капсулу до нулевых размеров — линия внутри неё не могла
+     появиться; (2) атрибут focused движок ставит
+     (UrlbarInput.mjs: toggleAttribute("focused", ...)), селекторы фокуса
+     живые. Линия перенесена на .urlbar::after: псевдоэлемент #urlbar
+     движком не занят, сам .urlbar position:relative (якорь) и без
+     overflow:hidden (overflow:initial) — линия выходит под капсулу,
+     bottom:-2px. */
   const sigCss = `
-    .urlbar-background::after {
+    .urlbar::after {
       content: "" !important;
       position: absolute !important;
       left: 10% !important;
       right: 10% !important;
-      bottom: 0 !important;
+      bottom: -2px !important;
       height: 2px !important;
       border-radius: 2px !important;
       background: var(--accent, #ff2a2a) !important;
@@ -76,8 +84,8 @@
       /* сворачивание при потере фокуса — тем же темпом, что и появление */
       transition: transform 280ms cubic-bezier(.2, .7, .3, 1) !important;
     }
-    #urlbar[focused] .urlbar-background::after,
-    .urlbar[focused] .urlbar-background::after {
+    #urlbar[focused]::after,
+    .urlbar[focused]::after {
       animation: blade-urlbar-reveal 280ms cubic-bezier(.2, .7, .3, 1) 1 forwards !important;
     }
     @keyframes blade-urlbar-reveal {
@@ -87,9 +95,10 @@
 
   const CSS = `
     /* Капсула адресной строки (в 155-й у неё класс, без id).
-       position:relative — якорь для ::after «обнажения клинка» ниже */
+       Позиционирование движка (position:absolute + inset:0 в
+       urlbar-searchbar.css) не трогаем: position:relative схлопывал
+       капсулу; якорь линии «обнажения клинка» — сам .urlbar::after. */
     .urlbar-background {
-      position: relative !important;
       background-color: var(--panel, #14141a) !important;
       border: 1px solid var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
       border-radius: 8px !important;
@@ -163,12 +172,12 @@ ${selCss}
     d.append('JS'); d.append('chrome_style_mark.txt');
     // нет window.Blade (BladeCore не исполнился) — не падаем: инъекция пошла
     // с одним базовым ::selection-блоком, след фиксируем в mark
-    IOUtils.writeUTF8(d.path, 'v1.2.0 OK injected' + (themes ? '' : ' ERR no BladeCore')).catch(() => {});
+    IOUtils.writeUTF8(d.path, 'v1.2.1 OK injected' + (themes ? '' : ' ERR no BladeCore')).catch(() => {});
   } catch (e) {
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('chrome_style_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v1.2.0 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v1.2.1 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();
