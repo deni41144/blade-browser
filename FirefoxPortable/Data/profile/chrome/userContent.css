@@ -628,7 +628,7 @@
   .top-site-outer:hover .tile,
   .top-site-outer .top-site-button:hover .tile,
   .top-site-outer .top-site-button:focus-visible .tile {
-    transform: perspective(600px) rotateX(2.5deg) rotateY(-3deg) translateY(-3px) !important;
+    transform: perspective(600px) rotateX(7deg) rotateY(-9deg) translateY(-5px) scale(1.03) !important;
     filter: grayscale(0%) contrast(1.05) !important;
     border-color: var(--bob-accent, #ff2a2a) !important;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 16px color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent) !important;
