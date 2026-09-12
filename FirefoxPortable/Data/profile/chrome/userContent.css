@@ -617,8 +617,6 @@
     transform: translateY(-3px) scale(1.04) !important;
     filter: grayscale(0%) contrast(1.05) !important;
     border-color: var(--bob-accent) !important;
-    /* свечение статичное: пульс делаем бликом ниже (transform, композитор) —
-       box-shadow в keyframe пересчитывает размытие каждый кадр (Gemini раунд 6) */
     box-shadow: 0 0 16px color-mix(in srgb, var(--bob-accent) 60%, transparent) !important;
   }
 
@@ -627,9 +625,6 @@
     box-shadow: 0 0 6px color-mix(in srgb, var(--bob-accent) 55%, transparent) !important;
   }
 
-  /* ГОЛОГРАФИЧЕСКИЙ БЛИК: при наведении по плитке под 115° пробегает
-     стеклянный луч, как на коллекционных карточках. Только transform —
-     видеоплата работает, процессор спит */
   /* СТЕЛС-ПЛИТКИ: в покое слегка монохромные, при наведении проявляют цвет
      и приподнимаются (раунд 7 — filter/transform, композитор) */
   .tile {
@@ -637,6 +632,11 @@
     position: relative !important;
     overflow: hidden !important;
   }
+
+  /* СЛЭШ ПО ПЛИТКАМ («Живой Клинок»):
+     При наведении по плитке со свистом пролетает диагональный разрез клинка.
+     Тонкая диагональ под ~25°, transform skewX(-18deg) + transition 0.35s,
+     акцентный цвет var(--bob-accent), статическое неоновое свечение. */
   .tile::after {
     content: "" !important;
     position: absolute !important;
@@ -644,26 +644,20 @@
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.22) 50%, transparent 62%) !important;
-    transform: translateX(-130%) !important;
+    background: linear-gradient(115deg, transparent 0%, transparent 40%, var(--bob-accent, #ff2a2a) 47%, #ffffff 50%, var(--bob-accent, #ff2a2a) 53%, transparent 60%, transparent 100%) !important;
+    transform: translateX(-130%) skewX(-18deg) !important;
+    transition: transform 0.35s ease, opacity 0.15s ease !important;
     pointer-events: none !important;
+    border-radius: inherit !important;
     opacity: 0 !important;
+    filter: drop-shadow(0 0 5px var(--bob-accent, #ff2a2a)) !important;
+    z-index: 2 !important;
   }
+  .top-site-outer:hover .tile::after,
   .top-site-outer .top-site-button:hover .tile::after,
   .top-site-outer .top-site-button:focus-visible .tile::after {
+    transform: translateX(130%) skewX(-18deg) !important;
     opacity: 1 !important;
-    animation: blade-sheen 0.9s ease-out !important;
-  }
-
-  /* ==========================================================================
-     5.1 АНИМАЦИИ: БЛИК ПО ПЛИТКЕ НА HOVER
-     v1.7: мёртвый gxPulse и проигравший конфликт gxFlyIn удалены;
-     каскадный влёт плиток (blade-tile-in) живёт в секции 17
-     ========================================================================== */
-
-  @keyframes blade-sheen {
-    from { transform: translateX(-130%); }
-    to   { transform: translateX(130%); }
   }
 
 }
@@ -1225,4 +1219,377 @@ input, textarea, [contenteditable] {
   .outer-wrapper::after {
     font-family: var(--blade-mono) !important;
   }
+}
+
+/* ==========================================================================
+   18. «ЖИВОЙ КЛИНОК»: АТМОСФЕРНЫЕ ОСАДКИ И НОЧНАЯ ЗАБОТА (newtab)
+   Погода (blade.weather.*) + Ночь (blade.night).
+   Композитор: в keyframes ТОЛЬКО transform и opacity.
+   Бюджет слоёв: html::before, html::after (и body::before только для грозы).
+   body::after (Blood Flow) и .outer-wrapper::after (CYBER-HUD) НЕ ЗАНЯТЫ.
+   ========================================================================== */
+
+@-moz-document url("about:home"), url("about:newtab") {
+
+  /* --- 1. ДОЖДЬ (blade.weather.rain) ---
+     Два слоя диагональных струй со смещёнными углами и скоростями (~0.55s и ~0.9s),
+     бесшовный transform translateY(0 -> 50%) по высоте текстуры + тёмная вуаль. */
+  @media -moz-pref("blade.weather.rain") {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(0, 0, 10, 0.18) !important;
+    }
+
+    html::before {
+      content: "" !important;
+      position: fixed !important;
+      top: -100% !important;
+      left: -15% !important;
+      width: 130% !important;
+      height: 200% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image: repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 40px,
+        rgba(200, 225, 255, 0.65) 41px,
+        rgba(255, 255, 255, 0.85) 46px,
+        transparent 50px,
+        transparent 95px
+      ) !important;
+      background-size: 65px 50% !important;
+      opacity: 0.15 !important;
+      transform: skewX(-16deg) translateY(0) !important;
+      animation: blade-rain-drop-a 0.55s linear infinite !important;
+    }
+
+    html::after {
+      content: "" !important;
+      position: fixed !important;
+      top: -100% !important;
+      left: -15% !important;
+      width: 130% !important;
+      height: 200% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image: repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 60px,
+        rgba(180, 210, 255, 0.5) 61px,
+        rgba(225, 240, 255, 0.75) 68px,
+        transparent 74px,
+        transparent 135px
+      ) !important;
+      background-size: 95px 50% !important;
+      opacity: 0.11 !important;
+      transform: skewX(-11deg) translateY(0) !important;
+      animation: blade-rain-drop-b 0.9s linear infinite !important;
+    }
+  }
+
+  @keyframes blade-rain-drop-a {
+    from { transform: skewX(-16deg) translateY(0); }
+    to   { transform: skewX(-16deg) translateY(50%); }
+  }
+
+  @keyframes blade-rain-drop-b {
+    from { transform: skewX(-11deg) translateY(0); }
+    to   { transform: skewX(-11deg) translateY(50%); }
+  }
+
+  /* --- 2. ГРОЗА (blade.weather.thunder) ---
+     Ливень (струи на html::before и body::before) + грозовые вспышки (html::after),
+     2 коротких пика в цикле ~8s (opacity до 0.28, между пиками нули). */
+  @media -moz-pref("blade.weather.thunder") {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(0, 0, 15, 0.24) !important;
+    }
+
+    html::before {
+      content: "" !important;
+      position: fixed !important;
+      top: -100% !important;
+      left: -15% !important;
+      width: 130% !important;
+      height: 200% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image: repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 40px,
+        rgba(200, 225, 255, 0.7) 41px,
+        rgba(255, 255, 255, 0.9) 46px,
+        transparent 50px,
+        transparent 95px
+      ) !important;
+      background-size: 65px 50% !important;
+      opacity: 0.16 !important;
+      transform: skewX(-16deg) translateY(0) !important;
+      animation: blade-rain-drop-a 0.55s linear infinite !important;
+    }
+
+    body::before {
+      content: "" !important;
+      position: fixed !important;
+      top: -100% !important;
+      left: -15% !important;
+      width: 130% !important;
+      height: 200% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image: repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 55px,
+        rgba(180, 210, 255, 0.55) 56px,
+        rgba(225, 240, 255, 0.8) 64px,
+        transparent 70px,
+        transparent 125px
+      ) !important;
+      background-size: 90px 50% !important;
+      opacity: 0.12 !important;
+      transform: skewX(-12deg) translateY(0) !important;
+      animation: blade-thunder-rain 0.85s linear infinite !important;
+    }
+
+    html::after {
+      content: "" !important;
+      position: fixed !important;
+      inset: 0 !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+      background: radial-gradient(ellipse 80% 60% at 50% 15%, rgba(220, 235, 255, 0.85) 0%, rgba(120, 170, 255, 0.4) 45%, rgba(40, 60, 140, 0.15) 75%, transparent 100%) !important;
+      opacity: 0 !important;
+      animation: blade-thunder-flash 8s ease-out infinite !important;
+    }
+  }
+
+  @keyframes blade-thunder-rain {
+    from { transform: skewX(-12deg) translateY(0); }
+    to   { transform: skewX(-12deg) translateY(50%); }
+  }
+
+  @keyframes blade-thunder-flash {
+    0%, 84%, 87%, 91%, 100% {
+      opacity: 0;
+    }
+    85% {
+      opacity: 0.28;
+    }
+    86% {
+      opacity: 0.08;
+    }
+    88% {
+      opacity: 0.24;
+    }
+    89% {
+      opacity: 0.04;
+    }
+  }
+
+  /* --- 3. СНЕГ (blade.weather.snow) ---
+     2 слоя снежинок: мелкий быстрый (6s, дрейф по X) + крупный медленный (11s, дрейф по X),
+     opacity <= 0.45, мягкий зимний полумрак. */
+  @media -moz-pref("blade.weather.snow") {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(5, 5, 20, 0.18) !important;
+    }
+
+    html::before {
+      content: "" !important;
+      position: fixed !important;
+      top: -100% !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 200% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image:
+        radial-gradient(circle 2px at 20px 30px, rgba(255, 255, 255, 0.85) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 75px 90px, rgba(235, 245, 255, 0.75) 0%, transparent 100%),
+        radial-gradient(circle 2px at 140px 45px, rgba(255, 255, 255, 0.8) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 190px 130px, rgba(230, 240, 255, 0.7) 0%, transparent 100%);
+      background-size: 220px 50% !important;
+      opacity: 0.42 !important;
+      animation: blade-snow-fast 6s linear infinite !important;
+    }
+
+    html::after {
+      content: "" !important;
+      position: fixed !important;
+      top: -100% !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 200% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image:
+        radial-gradient(circle 3px at 45px 60px, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+        radial-gradient(circle 2.5px at 160px 140px, rgba(220, 235, 255, 0.6) 0%, transparent 100%),
+        radial-gradient(circle 3.5px at 280px 80px, rgba(255, 255, 255, 0.65) 0%, transparent 100%);
+      background-size: 340px 50% !important;
+      opacity: 0.32 !important;
+      animation: blade-snow-slow 11s linear infinite !important;
+    }
+  }
+
+  @keyframes blade-snow-fast {
+    0%   { transform: translateY(0)   translateX(-15px); }
+    50%  { transform: translateY(25%) translateX(15px); }
+    100% { transform: translateY(50%) translateX(-15px); }
+  }
+
+  @keyframes blade-snow-slow {
+    0%   { transform: translateY(0)   translateX(20px); }
+    50%  { transform: translateY(25%) translateX(-20px); }
+    100% { transform: translateY(50%) translateX(20px); }
+  }
+
+  /* --- 4. ЗВЁЗДЫ (blade.weather.clear + blade.night) ---
+     Россыпь мерцающих созвездий в ясную ночь: 2 слоя radial-gradient точек
+     с alternate opacity-анимацией и сдвигом задержки. */
+  @media -moz-pref("blade.weather.clear") and (-moz-pref("blade.night")) {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(8, 14, 32, 0.28) !important;
+    }
+
+    html::before {
+      content: "" !important;
+      position: fixed !important;
+      inset: 0 !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image:
+        radial-gradient(1px 1px at 40px 60px, rgba(255, 255, 255, 0.9) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 120px 180px, rgba(200, 220, 255, 0.85) 0%, transparent 100%),
+        radial-gradient(1px 1px at 260px 90px, rgba(255, 255, 255, 0.8) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 340px 240px, rgba(230, 240, 255, 0.75) 0%, transparent 100%),
+        radial-gradient(1px 1px at 420px 130px, rgba(255, 255, 255, 0.85) 0%, transparent 100%);
+      background-size: 480px 320px !important;
+      animation: blade-stars-twinkle-a 3.5s ease-in-out infinite alternate !important;
+    }
+
+    html::after {
+      content: "" !important;
+      position: fixed !important;
+      inset: 0 !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background-image:
+        radial-gradient(1px 1px at 80px 140px, rgba(255, 255, 255, 0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 190px 40px, rgba(220, 230, 255, 0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 310px 200px, rgba(255, 255, 255, 0.75) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 390px 110px, rgba(200, 225, 255, 0.85) 0%, transparent 100%);
+      background-size: 440px 300px !important;
+      animation: blade-stars-twinkle-b 4.5s ease-in-out infinite alternate !important;
+      animation-delay: 1.2s !important;
+    }
+  }
+
+  @keyframes blade-stars-twinkle-a {
+    0%   { opacity: 0.35; }
+    50%  { opacity: 0.85; }
+    100% { opacity: 0.45; }
+  }
+
+  @keyframes blade-stars-twinkle-b {
+    0%   { opacity: 0.75; }
+    50%  { opacity: 0.25; }
+    100% { opacity: 0.80; }
+  }
+
+  /* --- 5. ТУМАН (blade.weather.fog) ---
+     Широкие полупрозрачные полосы тумана, медленный дрейф translateX в разные стороны. */
+  @media -moz-pref("blade.weather.fog") {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(15, 20, 28, 0.20) !important;
+    }
+
+    html::before {
+      content: "" !important;
+      position: fixed !important;
+      inset: 0 !important;
+      width: 140% !important;
+      left: -20% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background: linear-gradient(180deg, transparent 0%, rgba(200, 215, 230, 0.22) 30%, rgba(180, 200, 220, 0.35) 55%, transparent 85%) !important;
+      opacity: 0.12 !important;
+      animation: blade-fog-drift-a 22s ease-in-out infinite alternate !important;
+    }
+
+    html::after {
+      content: "" !important;
+      position: fixed !important;
+      inset: 0 !important;
+      width: 140% !important;
+      left: -20% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      background: linear-gradient(175deg, transparent 15%, rgba(170, 195, 215, 0.25) 45%, rgba(190, 210, 230, 0.18) 70%, transparent 95%) !important;
+      opacity: 0.10 !important;
+      animation: blade-fog-drift-b 28s ease-in-out infinite alternate !important;
+    }
+  }
+
+  @keyframes blade-fog-drift-a {
+    from { transform: translateX(-8%); }
+    to   { transform: translateX(8%); }
+  }
+
+  @keyframes blade-fog-drift-b {
+    from { transform: translateX(6%); }
+    to   { transform: translateX(-6%); }
+  }
+
+  /* --- 6. ОБЛАКА (blade.weather.clouds) ---
+     Уплотнённая вуаль без лишних частиц. */
+  @media -moz-pref("blade.weather.clouds") {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(0, 0, 5, 0.26) !important;
+    }
+  }
+
+  /* --- 7. НОЧНАЯ ЗАБОТА (blade.night): ТЁПЛЫЙ ПОЛУМРАК ---
+     Едва уловимая тёплая янтарная вуаль (box-shadow inset), не занимающая псевдоэлементов. */
+  @media -moz-pref("blade.night") {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
+    }
+  }
+
+  /* Комбинации погоды и ночи (наложение виньеток осадков и тёплого ночного полумрака) */
+  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.rain")) {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(0, 0, 10, 0.18), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
+    }
+  }
+  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.thunder")) {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(0, 0, 15, 0.24), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
+    }
+  }
+  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.clouds")) {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(0, 0, 5, 0.26), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
+    }
+  }
+  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.snow")) {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(5, 5, 20, 0.18), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
+    }
+  }
+  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.fog")) {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(15, 20, 28, 0.20), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
+    }
+  }
+  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.clear")) {
+    body.activity-stream {
+      box-shadow: inset 0 0 120vmax rgba(8, 14, 32, 0.28), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
+    }
+  }
+
 }
