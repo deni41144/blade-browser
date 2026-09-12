@@ -48,7 +48,7 @@ F:\firefox michael edition\
 │           ├── userContent.css  Темы newtab/сайтов/about: (~1050 строк)
 │           ├── covers.css       ГЕНЕРИРУЕТСЯ BobliksCovers.uc.js — руками не править
 │           ├── JS\              10 uc.js-скриптов (загрузка через utils\ fx-autoconfig)
-│           ├── img\             Фоны bg_*.jpg, themes\<домен>\<тема>.jpg, covers\
+│           ├── fonts\           Кастомные шрифты (OFL, кириллица): Unbounded/Rubik/JetBrainsMono — только относительные url("fonts/...")\n│           ├── img\             Фоны bg_*.jpg, themes\<домен>\<тема>.jpg, covers\
 │           ├── resources\       blade-apply-update.ps1, set-blade-default.ps1, blade-backup.ps1 (кнопка в меню B)
 │           └── utils\           Загрузчик uc.js (boot.sys.mjs и пр.)
 ├── Patches\
