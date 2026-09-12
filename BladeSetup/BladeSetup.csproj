@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Blade.ico</ApplicationIcon>
+    <AssemblyName>Blade-Setup</AssemblyName>
+    <RootNamespace>BladeSetup</RootNamespace>
+    <AssemblyTitle>Blade Setup</AssemblyTitle>
+    <Product>Blade Browser</Product>
+    <Version>1.4.1</Version>
+    <FileVersion>1.4.1.0</FileVersion>
+    <AssemblyVersion>1.4.1.0</AssemblyVersion>
+    <Company>Blade-Creations</Company>
+    <Copyright>Copyright © 2026 Denis Bobliksov</Copyright>
+    
+    <!-- Single-File Self-Contained Defaults -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Blade.ico" />
+    <Resource Include="blade-logo.png" />
+    <Resource Include="blade-logo-78.png" />
+    <Resource Include="blade-logo-56.png" />
+    <Resource Include="blade-logo-72.png" />
+    <Resource Include="blade-logo-14.png" />
+    <Resource Include="license.txt" />
+  </ItemGroup>
+
+</Project>

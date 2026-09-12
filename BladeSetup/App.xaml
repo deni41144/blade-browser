@@ -1,0 +1,350 @@
+<Application x:Class="BladeSetup.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- ======================================================== -->
+        <!-- BLADE PALETTE CONSTANTS                                  -->
+        <!-- ======================================================== -->
+        <Color x:Key="ColorBgWindow">#0a0a0c</Color>
+        <Color x:Key="ColorCardBg">#14141a</Color>
+        <Color x:Key="ColorCardBgLight">#1a1a24</Color>
+        <Color x:Key="ColorAccentRed">#ff2a2a</Color>
+        <Color x:Key="ColorAccentHover">#ff4545</Color>
+        <Color x:Key="ColorAccentGlow">#80ff2a2a</Color>
+        <Color x:Key="ColorTextPrimary">#e8e8e8</Color>
+        <Color x:Key="ColorTextSecondary">#8a8f98</Color>
+        <Color x:Key="ColorTextMuted">#585c68</Color>
+        <Color x:Key="ColorBorderSubtle">#2a2a34</Color>
+        <Color x:Key="ColorBorderHover">#ff2a2a</Color>
+
+        <!-- SolidColorBrush Resources -->
+        <SolidColorBrush x:Key="BrushBgWindow" Color="{StaticResource ColorBgWindow}" />
+        <SolidColorBrush x:Key="BrushCardBg" Color="{StaticResource ColorCardBg}" />
+        <SolidColorBrush x:Key="BrushCardBgLight" Color="{StaticResource ColorCardBgLight}" />
+        <SolidColorBrush x:Key="BrushAccentRed" Color="{StaticResource ColorAccentRed}" />
+        <SolidColorBrush x:Key="BrushAccentHover" Color="{StaticResource ColorAccentHover}" />
+        <SolidColorBrush x:Key="BrushTextPrimary" Color="{StaticResource ColorTextPrimary}" />
+        <SolidColorBrush x:Key="BrushTextSecondary" Color="{StaticResource ColorTextSecondary}" />
+        <SolidColorBrush x:Key="BrushTextMuted" Color="{StaticResource ColorTextMuted}" />
+        <SolidColorBrush x:Key="BrushBorderSubtle" Color="{StaticResource ColorBorderSubtle}" />
+        <SolidColorBrush x:Key="BrushBorderHover" Color="{StaticResource ColorBorderHover}" />
+
+        <!-- Effects -->
+        <DropShadowEffect x:Key="BladeGlowEffect"
+                          Color="#ff2a2a"
+                          BlurRadius="20"
+                          Opacity="0.4"
+                          ShadowDepth="0" />
+
+        <DropShadowEffect x:Key="BladeAccentGlowEffect"
+                          Color="#ff2a2a"
+                          BlurRadius="24"
+                          Opacity="0.65"
+                          ShadowDepth="0" />
+
+        <DropShadowEffect x:Key="LaserGlowEffect"
+                          Color="#ff2a2a"
+                          BlurRadius="12"
+                          Opacity="0.85"
+                          ShadowDepth="0" />
+
+        <!-- ======================================================== -->
+        <!-- BUTTON STYLES                                            -->
+        <!-- ======================================================== -->
+
+        <!-- Standard Button Style -->
+        <Style x:Key="BladeButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BrushCardBg}" />
+            <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="16,8" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BrushCardBgLight}" />
+                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
+                                <Setter Property="Foreground" Value="#ffffff" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#0e0e14" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#ff4545" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Accent Red Button Style (Primary Action) -->
+        <Style x:Key="BladeAccentButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#220c0e" />
+            <Setter Property="Foreground" Value="#ffffff" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="20,10" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Effect" Value="{StaticResource BladeGlowEffect}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Effect="{TemplateBinding Effect}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccentRed}" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentHover}" />
+                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeAccentGlowEffect}" />
+                                <Setter Property="Foreground" Value="#ffffff" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#cc1f1f" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#ffffff" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35" />
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Ghost Button Style (Back / Cancel / Exit) -->
+        <Style x:Key="BladeGhostButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="16,8" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushTextSecondary}" />
+                                <Setter TargetName="border" Property="Background" Value="#121218" />
+                                <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#09090c" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Window Close Button (✕) -->
+        <Style x:Key="BladeCloseButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="0,10,0,6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccentRed}" />
+                                <Setter Property="Foreground" Value="#ffffff" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#cc1f1f" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ======================================================== -->
+        <!-- TEXTBOX STYLE                                            -->
+        <!-- ======================================================== -->
+        <Style x:Key="BladeTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource BrushCardBg}" />
+            <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="CaretBrush" Value="{StaticResource BrushAccentRed}" />
+            <Setter Property="SelectionBrush" Value="{StaticResource BrushAccentRed}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushTextSecondary}" />
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
+                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ======================================================== -->
+        <!-- CHECKBOX STYLE                                           -->
+        <!-- ======================================================== -->
+        <Style x:Key="BladeCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
+            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Grid Width="18" Height="18" Margin="0,0,10,0">
+                                <Border x:Name="boxBorder"
+                                        Background="#0a0a0c"
+                                        BorderBrush="{StaticResource BrushBorderSubtle}"
+                                        BorderThickness="1.5"
+                                        CornerRadius="4" />
+                                <Path x:Name="checkMark"
+                                      Data="M 3,9 L 7,13 L 15,4"
+                                      Stroke="{StaticResource BrushAccentRed}"
+                                      StrokeThickness="2.2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Visibility="Collapsed" />
+                            </Grid>
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="boxBorder" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
+                                <Setter TargetName="boxBorder" Property="Background" Value="#14141a" />
+                                <Setter TargetName="boxBorder" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="boxBorder" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ======================================================== -->
+        <!-- SLICK MINIMALIST SCROLLBAR                               -->
+        <!-- ======================================================== -->
+        <Style x:Key="BladeScrollBarThumb" TargetType="Thumb">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border Background="{StaticResource BrushBorderSubtle}"
+                                CornerRadius="2.5" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource BrushAccentRed}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="#0a0a0c" />
+            <Setter Property="Width" Value="6" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource BladeScrollBarThumb}" Margin="1,0" />
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Application.Resources>
+</Application>
