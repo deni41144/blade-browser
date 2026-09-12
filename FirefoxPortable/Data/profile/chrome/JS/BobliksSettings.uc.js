@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.12.0
+// @version         1.13.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.12.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.13.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -835,6 +835,10 @@
         sub('ИНТЕРФЕЙС');
         const sndOn = Services.prefs.getBoolPref('blade.sounds.on', true);
         row('Звуки интерфейса (GX)', { bladeSounds: sndOn ? 'off' : 'on' }, { on: sndOn });
+        const vtabsOn = Services.prefs.getBoolPref('sidebar.verticalTabs', false);
+        row('Вертикальные вкладки', { bladeVtabs: vtabsOn ? 'off' : 'on' }, { on: vtabsOn });
+        const idleOn = Services.prefs.getBoolPref('blade.idle.on', true);
+        row('Заставка простоя (3 мин)', { bladeIdle: idleOn ? 'off' : 'on' }, { on: idleOn });
         row('Очистить память', { bladePurge: '1' }, { noDot: true });
         sub('БЭКАП');
         row('Сохранить профиль в zip', { bladeBackup: '1' }, { noDot: true });
@@ -983,6 +987,16 @@
           }
           else if (ds.bladeSounds === 'on' || ds.bladeSounds === 'off') {
             Services.prefs.setBoolPref('blade.sounds.on', ds.bladeSounds === 'on');
+          }
+          else if (ds.bladeVtabs) {
+            // перечитываем преф в момент клика: dataset мог протухнуть
+            // между открытием меню и кликом (переключили в другом окне)
+            Services.prefs.setBoolPref('sidebar.verticalTabs',
+              !Services.prefs.getBoolPref('sidebar.verticalTabs', false));
+          }
+          else if (ds.bladeIdle) {
+            Services.prefs.setBoolPref('blade.idle.on',
+              !Services.prefs.getBoolPref('blade.idle.on', true));
           }
           else if (ds.bladeBackup === '1') { close = true; launchBackup(); }
           else if (ds.bladeAutoTheme === 'on') { Services.prefs.setBoolPref('blade.autotheme.on', true); }
@@ -1142,6 +1156,21 @@
       });
     } catch (e) { mark('ERR attrsInit', e); }
 
+    // Вертикальные вкладки (натив FF155): атрибут для CSS-слоя, живое
+    // переключение при смене префа sidebar.verticalTabs
+    function syncVtabsAttr() {
+      try {
+        window.document.documentElement.toggleAttribute('data-blade-vtabs',
+          Services.prefs.getBoolPref('sidebar.verticalTabs', false));
+      } catch (e) {}
+    }
+    syncVtabsAttr();
+    Services.prefs.addObserver('sidebar.verticalTabs', syncVtabsAttr);
+    window.addEventListener('unload', () => {
+      try { Services.prefs.removeObserver('sidebar.verticalTabs', syncVtabsAttr); } catch (e) {}
+    }, { once: true });
+
+
     // Чистильщик первого запуска: расширения (SponsorBlock) открывают свой
     // help при автоустановке. Закрываем их — только в первую минуту после
     // старта, дальше юзер сам решает, что открывать.
@@ -1287,6 +1316,109 @@
       }
     } catch (e) { mark('ERR splash ' + e); }
 
+    // ЗАСТАВКА ПРОСТОЯ: 3+ минуты без ввода — экран с логотипом и часами.
+    // Гварды показа: преф выключен / окно в fullscreen / любая вкладка играет
+    // звук (человек смотрит видео или слушает — не мешаем). Оверлей с
+    // pointer-events: none — никогда не перехватывает ввод, любое движение
+    // его мгновенно убирает. Стили — только читаемая база: наведёт красоту
+    // CSS-волна по селекторам #blade-idle / .bi-word / .bi-clock.
+    try {
+      const d = window.document;
+      const H2 = 'http://www.w3.org/1999/xhtml';
+      let lastActivity = Date.now();
+      let idleShown = false;
+      let clockTimer = null;
+      let idleOv = null;
+      let clockEl = null;
+
+      const ensureIdleOverlay = () => {
+        // id-гварды и оверлея, и стиля: повторный вызов ничего не плодит
+        let ov = d.getElementById('blade-idle');
+        if (ov) { idleOv = ov; clockEl = ov.querySelector('.bi-clock'); return ov; }
+        ov = d.createElementNS(H2, 'div');
+        ov.id = 'blade-idle';
+        const word = d.createElementNS(H2, 'div');
+        word.className = 'bi-word';
+        word.textContent = 'B L A D E';
+        const clock = d.createElementNS(H2, 'div');
+        clock.className = 'bi-clock';
+        clock.textContent = '--:--';
+        ov.append(word, clock);
+        const st = d.createElementNS(H2, 'style');
+        st.textContent = [
+          '#blade-idle { position: fixed; inset: 0; z-index: 2147483640;',
+          '  display: none; background: #050507; pointer-events: none;',
+          '  flex-direction: column; align-items: center; justify-content: center; gap: 24px; }',
+          '#blade-idle .bi-word { font-family: var(--blade-display, "Segoe UI", sans-serif);',
+          '  font-size: 28px; font-weight: 800; letter-spacing: 14px; color: var(--accent, #ff2a2a); }',
+          '#blade-idle .bi-clock { font-family: var(--blade-mono, monospace);',
+          '  font-size: 88px; color: #d8d8de; }'
+        ].join('\n');
+        d.documentElement.append(st, ov);
+        idleOv = ov;
+        clockEl = clock;
+        return ov;
+      };
+
+      const clockTick = () => {
+        try {
+          const n = new Date();
+          clockEl.textContent =
+            String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
+        } catch (e) {}
+      };
+
+      const showIdle = () => {
+        try {
+          ensureIdleOverlay();
+          idleOv.style.display = 'flex';
+          idleShown = true;
+          clockTick(); // при показе сразу актуальное время, а не «--:--»
+          if (!clockTimer) clockTimer = setInterval(clockTick, 1000);
+        } catch (e) { mark('ERR idleShow ' + e); }
+      };
+
+      const hideIdle = () => {
+        try {
+          if (idleOv) idleOv.style.display = 'none';
+          if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+          idleShown = false;
+        } catch (e) {}
+      };
+
+      // activity-события только обновляют lastActivity; если оверлей уже
+      // виден — первое же движение скрывает его (hideIdle внутри)
+      const onActivity = () => {
+        lastActivity = Date.now();
+        if (idleShown) hideIdle();
+      };
+      for (const t of ['mousemove', 'keydown', 'mousedown', 'wheel']) {
+        window.addEventListener(t, onActivity, { capture: true, passive: true });
+      }
+
+      const idleAllowed = () => {
+        try {
+          if (!Services.prefs.getBoolPref('blade.idle.on', true)) return false;
+          if (window.fullScreen) return false;
+          // звук в любой вкладке = юзер при деле: заставку не поднимаем
+          if (window.document.querySelector('tab[soundplaying]')) return false;
+          return true;
+        } catch (e) { return false; }
+      };
+
+      const idleTimer = setInterval(() => {
+        try {
+          if (!idleShown && Date.now() - lastActivity > 3 * 60e3 && idleAllowed()) showIdle();
+        } catch (e) {}
+      }, 15e3);
+      window.addEventListener('unload', () => {
+        clearInterval(idleTimer);
+        if (clockTimer) clearInterval(clockTimer);
+      }, { once: true });
+      mark('OK idle');
+    } catch (e) { mark('ERR idle ' + e); }
+
+
     // Кнопка: если виджет уже зарегистрирован (повторный запуск скрипта) — пропускаем
     try {
       if (!CustomizableUI.getWidget(WIDGET_ID)) {
@@ -1401,6 +1533,9 @@
       visages: () => allVisages().map(v => ({ id: v.id, label: v.label })),
       applyVisage, saveVisage,
       toggleSounds() { const on = !Services.prefs.getBoolPref('blade.sounds.on', true); Services.prefs.setBoolPref('blade.sounds.on', on); return on; },
+      vtabs: () => Services.prefs.getBoolPref('sidebar.verticalTabs', false),
+      toggleVtabs() { const v = !Services.prefs.getBoolPref('sidebar.verticalTabs', false); Services.prefs.setBoolPref('sidebar.verticalTabs', v); return v; },
+      toggleIdle() { const v = !Services.prefs.getBoolPref('blade.idle.on', true); Services.prefs.setBoolPref('blade.idle.on', v); return v; },
       backup() { launchBackup(); },
     };
 

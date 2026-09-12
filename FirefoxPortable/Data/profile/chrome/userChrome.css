@@ -89,6 +89,15 @@ html|sidebar-main {
   display: none !important;
 }
 
+/* Вертикальные вкладки (натив FF155, преф sidebar.verticalTabs): когда
+   включены — атрибут [data-blade-vtabs] (ставит BobliksSettings) снимает
+   глухое скрытие; стилизацию колонки делает CSS-волна «Новый Силуэт» */
+html|html[data-blade-vtabs] #sidebar-container,
+html|html[data-blade-vtabs] #sidebar-box,
+html|html[data-blade-vtabs] html|sidebar-main {
+  display: flex !important;
+}
+
 #navigator-toolbox {
   background: var(--bg) !important;
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent) !important;
