@@ -65,7 +65,7 @@ F:\firefox michael edition\
 |---|---|---|
 | BladeCore.uc.js | 1.0.0 | Общий контракт `window.Blade`: THEMES, builtinBgs, bgPrefId, mark, шина событий, runPsEncoded. `@loadOrder 5` — исполняется до всех. ОТКЛЮЧАТЬ НЕЛЬЗЯ |
 | BobliksSettings.uc.js | 1.10.0 | Меню «B»: темы (+авто-тема день/ночь), фоны, DNS, ПЕРФ-замеры, бэкап-кнопка, система; F1/Alt+B. `applyThemeSheet()` — USER_SHEET для живого переключения тем |
-| BladeUpdater.uc.js | 1.3.2 | Автопроверка GitHub (сутки), панель «Хроника обновлений», самолечение 401-токена, однократная регистрация дефолт-браузера, API `window.BladeUpdater` |
+| BladeUpdater.uc.js | 1.3.3 | Автопроверка GitHub (сутки), панель «Хроника обновлений», самолечение 401-токена, однократная регистрация дефолт-браузера, API `window.BladeUpdater` |
 | BobliksCovers.uc.js | 2.1.0 | Генератор covers.css (`@onlyonce` + перегенерация по префу `bobliks.covers.dirty`) |
 | BladeNewtab.uc.js | 1.1.0 | Hero на новой вкладке: приветствие по времени, погода+прогноз 3 дня, тикер хроники (chrome-оверлей; данные Clock через шину BladeCore) |
 | BladeClock.uc.js | 2.1.0 | Часы+погода+прогноз в тулбаре (ipwho.is + open-meteo), публикует в шину clock:weather |
