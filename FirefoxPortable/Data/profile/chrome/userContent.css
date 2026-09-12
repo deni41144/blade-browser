@@ -1,0 +1,1042 @@
+/* ============================================================================
+   userContent.css — "Speed Dial" в стиле Opera GX для about:home / about:newtab
+   Firefox Portable, нативные user-стили, БЕЗ сторонних расширений.
+
+   Структура папок (обязательно):
+     FirefoxPortable/Data/profile/chrome/userContent.css      <-- этот файл
+     FirefoxPortable/Data/profile/chrome/img/bg_acheron.jpg   <-- фон (дефолт)
+     FirefoxPortable/Data/profile/chrome/img/youtube.png ...  <-- обложки плиток
+
+   Относительные пути url("img/...") разрешаются относительно папки chrome/.
+   ============================================================================ */
+
+/* Автообложки плиток (генерится BobliksCovers.uc.js) */
+@import "covers.css";
+
+/* ============================================================================
+   0. ДВИЖОК ТЕМ (синхронизирован с userChrome.css и кнопкой Bobliks)
+   Дефолт = GX RED. Темы включаются префами bobliks.theme.* (кнопка "B").
+   -moz-pref() обновляется ЖИВО, без перезапуска браузера.
+   ============================================================================ */
+
+:root {
+  --bob-accent: #ff2a2a;
+  --bob-accent-rgb: 255, 42, 42;
+  --bob-accent-contrast: #ffffff;
+  --bob-accent-soft: rgba(255, 42, 42, 0.35);
+  --bob-page: #0a0a0c;
+}
+
+/* Базовое выделение (дефолт GX Red); тематические блоки ниже перекрашивают.
+   Раньше база стояла в конце файла и убивала темы (баг №12 красной команды). */
+::selection {
+  background-color: #ff2a2a !important;
+  color: #ffffff !important;
+}
+
+@media -moz-pref("bobliks.theme.purple") {
+  :root {
+    --bob-accent: #b44bff;
+    --bob-accent-soft: rgba(180, 75, 255, 0.35);
+    --bob-page: #0c0a10;
+    --bob-accent-rgb: 180, 75, 255;
+    --bob-accent-contrast: #ffffff;
+  }
+  ::selection { background-color: #b44bff !important; color: #ffffff !important; }
+}
+
+@media -moz-pref("bobliks.theme.green") {
+  :root {
+    --bob-accent: #00ff88;
+    --bob-accent-soft: rgba(0, 255, 136, 0.3);
+    --bob-page: #060a08;
+    --bob-accent-rgb: 0, 255, 136;
+    --bob-accent-contrast: #0a0a0c;
+  }
+  ::selection { background-color: #00ff88 !important; color: #000000 !important; }
+}
+
+@media -moz-pref("bobliks.theme.grey") {
+  :root {
+    --bob-accent: #8a8f98;
+    --bob-accent-soft: rgba(138, 143, 152, 0.35);
+    --bob-page: #0e0f11;
+    --bob-accent-rgb: 138, 143, 152;
+    --bob-accent-contrast: #0a0a0c;
+  }
+  ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
+}
+
+@media -moz-pref("bobliks.theme.orange") {
+  :root {
+    --bob-accent: #ff6a1f;
+    --bob-accent-soft: rgba(255, 106, 31, 0.35);
+    --bob-page: #0c0a08;
+    --bob-accent-rgb: 255, 106, 31;
+    --bob-accent-contrast: #ffffff;
+  }
+  ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
+}
+
+/* --- CHERRY (вишнёвая) --- */
+@media -moz-pref("bobliks.theme.cherry") {
+  :root {
+    --bob-accent: #d02d4e;
+    --bob-accent-soft: rgba(208, 45, 78, 0.38);
+    --bob-page: #100508;
+    --bob-accent-rgb: 208, 45, 78;
+    --bob-accent-contrast: #ffffff;
+  }
+  ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
+}
+
+/* --- VOLT YELLOW (вольт-жёлтая) --- */
+@media -moz-pref("bobliks.theme.volt") {
+  :root {
+    --bob-accent: #fff820;
+    --bob-accent-soft: rgba(255, 248, 32, 0.35);
+    --bob-page: #0d0d05;
+    --bob-accent-rgb: 255, 248, 32;
+    --bob-accent-contrast: #0a0a0c;
+  }
+  ::selection { background-color: #fff820 !important; color: #000000 !important; }
+}
+
+/* --- MIDNIGHT BLUE (сине-чёрная) --- */
+@media -moz-pref("bobliks.theme.midnight") {
+  :root {
+    --bob-accent: #2f6bff;
+    --bob-accent-soft: rgba(47, 107, 255, 0.38);
+    --bob-page: #04060d;
+    --bob-accent-rgb: 47, 107, 255;
+    --bob-accent-contrast: #ffffff;
+  }
+  ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
+}
+
+/* --- DEMONIC BLOOD (кроваво-демоническая) --- */
+@media -moz-pref("bobliks.theme.blood") {
+  :root {
+    --bob-accent: #a80f0f;
+    --bob-accent-soft: rgba(168, 15, 15, 0.38);
+    --bob-page: #0d0506;
+    --bob-accent-rgb: 168, 15, 15;
+    --bob-accent-contrast: #ffffff;
+  }
+  ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
+}
+
+/* --- АТРИБУТНЫЕ ДУБЛИ ТЕМ (живое переключение) -----------------------------
+   -moz-pref() в юзер-стилях иногда замерзает до перезапуска. Кнопка "B"
+   ставит data-blade-theme на документ — обычный пересчёт стилей, работает
+   всегда. На http-страницах атрибута нет — там продолжают работать префы. */
+:root[data-blade-theme="purple"] { --bob-accent: #b44bff; --bob-accent-soft: rgba(180, 75, 255, 0.35); --bob-page: #0c0a10; --bob-accent-rgb: 180, 75, 255; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="purple"] ::selection { background-color: #b44bff !important; color: #ffffff !important; }
+:root[data-blade-theme="green"] { --bob-accent: #00ff88; --bob-accent-soft: rgba(0, 255, 136, 0.3); --bob-page: #060a08; --bob-accent-rgb: 0, 255, 136; --bob-accent-contrast: #0a0a0c; }
+:root[data-blade-theme="green"] ::selection { background-color: #00ff88 !important; color: #000000 !important; }
+:root[data-blade-theme="grey"] { --bob-accent: #8a8f98; --bob-accent-soft: rgba(138, 143, 152, 0.35); --bob-page: #0e0f11; --bob-accent-rgb: 138, 143, 152; --bob-accent-contrast: #0a0a0c; }
+:root[data-blade-theme="grey"] ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
+:root[data-blade-theme="orange"] { --bob-accent: #ff6a1f; --bob-accent-soft: rgba(255, 106, 31, 0.35); --bob-page: #0c0a08; --bob-accent-rgb: 255, 106, 31; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="orange"] ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
+:root[data-blade-theme="cherry"] { --bob-accent: #d02d4e; --bob-accent-soft: rgba(208, 45, 78, 0.38); --bob-page: #100508; --bob-accent-rgb: 208, 45, 78; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="cherry"] ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
+:root[data-blade-theme="volt"] { --bob-accent: #fff820; --bob-accent-soft: rgba(255, 248, 32, 0.35); --bob-page: #0d0d05; --bob-accent-rgb: 255, 248, 32; --bob-accent-contrast: #0a0a0c; }
+:root[data-blade-theme="volt"] ::selection { background-color: #fff820 !important; color: #000000 !important; }
+:root[data-blade-theme="midnight"] { --bob-accent: #2f6bff; --bob-accent-soft: rgba(47, 107, 255, 0.38); --bob-page: #04060d; --bob-accent-rgb: 47, 107, 255; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="midnight"] ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
+:root[data-blade-theme="blood"] { --bob-accent: #a80f0f; --bob-accent-soft: rgba(168, 15, 15, 0.38); --bob-page: #0d0506; --bob-accent-rgb: 168, 15, 15; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="blood"] ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
+/* red-дубль: возврат на дефолт должен перебивать застрявший преф-блок темы */
+:root[data-blade-theme="red"] { --bob-accent: #ff2a2a; --bob-accent-soft: rgba(255, 42, 42, 0.35); --bob-page: #0a0a0c; }
+:root[data-blade-theme="red"] ::selection { background-color: #ff2a2a !important; color: #ffffff !important; }
+
+/* Кейфреймы живых фонов (Pulse / Blood Flow): обязаны лежать на ВЕРХНЕМ
+   уровне файла — вложенные в @-moz-document/@media конструкции капризны. */
+@keyframes blade-pulse {
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.12); }
+}
+@keyframes blade-flow-a {
+  from { transform: translate(-4%, -2%) scale(1); }
+  to   { transform: translate(4%, 3%) scale(1.08); }
+}
+@keyframes blade-flow-b {
+  from { transform: translate(5%, 2%) scale(1.05); }
+  to   { transform: translate(-5%, -3%) scale(1); }
+}
+
+
+
+@-moz-document url("about:home"), url("about:newtab") {
+
+  /* ==========================================================================
+     1. ФОН СТРАНИЦЫ
+     ========================================================================== */
+
+  html, body {
+    height: 100% !important;
+  }
+
+  body.activity-stream {
+    background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_acheron.jpg") center bottom / cover no-repeat fixed !important;
+    scrollbar-width: none !important;
+  }
+
+  /* --- СМЕНА ФОНА (кнопка "B" -> bool-префы bobliks.bg.*) ---
+     Полная подмена background с url() ИНЛАЙНОМ: в var() относительный путь
+     разрешался бы от документа, а не от этой таблицы стилей.
+     Порядок обязателен: блоки ниже базового правила, чтобы побеждать его. */
+  @media -moz-pref("bobliks.bg.inferno") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.cherrybg") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_cherry.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.bloodmoon") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_bloodmoon.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.midnight") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_midnight.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.violet") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_violet.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.toxic") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_toxic.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.ashen") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ashen.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.voltbg") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.ember") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.blade") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  /* --- ЖИВЫЕ ФОНЫ ---------------------------------------------------------- */
+  /* Ember Flow: анимированный WebP (движок сам крутит кадры фоновой картинки).
+     Файл img/bg_emberflow.webp можно заменить любым другим анимированным WebP
+     с тем же именем — код не меняется. Кейфреймы Pulse/Flow — наверху файла. */
+  @media -moz-pref("bobliks.bg.emberflow") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  /* Pulse — живая бездна: дышащее кровавое свечение. Чистый CSS, файла нет:
+     transform/opacity на псевдоэлементе = композитор, почти нулевая нагрузка. */
+  @media -moz-pref("bobliks.bg.pulse") {
+    body.activity-stream {
+      background: #060404 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -12%;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(ellipse 55% 45% at 50% 80%, rgba(150,10,10,.60) 0%, rgba(80,4,4,.30) 45%, transparent 72%);
+      animation: blade-pulse 9s ease-in-out infinite;
+    }
+  }
+
+  /* Blood Flow — кровавый поток: две дымки в противоход. Чистый CSS, файла нет. */
+  @media -moz-pref("bobliks.bg.flow") {
+    body.activity-stream {
+      background: #060405 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 45% 60% at 25% 30%, rgba(168,15,15,.38), transparent 70%),
+        radial-gradient(ellipse 55% 50% at 75% 70%, rgba(255,42,42,.16), transparent 70%);
+      animation: blade-flow-a 47s ease-in-out infinite alternate;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(ellipse 60% 35% at 60% 45%, rgba(120,8,8,.32), transparent 75%);
+      animation: blade-flow-b 61s ease-in-out infinite alternate;
+    }
+  }
+
+  /* --- АТРИБУТНЫЕ ДУБЛИ ФОНОВ (живое переключение) --------------------------
+     Кнопка "B" ставит data-blade-bg на документ новой вкладки — обычный
+     пересчёт стилей работает всегда, даже когда -moz-pref замерз.
+     Специфичность (0,2,2) бьёт преф-блоки выше. Acheron тоже нужен дубль:
+     если преф-система застряла с чужим фоном, только он возвращает дефолт. */
+  :root[data-blade-bg="acheron"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_acheron.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="inferno"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="cherrybg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_cherry.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="bloodmoon"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_bloodmoon.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="midnight"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_midnight.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="violet"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_violet.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="toxic"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_toxic.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ashen.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="voltbg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="blade"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="emberflow"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="pulse"] body.activity-stream { background: #060404 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="pulse"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -12%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 55% 45% at 50% 80%, rgba(150,10,10,.60) 0%, rgba(80,4,4,.30) 45%, transparent 72%);
+    animation: blade-pulse 9s ease-in-out infinite;
+  }
+  :root[data-blade-bg="flow"] body.activity-stream { background: #060405 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="flow"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 45% 60% at 25% 30%, rgba(168,15,15,.38), transparent 70%),
+      radial-gradient(ellipse 55% 50% at 75% 70%, rgba(255,42,42,.16), transparent 70%);
+    animation: blade-flow-a 47s ease-in-out infinite alternate;
+  }
+  :root[data-blade-bg="flow"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 35% at 60% 45%, rgba(120,8,8,.32), transparent 75%);
+    animation: blade-flow-b 61s ease-in-out infinite alternate;
+  }
+
+  /* ==========================================================================
+     2. СКРЫТИЕ СТАНДАРТНЫХ ЭЛЕМЕНТОВ FIREFOX
+     ========================================================================== */
+
+  .logo-and-wordmark,
+  .wordmark,
+  .section-top-bar,
+  .collapsible-section,
+  .collapsible-section[data-section-id="topstories"],
+  .collapsible-section[data-section-id="pocket"],
+  .ds-header, .ds-column,
+  .sponsored-label,
+  .prefs-button,
+  .context-menu-button,
+  .notification-wrapper,
+  /* Штатный виджет погоды — скрыт: свои часы+погода живут в тулбаре
+     (живой селектор [class*="weather"] ниже накрывает и легаси-классы) */
+  section[data-section-id="weather"],
+  #weather-section,
+  [class*="weather"],
+  /* Поисковая капсула по центру новой вкладки — поиск только в urlbar */
+  .search-wrapper {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     2.1 РЕЖИМ ПРАВКИ ПЛИТОК (кнопка "B" -> «Режим правки»)
+     Включается префом bobliks.dial.edit. Показывает штатные кнопки «...»
+     на плитках: Edit / Pin / Dismiss (удалить) / Add New Shortcut.
+     Блок стоит ПОСЛЕ секции скрытия: при равной специфичности поздний
+     display:flex побеждает ранний display:none из списка выше.
+     ========================================================================== */
+  @media -moz-pref("bobliks.dial.edit") {
+    .context-menu-button {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 50% !important;
+      background: rgba(20, 20, 26, 0.88) !important;
+      border: 1px solid color-mix(in srgb, var(--bob-accent) 55%, transparent) !important;
+    }
+    .context-menu-button:hover,
+    .context-menu-button:focus-visible {
+      background: rgba(20, 20, 26, 0.97) !important;
+      border-color: var(--bob-accent) !important;
+      box-shadow: 0 0 10px color-mix(in srgb, var(--bob-accent) 50%, transparent) !important;
+    }
+
+    /* Штатное контекст-меню плитки — тёмное, с акцентным ховером (если
+       рендерится в контенте; нативные chrome-меню красит userChrome.css) */
+    .context-menu {
+      background: #14141a !important;
+      color: #e8e8e8 !important;
+      border: 1px solid color-mix(in srgb, var(--bob-accent) 55%, transparent) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65) !important;
+      overflow: hidden !important;
+    }
+    .context-menu .context-menu-list {
+      background: transparent !important;
+      border: none !important;
+      margin: 0 !important;
+      padding: 4px !important;
+    }
+    .context-menu .context-menu-item,
+    .context-menu .context-menu-item a,
+    .context-menu .context-menu-item button {
+      background: transparent !important;
+      color: #e8e8e8 !important;
+      border-radius: 6px !important;
+    }
+    .context-menu .context-menu-item:hover,
+    .context-menu .context-menu-item:focus-visible,
+    .context-menu .context-menu-item:hover a,
+    .context-menu .context-menu-item:hover button {
+      background: color-mix(in srgb, var(--bob-accent) 28%, transparent) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  /* Кнопку-карандаш (Edit) прячем, но НЕ весь .edit-topsites-wrapper:
+     внутри него Firefox рендерит форму добавления ярлыка по кнопке "+". */
+  .edit-topsites-wrapper .edit-topsites-button {
+    display: none !important;
+  }
+
+  /* Фиолетовая кнопка-карандаш «Персонализировать» (правый нижний угол) */
+  .personalizeButtonWrapper,
+  .personalize-button {
+    display: none !important;
+  }
+
+  /* Стилизуем всплывающую форму добавления ярлыка под Opera GX */
+  .edit-topsites-wrapper .modal {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    z-index: 1000 !important;
+    background: rgba(20, 20, 26, 0.92) !important;
+    color: #e8e8e8 !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 50%, transparent) !important;
+    border-radius: 8px !important;
+    backdrop-filter: blur(14px) saturate(1.2) !important;
+    box-shadow: 0 0 24px color-mix(in srgb, var(--bob-accent) 25%, transparent) !important;
+  }
+
+  .edit-topsites-wrapper .modal input[type="text"] {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 35%, transparent) !important;
+    border-radius: 6px !important;
+    color: #e8e8e8 !important;
+  }
+
+  .edit-topsites-wrapper .modal .close-button {
+    filter: invert(1) !important;
+  }
+
+  /* ==========================================================================
+     3. ГЕОМЕТРИЯ: ЖЁСТКОЕ ЦЕНТРИРОВАНИЕ СЕТКИ 3x5 (15 плиток)
+     ========================================================================== */
+
+  /* Нормализация: обнуляем родные отступы страницы, центрирование — отдельно */
+  body.activity-stream,
+  .outer-wrapper,
+  .outer-wrapper > main {
+    display: block !important;
+    min-height: 100vh !important;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* СЕТКА: прибита к геометрическому центру окна (position: fixed).
+     Не зависит от поиска, погодного виджета и высоты экрана —
+     на полном экране больше не съезжает. */
+  .top-sites-list {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-content: center !important;
+    /* 5 колонок x 170px + 4 зазора x 10px = 890px; на узких окнах (snap-
+       разделение экрана, ноутбук с масштабированием) сжимаемся,
+       flex-wrap переносит лишние плитки на новые ряды */
+    width: min(890px, 92vw) !important;
+    gap: 14px 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 2 !important;
+  }
+
+  /* Низкие экраны (ноутбуки 768p с тулбаром и таскбаром): 5 рядов плиток
+     по высоте не влезают, а скролл выключен — ужимаем масштаб блока
+     (Gemini ревью-2, краевой случай 3) */
+  @media (max-height: 650px) {
+    .top-sites-list {
+      transform: translate(-50%, -50%) scale(0.82) !important;
+    }
+  }
+
+  .top-sites-list li.top-site-outer {
+    width: 170px !important;
+    height: 95px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+  }
+
+  /* Ровно 15 плиток (3 ряда по 5). Лишние — скрываем.
+     .add-button (плитка "+") не прячем никогда. */
+  .top-sites-list li.top-site-outer:nth-child(n+16):not(.add-button) {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     4. ПЛИТКИ: ГЕОМЕТРИЯ 170x95 (16:9), РАМКА, СКРЫТИЕ ФАВИКОНОК И ТЕКСТА
+     ========================================================================== */
+
+  .top-site-outer .top-site-inner {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .top-site-outer .top-site-button {
+    width: 170px !important;
+    height: 95px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .top-site-outer .tile {
+    width: 170px !important;
+    height: 95px !important;
+    border-radius: 8px !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 40%, transparent) !important;
+    /* v1.7: плитки без стекла, перф — постоянный backdrop-filter на 15 плитках
+       заменён плотной подложкой (обложка сверху остаётся видна) */
+    background-color: color-mix(in srgb, var(--bob-page, #0a0a0c) 78%, transparent) !important;
+    background-image: linear-gradient(135deg, color-mix(in srgb, var(--bob-accent) 8%, transparent), rgba(0, 0, 0, 0.45)) !important; /* фолбэк */
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+  }
+
+  /* Скрываем стандартную фавиконку и заголовок под плиткой
+     (текст уже отрисован на изображениях-обложках). */
+  .top-site-outer .top-site-icon,
+  .top-site-outer .letter-fallback,
+  .top-site-outer .title {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     5. ИНТЕРАКТИВ: HOVER / ACTIVE / FOCUS
+     ========================================================================== */
+
+  .top-site-outer .top-site-button:hover .tile,
+  .top-site-outer .top-site-button:focus-visible .tile {
+    transform: translateY(-3px) scale(1.04) !important;
+    filter: grayscale(0%) contrast(1.05) !important;
+    border-color: var(--bob-accent) !important;
+    /* свечение статичное: пульс делаем бликом ниже (transform, композитор) —
+       box-shadow в keyframe пересчитывает размытие каждый кадр (Gemini раунд 6) */
+    box-shadow: 0 0 16px color-mix(in srgb, var(--bob-accent) 60%, transparent) !important;
+  }
+
+  .top-site-outer .top-site-button:active .tile {
+    transform: scale(0.98) !important;
+    box-shadow: 0 0 6px color-mix(in srgb, var(--bob-accent) 55%, transparent) !important;
+  }
+
+  /* ГОЛОГРАФИЧЕСКИЙ БЛИК: при наведении по плитке под 115° пробегает
+     стеклянный луч, как на коллекционных карточках. Только transform —
+     видеоплата работает, процессор спит */
+  /* СТЕЛС-ПЛИТКИ: в покое слегка монохромные, при наведении проявляют цвет
+     и приподнимаются (раунд 7 — filter/transform, композитор) */
+  .tile {
+    filter: grayscale(40%) contrast(0.95) !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  .tile::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.22) 50%, transparent 62%) !important;
+    transform: translateX(-130%) !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+  }
+  .top-site-outer .top-site-button:hover .tile::after,
+  .top-site-outer .top-site-button:focus-visible .tile::after {
+    opacity: 1 !important;
+    animation: blade-sheen 0.9s ease-out !important;
+  }
+
+  /* ==========================================================================
+     5.1 АНИМАЦИИ: БЛИК ПО ПЛИТКЕ НА HOVER
+     v1.7: мёртвый gxPulse и проигравший конфликт gxFlyIn удалены;
+     каскадный влёт плиток (blade-tile-in) живёт в секции 17
+     ========================================================================== */
+
+  @keyframes blade-sheen {
+    from { transform: translateX(-130%); }
+    to   { transform: translateX(130%); }
+  }
+
+}
+/* Обложки плиток теперь генерируются BladeCovers в covers.css:
+   свои обложки для каждой из 9 тем (img/themes/<домен>/<тема>.jpg) */
+
+/* ==========================================================================
+   8. СКРОЛЛБАРЫ: КРАСНО-ТЁМНЫЕ (GX) НА ВСЕХ САЙТАХ
+   ========================================================================== */
+@-moz-document url-prefix("http"), url-prefix("https"), url("about:home"), url("about:newtab") {
+  html {
+    scrollbar-color: var(--bob-accent) rgba(10, 10, 10, 0.7) !important;
+    scrollbar-width: thin !important;
+  }
+}
+
+/* ==========================================================================
+   9. ТЁМНЫЕ ВНУТРЕННИЕ СТРАНИЦЫ (about:*, GX-стиль)
+   ========================================================================== */
+
+@-moz-document url-prefix("about:") {
+  :root {
+    color-scheme: dark !important;
+    --in-content-page-background: #0a0a0c !important;
+    --in-content-page-color: #e8e8e8 !important;
+    --in-content-box-background: #14141a !important;
+    --in-content-box-background-odd: #101014 !important;
+    --in-content-box-info-background: #14141a !important;
+    --in-content-box-border-color: color-mix(in srgb, var(--bob-accent) 30%, transparent) !important;
+    --in-content-primary-button-background: var(--bob-accent) !important;
+    --in-content-primary-button-background-hover: color-mix(in srgb, var(--bob-accent) 80%, white) !important;
+    --in-content-primary-button-background-active: color-mix(in srgb, var(--bob-accent) 85%, black) !important;
+    --in-content-accent-color: var(--bob-accent) !important;
+    --in-content-link-color: color-mix(in srgb, var(--bob-accent) 75%, white) !important;
+    --in-content-link-color-hover: var(--bob-accent) !important;
+    --border-color: color-mix(in srgb, var(--bob-accent) 25%, transparent) !important;
+  }
+
+  body {
+    background: #0a0a0c !important;
+  }
+}
+
+/* ==========================================================================
+   10. ТЁМНЫЙ ABOUT:BLANK — без белой вспышки при открытии окон/вкладок
+   ========================================================================== */
+
+@-moz-document url("about:blank"), url-empty() {
+  html, body {
+    background: #0a0a0c !important;
+  }
+}
+
+/* ==========================================================================
+   11. ФУЛЛ-ТЕМА: каретка под акцент — на всех страницах (дизайн не ломает),
+   перекрас ссылок — ТОЛЬКО на наших внутренних страницах: чужие сайты имеют
+   право на свой вид, а красные !important ссылки ломали читаемость
+   кнопок-ссылок на светлом фоне (ревью Gemini №1.1)
+   ========================================================================== */
+input, textarea, [contenteditable] {
+  caret-color: var(--bob-accent) !important;
+}
+@-moz-document url-prefix("about:") {
+  a:link {
+    color: var(--bob-accent) !important;
+  }
+  a:visited {
+    color: color-mix(in srgb, var(--bob-accent) 55%, #8a8a96) !important;
+  }
+}
+
+/* ==========================================================================
+   12. BLADE READER — принудительный тёмный режим сайтов (кнопка "B").
+   Вкл: преф blade.reader.on + prefers-color-scheme=1 — сайты рендерят свою
+   светлую версию, инверт делает её тёмной. Выкл: prefers=2, родной тёмный.
+   Изображения/видео/iframe реинвертируются, чтобы не стать негативом.
+   ========================================================================== */
+/* ==========================================================================
+   13. BLADE: кастомные страницы ошибок и безопасности
+   ========================================================================== */
+@-moz-document url-prefix("about:neterror"), url-prefix("about:certerror") {
+  html, body {
+    background: var(--bob-page, #0a0a0c) !important;
+    color: #e8e8e8 !important;
+  }
+  .container {
+    background: transparent !important;
+    color: #e8e8e8 !important;
+    max-width: 640px !important;
+  }
+  .title-text, h1 {
+    color: var(--bob-accent, #ff2a2a) !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 18px color-mix(in srgb, var(--bob-accent, #ff2a2a) 40%, transparent) !important;
+  }
+  #errorShortDesc, #errorLongDesc, #neterrorTryAgainButton {
+    color: rgba(232, 232, 232, 0.8) !important;
+    background: transparent !important;
+    border: none !important;
+  }
+  .button, button {
+    background: var(--bob-accent, #ff2a2a) !important;
+    color: #ffffff !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent) !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+  }
+  .button:hover, button:hover {
+    background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 80%, white) !important;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--bob-accent, #ff2a2a) 45%, transparent) !important;
+  }
+  .advanced-panel, #advancedPanelButtonContainer,
+  #exceptionDialogButton {
+    color: #e8e8e8 !important;
+  }
+}
+
+@media -moz-pref("blade.reader.on") {
+  html {
+    filter: invert(1) hue-rotate(180deg) !important;
+  }
+  img, video, picture, canvas, svg, iframe, embed, object,
+  [style*="background-image"] {
+    filter: invert(1) hue-rotate(180deg) !important;
+  }
+}
+
+/* Отмена инверта на внутренних страницах (там наш диал и тёмные about:) */
+@-moz-document url-prefix("about:") {
+  html,
+  img, video, picture, canvas, svg, iframe, embed, object,
+  [style*="background-image"] {
+    filter: none !important;
+  }
+}
+
+/* ============================================================================
+   ЧИСТЫЙ ЛИСТ: приватное окно — контентная страница, стиль живёт здесь
+   (привилегированные about:страницы стилизуются в userChrome.css)
+   ============================================================================ */
+@-moz-document url("about:privatebrowsing") {
+  :root {
+    --in-content-page-background: #0a0a0c !important;
+    background: #0a0a0c !important;
+  }
+  body {
+    background: radial-gradient(ellipse 60% 45% at 50% 85%, rgba(150, 10, 10, 0.35), transparent 70%), #060404 !important;
+    color: #e8e8e8 !important;
+  }
+  .container { color: #e8e8e8 !important; }
+  .logo {
+    filter: saturate(2) drop-shadow(0 0 12px rgba(255, 42, 42, 0.6)) !important;
+  }
+  .search-inner-wrapper input {
+    background: #14141a !important;
+    color: #e8e8e8 !important;
+    border: 1px solid var(--bob-accent, #ff2a2a) !important;
+    border-radius: 8px !important;
+  }
+  a { color: var(--bob-accent, #ff2a2a) !important; }
+  p { color: #b8b8c0 !important; }
+}
+
+/* ==========================================================================
+   14. GOOGLE SEARCH // BLADE CYBER THEME (раунд 16, полный фикс):
+   выдача, чипы «Люди також шукають», футер, пагинация — всё в цвет темы.
+   ВАЖНО: без regexp() — Firefox убрал его из юзер-стилей, невалидная функция
+   похоронила бы все домены разом
+   ========================================================================== */
+@-moz-document domain("google.com"),
+               domain("google.com.ua"),
+               domain("google.ru"),
+               domain("google.de") {
+
+  /* Базовый глубокий OLED-фон */
+  body, #main, #cnt, .appbar, #rcnt, #center_col, .minidiv .sfbg, #footcnt {
+    background: var(--bob-page, #0a0a0c) !important;
+    color: #e8e8e8 !important;
+  }
+
+  /* Поисковая капсула */
+  .RNNXgb {
+    background: #14141a !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 45%, transparent) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--bob-accent) 18%, transparent) !important;
+  }
+  .RNNXgb:focus-within {
+    border-color: var(--bob-accent) !important;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--bob-accent) 45%, transparent) !important;
+  }
+
+  /* Заголовки сайтов, видео (YouTube), картинок и сниппетов — акцент темы.
+     Видео: div[role=heading].mCBkyc (зашитый синий #8ab4f8), картинки:
+     .toI8Rb/.mJ7Blf внутри карточек .eA0Zlc (зашитые #bdc1c6/#ffffff) —
+     раунды 18–19: прямой цвет в дочерних элементах перебивал a:link */
+  h3,
+  .LC20lb,
+  [role="heading"],
+  .mCBkyc,
+  .fc9yUc,
+  .toI8Rb,
+  .mJ7Blf {
+    color: var(--bob-accent) !important;
+  }
+  a:hover h3, a:focus h3,
+  a:hover [role="heading"], a:focus [role="heading"],
+  a:hover .mCBkyc, a:focus .mCBkyc,
+  a:hover .toI8Rb, a:focus .toI8Rb,
+  .eA0Zlc:hover .toI8Rb {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--bob-accent) 55%, transparent) !important;
+  }
+
+  /* ВСЕ ссылки Google (футер, видео, картинки, геолокация, сервисные) — никаких синих/белых артефактов */
+  a:link,
+  a:link [role="heading"],
+  a:link .mCBkyc,
+  a:link .toI8Rb {
+    color: var(--bob-accent) !important;
+  }
+  a:visited,
+  a:visited [role="heading"],
+  a:visited .mCBkyc,
+  a:visited .toI8Rb {
+    color: color-mix(in srgb, var(--bob-accent) 65%, #8a8f98) !important;
+  }
+
+  /* Сниппеты */
+  .VwiC3b, .yXK7lf {
+    color: #b8b8c4 !important;
+  }
+  em, b {
+    color: #ffffff !important;
+  }
+
+  /* Кнопка «Показати більше» под видео и карточками — стелс-капсула */
+  g-more-button,
+  .M6CB1c,
+  .wUrVib {
+    background: #14141a !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 35%, transparent) !important;
+    border-radius: 20px !important;
+    color: #e0e0ea !important;
+  }
+
+  /* «Люди також шукають» — полное скрытие (Cyber-Stealth, раунды 18–19).
+     Вернуть капсулы = удалить этот блок */
+  #bres,
+  .bres,
+  div[data-initq],
+  .k8XOCe,
+  .s75F9Be,
+  .s75Fxf {
+    display: none !important;
+  }
+
+  /* Аккордеоны «Похожие вопросы» */
+  .related-question-pair, g-accordion-expander {
+    background: #14141a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+  }
+
+  /* Пагинация Goooooooooogle: активная страница светится темой */
+  #navcnt td.cur, #navcnt .YyVfkd {
+    color: var(--bob-accent) !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 12px var(--bob-accent) !important;
+  }
+  #navcnt a.fl, #pnprev, #pnnext {
+    color: #a0a0aa !important;
+    text-decoration: none !important;
+  }
+  #navcnt a.fl:hover, #pnprev:hover, #pnnext:hover {
+    color: var(--bob-accent) !important;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--bob-accent) 60%, transparent) !important;
+  }
+
+  /* Футер (геолокация, Довідка, Умови) */
+  #fbar, .fbar, .b2hzbe, .KxwPGc {
+    background: transparent !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    color: #7e7e88 !important;
+  }
+  #fbar a, #footcnt a, .fbar a {
+    color: color-mix(in srgb, var(--bob-accent) 70%, #8a8f98) !important;
+  }
+  #fbar a:hover, #footcnt a:hover, .fbar a:hover {
+    color: var(--bob-accent) !important;
+  }
+
+  /* Верхние вкладки (Все, Картинки, Видео...): активная — темой */
+  div[role="tab"][aria-selected="true"], .hdtb-mitem.hdtb-msel {
+    color: var(--bob-accent) !important;
+    border-bottom: 2px solid var(--bob-accent) !important;
+  }
+
+  /* Растворение серой полосы шапки Google (#202124) — монолит с фоном
+     страницы (раунд 17: раньше красили только .minidiv .sfbg — полоса
+     оставалась при прокрутке вверх) */
+  header,
+  #searchform,
+  .sfbg,
+  .sfbgg,
+  #tsf,
+  form[role="search"],
+  .minidiv,
+  .appbar,
+  #hdtb,
+  .F1NZBe,
+  .cv2VAd {
+    background: var(--bob-page, #0a0a0c) !important;
+    background-color: var(--bob-page, #0a0a0c) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Кнопка «Увійти» — капсула в тон темы, без заводской синей заливки */
+  a[href*="accounts.google.com"] {
+    background: #14141a !important;
+    color: var(--bob-accent) !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 45%, transparent) !important;
+    border-radius: 20px !important;
+  }
+  a[href*="accounts.google.com"]:hover {
+    background: color-mix(in srgb, var(--bob-accent) 20%, #14141a) !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--bob-accent) 40%, transparent) !important;
+  }
+}
+
+/* ============================================================================
+   15. YOUTUBE: чистый OLED (раунд 21). Ambient Mode (кинематографическое
+   свечение вокруг плеера) размывает чёрный в серую кашу и жжёт GPU — вырублен
+   ============================================================================ */
+#cinematics,
+.ytp-ambient-background {
+  display: none !important;
+}
+
+/* ============================================================
+   BLADE: срез промо-нагов YouTube / YouTube Music (Premium-баннеры,
+   всплывающие предложения подписки). Анти-детект самого блокера —
+   через uBlock-список awrl (см. user.js)
+   ============================================================ */
+@-moz-document domain("youtube.com") {
+  ytd-banner-promo-renderer,
+  ytd-mealbar-promo-renderer,
+  ytmusic-mealbar-promo-renderer,
+  ytmusic-premium-promo-renderer {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   17. NEON REFORGE NEWTAB (v1.6): вспышка при смене темы/фона,
+   каскадное появление плиток, hover-lift
+   ========================================================================== */
+@-moz-document url("about:newtab"), url("about:home") {
+
+  /* Вспышка акцента: класс body.blade-flash вешает BobliksSettings
+     при смене темы/фона — маскирует резкий свап фона */
+  body.blade-flash::before {
+    content: "" !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: var(--bob-accent, #ff2a2a) !important;
+    opacity: 0;
+    pointer-events: none !important;
+    z-index: 9999 !important;
+    animation: blade-flash .5s ease-out forwards !important;
+  }
+  @keyframes blade-flash {
+    0%   { opacity: .13; }
+    100% { opacity: 0; }
+  }
+
+  /* Плитки: каскадное появление (staggered) */
+  .top-sites-list li.top-site-outer {
+    animation: blade-tile-in .5s cubic-bezier(.2,.7,.3,1) both !important;
+  }
+  .top-sites-list li.top-site-outer:nth-child(1)  { animation-delay: .04s !important; }
+  .top-sites-list li.top-site-outer:nth-child(2)  { animation-delay: .08s !important; }
+  .top-sites-list li.top-site-outer:nth-child(3)  { animation-delay: .12s !important; }
+  .top-sites-list li.top-site-outer:nth-child(4)  { animation-delay: .16s !important; }
+  .top-sites-list li.top-site-outer:nth-child(5)  { animation-delay: .20s !important; }
+  .top-sites-list li.top-site-outer:nth-child(6)  { animation-delay: .24s !important; }
+  .top-sites-list li.top-site-outer:nth-child(7)  { animation-delay: .28s !important; }
+  .top-sites-list li.top-site-outer:nth-child(8)  { animation-delay: .32s !important; }
+  .top-sites-list li.top-site-outer:nth-child(9)  { animation-delay: .36s !important; }
+  .top-sites-list li.top-site-outer:nth-child(10) { animation-delay: .40s !important; }
+  /* v1.7: задержки 11–16 перенесены из удалённого gxFlyIn-блока (секц. 5.1),
+     чтобы каскад влёта всех 16 плиток не изменился */
+  .top-sites-list li.top-site-outer:nth-child(11) { animation-delay: .44s !important; }
+  .top-sites-list li.top-site-outer:nth-child(12) { animation-delay: .48s !important; }
+  .top-sites-list li.top-site-outer:nth-child(13) { animation-delay: .52s !important; }
+  .top-sites-list li.top-site-outer:nth-child(14) { animation-delay: .56s !important; }
+  .top-sites-list li.top-site-outer:nth-child(15) { animation-delay: .60s !important; }
+  .top-sites-list li.top-site-outer:nth-child(16) { animation-delay: .64s !important; }
+  @keyframes blade-tile-in {
+    from { opacity: 0; transform: translateY(16px) scale(.94); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Hover: плитка приподнимается и ловит неоновый контур.
+     Единый transition (объединяет намерения прежних дублей из секций 4/5:
+     transform для лифта, filter для стелс-проявления, box-shadow для свечения) */
+  .top-site-outer .tile {
+    transition: transform .18s ease, filter .18s ease, box-shadow .18s ease !important;
+  }
+  .top-site-outer:hover .tile {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 6px 22px color-mix(in srgb, var(--bob-accent) 30%, transparent) !important;
+  }
+}
