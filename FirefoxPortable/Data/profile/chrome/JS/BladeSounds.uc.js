@@ -5,7 +5,7 @@
 //                  колокольчик завершённых загрузок. Громкость: преф blade.sounds.volume (0-100).
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.1.0
+// @version         1.1.1
 // ==/UserScript==
 (function () {
   if (window.BladeSounds) return;
