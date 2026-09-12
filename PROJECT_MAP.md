@@ -84,12 +84,12 @@ F:\firefox michael edition\
 | Скрипт | Версия | Роль |
 |---|---|---|
 | BladeCore.uc.js | 1.0.0 | Общий контракт `window.Blade`: THEMES, builtinBgs, bgPrefId, mark, шина событий, runPsEncoded. `@loadOrder 5` — исполняется до всех. ОТКЛЮЧАТЬ НЕЛЬЗЯ |
-| BobliksSettings.uc.js | 1.13.0 | Меню «B»: темы (+авто-тема день/ночь), фоны, DNS, ПЕРФ-замеры, бэкап-кнопка, система; F1/Alt+B. `applyThemeSheet()` — USER_SHEET для живого переключения тем |
+| BobliksSettings.uc.js | 1.13.1 | Меню «B»: темы (+авто-тема день/ночь), фоны, DNS, ПЕРФ-замеры, бэкап-кнопка, система; F1/Alt+B. `applyThemeSheet()` — USER_SHEET для живого переключения тем |
 | BladeUpdater.uc.js | 1.3.4 | Автопроверка GitHub (сутки), панель «Хроника обновлений», самолечение 401-токена, однократная регистрация дефолт-браузера, API `window.BladeUpdater` |
 | BobliksCovers.uc.js | 2.1.0 | Генератор covers.css (`@onlyonce` + перегенерация по префу `bobliks.covers.dirty`) |
 | BladeNewtab.uc.js | 1.2.0 | Hero на новой вкладке: приветствие по времени, погода+прогноз 3 дня, тикер хроники (chrome-оверлей; данные Clock через шину BladeCore) |
 | BladeClock.uc.js | 2.2.0 | Часы+погода+прогноз в тулбаре (ipwho.is + open-meteo), публикует в шину clock:weather |
-| BladePalette.uc.js | 1.0.1 | Командная палитра Ctrl+K (терминал): темы/фоны/облики/действия, register() для будущих команд, API window.BladePalette |
+| BladePalette.uc.js | 1.0.2 | Командная палитра Ctrl+K (терминал): темы/фоны/облики/действия, register() для будущих команд, API window.BladePalette |
 | BladePerf.uc.js | 1.0.0 | Замер фаз старта окна (dcl/load/paint/ssr) → `perf_mark.txt` |
 | BobliksChromeStyle 1.3.0 / AboutStyle 1.0.1 / BladeSounds 1.1.0 | — | Стили хрома/about (incl. порт SIGNATURE), звуки |
 
@@ -151,7 +151,7 @@ UserChoice-хешем (алгоритм PS-SFTA, MIT). http/https: автома�
 | 1.8.0 | Кровавая Гравюра | Дизайн-волна (вёрстка — Gemini/Antigravity по gemini-prompt-design.md, верифицировано GLM): кастомная типографика (Unbounded/Rubik/JetBrains Mono, chrome\fonts, OFL), своя страница ошибок (лиса скрыта), капсульный findbar, контекстные меню/PanelUI/загрузки/тултипы — тёмное стекло + единые радиусы. Отдельно не публиковался — вошёл в 1.8.1 |
 | 1.8.1 | Живой Клинок | «Живой» слой: атмосферные осадки newtab (дождь/гроза/снег/звёзды/туман по blade.weather.*), слэш по плиткам (заменил голографический блик), пульс музыки (tab[soundplaying] + :has), ночная забота ([data-blade-night]/blade.night, тёплые дельты тем), звуковой пакет (шинг старта/фанфара/чим, WebAudio-синтез, blade.sounds.volume). CSS — Gemini (верифицировано GLM), инженерия — GLM. Не опубликован — вошёл в 1.9.0 |
 | 1.9.0 | Тёмный Терминал | Палитра Ctrl+K (BladePalette: фильтр/стрелки/Enter, API window.BladeSettings из Settings 1.12.0) + Облики Клинка (5 пресетов тема+фон + слот «Мой Облик», преф blade.visage.mine). Отдельно не публиковался — вошёл в 1.9.1 |
-| 1.9.1 | Новый Силуэт | Вертикальные вкладки (натив + [data-blade-vtabs], ромб-корона, пульс), плавающая капсула навбара, плитки-карточки 3D (self-contained perspective), Splash 2.0 (блик встречает «шинг»), заставка простоя #blade-idle (3 мин, гварды fullscreen/музыки). CSS — Gemini (план сверен с движком: #vertical-tabs browser.xhtml:6982, .top-sites-list не существует — испр.), хуки — GLM (Settings 1.13.0, Palette 1.0.1). Не опубликован — на визуальной проверке |
+| 1.9.1 | Новый Силуэт | Вертикальные вкладки были реализованы, проверены диагностикой (всё работало) и ОТКЛОНЕНЫ владельцем как непрактичные — вырезаны полностью, преф гасится на старте (страховка от нативного тумблера). Остались: плавающая капсула навбара (прокачана: 8/14px, радиус 16, акцентное свечение), плитки-карточки 3D (наклон 7/9° + scale), Splash 2.0 (слово 46px, блик встречает «шинг»), заставка простоя #blade-idle (3 мин, гварды fullscreen/музыки). CSS — Gemini (сверено с движком), инженерия/чистка — GLM (Settings 1.13.1, Palette 1.0.2). Не опубликован — на визуальной проверке |
 
 ## Конвенции (нарушать опасно)
 
