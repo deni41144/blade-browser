@@ -6,7 +6,7 @@
 //                  Используют переменные тем — переключение живое.
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.2.1
+// @version         1.3.0
 // ==/UserScript==
 (function () {
   /* Селекторы выделения (мёртвый #urlbar-scheme удалён в v1.2) */
@@ -103,10 +103,34 @@
       border: 1px solid var(--accent-soft, rgba(255, 42, 42, 0.35)) !important;
       border-radius: 8px !important;
     }
+    /* v1.6.1: пульс свечения капсулы; раунд 9: filter→opacity, перф —
+       статичное свечение вынесено в box-shadow правила #urlbar[focused] */
+    @keyframes blade-urlbar-glow {
+      0%, 100% { opacity: 0.85; }
+      50%      { opacity: 1; }
+    }
+
+    /* раунд 7: filter→opacity, перф; статичное электрическое свечение —
+       box-shadow в volt-правиле #urlbar[focused] выше */
+    @keyframes blade-live-volt-focus {
+      from { opacity: 0.8; }
+      to   { opacity: 1; }
+    }
+
+    /* оригинал из userChrome до чистки (id капсулы умер в FF155), восстановлен по просьбе портом на класс */
     #urlbar[focused] .urlbar-background,
     .urlbar[focused] .urlbar-background {
       border-color: var(--accent, #ff2a2a) !important;
-      box-shadow: 0 0 12px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent) !important;
+      /* раунд 9: свечение капсулы — статикой (перенесено из filter-анимации) */
+      box-shadow: 0 0 14px color-mix(in srgb, var(--accent, #ff2a2a) 60%, transparent) !important;
+      animation: blade-urlbar-glow 2.2s ease-in-out infinite !important;
+    }
+
+    [data-blade-theme="volt"] #urlbar[focused] .urlbar-background,
+    [data-blade-theme="volt"] .urlbar[focused] .urlbar-background {
+      /* раунд 7: filter→opacity, перф — электрическое свечение статично */
+      box-shadow: 0 0 10px rgba(255, 248, 32, 0.75) !important;
+      animation: blade-live-volt-focus 0.7s ease-in-out infinite alternate !important;
     }
 ${sigCss}
     /* Панель подсказок (urlbarView) */
@@ -172,12 +196,12 @@ ${selCss}
     d.append('JS'); d.append('chrome_style_mark.txt');
     // нет window.Blade (BladeCore не исполнился) — не падаем: инъекция пошла
     // с одним базовым ::selection-блоком, след фиксируем в mark
-    IOUtils.writeUTF8(d.path, 'v1.2.1 OK injected' + (themes ? '' : ' ERR no BladeCore')).catch(() => {});
+    IOUtils.writeUTF8(d.path, 'v1.3.0 OK injected' + (themes ? '' : ' ERR no BladeCore')).catch(() => {});
   } catch (e) {
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('chrome_style_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v1.2.1 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v1.3.0 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();
