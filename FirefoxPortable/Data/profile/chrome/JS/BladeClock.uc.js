@@ -4,7 +4,7 @@
 //                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
 // @author          Blade-Creations
 // @include         main
-// @version         2.1.0
+// @version         2.2.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'blade-clock-widget';
@@ -74,6 +74,19 @@
 
   let lastWeather = '';
   let lastCity = getStr('blade.clock.city');
+
+  // Вид атмосферы по WMO-коду open-meteo. Ровно один kind активен —
+  // остальное из списка чистим (смена погоды не должна оставлять хвосты)
+  const WEATHER_KINDS = ['clear', 'clouds', 'rain', 'snow', 'thunder', 'fog'];
+  function weatherKind(code) {
+    if (code >= 95) return 'thunder';
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'snow';
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+    if (code === 45 || code === 48) return 'fog';
+    if (code >= 1 && code <= 3) return 'clouds';
+    return 'clear';
+  }
+
   function cachedWeather() {
     try {
       const saved = getStr('blade.clock.weather');
@@ -92,12 +105,18 @@
       const geo = await resolveCoords();
       lastCity = geo.city;
       const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + geo.lat +
-        '&longitude=' + geo.lon + '&current=temperature_2m' +
+        '&longitude=' + geo.lon + '&current=temperature_2m,weather_code' +
         '&daily=temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=auto';
       const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
       const data = await resp.json();
       const t = Math.round(data.current.temperature_2m);
       lastWeather = (t > 0 ? '+' : '') + t + '°';
+      // WMO-код -> вид атмосферы для «живого» newtab (осадки/звёзды/туман):
+      // публикуем БУЛЕВЫ префы blade.weather.<kind> — хуки для @media -moz-pref
+      // в userContent.css (тот же механизм, что у тем/фонов, холодный старт ок)
+      const wc = (data.current && typeof data.current.weather_code === 'number')
+        ? data.current.weather_code : 0;
+      const kind = weatherKind(wc);
       // прогноз на 3 дня: [ { d, max, min } x 3 ] — absent/короткий daily = null
       let forecast = null;
       try {
@@ -121,11 +140,14 @@
           setStr('blade.clock.forecast', JSON.stringify(forecast));
           setStr('blade.clock.forecastStamp', String(Date.now()));   // TTL как у погоды — 1 час
         }
+        // публикуем вид погоды для CSS-атмосферы newtab
+        for (const k of WEATHER_KINDS) Services.prefs.clearUserPref('blade.weather.' + k);
+        Services.prefs.setBoolPref('blade.weather.' + kind, true);
       } catch (e) {}
       // живое обновление hero-страницы, если шина уже есть
       try {
         if (window.Blade && window.Blade.bus)
-          window.Blade.bus.emit('clock:weather', { weather: lastWeather, city: lastCity, forecast: forecast });
+          window.Blade.bus.emit('clock:weather', { weather: lastWeather, city: lastCity, forecast: forecast, kind: kind });
       } catch (e) {}
     } catch (e) { /* сеть легла — показываем кэш/пусто */ }
   }
@@ -161,6 +183,19 @@
         // пишем DOM только при изменении: 5 тиков из 6 пишут те же строки
         if (span.textContent !== text) span.textContent = text;
         if (btn.getAttribute('tooltiptext') !== tt) btn.setAttribute('tooltiptext', tt);
+        // Ночная забота (22:00–6:00): атрибут красит хром живьём, преф —
+        // контент через @media -moz-pref. Пишем только при смене состояния
+        const h = new Date().getHours();
+        const night = (h >= 22 || h < 6);
+        try {
+          const de = doc.documentElement;
+          if (de.hasAttribute('data-blade-night') !== night) {
+            if (night) de.setAttribute('data-blade-night', '1');
+            else de.removeAttribute('data-blade-night');
+          }
+          if (Services.prefs.getBoolPref('blade.night', false) !== night)
+            Services.prefs.setBoolPref('blade.night', night);
+        } catch (e) {}
       };
       update();
       const tick = setInterval(update, 10e3);   // обновление раз в 10 сек (легко)
@@ -187,7 +222,7 @@
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('clock_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v2.1.0 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v2.2.0 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();
