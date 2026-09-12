@@ -1577,7 +1577,11 @@ input, textarea, [contenteditable] {
   }
 
   /* --- 7. НОЧНАЯ ЗАБОТА (blade.night): ТЁПЛЫЙ ПОЛУМРАК ---
-     Едва уловимая тёплая янтарная вуаль (box-shadow inset), не занимающая псевдоэлементов. */
+     Едва уловимая тёплая янтарная вуаль (box-shadow inset), не занимающая псевдоэлементов.
+     A13: Закатная волна 22:00 — плавный накат сумерек и рассвет. */
+  body.activity-stream {
+    transition: box-shadow 0.8s ease !important;
+  }
   @media -moz-pref("blade.night") {
     body.activity-stream {
       box-shadow: inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;

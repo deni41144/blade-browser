@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.13.1
+// @version         1.14.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.13.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.14.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -1246,12 +1246,25 @@
       // TabAttrModified; запись тем же значением не делается (каждый
       // setAttribute = пересчёт стилей)
       let toolbox = null;
+      let prevWant = false;
       const syncLaser = () => {
         try {
           if (!toolbox) toolbox = window.document.getElementById('navigator-toolbox');
           if (!toolbox) return;
           const tab = window.gBrowser.selectedTab;
           const want = !!(tab && tab.hasAttribute('busy'));
+          // A6 «Клинок Живёт»: загрузка активной вкладки завершилась — капсула
+          // «разряжается» (класс на 500мс, CSS делает вспышку). До раннего
+          // return ниже: prevWant обязан обновляться на каждом синке, иначе
+          // повторная установка того же атрибута скипнула бы и разрядку
+          if (!want && prevWant) {
+            try {
+              const de = window.document.documentElement;
+              de.classList.add('blade-loaded');
+              setTimeout(() => { try { de.classList.remove('blade-loaded'); } catch (e) {} }, 500);
+            } catch (e) {}
+          }
+          prevWant = want;
           if (want === (toolbox.getAttribute('data-blade-loading') === '1')) return;
           if (want) toolbox.setAttribute('data-blade-loading', '1');
           else toolbox.removeAttribute('data-blade-loading');
@@ -1264,6 +1277,27 @@
       syncLaser();
       mark('OK laser');
     } catch (e) { mark('ERR laser ' + e); }
+
+    // A1 «Клинок Живёт»: карточка-призрак на месте закрываемой вкладки —
+    // CSS (.blade-ghost + ::before/::after) рисует угасание и искры.
+    // Хост — navigator-toolbox: фиксированные координаты rect вкладки
+    // валидны только внутри тулбокса, вне его призрак «уезжает»
+    window.gBrowser.tabContainer.addEventListener('TabClose', (ev) => {
+      try {
+        const r = ev.target.getBoundingClientRect();
+        if (!r.width) return;
+        const host = window.document.getElementById('navigator-toolbox');
+        if (!host) return;
+        const g = window.document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        g.className = 'blade-ghost';
+        g.style.left = r.left + 'px';
+        g.style.top = r.top + 'px';
+        g.style.width = r.width + 'px';
+        g.style.height = r.height + 'px';
+        host.appendChild(g);
+        setTimeout(() => { try { g.remove(); } catch (e) {} }, 650);
+      } catch (e) {}
+    });
 
     // Сплеш-заставка: клинок вспыхивает при старте браузера (только первое
     // окно сессии — новые окна сплешем не мучаем)
