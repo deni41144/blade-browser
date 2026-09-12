@@ -254,3 +254,12 @@ user_pref("ublock0.adminSettings", '{"selectedFilterLists":["user-filters","ublo
    раньше suspend обрывал звук YouTube Music в фоне — медиа-пайплайн
    сидит на video-элементе, и мгновенное suspend'ы его роняли */
 user_pref("media.suspend-background-video.delay-ms", 3600000);
+
+/* --- BLADE: АНИМАЦИИ КЛИНКА НЕ ГАСИТЬ ---
+   Windows с выключенными «эффектами анимации» (SPI_GETCLIENTAREAANIMATION=off,
+   частая настройка под производительность) заставляет Firefox считать
+   prefers-reduced-motion: reduce — и вежливый блок REDUCED MOTION из
+   userChrome v1.7.0 гасил ВСЕ легендарные пульсации тем (кнопка B, дымки,
+   лучи). Личность клинка важнее: форсим «без уменьшения движения» внутри
+   браузера, системная настройка остаётся нетронутой для остальных программ. */
+user_pref("ui.prefersReducedMotion", 0);
