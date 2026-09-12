@@ -47,6 +47,7 @@
       to   { opacity: 1; transform: none; }
     }
     #blade-hero .bh-greet {
+      font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
       font-size: 16px; font-weight: 800; letter-spacing: 10px;
       text-transform: uppercase;
       margin-bottom: 12px;
@@ -121,18 +122,20 @@
       margin-left: 10px; vertical-align: 14px;
     }
     #blade-hero .bh-date {
+      font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
       margin-top: 10px; font-size: 14px; font-weight: 600; letter-spacing: 4px;
       text-transform: uppercase; color: rgba(255, 255, 255, 0.78);
       text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
     }
     #blade-hero .bh-status {
+      font-family: var(--blade-mono, 'JetBrains Mono', monospace);
       margin-top: 12px; font-size: 11px; font-weight: 700; letter-spacing: 3px;
       color: var(--accent, #ff2a2a);
       text-shadow: 0 0 10px color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent);
     }
     #blade-hero-chronicle {
       position: absolute; left: 18px; bottom: 14px;
-      font-family: consolas, monospace; font-size: 10px; letter-spacing: 1px;
+      font-family: var(--blade-mono, 'JetBrains Mono', monospace); font-size: 10px; letter-spacing: 1px;
       color: var(--accent, #ff2a2a); opacity: 0.45; pointer-events: none;
       max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
