@@ -5,7 +5,7 @@
 //                  колокольчик завершённых загрузок. Громкость: преф blade.sounds.volume (0-100).
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.1.1
+// @version         1.2.0
 // ==/UserScript==
 (function () {
   if (window.BladeSounds) return;
@@ -130,6 +130,15 @@
     tone(0, 2637.0, 0.35, 0.02 * v, 'sine');
   }
 
+  // A4 «Клинок Живёт»: вспышка каймы окна под звук — свет встречается с chime
+  function windowFlash() {
+    try {
+      const de = window.document.documentElement;
+      de.classList.add('blade-flash');
+      setTimeout(() => { try { de.classList.remove('blade-flash'); } catch (e) {} }, 900);
+    } catch (e) {}
+  }
+
   // «Шинг» играем только в первом окне сессии (иначе каждый новый окно
   // звучал бы как старт) — тот же гвард, что у сплеша в BobliksSettings
   function firstWindow() {
@@ -151,7 +160,7 @@
       await list.addView({
         onDownloadChanged(dl) {
           try {
-            if (dl && dl.succeeded && !seen.has(dl)) { seen.add(dl); chime(); }
+            if (dl && dl.succeeded && !seen.has(dl)) { seen.add(dl); chime(); windowFlash(); }
           } catch (e) {}
         },
       });
@@ -173,8 +182,8 @@
     const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
     d.append('JS');
     d.append('sounds_mark.txt');
-    IOUtils.writeUTF8(d.path, 'v1.1.1 START').catch(() => {});
+    IOUtils.writeUTF8(d.path, 'v1.2.0 START').catch(() => {});
   } catch (e) {}
 
-  window.BladeSounds = { blip, shing, fanfare, chime };
+  window.BladeSounds = { blip, shing, fanfare, chime, windowFlash };
 })();
