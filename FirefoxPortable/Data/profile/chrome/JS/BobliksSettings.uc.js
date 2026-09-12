@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.10.0
+// @version         1.10.1
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'bobliks-settings-button';
@@ -17,7 +17,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.10.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.10.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -1243,9 +1243,25 @@
       if (!CustomizableUI.getWidget(WIDGET_ID)) {
       CustomizableUI.createWidget({
       id: WIDGET_ID,
+      type: 'custom',
       label: 'Blade',
       tooltiptext: 'Настройки Blade (тема, фон, плитки)',
       defaultArea: CustomizableUI.AREA_NAVBAR,
+      // FF155: без type:'custom'+onBuild движок строит голую кнопку с текстовой
+      // меткой — БЕЗ ребёнка .toolbarbutton-icon, на котором висит весь облик
+      // кнопки (иконка btn_blade, рамка, ховер и пульсации тем из userChrome
+      // 5.1 «живые темы»). Строим структуру сами — как BladeClock.
+      onBuild(doc) {
+        const btn = doc.createXULElement('toolbarbutton');
+        btn.id = WIDGET_ID;
+        btn.className = 'toolbarbutton-1 chromeclass-toolbar-additional';
+        btn.setAttribute('label', 'Blade');
+        btn.setAttribute('tooltiptext', 'Настройки Blade (тема, фон, плитки)');
+        const icon = doc.createXULElement('image');
+        icon.className = 'toolbarbutton-icon';
+        btn.appendChild(icon);
+        return btn;
+      },
       onBeforeCreated(doc) {
         try { ensurePopup(doc); mark('OK popup'); } catch (e) { mark('ERR popup', e); }
       },
