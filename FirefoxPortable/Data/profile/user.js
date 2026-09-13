@@ -17,6 +17,13 @@ user_pref("toolkit.telemetry.bhrPing.enabled", false);
 user_pref("toolkit.telemetry.updatePing.enabled", false);
 user_pref("datareporting.healthreport.uploadEnabled", false);
 user_pref("datareporting.policy.dataSubmissionEnabled", false);
+// --- «Скелет» волна B (2.0): телефоны, жившие только в prefs.js владельца или
+// --- включённые по умолчанию — имена сверены с greprefs/firefox.js движка
+user_pref("app.normandy.enabled", false);            // Normandy: эксперименты Mozilla
+user_pref("app.shield.optoutstudies.enabled", false); // Shield-исследования
+user_pref("browser.discovery.enabled", false);        // Discovery-панель about:addons
+user_pref("browser.ping-centre.telemetry", false);    // Ping-centre (Activity Stream)
+user_pref("dom.push.connection.enabled", false);      // push-канал Mozilla (фон-уведомления сайтов)
 user_pref("breakpad.reportURL", "");
 user_pref("browser.tabs.crashReporting.sendReport", false);
 user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
