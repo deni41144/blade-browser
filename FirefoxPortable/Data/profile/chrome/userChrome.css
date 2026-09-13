@@ -106,8 +106,9 @@ html|sidebar-main {
   transition: background-color 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease !important;
 }
 
-/* A8: Шиммер нового окна (#nav-bar::before + контракт blade-newwin)
-   clip-path изолирует блик строго внутри формы капсулы без overflow:hidden */
+/* A8: Шиммер нового окна (#nav-bar::before)
+   clip-path изолирует блик строго внутри формы капсулы без overflow:hidden.
+   (2.0: мёртвый дубль .blade-newwin срезан — класс никто не вешал) */
 #nav-bar::before {
   content: "" !important;
   position: absolute !important;
@@ -120,11 +121,6 @@ html|sidebar-main {
   filter: drop-shadow(0 0 12px var(--accent, #ff2a2a)) !important;
   transform: translateX(-120%) !important;
   opacity: 0 !important;
-  animation: blade-win-shimmer 0.75s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s forwards !important;
-}
-
-html|html.blade-newwin #nav-bar::before,
-:root.blade-newwin #nav-bar::before {
   animation: blade-win-shimmer 0.75s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s forwards !important;
 }
 
