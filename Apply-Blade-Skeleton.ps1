@@ -48,7 +48,11 @@ $cutHosts = @(
     'accounts.firefox.com',
     'monitor.firefox.com',
     'getpocket.com',
-    'detectportal.firefox.com'
+    'detectportal.firefox.com',
+    # фаза 8 (разведка AI): эндпоинты Smart Window / ML-хаба / merino
+    'mlpa-prod-prod-mozilla.freetls.fastly.net',
+    'merino.services.mozilla.com',
+    'model-hub.mozilla.org'
 )
 # --- Защищённые: их присутствие после операции ПРОВЕРЯЕМ отдельно ---
 $protectedHosts = @(
