@@ -4,7 +4,7 @@
 //                  облики, обновления и быстрые действия браузера
 // @author          Blade-Creations
 // @include         main
-// @version         1.1.0
+// @version         1.2.0
 // ==/UserScript==
 (function () {
   if (window.BladePalette) return; // анти-дубль: uc.js исполняется в каждом окне
@@ -20,7 +20,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.1.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.2.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -73,12 +73,78 @@
   const hasBS = () => typeof window.BladeSettings === 'object' && !!window.BladeSettings;
   const hasBU = () => typeof window.BladeUpdater === 'object' && !!window.BladeUpdater;
 
+  // ---- Помодоро (1.2.0, волна «Сок»): таймер из палитры, фанфара финише ---
+  // Без новых хоткеев (конвенция 12): команда в существующей палитре Ctrl+K.
+  // Команды динамические — метка «остановить» с остатком живёт до закрытия
+  let pomoEnds = 0;
+  let pomoTimer = null;
+  let pomoLabel = '';
+  function pomoRemaining() {
+    const left = pomoEnds - Date.now();
+    if (left <= 0) return '';
+    const m = Math.floor(left / 60e3);
+    const s = Math.floor((left % 60e3) / 1000);
+    return m + ':' + String(s).padStart(2, '0');
+  }
+  function pomoStart(minutes, label) {
+    try { if (pomoTimer) clearTimeout(pomoTimer); } catch (e) {}
+    pomoEnds = Date.now() + minutes * 60e3;
+    pomoLabel = label;
+    pomoTimer = setTimeout(() => {
+      pomoEnds = 0; pomoTimer = null; pomoLabel = '';
+      // финиш: фанфара тембра текущей темы + вспышка каймы окна
+      try {
+        if (window.BladeSounds && typeof window.BladeSounds.fanfare === 'function') {
+          window.BladeSounds.fanfare();
+          window.BladeSounds.windowFlash();
+        }
+      } catch (e) {}
+      mark('OK pomo ' + label);
+    }, minutes * 60e3);
+    mark('START pomo ' + label);
+  }
+  function pomoStop() {
+    try { if (pomoTimer) clearTimeout(pomoTimer); } catch (e) {}
+    pomoEnds = 0; pomoTimer = null; pomoLabel = '';
+  }
+  function registerPomodoro() {
+    const rem = pomoRemaining();
+    register({
+      id: 'blade-pomo-25',
+      label: 'Таймер: 25 минут (помодоро)' + (rem ? ' — перезапустить' : ''),
+      hint: 'таймер',
+      kw: 'таймер помодоро pomo timer 25 фокус',
+      dyn: true,
+      fn: () => pomoStart(25, 'помодоро 25м'),
+    });
+    register({
+      id: 'blade-pomo-5',
+      label: 'Таймер: 5 минут (перерыв)',
+      hint: 'таймер',
+      kw: 'таймер перерыв pomo timer 5',
+      dyn: true,
+      fn: () => pomoStart(5, 'перерыв 5м'),
+    });
+    if (rem) {
+      register({
+        id: 'blade-pomo-stop',
+        label: 'Таймер: остановить (осталось ' + rem + ' · ' + pomoLabel + ')',
+        hint: 'таймер',
+        kw: 'таймер стоп stop отмена',
+        dyn: true,
+        fn: pomoStop,
+      });
+    }
+  }
+
   // Темы/фоны/облики перечитываются ПРИ КАЖДОМ ОТКРЫТИИ, а не один раз на
   // старте: uc.js грузятся по алфавиту, BobliksSettings (владелец
   // window.BladeSettings) исполняется ПОСЛЕ нас — на старте его ещё нет.
   // Побочный бонус: список всегда свежий, без перезапуска браузера.
   function refreshDynamicCommands() {
     unregisterDynamic();
+    // помодоро не зависит от BladeSettings — регистрируем до раннего выхода
+    try { registerPomodoro(); } catch (e) { mark('ERR pomo ' + e); }
     if (!hasBS()) return;
     const BS = window.BladeSettings;
     try {

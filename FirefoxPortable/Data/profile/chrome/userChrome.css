@@ -1989,3 +1989,12 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
   color: var(--accent, #ff2a2a) !important;
 }
 #blade-clock-widget:hover { color: #ffffff !important; }
+
+/* ==== Волна «Сок» 2.0: режим экономии (BladeBattery) =====================
+   Без зарядки гасим бесконечные анимации хрома — GPU не крутит композит
+   впустую. Одноразовые (splash, вход hero) не трогаем: они и так мгновенны. */
+:root[data-blade-battery] #blade-hero .bh-clock { animation: none !important; }
+:root[data-blade-battery] #blade-hero::before,
+:root[data-blade-battery] #blade-hero::after { animation: none !important; }
+:root[data-blade-battery] #blade-splash,
+:root[data-blade-battery] #blade-idle { display: none !important; }
