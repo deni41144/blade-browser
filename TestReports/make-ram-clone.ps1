@@ -3,7 +3,10 @@
     # user.js перекрывают выше — диет-префы из dev user.js окажутся нейтрализованы)
     [switch]$RevertDiet,
     # Бисект: откатить только image-префы (surfacecache/unmap)
-    [switch]$RevertImage
+    [switch]$RevertImage,
+    # Замер Dark Reader: отключить расширение в клоне (расширения живут в
+    # extensions.json профиля; xpi в клоне остаётся, но не запускается)
+    [switch]$DisableDarkReader
 )
 $ErrorActionPreference = 'Stop'
 $dst = Join-Path $env:TEMP 'blade-ram-prof'
@@ -21,6 +24,17 @@ user_pref("browser.tabs.warnOnClose", false);
 user_pref("browser.tabs.warnOnCloseOtherTabs", false);
 user_pref("toolkit.startup.num_recent_crashes", 0);
 '@
+if ($DisableDarkReader) {
+    # выключаем Dark Reader правкой extensions.json (id addon@darkreader.org)
+    $ej = Join-Path $dst 'extensions.json'
+    if (Test-Path $ej) {
+        $json = Get-Content $ej -Raw -Encoding UTF8 | ConvertFrom-Json
+        foreach ($a in $json.addons) {
+            if ($a.id -eq 'addon@darkreader.org') { $a.active = $false }
+        }
+        $json | ConvertTo-Json -Depth 20 | Set-Content $ej -Encoding UTF8
+    } else { Write-Warning 'extensions.json не найден в клоне' }
+}
 if ($RevertImage) {
     Add-Content -Path (Join-Path $dst 'user.js') -Encoding UTF8 -Value @'
 
