@@ -5,7 +5,27 @@
 // @include         main
 // @version         1.14.2
 // ==/UserScript==
+// ═══════════════════════════════════════════════════════════════════════
+// КАРТА ФАЙЛА (Волна 2 «Blade Studio», разметка по карте Analyst):
+//   CORE — контракт/диагностика/версия/CUI (26)
+//   ДАННЫЕ — THEMES/DNS/BGS/VISAGES константы (92)
+//   THEMES: каталог и живые доки (105)
+//   THEMES: щит и переключение (216)
+//   BGS: щит фона + setBg (598)
+//   VISAGES — пресеты «тема+фон» (651)
+//   SYSTEM — уведомления, бэкап (720)
+//   MENU — рендер/dispatcher/виджет/клавиши (759)
+//   INIT — стартовая последовательность (порядок важен) (1079)
+//   АВТО-ТЕМА — день/ночь (1634)
+//   API — window.BladeSettings (1658)
+//   ФИНАЛ — mark/catch (1672)
+// Риски 1-10 и план полной неймспейс-декомпозиции — ROADMAP-2.0.md раздел 10.
+// ═══════════════════════════════════════════════════════════════════════
 (function () {
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: CORE — контракт, диагностика, версия, CUI-bootstrap
+    // WIDGET_ID/mark/BLADE_VERSION/PERF_LINE/CustomizableUI; Core не имеет зависимостей
+    // ═══════════════════════════════════════════════════════════════════
   const WIDGET_ID = 'bobliks-settings-button';
   const POPUP_ID  = 'bobliks-settings-popup';
   let markPath = '';
@@ -68,6 +88,10 @@
     if (!CustomizableUI) { mark('ERR no CUI'); return; }
     // Массив тем живёт в BladeCore (единый источник для Settings/ChromeStyle;
     // там же поле selFg — цвет текста выделения на акценте)
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: ДАННЫЕ — темы, DoH, фоны, облики (общие константы)
+    // THEMES/DNS_URI/BUILTIN_BGS/BLADE_VISAGES — единственный источник: BladeCore
+    // ═══════════════════════════════════════════════════════════════════
     const THEMES = window.Blade.themes;
     // DoH-провайдеры для секции DNS-ЗАЩИТА (mode 2: TRR-first, фолбэк на системный DNS)
     const DNS_URI = {
@@ -77,6 +101,10 @@
     };
     // Системный цвет выделения в полях ввода (urlbar, формы на сайтах):
     // CSS ::selection их не перебивает, а этот преф — да. Синхронизируем с темой.
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: THEMES: ВЫДЕЛЕНИЕ + СПИСОК ФОНОВ + КАТАЛОГ
+    // syncSelectionPrefs..applyBgToDoc. ВНИМАНИЕ (риск 1): applyLiveAttrs ниже зовёт activeBg/applyBgToDoc — цикл Themes<->Bgs
+    // ═══════════════════════════════════════════════════════════════════
     function syncSelectionPrefs(themeId) {
       const t = THEMES.find(x => x.id === themeId) || THEMES[0];
       const accent = (themeId === 'custom') ? getCustomColor() : t.accent;
@@ -184,6 +212,10 @@
     // доезжает без перезапуска. Снятие + повторная регистрация того же
     // листа и есть «перекрасить» (идемпотентно).
     let currentThemeSheetUri = null;
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: THEMES: ЩИТ И ЖИВОЕ ПЕРЕКЛЮЧЕНИЕ
+    // applyThemeSheet(USER_SHEET)/customVars/applyCustomToDoc/newtabDocs/applyLiveAttrs/openThemeLab/setTheme. applyThemeSheet читает getAllBgs (риск 1); setTheme эмитит theme:changed в шину (BladeSounds шинг)
+    // ═══════════════════════════════════════════════════════════════════
     function applyThemeSheet(themeId) {
       try {
         const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
@@ -562,6 +594,10 @@
     // вкладка удалённая, DOM не дотянуться — а юзер-щит доходит до контентного
     // процесса и применяется МГНОВЕННО, без перезапуска
     let currentCustomBgUri = null;
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: BGS: ЩИТ ФОНА + SETBG
+    // applyCustomBgSheet/setBg. setBg зовёт applyThemeSheet (риск 1)
+    // ═══════════════════════════════════════════════════════════════════
     function applyCustomBgSheet(fileLeafName) {
       try {
         const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
@@ -611,6 +647,10 @@
       mark('OK setBg=' + bgId);
     }
     // --- ОБЛИКИ КЛИНКА: пресеты «тема + фон» одним кликом ---
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: VISAGES — пресеты «тема+фон»
+    // userVisage/allVisages/applyVisage(=setTheme+setBg, риск 4)/saveVisage/chooseCustomWallpaper (пишет bobliks.covers.dirty — тумблер BobliksCovers, риск 6)
+    // ═══════════════════════════════════════════════════════════════════
     function userVisage() {
       // fail-soft: битый JSON или отсутствие префа — просто нет «своего» облика
       try {
@@ -676,6 +716,10 @@
     }
     // Локальное уведомление в nb окна (сигнатура FF155 — как notify() в
     // BladeUpdater): appendNotification(type, {label, image, priority})
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: SYSTEM — уведомления, бэкап
+    // notifyBlade(gNotificationBox FF155)/launchBackup(Blade.runPsEncoded)
+    // ═══════════════════════════════════════════════════════════════════
     function notifyBlade(label) {
       try {
         const nb = window.gNotificationBox;
@@ -711,6 +755,10 @@
     // ПАНЕЛЬ МЕНЮ (GX, вкладочная): кастомный panel с HTML внутри.
     // Рамка/фон/тени — только через ::part(content): в FF155 попапы рисуются
     // в Shadow DOM (проверено ранее на панелях).
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: MENU — CSS, вкладки, рендер, dispatcher, виджет, клавиши
+    // MENU_CSS/BP_TABS/buildPopup(риск 3)/ensurePopup+dispatcher(риск 2)/виджет B/onBuild/keyset(риск 9). Dispatcher — шов Menu->все секции
+    // ═══════════════════════════════════════════════════════════════════
     const MENU_CSS = `
       #bobliks-settings-popup::part(content) {
         appearance: none; -moz-appearance: none;
@@ -1027,6 +1075,10 @@
       return popup;
     }
     // Синхронизация Blade Reader и выделения при старте (THEMES уже объявлен)
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: INIT — стартовая последовательность (ПОРЯДОК ВАЖЕН, риск 7)
+    // reader->selection->themeSheet->liveAttrs->customBgSheet->seeding->docObs->verticalTabs->чистильщики->закладки->лазер->ghost->splash->idle->виджет->keyset. Каждый блок — try с mark-диагностикой
+    // ═══════════════════════════════════════════════════════════════════
     try {
       const readerOn = Services.prefs.getBoolPref('blade.reader.on', false);
       Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', readerOn ? 1 : 2);
@@ -1578,6 +1630,9 @@
     // минуту — граница часа ловится с точностью до 60 с, чего достаточно.
     // Каждое окно циклит само (как и прочая живая синхронизация файла);
     // setTheme идемпотентен — гонки между окнами безвредны.
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: АВТО-ТЕМА — день/ночь по префам (60с через реестр BladeCore)
+    // ═══════════════════════════════════════════════════════════════════
     function autoThemeTick() {
       try {
         if (!Services.prefs.getBoolPref('blade.autotheme.on', false)) return;
@@ -1599,6 +1654,9 @@
     // Гварда не нужно: fx-autoconfig запускает скрипт один раз на окно, а при
     // повторном запуске в том же окне ссылка просто перезапишется на свежие
     // функции того же скоупа — состояния не ломаются
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: API — window.BladeSettings (собирается ПОСЛЕ всех секций, риск 8)
+    // ═══════════════════════════════════════════════════════════════════
     window.BladeSettings = {
       themes: () => THEMES.map(t => ({ id: t.id, label: t.label })),
       bgs: () => getAllBgs().map(b => ({ id: b.id, label: b.label })),
@@ -1610,6 +1668,9 @@
       backup() { launchBackup(); },
     };
 
+    // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: ФИНАЛ — mark OK / catch fatal
+    // ═══════════════════════════════════════════════════════════════════
     mark('OK widget');
   } catch (e) {
     mark('ERR fatal', e);
