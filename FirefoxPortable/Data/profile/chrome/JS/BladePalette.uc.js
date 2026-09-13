@@ -299,19 +299,8 @@
         }
       },
     });
-    register({
-      id: 'blade-cmd-reader-dark',
-      label: 'Тёмный режим сайтов: переключить',
-      hint: 'читалка',
-      kw: 'тёмный dark режим reader сайты',
-      // Дословно toggleReader из BobliksSettings (~1287): flip префа +
-      // content-override 1/2 (2 = светлые сайты, 1 = тёмные)
-      fn: () => {
-        const on = Services.prefs.getBoolPref('blade.reader.on', false);
-        Services.prefs.setBoolPref('blade.reader.on', !on);
-        Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', on ? 2 : 1);
-      },
-    });
+    // «Тёмный режим сайтов» (blade-cmd-reader-dark) снесён 2026-09-13:
+    // тёмный делает Dark Reader (политика), инверт-механика удалена
     register({
       id: 'blade-cmd-idle',
       label: 'Заставка простоя: вкл/выкл',
