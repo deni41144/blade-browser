@@ -24,6 +24,35 @@ user_pref("app.shield.optoutstudies.enabled", false); // Shield-исследов
 user_pref("browser.discovery.enabled", false);        // Discovery-панель about:addons
 user_pref("browser.ping-centre.telemetry", false);    // Ping-centre (Activity Stream)
 user_pref("dom.push.connection.enabled", false);      // push-канал Mozilla (фон-уведомления сайтов)
+
+// --- «Чистый Лист» (фаза 8, 2026-09-13): AI-контролы — нативная блокировка ---
+// ⚠️ browser.ai.control.default НЕ ТРОГАТЬ: "blocked" убил бы и переводчик.
+// Переводчик (browser.ai.control.translations) остаётся в "default" — модели
+// его качаются из Remote Settings, от ML-стека независим (проверено по коду).
+user_pref("browser.ai.control.sidebarChatbot", "blocked");       // чатбот-сайдбар + «Ask chatbot»
+user_pref("browser.ai.control.smartWindow", "blocked");          // AI-окно, агент, памяти
+user_pref("browser.ai.control.linkPreviewKeyPoints", "blocked"); // link preview с key points
+user_pref("browser.ai.control.smartTabGroups", "blocked");       // ML-группировка вкладок
+user_pref("browser.ai.control.pdfjsAltText", "blocked");         // AI-подписи картинок в PDF
+user_pref("browser.smartwindow.agent.enabled", false);
+user_pref("browser.smartwindow.memories.generateFromHistory", false);
+user_pref("browser.smartwindow.memories.generateFromConversation", false);
+user_pref("browser.smartwindow.autoTabGrouping.enabled", false);
+user_pref("browser.smartwindow.sidebar.openByDefault", false);
+user_pref("browser.ml.chat.enabled", false);
+user_pref("browser.ml.chat.sidebar", false);
+user_pref("browser.ml.chat.menu", false);
+user_pref("browser.ml.chat.shortcuts", false);
+user_pref("browser.ml.chat.page", false);
+user_pref("browser.ml.linkPreview.enabled", false);
+user_pref("browser.ml.enable", false);                // on-device ML-инфраструктура (перевод НЕ зависит — проверено)
+user_pref("extensions.ml.enabled", false);            // ML API для расширений
+user_pref("browser.preferences.aiControls", false);   // вся категория AI из настроек
+user_pref("browser.tabs.groups.smart.enabled", false);
+user_pref("browser.tabs.groups.smart.userEnabled", false);
+// языки веб-страниц: только русский и английский (каталог выбора в движке
+// режется омни-хирургией — Apply-Blade-CleanSheet.ps1, 287 → 3)
+user_pref("intl.accept_languages", "ru, en-US, en");
 user_pref("breakpad.reportURL", "");
 user_pref("browser.tabs.crashReporting.sendReport", false);
 user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
