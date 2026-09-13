@@ -34,6 +34,7 @@
    17. NEON REFORGE NEWTAB (v1.6): вспышка при смене темы/фона,  (1199)
    18. «ЖИВОЙ КЛИНОК»: АТМОСФЕРНЫЕ ОСАДКИ И НОЧНАЯ ЗАБОТА (newtab)  (1266)
    Преф публикует BladeBattery.uc.js (chrome-сторона), до remote-newtab о  (1643)
+   19. ДИЗАЙН-ВОЛНА «ПОЛИР 2.0»: ABOUT:READER, PDF-VIEWER, ПЕЧАТЬ
 ═════════════════════════════════════════════════════════════════════════ */
 
 
@@ -1649,5 +1650,396 @@ input, textarea, [contenteditable] {
   body.activity-stream::before,
   body.activity-stream::after {
     animation: none !important;
+  }
+}
+
+/* ============================================================================
+   19. ДИЗАЙН-ВОЛНА «ПОЛИР 2.0»: ABOUT:READER, PDF-VIEWER, ПЕЧАТЬ
+   ============================================================================ */
+
+/* ── 19.1 about:reader (Blade Cyber Reader) ───────────────────────────────────
+   Читалка в стиле Blade: изолированная глубина #0e0e12, акцентные ссылки,
+   Rubik для текста, Unbounded для заголовков, 4 состояния [Loading, Error, Empty, Success],
+   ARIA доступность и фокус-ринги. Светлый вариант исключён: Blade тёмный всегда. */
+@-moz-document url-prefix("about:reader") {
+  :root,
+  html,
+  body {
+    background-color: #0e0e12 !important;
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 92%, #0e0e12) !important;
+    font-family: var(--blade-ui, 'Rubik', sans-serif) !important;
+    color-scheme: dark !important;
+  }
+
+  /* Изоляция фона от встроенных тем Firefox Reader (светлая/сепия/тёмная) */
+  body.light,
+  body.dark,
+  body.sepia,
+  body.auto {
+    background-color: #0e0e12 !important;
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 92%, #0e0e12) !important;
+  }
+
+  /* Комфортная геометрия колонки и межстрочный интервал для долгого чтения */
+  .container {
+    max-width: 68ch !important;
+    margin-inline: auto !important;
+    padding-inline: 24px !important;
+    line-height: 1.75 !important;
+  }
+
+  /* Заголовок статьи — Unbounded */
+  .reader-title,
+  h1.reader-title,
+  .header h1 {
+    font-family: var(--blade-display, 'Unbounded', sans-serif) !important;
+    font-weight: 700 !important;
+    font-size: 2rem !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.5px !important;
+    color: var(--bob-accent-contrast, #ffffff) !important;
+    margin-block: 28px 14px !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 30%, transparent) !important;
+    padding-bottom: 12px !important;
+  }
+
+  /* Мета-информация (автор, домен, время чтения) */
+  .reader-credits,
+  .reader-estimated-time,
+  .domain {
+    font-family: var(--blade-mono, 'JetBrains Mono', monospace) !important;
+    font-size: 0.85rem !important;
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 60%, transparent) !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* Основной контент статьи — Rubik с мягким контрастом */
+  .moz-reader-content {
+    font-family: var(--blade-ui, 'Rubik', sans-serif) !important;
+    font-size: 1.125rem !important;
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 92%, #0e0e12) !important;
+    line-height: 1.75 !important;
+  }
+
+  .moz-reader-content p {
+    margin-bottom: 1.4em !important;
+  }
+
+  .moz-reader-content h2,
+  .moz-reader-content h3,
+  .moz-reader-content h4 {
+    font-family: var(--blade-display, 'Unbounded', sans-serif) !important;
+    color: var(--bob-accent-contrast, #ffffff) !important;
+    letter-spacing: 0.4px !important;
+    margin-top: 2em !important;
+    margin-bottom: 0.8em !important;
+  }
+
+  /* Ссылки под акцент текущей темы */
+  .moz-reader-content a,
+  .moz-reader-content a:link,
+  .moz-reader-content a:visited {
+    color: var(--bob-accent, #ff2a2a) !important;
+    text-decoration: underline !important;
+    text-decoration-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 40%, transparent) !important;
+    text-underline-offset: 3px !important;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease !important;
+  }
+
+  .moz-reader-content a:hover {
+    color: var(--bob-accent-contrast, #ffffff) !important;
+    text-decoration-color: var(--bob-accent, #ff2a2a) !important;
+  }
+
+  /* Цитаты */
+  .moz-reader-content blockquote {
+    border-inline-start: 3px solid var(--bob-accent, #ff2a2a) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    padding: 12px 18px !important;
+    margin-inline: 0 !important;
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 75%, transparent) !important;
+    font-style: italic !important;
+    border-radius: 0 6px 6px 0 !important;
+  }
+
+  /* Моноширинный код */
+  .moz-reader-content code,
+  .moz-reader-content pre {
+    font-family: var(--blade-mono, 'JetBrains Mono', monospace) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--in-content-page-color, #e8e8e8) !important;
+    border-radius: 4px !important;
+  }
+
+  .moz-reader-content pre {
+    padding: 14px 18px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    overflow-x: auto !important;
+  }
+
+  /* Тулбар читалки */
+  .toolbar,
+  #reader-toolbar {
+    background: var(--in-content-box-background, #14141a) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .toolbar .button,
+  #reader-toolbar button {
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 85%, transparent) !important;
+    border-radius: 6px !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+  }
+
+  .toolbar .button:hover,
+  #reader-toolbar button:hover {
+    background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 20%, transparent) !important;
+    color: var(--bob-accent-contrast, #ffffff) !important;
+  }
+
+  /* Доступность и фокус (ARIA) */
+  .moz-reader-content a:focus-visible,
+  .toolbar .button:focus-visible,
+  #reader-toolbar button:focus-visible {
+    outline: 2px solid var(--bob-accent, #ff2a2a) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* 4 состояния: Loading, Error, Empty, Success */
+  .reader-loading,
+  .loading-container,
+  .reader-message.loading {
+    color: var(--bob-accent, #ff2a2a) !important;
+    font-family: var(--blade-mono, 'JetBrains Mono', monospace) !important;
+    text-align: center !important;
+    padding: 40px 20px !important;
+  }
+
+  .reader-error,
+  .reader-message.error,
+  #reader-error {
+    background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 10%, #0e0e12) !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 40%, transparent) !important;
+    border-radius: 8px !important;
+    color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 75%, white) !important;
+    padding: 20px !important;
+    margin: 20px auto !important;
+    max-width: 68ch !important;
+    font-family: var(--blade-ui, 'Rubik', sans-serif) !important;
+  }
+
+  .reader-empty,
+  .reader-message.empty,
+  .no-content {
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 55%, transparent) !important;
+    font-family: var(--blade-mono, 'JetBrains Mono', monospace) !important;
+    text-align: center !important;
+    padding: 40px 20px !important;
+    border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+    border-radius: 8px !important;
+    max-width: 68ch !important;
+    margin: 20px auto !important;
+  }
+}
+
+/* ── 19.2 PDF-просмотрщик (PDF.js в стиле Blade) ──────────────────────────────
+   Тёмный фон контейнера #viewerContainer, акцентное выделение текста,
+   тонирование тулбара через CSS-переменные на body/html (Lit Shadow DOM изоляция).
+   4 состояния [Loading, Error, Empty, Success], клавиатурный фокус. */
+@-moz-document regexp(".*\\.pdf($|\\?.*)"),
+               regexp("^file:.*\\.pdf($|\\?.*)"),
+               url-prefix("resource://pdf.js/"),
+               url-prefix("chrome://pdfjs/") {
+  :root,
+  html,
+  body {
+    --main-color: var(--bob-page, #0a0a0c) !important;
+    --body-bg-color: var(--bob-page, #0a0a0c) !important;
+    --toolbar-bg-color: var(--in-content-box-background, #14141a) !important;
+    --toolbar-icon-color: var(--in-content-page-color, #e8e8e8) !important;
+    --toolbar-border-color: rgba(255, 255, 255, 0.08) !important;
+    --button-hover-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 20%, transparent) !important;
+    --toggled-btn-bg-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 30%, transparent) !important;
+    --progressBar-color: var(--bob-accent, #ff2a2a) !important;
+    --progressBar-indeterminate-blend-color: var(--in-content-box-background, #14141a) !important;
+    --field-bg-color: color-mix(in srgb, var(--in-content-box-background, #14141a) 85%, black) !important;
+    --field-color: var(--in-content-page-color, #e8e8e8) !important;
+    --field-border-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 35%, transparent) !important;
+    --field-focused-border-color: var(--bob-accent, #ff2a2a) !important;
+    --scrollbar-color: var(--bob-accent, #ff2a2a) var(--bob-page, #0a0a0c) !important;
+    color-scheme: dark !important;
+    background-color: var(--bob-page, #0a0a0c) !important;
+    color: var(--in-content-page-color, #e8e8e8) !important;
+    font-family: var(--blade-ui, 'Rubik', sans-serif) !important;
+  }
+
+  /* Тёмная глубина контейнера вместо стандартного серого фона */
+  #outerContainer,
+  #mainContainer,
+  #viewerContainer {
+    background-color: var(--bob-page, #0a0a0c) !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--bob-accent, #ff2a2a) var(--bob-page, #0a0a0c) !important;
+  }
+
+  /* Страницы PDF: тёмная глубина и тонкая контрастная граница */
+  .pdfViewer .page {
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+    border: none !important;
+    margin-block: 16px !important;
+  }
+
+  /* Акцентное выделение текста в документе */
+  #viewerContainer ::selection,
+  .pdfViewer ::selection,
+  .textLayer ::selection {
+    background-color: var(--bob-accent, #ff2a2a) !important;
+    color: var(--bob-accent-contrast, #ffffff) !important;
+  }
+
+  /* Тонирование тулбаров и боковой панели на уровне body/html */
+  #toolbarContainer,
+  #toolbarSidebar,
+  #sidebarContainer,
+  #secondaryToolbar {
+    background-color: var(--in-content-box-background, #14141a) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--in-content-page-color, #e8e8e8) !important;
+  }
+
+  /* 4 состояния: Loading, Error, Empty, Success */
+  #loadingBar,
+  .loadingInProgress,
+  #loadingBar .progress {
+    background-color: var(--bob-accent, #ff2a2a) !important;
+  }
+
+  #errorWrapper,
+  #errorMessage {
+    background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 12%, var(--bob-page, #0a0a0c)) !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent) !important;
+    border-radius: 8px !important;
+    color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 75%, white) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  #viewer:empty::before {
+    content: '— PDF не загружен —';
+    display: block;
+    text-align: center;
+    padding: 60px 20px;
+    font-family: var(--blade-mono, 'JetBrains Mono', monospace);
+    color: color-mix(in srgb, var(--in-content-page-color, #e8e8e8) 55%, transparent);
+    font-size: 14px;
+  }
+
+  /* ARIA и фокус элементов управления */
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--bob-accent, #ff2a2a) !important;
+    outline-offset: 1px !important;
+  }
+}
+
+/* ── 19.3 Печать (@media print) ───────────────────────────────────────────────
+   Белый лист, чёрный текст, сброс тёмных фонов/теней/градиентов и скрытие
+   всех декоративных элементов Blade. */
+@media print {
+  * {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    color-scheme: light !important;
+  }
+
+  /* Скрытие декоративных украшений и оверлеев Blade */
+  body::before,
+  body::after,
+  html::before,
+  html::after,
+  #blade-splash,
+  #blade-idle,
+  #blade-battery-indicator,
+  .blp-wrap::before,
+  .blp-wrap::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* Читаемые чёрные ссылки с подчёркиванием */
+  a,
+  a:link,
+  a:visited {
+    color: #000000 !important;
+    text-decoration: underline !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}
+
+/* ── 19.3 Печать (@media print) ───────────────────────────────────────────────
+   Белый лист, чёрный текст, сброс тёмных фонов/теней/градиентов и скрытие
+   всех декоративных элементов Blade. */
+@media print {
+  * {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    color-scheme: light !important;
+  }
+
+  /* Скрытие декоративных украшений и оверлеев Blade */
+  body::before,
+  body::after,
+  html::before,
+  html::after,
+  #blade-splash,
+  #blade-idle,
+  #blade-battery-indicator,
+  .blp-wrap::before,
+  .blp-wrap::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* Читаемые чёрные ссылки с подчёркиванием */
+  a,
+  a:link,
+  a:visited {
+    color: #000000 !important;
+    text-decoration: underline !important;
+  }
+
+  @page {
+    margin: 1.5cm;
   }
 }
