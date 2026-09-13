@@ -321,8 +321,15 @@ Firefox Suggest — у нас выключен), model-hub.mozilla.org (ML-мо�
 2. Google AI Overview затемнение — нужна живая DOM-сессия с владельцем
 3. Декомпозиция BobliksSettings — карта Analyst готова, резать только при
    живых клик-тестах владельца (10 точек риска)
-4. Диета памяти: dom.ipc.processCount.webIsolated 4→2, кэши медиа/картинок
-   (StaticPrefs), замеры до/после на живых вкладках. Цель −10-20% RAM
+4. Диета памяти — ВЫПОЛНЕНА (2026-09-13, день): webIsolated 4→2,
+   media.memory_caches_combined_limit_kb 512→256 МБ, surfacecache 1/4→1/8 RAM,
+   image unmap.force-enabled. Итог честного A/B (чередование плеч, стенд
+   TestReports\measure-ram.ps1 + make-ram-clone.ps1, 6 сайтов web6):
+   baseline ~1330 МБ → диета ~1308 МБ (−1.7%). Цель −10-20% НЕ достигнута:
+   память едят сами страницы, а не служебные процессы. Большие рычаги
+   требуют жертвы скорости владельца (RAM-кэш 256→128 МБ,
+   gfx.webrender.precache-shaders off) — на решение владельца. Пульс GREEN,
+   перф без регрессии (dcl 243 против 220±5)
 5. Вырезание мёртвых AI-файлов (~700 КБ, aiwindow/** + genai/**) — по одному
    с Пульсом; moz-src НЕ трогать (реестр акторов на старте)
 6. Косметика: FileVersion сетапа 1.4.1.0→2.0.0 в csproj; ротация Backups\
