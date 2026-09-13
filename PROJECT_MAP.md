@@ -98,7 +98,8 @@ F:\firefox michael edition\
 | BladeNewtab.uc.js | 1.5.0 | Hero ТОЛЬКО на новой вкладке: большие часы 88px+секунды, приветствие по времени, дата, статус-строка (BLADE OS // ONLINE · погода), тикер хроники (chrome-оверлей; данные Clock через шину BladeCore). На остальных страницах время — навбар-часы (BladeClock 2.6.0 прячется на главной)
 | BladeClock.uc.js | 2.6.0 | Часы+погода+прогноз в тулбаре (ipwho.is + open-meteo), публикует в шину clock:weather. v2.6.0: на about:newtab/home кнопка прячется (btn.hidden) — там время показывает Hero, «у каждой странице свой часы»; слушатели переходов + страховка в 10с-тике |
 | BladePalette.uc.js | 1.1.0 | Командная палитра Ctrl+K (терминал): темы/фоны/облики/действия, register() для будущих команд, API window.BladePalette |
-| BladePerf.uc.js | 1.0.0 | Замер фаз старта окна (dcl/load/paint/ssr) → `perf_mark.txt` |
+| BladePerf.uc.js | 2.0.0 | Замер фаз старта окна (dcl/load/paint/ssr) → `perf_mark.txt` + история `perf_history.txt` (ротация 50) — бенчмарки волн 2.0 |
+| BladePulse.uc.js | 1.0.0 | Пульс Клинка: самодиагностика при старте (`@onlyonce`, `@loadOrder 99`) — контракт Blade, узлы (навбар/часы/меню B/Hero), шрифты, VERSION/covers → `blade_health.txt`, вердикт GREEN/YELLOW/RED |
 | BobliksChromeStyle 1.3.0 / AboutStyle 1.0.1 / BladeSounds 1.3.0 | — | Стили хрома/about (incl. порт SIGNATURE), звуки + саундскрины тем (тембр от data-blade-theme, живо переключается) |
 
 ## Конвейеры
@@ -196,6 +197,17 @@ UserChoice-хешем (алгоритм PS-SFTA, MIT). http/https: автома�
    чтения/фокуса, тем-по-дням/праздникам/лунным фазам. Критерий отбора:
    либо реальная ежедневная польза, либо вау без нагрузки на ядро.
    Одобрено владельцем по этому критерию: саундскрины тем (1.9.5).
+13. **PS 5.1 Start-Process не квотит пробелы в аргументах** (урок ночи 2.0):
+   `-ArgumentList '-profile','F:\firefox michael edition\...'` уезжает в cmdline
+   БЕЗ кавычек → Firefox создаёт мусорный профиль из первого слова пути, а
+   хвост летит как URL (2026-09-13: создался F:\firefox, chrome не грузился,
+   40 минут диагностики). Рецепт: единая строка с ручными кавычками —
+   `-ArgumentList '-no-remote -profile "F:\firefox michael edition\..."'`.
+   Бонус-уроки той же ночи: Start-Process возвращает PID лаунчера, который
+   сразу умирает (настоящий главный процесс ищи по CommandLine-фильтру);
+   CloseMainWindow() — только по настоящему PID; taskkill только /PID /T,
+   никогда /IM. Живые прогоны — только dev-профиль F:, профиль владельца C:
+   не трогать.
 
 ## Стиль кода (считан с фактического кода, не дублирует конвенции)
 
