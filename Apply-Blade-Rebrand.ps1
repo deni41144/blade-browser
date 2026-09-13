@@ -100,7 +100,7 @@ $gr.DrawImage($bmp, 0, 0, 200, 200)
 $resized.Save($bladePng200, [System.Drawing.Imaging.ImageFormat]::Png)
 $gr.Dispose(); $resized.Dispose(); $bmp.Dispose()
 
-$foxPattern = '(?i)(fox|mascot|kit-champion|kit\.png|kit-circle|mr-|splash|firefox)'
+$foxPattern = '(?i)(fox|mascot|kit|mr-|splash|firefox)'
 $skipExact = @('chrome/browser/content/branding/firefox-wordmark.svg', 'chrome/browser/content/branding/about-wordmark.svg')
 $foxTargets = @{}
 $srcList = [System.IO.Compression.ZipFile]::OpenRead($omniBrowser)
