@@ -868,9 +868,8 @@
         const editOn = Services.prefs.getBoolPref('bobliks.dial.edit', false);
         row('Режим правки (кнопка «...» на плитках)', { bobliksEdit: editOn ? 'off' : 'on' }, { on: editOn });
       } else if (tab === 'system') {
-        sub('ЧТЕНИЕ');
-        const readerOn = Services.prefs.getBoolPref('blade.reader.on', false);
-        row('Принудительный тёмный для сайтов', { bladeReader: readerOn ? 'off' : 'on' }, { on: readerOn });
+        // «ЧТЕНИЕ / Принудительный тёмный» снесено 2026-09-13: тёмный режим
+        // сайтов делает Dark Reader (ставится политикой), наш инверт удалён
         sub('DNS-ЗАЩИТА');
         const trrMode = Services.prefs.getIntPref('network.trr.mode', 2);
         const trrUri = Services.prefs.getStringPref('network.trr.uri', 'https://cloudflare-dns.com/dns-query');
@@ -1000,12 +999,7 @@
           else if (ds.bladeVisageSave === '1') { try { saveVisage(); } catch (e) { mark('ERR visageSave ' + e); } }
           else if (ds.bobliksEdit === 'on') { Services.prefs.setBoolPref('bobliks.dial.edit', true); }
           else if (ds.bobliksEdit === 'off') { Services.prefs.clearUserPref('bobliks.dial.edit'); }
-          else if (ds.bladeReader === 'on' || ds.bladeReader === 'off') {
-            const enable = (ds.bladeReader === 'on');
-            Services.prefs.setBoolPref('blade.reader.on', enable);
-            // Вкл: сайты рендерят СВЕТЛУЮ версию (prefers=1), инверт делает её тёмной
-            Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', enable ? 1 : 2);
-          }
+          // bladeReader on/off снесён 2026-09-13 вместе с инверт-механикой (Dark Reader)
           else if (ds.bladeUpdate === 'install') { try { window.BladeUpdater.install(); close = true; } catch (e) { mark('ERR updInst ' + e); } }
           else if (ds.bladeUpdate === 'check') { try { window.BladeUpdater.check(true); } catch (e) { mark('ERR updCheck ' + e); } }
           else if (ds.bladeUpdate === 'autoon') { Services.prefs.setBoolPref('blade.update.auto', true); }
@@ -1092,8 +1086,9 @@
     // reader->selection->themeSheet->liveAttrs->customBgSheet->seeding->docObs->verticalTabs->чистильщики->закладки->лазер->ghost->splash->idle->виджет->keyset. Каждый блок — try с mark-диагностикой
     // ═══════════════════════════════════════════════════════════════════
     try {
-      const readerOn = Services.prefs.getBoolPref('blade.reader.on', false);
-      Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', readerOn ? 1 : 2);
+      // blade.reader.on снесён 2026-09-13 (Dark Reader); преференс сайтов
+      // остаётся «тёмный» — сайты с родной тёмной темой включают её сами
+      Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', 2);
       const savedTheme = activeTheme();
       syncSelectionPrefs(savedTheme);
       applyThemeSheet(savedTheme);
@@ -1591,15 +1586,8 @@
     // Горячие клавиши ЧЕРЕЗ KEYSET: настоящие <key> работают при любом фокусе,
     // включая страницу (window-keydown из контента не долетал — баг красной команды №11)
     try {
-      const toggleReader = () => {
-        const on = Services.prefs.getBoolPref('blade.reader.on', false);
-        Services.prefs.setBoolPref('blade.reader.on', !on);
-        Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', on ? 2 : 1);
-        try {
-          const p = window.document.getElementById(POPUP_ID);
-          if (p) buildPopup(window.document, p);
-        } catch (e) {}
-      };
+      // toggleReader (F2) снесён 2026-09-13 вместе с blade.reader.on: тёмный
+      // режим сайтов делает Dark Reader, хоткей-лабиринты — вето конвенции 12
       const cycleTheme = (dir) => {
         const cur = THEMES.findIndex(t => t.pref && Services.prefs.getBoolPref(t.pref, false));
         const next = THEMES[((cur < 0 ? 0 : cur) + dir + THEMES.length) % THEMES.length];
@@ -1617,7 +1605,7 @@
           k.addEventListener('command', fn);
           keyset.appendChild(k);
         };
-        mkKey('blade-key-reader', 'F2', null, toggleReader);
+        // F2 (reader) снесён 2026-09-13 — Dark Reader и конвенция 12
         mkKey('blade-key-theme-prev', 'F2', 'shift', () => cycleTheme(-1));
         mkKey('blade-key-theme-next', 'F3', 'shift', () => cycleTheme(1));
         // Alt+B и F1: открыть меню Blade из любого места (раунд 20; F1 —
