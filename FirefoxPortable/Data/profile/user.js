@@ -138,22 +138,13 @@ user_pref("browser.urlbar.scotchBonnet.enableOverride", false);
 
 /* --- ПРОЦЕССЫ И ПАМЯТЬ --- */
 user_pref("dom.ipc.processCount", 4);                     /* 4 контентных процесса вместо ~8 */
-user_pref("dom.ipc.processCount.webIsolated", 2);         /* потолок web-процессов при Fission (дефолт 4): 2 сайта в памяти, третий ждёт (диета 2.0) */
 user_pref("fission.autostart", false);                    /* Fission принудителен в release — установка скорее no-op; статус: about:support → Fission */
 user_pref("browser.sessionhistory.max_total_viewers", 2); /* меньше копий страниц в памяти */
 user_pref("browser.tabs.unloadOnLowMemory", true);        /* фоновые вкладки выгружаются при нехватке RAM */
 user_pref("browser.shell.checkDefaultBrowser", false);    /* не проверять дефолтность при старте */
-
-/* --- ПРОЦЕССЫ И ПАМЯТЬ: диета 2.0 (замеры TestReports\ram-diet.csv) --- */
-/* Лимит RAM-медиакэшей (буферы стриминга): дефолт 512 МБ → 256 МБ.
-   media.cache_size (256 МБ) уже стоит — это тот же лимит для другого счётчика */
-user_pref("media.memory_caches_combined_limit_kb", 262144);
-/* Поверхностный кэш декодированных картинок: дефолт 1/4 всей физической RAM →
-   1/8. Листание назад чуть чаще пере-декодирует (CPU) — плата за память */
-user_pref("image.mem.surfacecache.size_factor", 8);
-/* Принудительный unmap разделяемых поверхностей на 64-bit: минус RSS,
-   чуть больше ремапов при отрисовке */
-user_pref("image.mem.shared.unmap.force-enabled", true);
+/* Диета памяти 2.0 (webIsolated 2, медиа/имидж-лимиты) — ОТКАЧЕНА владельцем
+   2026-09-13: −20-25 МБ не стоят потенциальных цен (пере-декод картинок,
+   до-буферизация видео). Стенд замеров живёт в TestReports\measure-ram.ps1 */
 
 /* --- СЕТЬ: скорость отклика --- */
 user_pref("network.predictor.enabled", true);             /* преконнекты к часто посещаемым сайтам */
