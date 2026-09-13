@@ -4,7 +4,7 @@
 //                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
 // @author          Blade-Creations
 // @include         main
-// @version         2.6.0
+// @version         2.7.0
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'blade-clock-widget';
@@ -75,6 +75,18 @@
   let lastWeather = '';
   let lastKind = '';
   let lastCity = getStr('blade.clock.city');
+  // Солнечные часы (2.7.0): восход/закат из того же open-meteo — ночная
+  // забота по реальному солнцу города, а не по захардкоженным 22:00-06:00.
+  // До первого фетча (и при падении сети) — кэш префа на сегодня, потом фолбэк
+  let sunRise = null;
+  let sunSet = null;
+  try {
+    const sun = JSON.parse(getStr('blade.clock.sun') || 'null');
+    if (sun && sun.day === new Date().toDateString() && sun.r && sun.s) {
+      const r = new Date(sun.r), s = new Date(sun.s);
+      if (!isNaN(r) && !isNaN(s)) { sunRise = r; sunSet = s; }
+    }
+  } catch (e) {}
 
   // Вид атмосферы по WMO-коду open-meteo. Ровно один kind активен —
   // остальное из списка чистим (смена погоды не должна оставлять хвосты)
@@ -116,7 +128,7 @@
       lastCity = geo.city;
       const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + geo.lat +
         '&longitude=' + geo.lon + '&current=temperature_2m,weather_code' +
-        '&daily=temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=auto';
+        '&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=3&timezone=auto';
       const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
       const data = await resp.json();
       const t = Math.round(data.current.temperature_2m);
@@ -141,6 +153,20 @@
               max: Math.round(daily.temperature_2m_max[i]),
               min: Math.round(daily.temperature_2m_min[i])
             });
+          }
+        }
+      } catch (e) {}
+      try {
+        // солнце сегодня: восход/закат — на смену ночи по реальному солнцу
+        if (data.daily && data.daily.sunrise && data.daily.sunrise[0] &&
+            data.daily.sunset && data.daily.sunset[0]) {
+          const r = new Date(data.daily.sunrise[0]);
+          const s = new Date(data.daily.sunset[0]);
+          if (!isNaN(r) && !isNaN(s)) {
+            sunRise = r; sunSet = s;
+            setStr('blade.clock.sun', JSON.stringify({
+              r: data.daily.sunrise[0], s: data.daily.sunset[0], day: new Date().toDateString()
+            }));
           }
         }
       } catch (e) {}
@@ -216,8 +242,16 @@
         const text = weatherPart ? timeString() + '  ·  ' + weatherPart : timeString();
         const tt = 'Blade: часы и погода' + (lastCity ? ' (' + lastCity + ')' : '') +
           '. Свой город: преф blade.clock.cityQuery';
-        const h = new Date().getHours();
-        const night = (h >= 22 || h < 6);
+        // Солнечные часы (2.7.0): ночь = до восхода или после заката; пока
+        // солнца не знаем (нет сети/кэша) — старый фолбэк 22:00-06:00
+        const nowD = new Date();
+        let night;
+        if (sunRise && sunSet) {
+          night = (nowD < sunRise || nowD > sunSet);
+        } else {
+          const h = nowD.getHours();
+          night = (h >= 22 || h < 6);
+        }
         // A10: глиф погоды в начале label; ясной ночью — звёзды
         let g = WEATHER_GLYPHS[currentKind()] || '';
         if (g === '☀' && night) g = '✨';
@@ -270,7 +304,7 @@
         try {
           const d2 = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
           d2.append('JS'); d2.append('clock_mark.txt');
-          IOUtils.writeUTF8(d2.path, 'v2.6.0 MOUNT_ERR ' + e).catch(() => {});
+          IOUtils.writeUTF8(d2.path, 'v2.7.0 MOUNT_ERR ' + e).catch(() => {});
         } catch (e3) {}
       }
     }
@@ -282,7 +316,7 @@
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('JS'); d.append('clock_mark.txt');
-      IOUtils.writeUTF8(d.path, 'v2.6.0 ERR ' + e).catch(() => {});
+      IOUtils.writeUTF8(d.path, 'v2.7.0 ERR ' + e).catch(() => {});
     } catch (e2) {}
   }
 })();
