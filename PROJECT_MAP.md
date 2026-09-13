@@ -93,6 +93,9 @@ F:\firefox michael edition\
 │   └── template\                 UPDATE.bat, blade-update.ps1, blade-apply-update.ps1,
 │                                 set-blade-default.ps1, repo-README.md
 └── Иконки\, Иконки старые\       Графические исходники
+    TestReports\                  Стенды замеров: measure-ram.ps1 (RAM, клон профиля
+                                  в %TEMP%\blade-ram-prof), make-ram-clone.ps1,
+                                  ram-diet.csv, eyes-* (отчёты Глаз)
 ```
 
 ## Ключевые uc.js-скрипты (chrome\JS\)
