@@ -28,7 +28,7 @@
    12. [СНЕСЕНО] BLADE READER: тёмный режим теперь Dark Reader  (779)
    13. BLADE: ФИРМЕННЫЕ СТРАНИЦЫ ОШИБОК И БЕЗОПАСНОСТИ (about:neterror, c  (785)
    ЧИСТЫЙ ЛИСТ: приватное окно — контентная страница, стиль живёт здесь  (974)
-   14. [СНЕСЕНО] GOOGLE SEARCH: тёмный делает Dark Reader
+   14. GOOGLE SEARCH // BLADE CYBER THEME (вернул 13.09: слетело у владельца)  (997)
    15. YOUTUBE: чистый OLED (раунд 21). Ambient Mode вырублен  (995)
    BLADE: срез промо-нагов YouTube / YouTube Music (Premium-баннеры,  (1185)
    17. NEON REFORGE NEWTAB (v1.6): вспышка при смене темы/фона,  (1199)
@@ -989,6 +989,176 @@ input, textarea, [contenteditable] {
   }
   a { color: var(--bob-accent, #ff2a2a) !important; }
   p { color: #b8b8c0 !important; font-family: var(--blade-ui) !important; }
+}
+
+/* ВОЗВРАЩЕНО 2026-09-13: владелец заметил слетевшее оформление Google.
+   Блок живёт ПОВЕРХ Dark Reader: правила !important перекрывают генерическую
+   покраску DR — выдача снова в цветах темы Blade */
+/* ==========================================================================
+   14. GOOGLE SEARCH // BLADE CYBER THEME (раунд 16, полный фикс):
+   выдача, чипы «Люди також шукають», футер, пагинация — всё в цвет темы.
+   ВАЖНО: без regexp() — Firefox убрал его из юзер-стилей, невалидная функция
+   похоронила бы все домены разом
+   ========================================================================== */
+@-moz-document domain("google.com"),
+               domain("google.com.ua"),
+               domain("google.ru"),
+               domain("google.de") {
+
+  /* Базовый глубокий OLED-фон */
+  body, #main, #cnt, .appbar, #rcnt, #center_col, #search, .minidiv .sfbg, #footcnt {
+    background: var(--bob-page, #0a0a0c) !important;
+    color: #e8e8e8 !important;
+  }
+
+  /* Поисковая капсула */
+  .RNNXgb {
+    background: #14141a !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 45%, transparent) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--bob-accent) 18%, transparent) !important;
+  }
+  .RNNXgb:focus-within {
+    border-color: var(--bob-accent) !important;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--bob-accent) 45%, transparent) !important;
+  }
+
+  /* Заголовки сайтов, видео (YouTube), картинок и сниппетов — акцент темы.
+     Видео: div[role=heading].mCBkyc (зашитый синий #8ab4f8), картинки:
+     .toI8Rb/.mJ7Blf внутри карточек .eA0Zlc (зашитые #bdc1c6/#ffffff) —
+     раунды 18–19: прямой цвет в дочерних элементах перебивал a:link */
+  h3,
+  .LC20lb,
+  [role="heading"],
+  .mCBkyc,
+  .fc9yUc,
+  .toI8Rb,
+  .mJ7Blf {
+    color: var(--bob-accent) !important;
+  }
+  a:hover h3, a:focus h3,
+  a:hover [role="heading"], a:focus [role="heading"],
+  a:hover .mCBkyc, a:focus .mCBkyc,
+  a:hover .toI8Rb, a:focus .toI8Rb,
+  .eA0Zlc:hover .toI8Rb {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--bob-accent) 55%, transparent) !important;
+  }
+
+  /* ВСЕ ссылки Google (футер, видео, картинки, геолокация, сервисные) — никаких синих/белых артефактов */
+  a:link,
+  a:link [role="heading"],
+  a:link .mCBkyc,
+  a:link .toI8Rb {
+    color: var(--bob-accent) !important;
+  }
+  a:visited,
+  a:visited [role="heading"],
+  a:visited .mCBkyc,
+  a:visited .toI8Rb {
+    color: color-mix(in srgb, var(--bob-accent) 65%, #8a8f98) !important;
+  }
+
+  /* Сниппеты и текст выдачи */
+  .VwiC3b, .yXK7lf, div[data-snf] {
+    color: #b8b8c4 !important;
+  }
+  em, b {
+    color: #ffffff !important;
+  }
+
+  /* Кнопка «Показати більше» под видео и карточками — стелс-капсула */
+  g-more-button,
+  .M6CB1c,
+  .wUrVib {
+    background: #14141a !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 35%, transparent) !important;
+    border-radius: 20px !important;
+    color: #e0e0ea !important;
+  }
+
+  /* «Люди також шукають» — полное скрытие (Cyber-Stealth, раунды 18–19).
+     Вернуть капсулы = удалить этот блок */
+  #bres,
+  .bres,
+  div[data-initq],
+  .k8XOCe,
+  .s75F9Be,
+  .s75Fxf {
+    display: none !important;
+  }
+
+  /* Аккордеоны «Похожие вопросы» */
+  .related-question-pair, g-accordion-expander {
+    background: #14141a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+  }
+
+  /* Пагинация Goooooooooogle: активная страница светится темой */
+  #navcnt td.cur, #navcnt .YyVfkd {
+    color: var(--bob-accent) !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 12px var(--bob-accent) !important;
+  }
+  #navcnt a.fl, #pnprev, #pnnext {
+    color: #a0a0aa !important;
+    text-decoration: none !important;
+  }
+  #navcnt a.fl:hover, #pnprev:hover, #pnnext:hover {
+    color: var(--bob-accent) !important;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--bob-accent) 60%, transparent) !important;
+  }
+
+  /* Футер (геолокация, Довідка, Умови) */
+  #fbar, .fbar, .b2hzbe, .KxwPGc {
+    background: transparent !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    color: #7e7e88 !important;
+  }
+  #fbar a, #footcnt a, .fbar a {
+    color: color-mix(in srgb, var(--bob-accent) 70%, #8a8f98) !important;
+  }
+  #fbar a:hover, #footcnt a:hover, .fbar a:hover {
+    color: var(--bob-accent) !important;
+  }
+
+  /* Верхние вкладки (Все, Картинки, Видео...): активная — темой */
+  div[role="tab"][aria-selected="true"], .hdtb-mitem.hdtb-msel {
+    color: var(--bob-accent) !important;
+    border-bottom: 2px solid var(--bob-accent) !important;
+  }
+
+  /* Растворение серой полосы шапки Google (#202124) — монолит с фоном
+     страницы (раунд 17: раньше красили только .minidiv .sfbg — полоса
+     оставалась при прокрутке вверх) */
+  header,
+  #searchform,
+  .sfbg,
+  .sfbgg,
+  #tsf,
+  form[role="search"],
+  .minidiv,
+  .appbar,
+  #hdtb,
+  .F1NZBe,
+  .cv2VAd {
+    background: var(--bob-page, #0a0a0c) !important;
+    background-color: var(--bob-page, #0a0a0c) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Кнопка «Увійти» — капсула в тон темы, без заводской синей заливки */
+  a[href*="accounts.google.com"] {
+    background: #14141a !important;
+    color: var(--bob-accent) !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent) 45%, transparent) !important;
+    border-radius: 20px !important;
+  }
+  a[href*="accounts.google.com"]:hover {
+    background: color-mix(in srgb, var(--bob-accent) 20%, #14141a) !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--bob-accent) 40%, transparent) !important;
+  }
 }
 
 /* ============================================================================
