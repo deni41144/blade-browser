@@ -5,9 +5,11 @@
 //                  колокольчик завершённых загрузок. Громкость: преф blade.sounds.volume (0-100).
 //                  v1.3.0: саундскрины тем — у каждой темы свой тембр (pitch/gain/волна/Q),
 //                  читается с data-blade-theme на каждом звуке, живо перекрашивается с темой.
+//                  v1.4.0 «звуковая волна 2.0»: контекст смягчает тембр — непогода за окном,
+//                  ночь, приватное окно; шинг тембра новой темы при переключении (шина).
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.3.0
+// @version         1.4.0
 // ==/UserScript==
 (function () {
   if (window.BladeSounds) return;
@@ -52,7 +54,30 @@
   function skin() {
     try {
       const id = window.document.documentElement.getAttribute('data-blade-theme');
-      return SKINS[id] || SKINS.red;
+      // копия базового скина: ниже множим её контекстом (погода/ночь/приват)
+      const s = Object.assign({}, SKINS[id] || SKINS.red);
+      // Звуковая волна 2.0 (1.4.0): браузер звучит в тон обстановке.
+      // Дождь/снег за окном (префы публикует BladeClock) — мягче и тише
+      try {
+        if (Services.prefs.getBoolPref('blade.weather.rain', false) ||
+            Services.prefs.getBoolPref('blade.weather.snow', false)) {
+          s.pitch *= 0.94; s.gain *= 0.85;
+        }
+      } catch (e0) {}
+      // Ночной шёпот (blade.night — теперь по реальному солнцу, BladeClock 2.7.0)
+      try {
+        if (Services.prefs.getBoolPref('blade.night', false)) {
+          s.gain *= 0.60; s.pitch *= 0.96;
+        }
+      } catch (e1) {}
+      // Приватное окно звучит глуше — характер приватности
+      try {
+        const PBU = ChromeUtils.importESModule('resource://gre/modules/PrivateBrowsingUtils.sys.mjs');
+        if (PBU.PrivateBrowsingUtils.isWindowPrivate(window)) {
+          s.gain *= 0.75; s.pitch *= 0.90;
+        }
+      } catch (e2) {}
+      return s;
     } catch (e) { return SKINS.red; }
   }
 
@@ -182,6 +207,15 @@
   }
   if (firstWindow()) setTimeout(() => shing(), 700);
 
+  // Звуковая волна 2.0: тема сменилась — представляется шингом своего тембра.
+  // setTheme обновляет data-blade-theme ДО эmission, так что шинг звучит
+  // уже голосом новой темы; авто-тема день/ночь проходит тем же путём
+  try {
+    if (window.Blade && window.Blade.bus) {
+      window.Blade.bus.on('theme:changed', () => setTimeout(() => shing(), 120));
+    }
+  } catch (e) {}
+
   // Колокольчик на успешные загрузки: view на публичный список Downloads
   (async () => {
     try {
@@ -213,7 +247,7 @@
     const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
     d.append('JS');
     d.append('sounds_mark.txt');
-    IOUtils.writeUTF8(d.path, 'v1.3.0 START').catch(() => {});
+    IOUtils.writeUTF8(d.path, 'v1.4.0 START').catch(() => {});
   } catch (e) {}
 
   window.BladeSounds = { blip, shing, fanfare, chime, windowFlash };
