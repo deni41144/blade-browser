@@ -266,8 +266,10 @@ user_pref("places.history.expiration.max_pages", 15000);
 user_pref("media.autoplay.default", 5);
 
 /* НАШИ ПЛИТКИ: дефолтные сайты новой вкладки — наши, не Firefox-овские
-   (Wiki/Amazon). Покрыты тематическими обложками для всех 9 тем */
-user_pref("browser.newtabpage.activity-stream.default.sites", "[{\"url\":\"https://youtube.com\",\"title\":\"YouTube\"},{\"url\":\"https://music.youtube.com\",\"title\":\"YouTube Music\"},{\"url\":\"https://instagram.com\",\"title\":\"Instagram\"},{\"url\":\"https://www.olx.ua\",\"title\":\"OLX\"},{\"url\":\"https://pinterest.com\",\"title\":\"Pinterest\"},{\"url\":\"https://rozetka.com.ua\",\"title\":\"Rozetka\"},{\"url\":\"https://temu.com\",\"title\":\"Temu\"},{\"url\":\"https://aliexpress.com\",\"title\":\"AliExpress\"},{\"url\":\"https://mail.google.com\",\"title\":\"Gmail\"},{\"url\":\"https://classroom.google.com\",\"title\":\"Classroom\"}]");
+   (Wiki/Amazon). Покрыты тематическими обложками для всех 9 тем.
+   aha-music — «шазам» браузера: распознавание музыки с микрофоном
+   (доступ выдан политикой Permissions.Microphone, без промпта) */
+user_pref("browser.newtabpage.activity-stream.default.sites", "[{\"url\":\"https://youtube.com\",\"title\":\"YouTube\"},{\"url\":\"https://music.youtube.com\",\"title\":\"YouTube Music\"},{\"url\":\"https://instagram.com\",\"title\":\"Instagram\"},{\"url\":\"https://www.olx.ua\",\"title\":\"OLX\"},{\"url\":\"https://pinterest.com\",\"title\":\"Pinterest\"},{\"url\":\"https://rozetka.com.ua\",\"title\":\"Rozetka\"},{\"url\":\"https://temu.com\",\"title\":\"Temu\"},{\"url\":\"https://aliexpress.com\",\"title\":\"AliExpress\"},{\"url\":\"https://mail.google.com\",\"title\":\"Gmail\"},{\"url\":\"https://classroom.google.com\",\"title\":\"Classroom\"},{\"url\":\"https://aha-music.com\",\"title\":\"Shazam\"}]");
 
 /* --- BLADE: АУДИО КАЧЕСТВО (без потери производительности) --- */
 
