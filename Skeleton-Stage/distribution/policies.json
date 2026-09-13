@@ -1,0 +1,39 @@
+{
+  "policies": {
+    "Extensions": {
+      "Install": [
+        "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi",
+        "https://addons.mozilla.org/firefox/downloads/latest/sponsorblock/addon-1007315-latest.xpi"
+      ],
+      "Disabled": [
+        "addon@darkreader.org"
+      ]
+    },
+    "ExtensionUpdate": true,
+    "SearchEngines": {
+      "Default": "Google",
+      "Remove": [
+        "Bing",
+        "DuckDuckGo",
+        "eBay",
+        "Ecosia",
+        "Qwant",
+        "Wikipedia (en-US)",
+        "Amazon.com",
+        "Yandex"
+      ]
+    },
+    "DontCheckDefaultBrowser": true,
+    "DisableDefaultBrowserAgent": true,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "DisableProfileRefresh": true,
+    "DisableAppUpdate": true,
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableFeedbackCommands": true,
+    "CaptivePortal": false,
+    "BackgroundAppUpdate": false
+  }
+}
