@@ -331,3 +331,69 @@ Firefox Suggest — у нас выключен), model-hub.mozilla.org (ML-мо�
 - Приватный след (неудобно — владелец), ML-группировка вкладок (заблокирована),
   source-форк Gecko (отвергнут навсегда — безопасность), вертикальные вкладки,
   тем-по-дням/хоткей-лабиринты (конвенция 12)
+
+## 10. Фаза 10 — «BLADE STUDIO» (ночная миссия, слово владельца «студия», 2026-09-13)
+
+Цель: не фичи браузера, а простота работы с проектом. Владелец спит; стоп-точка
+из раздела 9 снимается В ПРЕДЕЛАХ этой миссии (правила ночи те же: живой браузер
+владельца и публикация — неприкасаемы, волна = коммит, Пульс на шагу).
+
+Дизайн-мандат владельца (захардкожен): визуальные изменения — ТОЛЬКО через
+Gemini (промпт полира готов), GLM — инженерия и верификация. Самодеятельность
+в стиле запрещена: «много моментов ты сам напортачил, проверять долго».
+
+### Волна 1 — «Глаза» (ГОТОВО 05:43, боевой тест пройден)
+`Blade-Eyes.ps1`: -Start/-Shot/-Stop/-Collect/-Full. Отчёты: TestReports\eyes-*.
+Протокол смены: -Start → computer-use прогулки (меню B кнопка #bobliks-settings-
+button, палитра Ctrl+K — НЮАНС: синтетический Ctrl+K не срабатывает, проверять
+через a11y-обход) → -Shot "имя" после каждого экрана → -Stop → -Collect.
+Скрины ревьюит владелец/Гемини утром (у меня vision нет).
+
+### Волна 2 — «Хирургия монолита» (BobliksSettings 1599 строк)
+Выжимка карты Analyst (полная — в истории сессии 2026-09-13 ~04:00):
+- ПОРЯДОК СЕКЦИЙ в файле: Core(8-68: WIDGET_ID/mark/version/CUI-bootstrap/
+  THEMES/BGS/getImgDir) → Themes(80-557: syncSelectionPrefs/activeTheme/
+  applyThemeSheet+currentThemeSheetUri/customVars/applyCustomToDoc/newtabDocs/
+  applyLiveAttrs/openThemeLab/setTheme) → Bgs+Visages(109-177,558-673: кэш/
+  getAllBgs/activeBg/applyBgToDoc/applyCustomBgSheet/setBg/visages/
+  chooseCustomWallpaper) → System(610-707+1026-1240: notify/backup/DNS/about/
+  seeding/verticalTabs/чистильщики/PiP-docObs) → Splash+Idle(1317-1474) →
+  Ghost+Лазер(1242-1315) → Menu(708-1025+1477-1560: CSS/табы/buildPopup/
+  ensurePopup+dispatcher/виджет/keyset) → init-блоки (собрать в хвост, порядок
+  сайд-эффектов сохранить: reader→selection→themeSheet→liveAttrs→customBgSheet)
+  → window.BladeSettings(1584) → mark('OK widget').
+- 10 ТОЧЕК РИСКА: (1) цикл Themes↔Bgs: applyLiveAttrs зовёт activeBg/
+  applyBgToDoc; applyThemeSheet читает getAllBgs; setBg зовёт applyThemeSheet.
+  (2) dispatcher click 927-1022 — шов Menu→всё, резать по границам else-if.
+  (3) buildPopup читает THEMES/bgs/visages/PERF_LINE/DNS_URI/BladeUpdater.
+  (4) applyVisage = setTheme+setBg. (5) PiP-docObs читает activeTheme/
+  getCustomColor. (6) ThemeLab и chooseCustomWallpaper пишут преф
+  bobliks.covers.dirty (тумблер BobliksCovers — не потерять). (7) стартовая
+  последовательность: щит темы зависит от активного фона. (8) BladeSettings
+  API собирается в конце, после всех секций. (9) keyset — тройной шов
+  (reader=System, cycleTheme=Themes, openBladeMenu=Menu). (10) ХОЙСТИНГ:
+  function-декларации в try-блоке; при неймспейсах вызовы → NS.x.y().
+- ПРОТОКОЛ: секция → node --check → -Start → a11y-прогулка меню B (кнопка,
+  вкладки, клик темы) → -Shot → -Stop → Pulse GREEN → коммит. Любой сбой =
+  git revert секции, в отчёт.
+
+### Волна 3 — «Карта CSS»
+userChrome.css/userContent.css: оглавление в шапке + секции-якоря
+(==== ЯКОРЬ ====), БЕЗ функциональных перемещений. После каждой порции —
+Глаза-тур (темы/меню) + Pulse.
+
+### Волна 4 — «Релиз одной командой»
+`New-Blade-Release.ps1`: -Version -Codename -Notes → Build патча → Build Full
+(движок: %LOCALAPPDATA%\Blade\App\Blade) → data.zip в BladeSetup\Output →
+хеши → сводка. Публикация НЕ входит — только слово владельца.
+
+### Волна 5 — «Онбординг»
+`BLADE-START-HERE.md` (одна страница): карта-маяк, глаза, релиз, хирургия,
+гварды. + обновить PROJECT_MAP (реестр 2.0.0, TestReports, новые скрипты).
+
+### Финальная смена
+Отчёт: волны, коммиты, папки глаз-отчётов, цифры, что осталось. Обновить
+карту/роадмап. Удалить крон-смену: CronDelete по id из CronList; ЕСЛИ тулзы
+нет (как этой ночью) — sqlite: C:\Users\Deni\.zcode\v2\tasks-index.sqlite,
+таблица automations, удалить ТОЛЬКО строку «Blade Studio ночная смена»,
+бэкап базы сначала (пример: Backups\zcode-tasks-index-backup-*).
