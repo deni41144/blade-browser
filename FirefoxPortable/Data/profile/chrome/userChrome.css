@@ -37,6 +37,7 @@
    21. МЕНЮ ФИШЕК BLADE (menupopup, PanelUI, downloads, tooltip)  (1648)
    22. КЛИНОК ЖИВЁТ: МИКРО-ВАУ ЭФФЕКТЫ (A1, A6, A9, A10, A11)  (1779)
    Без зарядки гасим бесконечные анимации хрома — GPU не крутит композит  (2022)
+   23. ДИЗАЙН-ВОЛНА «ПОЛИР 2.0»: МЕНЮ B И ПАЛИТРА BLADE
 ═════════════════════════════════════════════════════════════════════════ */
 
 
@@ -2027,3 +2028,160 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
 :root[data-blade-battery] #blade-hero::after { animation: none !important; }
 :root[data-blade-battery] #blade-splash,
 :root[data-blade-battery] #blade-idle { display: none !important; }
+:root[data-blade-battery] #bobliks-settings-button::after { animation: none !important; }
+:root[data-blade-battery] #blade-palette .blp-wrap.blp-typing .blp-foot::after,
+:root[data-blade-battery] .blp-wrap.blp-typing .blp-foot::after { animation: none !important; }
+
+/* ============================================================================
+   23. ДИЗАЙН-ВОЛНА «ПОЛИР 2.0»: МЕНЮ B И ПАЛИТРА BLADE
+   ============================================================================ */
+
+/* ── 23.1 Меню B (#bobliks-settings-popup) ───────────────────────────────────
+   Compositor-only анимация контента (.bp-wrap, .bp-body) при открытии [open],
+   hover-микросдвиг строк с акцентным бордюром, фокус-ринг клавиатурной навигации
+   со свечением, 4 состояния [Loading, Error, Empty, Success]. */
+
+/* Compositor-only анимация появления контента при открытии панели */
+#bobliks-settings-popup[open] .bp-wrap,
+#bobliks-settings-popup[panelopen="true"] .bp-wrap,
+#bobliks-settings-popup .bp-wrap {
+  animation: blade-menu-wrap-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+#bobliks-settings-popup[open] .bp-body,
+#bobliks-settings-popup[panelopen="true"] .bp-body,
+#bobliks-settings-popup .bp-body {
+  animation: blade-menu-body-in 0.20s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes blade-menu-wrap-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes blade-menu-body-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Hover-состояния строк меню: плавный сдвиг вправо и акцентная полоса */
+#bobliks-settings-popup .bp-row {
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+#bobliks-settings-popup .bp-row:hover {
+  transform: translateX(3px) !important;
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 16%, transparent) !important;
+  color: #ffffff !important;
+  box-shadow: inset 3px 0 0 var(--accent, #ff2a2a) !important;
+}
+
+#bobliks-settings-popup .bp-tab {
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease !important;
+}
+
+#bobliks-settings-popup .bp-tab:hover {
+  color: #ffffff !important;
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 12%, transparent) !important;
+}
+
+/* Доступность и фокус-ринг клавиатурной навигации с акцентным свечением */
+#bobliks-settings-popup .bp-row:focus-visible,
+#bobliks-settings-popup .bp-tab:focus-visible,
+#bobliks-settings-popup [tabindex]:focus-visible,
+#bobliks-settings-popup .bp-row:focus,
+#bobliks-settings-popup .bp-tab:focus {
+  outline: 2px solid var(--accent, #ff2a2a) !important;
+  outline-offset: -1px !important;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent),
+              inset 0 0 8px color-mix(in srgb, var(--accent, #ff2a2a) 25%, transparent) !important;
+}
+
+/* 4 состояния: Loading, Error, Empty, Success */
+#bobliks-settings-popup .bp-body:empty::before {
+  content: '— нет элементов —';
+  display: block;
+  text-align: center;
+  padding: 30px 10px;
+  color: color-mix(in srgb, var(--text, #e8e8e8) 50%, transparent);
+  font-family: var(--blade-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+}
+
+/* ── 23.2 Командная палитра Blade (#blade-palette) ───────────────────────────
+   Лёгкий пульс инпута при открытии палитры (compositor-only), подсветка
+   и оформление пустого состояния .blp-empty, hover/активные строки,
+   4 состояния [Loading, Error, Empty, Success], доступность. */
+
+/* Лёгкий пульс поля ввода при открытии палитры (compositor-only) */
+#blade-palette[open] #blade-palette-input,
+#blade-palette[panelopen="true"] #blade-palette-input,
+#blade-palette #blade-palette-input {
+  animation: blade-palette-input-pulse 0.22s ease-out !important;
+}
+
+@keyframes blade-palette-input-pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.99);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.006);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Оформление пустого состояния поиска (.blp-empty) */
+#blade-palette .blp-empty {
+  text-align: center !important;
+  padding: 22px 14px !important;
+  margin: 10px 8px !important;
+  font-family: var(--blade-mono, 'JetBrains Mono', monospace) !important;
+  font-size: 12px !important;
+  letter-spacing: 0.8px !important;
+  color: color-mix(in srgb, var(--text, #e8e8e8) 60%, transparent) !important;
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 6%, transparent) !important;
+  border: 1px dashed color-mix(in srgb, var(--accent, #ff2a2a) 35%, transparent) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 10%, transparent) !important;
+}
+
+/* Hover и выделение строк в палитре */
+#blade-palette .blp-row {
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+#blade-palette .blp-row:hover {
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 14%, transparent) !important;
+}
+
+#blade-palette .blp-row.on {
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 20%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--accent, #ff2a2a) !important;
+}
+
+/* Фокус инпута и клавиатурная доступность */
+#blade-palette-input:focus-visible {
+  outline: none !important;
+}
+
+#blade-palette .blp-row:focus-visible {
+  outline: 2px solid var(--accent, #ff2a2a) !important;
+  outline-offset: -1px !important;
+}
