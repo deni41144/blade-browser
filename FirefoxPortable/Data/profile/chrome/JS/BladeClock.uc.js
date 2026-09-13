@@ -175,10 +175,13 @@
     }
     if (!CustomizableUI) return;
 
-    // интервал только после CUI-гварда и со снятием на unload:
-    // раньше создавался в каждом окне до гварда и не гасился никогда
-    const weatherTimer = setInterval(() => fetchWeather(), 30 * 60e3);   // каждые 30 минут
-    window.addEventListener('unload', () => clearInterval(weatherTimer));
+    // Интервал погоды через реестр BladeCore (снятие на unload автоматом,
+    // 2.0): раньше — ручной setInterval + отдельный unload-хендлер
+    if (window.Blade && window.Blade.every) Blade.every(() => fetchWeather(), 30 * 60e3); // каждые 30 минут
+    else {
+      const weatherTimer = setInterval(() => fetchWeather(), 30 * 60e3);
+      window.addEventListener('unload', () => clearInterval(weatherTimer));
+    }
 
     // Криминалистика 1.9.2 (11 рестартов): CustomizableUI в FF155 не строит
     // узел для позднерегистрируемого custom-виджета (placement живёт, узла нет;
@@ -273,8 +276,8 @@
     }
     mountClock();
     // Навбар мог ещё не существовать на DOMContentLoaded - страховка
+    // (одна: слепой 5с-таймер из часового дела срезан в 2.0)
     setTimeout(mountClock, 1500);
-    setTimeout(mountClock, 5000);
   } catch (e) {
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
