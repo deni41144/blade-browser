@@ -210,7 +210,6 @@
           '--bob-accent: ' + accent + ' !important;' +
           ' --bob-accent-rgb: ' + rgbStr + ' !important;' +
           ' --bob-accent-contrast: ' + contrast + ' !important;' +
-          ' --bob-accent-soft: rgba(' + rgbStr + ', 0.35) !important;' +
           ' --bob-page: ' + page + ' !important; }';
         // Фон newtab в тот же щит: только встроенным фонам с файлом; URL —
         // абсолютный file:// (относительный url() в data:-листе не
@@ -266,7 +265,6 @@
         '--panel-hover': 'hsl(' + h + ', 22%, 13%)',
         '--text': 'hsl(' + h + ', 15%, 92%)',
         '--bob-accent': color,
-        '--bob-accent-soft': 'rgba(' + rgb.join(', ') + ', 0.35)',
         '--bob-page': 'hsl(' + h + ', 22%, 4%)'
       };
     }
@@ -276,7 +274,7 @@
         const el = doc.documentElement;
         if (!el) return;
         for (const p of ['--accent', '--accent-soft', '--bg', '--panel', '--panel-hover', '--text',
-                         '--bob-accent', '--bob-accent-soft', '--bob-page']) {
+                         '--bob-accent', '--bob-page']) {
           el.style.removeProperty(p);
         }
         let st = doc.getElementById('blade-custom-sel');
