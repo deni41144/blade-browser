@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name            Blade Core
 // @description     Общий контракт window.Blade: темы, встроенные фоны, преф-хэш,
-//                  mark-логи, шина событий, запуск PowerShell
+//                  mark-логи, шина событий, запуск PowerShell, реестр таймеров
+//                  и слушателей с авто-очисткой на unload (2.0 «Переплавка»)
 // @author          Blade-Creations
 // @include         main
-// @version         1.0.0
+// @version         1.1.0
 // @loadOrder       5
 // ==/UserScript==
 // ОТКЛЮЧАТЬ НЕЛЬЗЯ: THEMES/builtinBgs/bgPrefId отсюда потребляют
@@ -142,6 +143,33 @@
     },
   };
 
+  // Реестр таймеров/слушателей (2.0): Blade.every/Blade.listen снимают всё
+  // сами на unload окна — интервалы и слушатели больше не размазаны по
+  // ручным unload-хендлерам в каждом скрипте. Слушатели на window умирают
+  // с окном и так — реестр для тех, что на чужих объектах (tabContainer,
+  // gBrowser) и для интервалов: единая точка уборки.
+  const intervals = new Set();
+  const listeners = new Set();
+  Blade.every = (fn, ms) => {
+    const id = window.setInterval(fn, ms);
+    intervals.add(id);
+    return id;
+  };
+  Blade.clearEvery = (id) => {
+    window.clearInterval(id);
+    intervals.delete(id);
+  };
+  Blade.listen = (target, type, fn, opts) => {
+    target.addEventListener(type, fn, opts);
+    listeners.add({ target, type, fn, opts });
+  };
+  window.addEventListener('unload', () => {
+    for (const id of intervals) { try { window.clearInterval(id); } catch (e) {} }
+    for (const l of listeners) {
+      try { l.target.removeEventListener(l.type, l.fn, l.opts); } catch (e) {}
+    }
+  }, { once: true });
+
   window.Blade = Blade;
-  Blade.mark('blade_core', 'v1.0.0 START');
+  Blade.mark('blade_core', 'v1.1.0 START');
 })();
