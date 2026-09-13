@@ -179,7 +179,52 @@
 2. Кодовое имя релиза: предлагаю **«Переплавка»** (Full Reforge). Вето?
 3. Раннер на странице ошибки — входит в фазу 4 или вето?
 
-## 5. Риски
+## 5. Фаза 7 — «Скелет»: полная чистка встроенного (инвентаризация 2026-09-13)
+
+Цель владельца: «чтобы был только наш скелет, буквально всё наше» — ноль
+телефонов Mozilla, ноль брендов Firefox в живых поверхностях. Инвентаризация
+сделана по исходникам обоих omni.ja (все эндпоинты найдены грепом).
+
+### A. Уже мертво (проверено по живым prefs + user.js)
+- Ядро телеметрии: toolkit.telemetry.* (8 префов), datareporting.* (2)
+- Обновления Mozilla: app.update.enabled=false + бинарники updater/pingsender/
+  crashreporter стрипнуты конвейером Full
+- Captive portal + connectivity-service, geo MLS (geo.provider.network.url="")
+- DNS — свой механизм меню B (network.trr)
+- Pocket/топстори/спонсорка newtab — killed ранее
+- Coverage: toolkit.coverage.enabled=false по умолчанию движка
+
+### B. Волна-B: консолидация киллов в user.js (СДЕЛАНО 2026-09-13)
+Найден пробел: часть киллов жила только в prefs.js владельца — друзья их не
+получали. Добавлено в user.js (имена сверены с greprefs.js/firefox.js):
+app.normandy.enabled, app.shield.optoutstudies.enabled,
+browser.discovery.enabled, browser.ping-centre.telemetry,
+dom.push.connection.enabled (трейд-офф: фоновые push-уведомления сайтов
+умирают — для личного браузера это фича, владелец предупреждён).
+
+### C. Хирургия эндпоинтов (v3-конвейер, value-only + URL-гард) — НА УТВЕРЖДЕНИЕ
+Техника: URL эндпоинтов в omni заменяются на about:blank — телефон невозможен
+ФИЗИЧЕСКИ, даже если какой-то преф кто-то включит. Риск низкий (value-only,
+наш же паттерн), но каждый прогон = перепрошивка движка друзьям (Full-пакет).
+Кандидаты: telemetry.mozilla.org + incoming.telemetry.mozilla.org (9 файлов),
+aus5.mozilla.org (апдейтер Mozilla — двойной пояс к app.update.enabled=false),
+push.services.mozilla.com, accounts.firefox.com + monitor.firefox.com
+(активны только при логине — мы не логинимся; скраб = гарантия),
+contile.services.mozilla.com (спонсорные тайлы).
+
+### D. ЗАЩИЩЕНО — НЕ РЕЖЕМ (безопасность друзей)
+- firefox.settings.services.mozilla.com (Remote Settings): блоклисты OneCRL
+  (отзыв сертификатов), блоклист дополнений, пины. Выключить = друзья без
+  обновлений отозванных сертов. Держим.
+- SafeBrowsing (Google-хосты): антифишинг/малварь. Держим (решение владельца).
+- webcompat-инъекции: совместимость сайтов, из v3-хирургии ИСКЛЮЧЕНЫ осознанно.
+- Сертификатная логика/OCSP/CRLite — не трогаем вообще.
+
+### E. Бренд-остатки (полир после сессии с владельцем)
+about:support, about:license (юридическая MPL — честно остаётся), заголовки
+диалогов — прогон рейдом по about:-страницам (фаза 3 «Полир», промпт готов).
+
+## 6. Риски
 
 - **BobliksSettings-декомпозиция** — самый опасный шаг (меню B — самое юзаемое).
   Митигация: секции по одной, после каждой — Пульс + живой клик-тест владельца.
