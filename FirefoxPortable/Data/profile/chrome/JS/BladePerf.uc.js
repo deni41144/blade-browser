@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name            Blade Perf
-// @description     Замер фаз старта окна: dcl/load/paint/ssr в JS\perf_mark.txt
+// @description     Замер фаз старта окна: dcl/load/paint/ssr → JS\perf_mark.txt
+//                  (перезапись) + JS\perf_history.txt (append, ротация 50 строк —
+//                  бенчмарки «до/после» волн 2.0 «Переплавка»).
 // @author          Blade-Creations
 // @include         main
-// @version         1.0.0
+// @version         2.0.0
 // ==/UserScript==
 (function () {
   if (window.__bladePerf) return;
@@ -23,14 +25,31 @@
       IOUtils.writeUTF8(d.path, text).catch(() => {});
     } catch (e) {}
   };
+  // v2.0: история замеров — append с ротацией 50 строк. Read-then-write, а не
+  // appendUTF8: файл лежит в chrome\JS и едет в патчи/джанк-чистки, ротация
+  // обязана переписывать файл целиком, иначе он рос бы бесконечно
+  const appendHistory = (line) => {
+    try {
+      const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
+      d.append('JS'); d.append('perf_history.txt');
+      IOUtils.readUTF8(d.path).then(prev => {
+        const rows = prev.replace(/^\uFEFF/, '').split(/\r?\n/).filter(Boolean);
+        rows.push(line);
+        return IOUtils.writeUTF8(d.path, rows.slice(-50).join('\r\n') + '\r\n');
+      }).catch(() => {
+        IOUtils.writeUTF8(d.path, line + '\r\n').catch(() => {});
+      });
+    } catch (e) {}
+  };
   const write = () => {
     if (written) return;
     written = true;
-    let s = 'v1.0.0 ' + new Date().toISOString();
+    let s = 'v2.0.0 ' + new Date().toISOString();
     for (const p of ['dcl', 'load', 'paint', 'ssr']) {
       if (typeof t[p] === 'number') s += ' ' + p + '=' + Math.round(t[p]) + 'ms';
     }
     mark(s);
+    appendHistory(s);
   };
   window.addEventListener('load', () => { t.load = performance.now(); }, { once: true });
   // Первый MozAfterPaint — первое реальное появление пикселей окна
