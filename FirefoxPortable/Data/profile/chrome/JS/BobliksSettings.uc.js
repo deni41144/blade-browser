@@ -1429,7 +1429,7 @@
           idleOv.style.display = 'flex';
           idleShown = true;
           clockTick(); // при показе сразу актуальное время, а не «--:--»
-          if (!clockTimer) clockTimer = setInterval(clockTick, 1000);
+          if (!clockTimer) clockTimer = (window.Blade && Blade.every ? Blade.every(clockTick, 1000) : setInterval(clockTick, 1000));
         } catch (e) { mark('ERR idleShow ' + e); }
       };
 
@@ -1461,15 +1461,24 @@
         } catch (e) { return false; }
       };
 
-      const idleTimer = setInterval(() => {
-        try {
-          if (!idleShown && Date.now() - lastActivity > 3 * 60e3 && idleAllowed()) showIdle();
-        } catch (e) {}
-      }, 15e3);
-      window.addEventListener('unload', () => {
-        clearInterval(idleTimer);
-        if (clockTimer) clearInterval(clockTimer);
-      }, { once: true });
+      // Реестр BladeCore (2.0): снятие на unload автоматом, ручной хендлер срезан
+      if (window.Blade && window.Blade.every) {
+        Blade.every(() => {
+          try {
+            if (!idleShown && Date.now() - lastActivity > 3 * 60e3 && idleAllowed()) showIdle();
+          } catch (e) {}
+        }, 15e3);
+      } else {
+        const idleTimer = setInterval(() => {
+          try {
+            if (!idleShown && Date.now() - lastActivity > 3 * 60e3 && idleAllowed()) showIdle();
+          } catch (e) {}
+        }, 15e3);
+        window.addEventListener('unload', () => {
+          clearInterval(idleTimer);
+          if (clockTimer) clearInterval(clockTimer);
+        }, { once: true });
+      }
       mark('OK idle');
     } catch (e) { mark('ERR idle ' + e); }
 
@@ -1574,8 +1583,12 @@
       } catch (e) { mark('ERR autoTheme ' + e); }
     }
     autoThemeTick();
-    const autoThemeTimer = setInterval(autoThemeTick, 60e3);
-    window.addEventListener('unload', () => { clearInterval(autoThemeTimer); }, { once: true });
+    // Авто-тема: интервал через реестр BladeCore (2.0), ручной unload срезан
+    if (window.Blade && window.Blade.every) Blade.every(autoThemeTick, 60e3);
+    else {
+      const autoThemeTimer = setInterval(autoThemeTick, 60e3);
+      window.addEventListener('unload', () => { clearInterval(autoThemeTimer); }, { once: true });
+    }
 
     // ---- API для будущей командной палитры (по образцу window.BladeUpdater) ----
     // Гварда не нужно: fx-autoconfig запускает скрипт один раз на окно, а при

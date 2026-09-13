@@ -222,7 +222,9 @@
       } catch (e) {}
     }
     tick();
-    const tickTimer = window.setInterval(tick, 1000);
+    // Тик через реестр BladeCore — снятие на unload автоматом (2.0)
+    if (window.Blade && window.Blade.every) Blade.every(tick, 1000);
+    else window.setInterval(tick, 1000);
 
     function updateVisible() {
       try {
@@ -272,7 +274,6 @@
     } catch (e) {}
 
     window.addEventListener('unload', () => {
-      try { window.clearInterval(tickTimer); } catch (e) {}
       try { window.gBrowser.removeTabsProgressListener(progListener); } catch (e) {}
       try {
         if (busHandler && window.Blade && window.Blade.bus)
