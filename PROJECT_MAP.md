@@ -91,16 +91,17 @@ F:\firefox michael edition\
 
 | Скрипт | Версия | Роль |
 |---|---|---|
-| BladeCore.uc.js | 1.0.0 | Общий контракт `window.Blade`: THEMES, builtinBgs, bgPrefId, mark, шина событий, runPsEncoded. `@loadOrder 5` — исполняется до всех. ОТКЛЮЧАТЬ НЕЛЬЗЯ |
+| BladeCore.uc.js | 1.1.0 | Общий контракт `window.Blade`: THEMES, builtinBgs, bgPrefId, mark, prefStr, шина, runPsEncoded + реестр every/listen с авто-очисткой на unload (2.0). `@loadOrder 5`. ОТКЛЮЧАТЬ НЕЛЬЗЯ |
 | BobliksSettings.uc.js | 1.14.2 | Меню «B»: темы (+авто-тема день/ночь), фоны, DNS, ПЕРФ-замеры, бэкап-кнопка, система; F1/Alt+B. `applyThemeSheet()` — USER_SHEET для живого переключения тем |
 | BladeUpdater.uc.js | 1.3.5 | Автопроверка GitHub (сутки), панель «Хроника обновлений», самолечение 401-токена, однократная регистрация дефолт-браузера, API `window.BladeUpdater` |
 | BobliksCovers.uc.js | 2.1.0 | Генератор covers.css (`@onlyonce` + перегенерация по префу `bobliks.covers.dirty`) |
 | BladeNewtab.uc.js | 1.5.0 | Hero ТОЛЬКО на новой вкладке: большие часы 88px+секунды, приветствие по времени, дата, статус-строка (BLADE OS // ONLINE · погода), тикер хроники (chrome-оверлей; данные Clock через шину BladeCore). На остальных страницах время — навбар-часы (BladeClock 2.6.0 прячется на главной)
-| BladeClock.uc.js | 2.6.0 | Часы+погода+прогноз в тулбаре (ipwho.is + open-meteo), публикует в шину clock:weather. v2.6.0: на about:newtab/home кнопка прячется (btn.hidden) — там время показывает Hero, «у каждой странице свой часы»; слушатели переходов + страховка в 10с-тике |
-| BladePalette.uc.js | 1.1.0 | Командная палитра Ctrl+K (терминал): темы/фоны/облики/действия, register() для будущих команд, API window.BladePalette |
+| BladeClock.uc.js | 2.7.0 | Часы+погода+прогноз в тулбаре (ipwho.is + open-meteo), публикует в шину clock:weather. v2.6.0: на about:newtab/home кнопка прячется — там время показывает Hero. v2.7.0 «Сок»: солнечные часы — восход/закат из open-meteo (кэш-преф blade.clock.sun на день), ночь по реальному солнцу, фолбэк 22:00-06:00 |
+| BladePalette.uc.js | 1.2.0 | Командная палитра Ctrl+K (терминал): темы/фоны/облики/действия, register() для будущих команд, API window.BladePalette. v1.2.0 «Сок»: помодоро — «Таймер 25/5 мин» с фанфарой тембра темы на финише, живой остаток в метке «остановить» |
+| BladeBattery.uc.js | 1.0.0 | Режим экономии (волна «Сок»): navigator.getBattery → data-blade-battery на :root + преф blade.battery.sav; CSS гасит бесконечные анимации хрома и живых фонов newtab, idle-заставка не поднимается. Порог: не заряжается и <60% |
 | BladePerf.uc.js | 2.0.0 | Замер фаз старта окна (dcl/load/paint/ssr) → `perf_mark.txt` + история `perf_history.txt` (ротация 50) — бенчмарки волн 2.0 |
 | BladePulse.uc.js | 1.0.0 | Пульс Клинка: самодиагностика при старте (`@onlyonce`, `@loadOrder 99`) — контракт Blade, узлы (навбар/часы/меню B/Hero), шрифты, VERSION/covers → `blade_health.txt`, вердикт GREEN/YELLOW/RED |
-| BobliksChromeStyle 1.3.0 / AboutStyle 1.0.1 / BladeSounds 1.3.0 | — | Стили хрома/about (incl. порт SIGNATURE), звуки + саундскрины тем (тембр от data-blade-theme, живо переключается) |
+| BobliksChromeStyle 1.3.0 / AboutStyle 1.0.1 / BladeSounds 1.4.0 | — | Стили хрома/about (incl. порт SIGNATURE), звуки: саундскрины тем + контекст (непогода/ночь/приватность глушат тембр), шинг при смене темы (шина theme:changed) |
 
 ## Конвейеры
 
