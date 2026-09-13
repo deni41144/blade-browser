@@ -87,6 +87,33 @@ $replace = @{
     'chrome/browser/content/branding/icon128.png'             = (Join-Path $genDir 'icon128.png')
 }
 
+# --- PASS 2: все лисьи ассеты (маска: fox/mascot/kit/mr-/splash/firefox) ---
+# SVG -> обёртка Blade, PNG -> рендер клинка 200px. Исключения: wordmark'и уже
+# Blade (текст), branding/ закрыт PASS 1.
+Add-Type -AssemblyName System.Drawing
+$bladePng200 = Join-Path $genDir 'blade-200.png'
+$bmp = [System.Drawing.Image]::FromFile($master)
+$resized = New-Object System.Drawing.Bitmap(200, 200)
+$gr = [System.Drawing.Graphics]::FromImage($resized)
+$gr.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+$gr.DrawImage($bmp, 0, 0, 200, 200)
+$resized.Save($bladePng200, [System.Drawing.Imaging.ImageFormat]::Png)
+$gr.Dispose(); $resized.Dispose(); $bmp.Dispose()
+
+$foxPattern = '(?i)(fox|mascot|kit-champion|kit\.png|kit-circle|mr-|splash|firefox)'
+$skipExact = @('chrome/browser/content/branding/firefox-wordmark.svg', 'chrome/browser/content/branding/about-wordmark.svg')
+$foxTargets = @{}
+$srcList = [System.IO.Compression.ZipFile]::OpenRead($omniBrowser)
+foreach ($e in $srcList.Entries) {
+    $leaf = Split-Path -Leaf $e.FullName
+    if ($e.FullName -notmatch '\.(svg|png)$') { continue }
+    if ($e.FullName -like 'chrome/browser/content/branding/*') { continue }
+    if ($skipExact -contains $e.FullName) { continue }
+    if ($leaf -match $foxPattern) { $foxTargets[$e.FullName] = $true }
+}
+$srcList.Dispose()
+Write-Host ("PASS 2: лисьих ассетов к замене: " + $foxTargets.Count) -ForegroundColor Cyan
+
 $newOmni = $omniBrowser + '.new'
 $src = [System.IO.Compression.ZipFile]::OpenRead($omniBrowser)
 $out = [System.IO.Compression.ZipFile]::Open($newOmni, 'Create')
@@ -105,6 +132,15 @@ try {
             $st.Write($bytes, 0, $bytes.Length)
             $patched++
             Write-Host ("  [REBRAND] about-logo.svg -> SVG-обёртка Blade")
+        } elseif ($foxTargets.ContainsKey($e.FullName)) {
+            if ($e.FullName -match '\.svg$') {
+                $bytes = [System.Text.Encoding]::UTF8.GetBytes($svgWrap)
+            } else {
+                $bytes = [System.IO.File]::ReadAllBytes($bladePng200)
+            }
+            $st.Write($bytes, 0, $bytes.Length)
+            $patched++
+            Write-Host ("  [FOX OUT] " + $e.FullName)
         } else {
             $es = $e.Open(); $es.CopyTo($st); $es.Close()
         }
