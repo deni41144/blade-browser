@@ -1,4 +1,4 @@
-﻿# Глаза — отчёт 2026-09-13 20:40:12
+﻿# Глаза — отчёт 2026-09-13 20:58:35
 
 ## Скриншоты
 - 01-boot-splash.png
@@ -18,12 +18,15 @@
 - 15-21-polish-menub-hover.png
 - 16-30-translate-menuitem.png
 - 17-31-after-click-translate.png
+- 18-40-shazam-tile.png
+- 19-41-newtab-after-tile.png
+- 20-42-shazam-site.png
 
 ## Артефакты
 - blade_health.txt (433 б)
-- perf_history.txt (2621 б)
+- perf_history.txt (2783 б)
 - perf_mark.txt (52 б)
 - VERSION.txt (5 б)
 
 ## Вердикт здоровья
-v1.0.0 2026-09-13T17:38:45.431Z HEALTH: GREEN
+v1.0.0 2026-09-13T17:57:03.143Z HEALTH: GREEN
