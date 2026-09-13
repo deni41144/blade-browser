@@ -56,7 +56,6 @@
   --bob-accent: #ff2a2a;
   --bob-accent-rgb: 255, 42, 42;
   --bob-accent-contrast: #ffffff;
-  --bob-accent-soft: rgba(255, 42, 42, 0.35);
   --bob-page: #0a0a0c;
 
   /* Кастомная типографика */
@@ -75,7 +74,6 @@
 @media -moz-pref("bobliks.theme.purple") {
   :root {
     --bob-accent: #b44bff;
-    --bob-accent-soft: rgba(180, 75, 255, 0.35);
     --bob-page: #0c0a10;
     --bob-accent-rgb: 180, 75, 255;
     --bob-accent-contrast: #ffffff;
@@ -86,7 +84,6 @@
 @media -moz-pref("bobliks.theme.green") {
   :root {
     --bob-accent: #00ff88;
-    --bob-accent-soft: rgba(0, 255, 136, 0.3);
     --bob-page: #060a08;
     --bob-accent-rgb: 0, 255, 136;
     --bob-accent-contrast: #0a0a0c;
@@ -97,7 +94,6 @@
 @media -moz-pref("bobliks.theme.grey") {
   :root {
     --bob-accent: #8a8f98;
-    --bob-accent-soft: rgba(138, 143, 152, 0.35);
     --bob-page: #0e0f11;
     --bob-accent-rgb: 138, 143, 152;
     --bob-accent-contrast: #0a0a0c;
@@ -108,7 +104,6 @@
 @media -moz-pref("bobliks.theme.orange") {
   :root {
     --bob-accent: #ff6a1f;
-    --bob-accent-soft: rgba(255, 106, 31, 0.35);
     --bob-page: #0c0a08;
     --bob-accent-rgb: 255, 106, 31;
     --bob-accent-contrast: #ffffff;
@@ -120,7 +115,6 @@
 @media -moz-pref("bobliks.theme.cherry") {
   :root {
     --bob-accent: #d02d4e;
-    --bob-accent-soft: rgba(208, 45, 78, 0.38);
     --bob-page: #100508;
     --bob-accent-rgb: 208, 45, 78;
     --bob-accent-contrast: #ffffff;
@@ -132,7 +126,6 @@
 @media -moz-pref("bobliks.theme.volt") {
   :root {
     --bob-accent: #fff820;
-    --bob-accent-soft: rgba(255, 248, 32, 0.35);
     --bob-page: #0d0d05;
     --bob-accent-rgb: 255, 248, 32;
     --bob-accent-contrast: #0a0a0c;
@@ -144,7 +137,6 @@
 @media -moz-pref("bobliks.theme.midnight") {
   :root {
     --bob-accent: #2f6bff;
-    --bob-accent-soft: rgba(47, 107, 255, 0.38);
     --bob-page: #04060d;
     --bob-accent-rgb: 47, 107, 255;
     --bob-accent-contrast: #ffffff;
@@ -156,7 +148,6 @@
 @media -moz-pref("bobliks.theme.blood") {
   :root {
     --bob-accent: #a80f0f;
-    --bob-accent-soft: rgba(168, 15, 15, 0.38);
     --bob-page: #0d0506;
     --bob-accent-rgb: 168, 15, 15;
     --bob-accent-contrast: #ffffff;
@@ -168,24 +159,24 @@
    -moz-pref() в юзер-стилях иногда замерзает до перезапуска. Кнопка "B"
    ставит data-blade-theme на документ — обычный пересчёт стилей, работает
    всегда. На http-страницах атрибута нет — там продолжают работать префы. */
-:root[data-blade-theme="purple"] { --bob-accent: #b44bff; --bob-accent-soft: rgba(180, 75, 255, 0.35); --bob-page: #0c0a10; --bob-accent-rgb: 180, 75, 255; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="purple"] { --bob-accent: #b44bff; --bob-page: #0c0a10; --bob-accent-rgb: 180, 75, 255; --bob-accent-contrast: #ffffff; }
 :root[data-blade-theme="purple"] ::selection { background-color: #b44bff !important; color: #ffffff !important; }
-:root[data-blade-theme="green"] { --bob-accent: #00ff88; --bob-accent-soft: rgba(0, 255, 136, 0.3); --bob-page: #060a08; --bob-accent-rgb: 0, 255, 136; --bob-accent-contrast: #0a0a0c; }
+:root[data-blade-theme="green"] { --bob-accent: #00ff88; --bob-page: #060a08; --bob-accent-rgb: 0, 255, 136; --bob-accent-contrast: #0a0a0c; }
 :root[data-blade-theme="green"] ::selection { background-color: #00ff88 !important; color: #000000 !important; }
-:root[data-blade-theme="grey"] { --bob-accent: #8a8f98; --bob-accent-soft: rgba(138, 143, 152, 0.35); --bob-page: #0e0f11; --bob-accent-rgb: 138, 143, 152; --bob-accent-contrast: #0a0a0c; }
+:root[data-blade-theme="grey"] { --bob-accent: #8a8f98; --bob-page: #0e0f11; --bob-accent-rgb: 138, 143, 152; --bob-accent-contrast: #0a0a0c; }
 :root[data-blade-theme="grey"] ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
-:root[data-blade-theme="orange"] { --bob-accent: #ff6a1f; --bob-accent-soft: rgba(255, 106, 31, 0.35); --bob-page: #0c0a08; --bob-accent-rgb: 255, 106, 31; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="orange"] { --bob-accent: #ff6a1f; --bob-page: #0c0a08; --bob-accent-rgb: 255, 106, 31; --bob-accent-contrast: #ffffff; }
 :root[data-blade-theme="orange"] ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
-:root[data-blade-theme="cherry"] { --bob-accent: #d02d4e; --bob-accent-soft: rgba(208, 45, 78, 0.38); --bob-page: #100508; --bob-accent-rgb: 208, 45, 78; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="cherry"] { --bob-accent: #d02d4e; --bob-page: #100508; --bob-accent-rgb: 208, 45, 78; --bob-accent-contrast: #ffffff; }
 :root[data-blade-theme="cherry"] ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
-:root[data-blade-theme="volt"] { --bob-accent: #fff820; --bob-accent-soft: rgba(255, 248, 32, 0.35); --bob-page: #0d0d05; --bob-accent-rgb: 255, 248, 32; --bob-accent-contrast: #0a0a0c; }
+:root[data-blade-theme="volt"] { --bob-accent: #fff820; --bob-page: #0d0d05; --bob-accent-rgb: 255, 248, 32; --bob-accent-contrast: #0a0a0c; }
 :root[data-blade-theme="volt"] ::selection { background-color: #fff820 !important; color: #000000 !important; }
-:root[data-blade-theme="midnight"] { --bob-accent: #2f6bff; --bob-accent-soft: rgba(47, 107, 255, 0.38); --bob-page: #04060d; --bob-accent-rgb: 47, 107, 255; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="midnight"] { --bob-accent: #2f6bff; --bob-page: #04060d; --bob-accent-rgb: 47, 107, 255; --bob-accent-contrast: #ffffff; }
 :root[data-blade-theme="midnight"] ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
-:root[data-blade-theme="blood"] { --bob-accent: #a80f0f; --bob-accent-soft: rgba(168, 15, 15, 0.38); --bob-page: #0d0506; --bob-accent-rgb: 168, 15, 15; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="blood"] { --bob-accent: #a80f0f; --bob-page: #0d0506; --bob-accent-rgb: 168, 15, 15; --bob-accent-contrast: #ffffff; }
 :root[data-blade-theme="blood"] ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
 /* red-дубль: возврат на дефолт должен перебивать застрявший преф-блок темы */
-:root[data-blade-theme="red"] { --bob-accent: #ff2a2a; --bob-accent-soft: rgba(255, 42, 42, 0.35); --bob-page: #0a0a0c; }
+:root[data-blade-theme="red"] { --bob-accent: #ff2a2a; --bob-page: #0a0a0c; }
 :root[data-blade-theme="red"] ::selection { background-color: #ff2a2a !important; color: #ffffff !important; }
 
 /* Кейфреймы живых фонов (Pulse / Blood Flow): обязаны лежать на ВЕРХНЕМ
