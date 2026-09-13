@@ -1076,6 +1076,18 @@
     }
     // Синхронизация Blade Reader и выделения при старте (THEMES уже объявлен)
     // ═══════════════════════════════════════════════════════════════════
+    // СЕКЦИЯ: АВТО-ТЕМА — день/ночь по префам (60с через реестр BladeCore)
+    // ═══════════════════════════════════════════════════════════════════
+    function autoThemeTick() {
+      try {
+        if (!Services.prefs.getBoolPref('blade.autotheme.on', false)) return;
+        const hour = new Date().getHours();
+        const prefName = (hour >= 8 && hour < 20) ? 'blade.autotheme.day' : 'blade.autotheme.night';
+        const target = Services.prefs.getStringPref(prefName, prefName === 'blade.autotheme.day' ? 'grey' : 'blood');
+        if (activeTheme() !== target) setTheme(target);
+      } catch (e) { mark('ERR autoTheme ' + e); }
+    }
+
     // СЕКЦИЯ: INIT — стартовая последовательность (ПОРЯДОК ВАЖЕН, риск 7)
     // reader->selection->themeSheet->liveAttrs->customBgSheet->seeding->docObs->verticalTabs->чистильщики->закладки->лазер->ghost->splash->idle->виджет->keyset. Каждый блок — try с mark-диагностикой
     // ═══════════════════════════════════════════════════════════════════
@@ -1631,17 +1643,6 @@
     // Каждое окно циклит само (как и прочая живая синхронизация файла);
     // setTheme идемпотентен — гонки между окнами безвредны.
     // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: АВТО-ТЕМА — день/ночь по префам (60с через реестр BladeCore)
-    // ═══════════════════════════════════════════════════════════════════
-    function autoThemeTick() {
-      try {
-        if (!Services.prefs.getBoolPref('blade.autotheme.on', false)) return;
-        const hour = new Date().getHours();
-        const prefName = (hour >= 8 && hour < 20) ? 'blade.autotheme.day' : 'blade.autotheme.night';
-        const target = Services.prefs.getStringPref(prefName, prefName === 'blade.autotheme.day' ? 'grey' : 'blood');
-        if (activeTheme() !== target) setTheme(target);
-      } catch (e) { mark('ERR autoTheme ' + e); }
-    }
     autoThemeTick();
     // Авто-тема: интервал через реестр BladeCore (2.0), ручной unload срезан
     if (window.Blade && window.Blade.every) Blade.every(autoThemeTick, 60e3);
