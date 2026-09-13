@@ -234,3 +234,59 @@ about:support, about:license (юридическая MPL — честно ост
   установки (InstallerLogic уже пишет стадии), ручной прогон у одного друга-добровольца.
 - **Сроки:** фазы 0–2 — двигают внутренности, владелец внешне почти ничего не
   увидит до фазы 3. Это нормально: сок выжимается незаметно, потом взрыв качества.
+
+## 8. Фаза 8 — «Чистый Лист»: языки + AI-контролы (ПЛАН, 2026-09-13, ждёт слова владельца)
+
+Разведка: Analyst (языки) + FastHelper (AI), оба отчёта верифицированы по исходникам.
+
+### 8.1 Языки: каталог выбора (287 → 3)
+- Источник длинного списка в настройках: `res/language.properties` в КОРНЕВОМ omni.ja
+  (287 записей `код.accept=true`). Единственный потребитель — диалог добавления
+  веб-языков (preferences/dialogs/languages.js/.xhtml). Проверено: правая колонка
+  (активные языки) строится из intl.accept_languages (уже «ru»), ленгпак-диалог
+  независим.
+- РЕЗ: оставить `en.accept`, `en-us.accept`, `ru.accept` — 284 строки наружу.
+- `languageNames.ftl` НЕ трогать: обслуживает спелчекер/нарратор/langpack-matcher,
+  деградация не нужна (записи en/ru там есть).
+- После правки omni — чистка startupCache (иначе stringbundle из кэша).
+- **Переводчик выживет гарантированно**: модели качаются из Remote Settings
+  (защищённый нами хост, проверено в TranslationsParent.sys.mjs), translations
+  не читает ни browser.ml.enable, ни language.properties.
+
+### 8.2 AI-контролы: нативный слой блокировки
+В движке ЕСТЬ штатный слой: `browser.ai.control.<фича>` = default|available|
+enabled|blocked; «blocked» = UI исчезает + скачанные модели удаляются.
+⚠️ ГЛАВНАЯ МИНА: `browser.ai.control.default = "blocked"` рубит ВСЁ ВКЛЮЧАЯ
+ПЕРЕВОДЧИКА. Только пофичево, translations не трогать.
+
+Срез префами (user.js, без правки omni, UI исчезает сам):
+- browser.ai.control.sidebarChatbot = "blocked" (+ ml.chat.* гаснут производно)
+- browser.ai.control.smartWindow = "blocked" + browser.smartwindow.agent.enabled
+  = false, memories.generateFromHistory/Conversation = false,
+  autoTabGrouping.enabled = false, sidebar.openByDefault = false
+- browser.ai.control.linkPreviewKeyPoints = "blocked" + ml.linkPreview.enabled = false
+- browser.preferences.aiControls = false (вся категория AI из настроек — одной строкой)
+- НЕ ТРОГАТЬ: browser.ai.control.translations (default)
+
+Грей-зона — РЕШЕНИЕ ВЛАДЕЛЬЦА:
+- smartTabGroups (ML-группировка вкладок) — блокировать или оставить?
+- pdfjsAltText (AI-подписи картинок в PDF) — блокировать?
+- browser.ml.enable = false (вся on-device ML-инфраструктура: убьёт semantic
+  history поиск, urlbar ML, PDF alt-text; перевод НЕ тронет — проверено)
+- extensions.ml.enabled = false (ML API для расширений)
+
+Глубокий срез (omni, «буквально всё наше», опционально, с риск-метками):
+- browser.xhtml: пункты меню AI-окна/контекстов (appMenu-new-ai-window, panelview
+  ai-window-toggle-view, context-openlinksmartwindow, smartwindow-кнопки, сплиттер)
+- ~60 файлов aiwindow/** (~700 КБ) + genai/** + UrlbarProviderAiChat
+- ftl-строки: genai.ftl, aiWindow*.ftl, preferences.ftl:2222-2288, промо asrouter
+- темы aiwindow/aiwindow-nova
+- ⚠️ Удалять МОДУЛИ рискованно (кросс-импорты → исключения); безопасный путь —
+  префы off + вырез DOM-узлов/ftl, модули оставить мёртвым грузом или резать
+  по одному с Пульсом на каждом шаге
+
+### 8.3 Бонус: новые скелет-эндпоинты (в срез-лист Apply-Blade-Skeleton)
+Найдены при разведке AI: mlpa-prod-prod-mozilla.freetls.fastly.net (smartwindow),
+merino.services.mozilla.com (worldcup/searchQuery; НЮАНС: merino также обслуживает
+Firefox Suggest — у нас выключен), model-hub.mozilla.org (ML-модели). С blocked-
+префами инертны, но физический скраб = гарантия. Добавить при следующем прогоне.
