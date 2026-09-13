@@ -554,6 +554,11 @@
       // Тематический щит — для ЛЮБОЙ темы, включая red: единственный живой
       // канал до remote-контента (newtab, скроллбары сайтов, about:-страницы)
       applyThemeSheet(themeId);
+      // Звуковая волна 2.0: объявляем смену темы в шину — BladeSounds играет
+      // шинг тембра новой темы (data-blade-theme уже обновлён выше)
+      try {
+        if (window.Blade && window.Blade.bus) window.Blade.bus.emit('theme:changed', themeId);
+      } catch (e) {}
     }
     // Живой фон через nsIStyleSheetService USER_SHEET (раунд 23): новая
     // вкладка удалённая, DOM не дотянуться — а юзер-щит доходит до контентного
@@ -1455,6 +1460,8 @@
         try {
           if (!Services.prefs.getBoolPref('blade.idle.on', true)) return false;
           if (window.fullScreen) return false;
+          // экономия батареи (волна «Сок»): заставка не поднимается
+          if (window.document.documentElement.hasAttribute('data-blade-battery')) return false;
           // звук в любой вкладке = юзер при деле: заставку не поднимаем
           if (window.document.querySelector('tab[soundplaying]')) return false;
           return true;
