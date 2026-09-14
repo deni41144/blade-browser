@@ -22,6 +22,12 @@ param(
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 
+# 2026-09-14, инцидент друга: applier наследует CWD firefox = каталог движка
+# (Setup/ярлыки ставят WorkingDirectory=App\Blade) — Move-Item движка запирался
+# САМ НА СЕБЯ («файл занят»). Уход с наследованного CWD до любых файловых
+# операций; ставим ДО самокопии, чтобы и копия стартовала в безопасном CWD.
+try { Set-Location -LiteralPath ([Environment]::GetFolderPath('UserProfile')) } catch { try { Set-Location "$env:SystemDrive\" } catch {} }
+
 # --- Самокопия в %TEMP%: оригинал лежит в chrome\, которую сами же заменяем.
 # PowerShell держит .ps1 открытым во время исполнения — без копии удаление
 # старого chrome падало бы на этом файле (паттерн деинсталлятора).
@@ -109,6 +115,36 @@ Write-Host "Установка: $BladeRoot"
 if (-not (Test-Path -LiteralPath $ZipPath)) { Finish 'ERR' "архив не найден: $ZipPath" 1 }
 if (-not (Test-Path $chromeDir)) { Finish 'ERR' "не найден профиль: $chromeDir" 1 }
 
+# --- Проверка целостности: хеш-файл рядом с zip (формат sha256sum: "<hash>  <имя>") ---
+$hashFile = "$ZipPath.sha256"
+if (-not (Test-Path -LiteralPath $hashFile)) {
+    $hashFile = Join-Path (Split-Path -Parent $ZipPath) 'SHA256SUMS'
+}
+if (Test-Path -LiteralPath $hashFile) {
+    $zipName = Split-Path -Leaf $ZipPath
+    $localHash = (Get-FileHash -LiteralPath $ZipPath -Algorithm SHA256).Hash
+    $expected = $null
+    $hashLines = @(Get-Content -LiteralPath $hashFile | Where-Object { $_.Trim() })
+    if ($hashLines.Count -eq 1) {
+        # одна строка — берём первый токен как хеш (с именем файла или без)
+        $expected = ($hashLines[0].Trim() -split '\s+')[0]
+    } else {
+        foreach ($line in $hashLines) {
+            $t = $line.Trim() -split '\s+'
+            if ($t.Count -ge 2 -and $t[1] -eq $zipName) { $expected = $t[0]; break }
+        }
+    }
+    if (-not $expected) { Finish 'ERR' "в хеш-файле ($hashFile) нет записи для $zipName" 1 }
+    # -ne в PowerShell сравнивает строки регистронезависимо
+    if ($expected -ne $localHash) {
+        Finish 'ERR' 'хеш скачанного архива не совпал — файл повреждён или подменён, установка отменена' 1
+    }
+    Write-Host "Целостность архива проверена ($hashFile)" -ForegroundColor DarkGray
+} else {
+    # старые патчи шли без хеш-файла — не блокируем
+    Write-Host 'хеш-файл не найден — проверка целостности пропущена' -ForegroundColor Yellow
+}
+
 # --- Место на дисках ДО распаковки: полный пакет ~200 МБ zip -> ~700 МБ в TEMP ---
 $zipItem = Get-Item -LiteralPath $ZipPath
 if ($zipItem.Length -gt 50MB) {
@@ -191,10 +227,14 @@ if ($newVersion -ne 'неизвестно' -and $oldVersion -ne 'неизвес�
     if ($c -notmatch '^[yYдД]') { Finish 'ERR' 'отменено пользователем' 0 }
 }
 
-# --- Закрываем запущенный Blade (только процессы НАШЕЙ установки) ---
-$running = Get-Process firefox -ErrorAction SilentlyContinue |
-    Where-Object { $_.Path -and $_.Path.StartsWith($BladeRoot, [System.StringComparison]::OrdinalIgnoreCase) }
-if ($running) {
+# --- Закрываем запущенный Blade (только процессы НАШЕЙ установки).
+# Вынесено в функцию (инцидент 2026-09-14): Move-Item движка мог запираться
+# опоздавшим на выход процессом — теперь закрытие повторяется между попытками
+# move (см. цикл ниже).
+function Close-BladeProcesses {
+    $running = Get-Process firefox -ErrorAction SilentlyContinue |
+        Where-Object { $_.Path -and $_.Path.StartsWith($BladeRoot, [System.StringComparison]::OrdinalIgnoreCase) }
+    if (-not $running) { return }
     Write-Host 'Blade запущен — закрываю...' -ForegroundColor Yellow
     $deadline = (Get-Date).AddSeconds(20)
     do {
@@ -205,6 +245,7 @@ if ($running) {
     } while ($running -and (Get-Date) -lt $deadline)
     if ($running) { $running | Stop-Process -Force; Start-Sleep -Seconds 1 }
 }
+Close-BladeProcesses
 
 # --- Бэкап профиля (chrome + user.js) — ничего не теряем ---
 $backupDir = Join-Path $BladeRoot ("Backups\profile-chrome-v{0}-{1}" -f $oldVersion, $stamp)
@@ -223,10 +264,23 @@ try {
 if ($isFull) {
     $engineBackup = Join-Path $BladeRoot ("Backups\engine-v{0}-{1}" -f $oldVersion, $stamp)
     Write-Host 'Замена движка...' -ForegroundColor Cyan
-    try {
-        Move-Item $engineDir $engineBackup
-    } catch {
-        Finish 'ERR' ("не удалось убрать старый движок (файл занят?): " + $_.Exception.Message) 1
+    # Три попытки с паузой 2с и повторным закрытием процессов (инцидент
+    # 2026-09-14: одиночный move падал «файл занят» — процессы не успели
+    # освободить файлы движка; CWD-причина устранена выше, это броня от
+    # опоздавших хвостов)
+    $moved = $false
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        try {
+            Move-Item $engineDir $engineBackup
+            $moved = $true
+            break
+        } catch {
+            if ($attempt -eq 3) {
+                Finish 'ERR' ("не удалось убрать старый движок (файл занят?): " + $_.Exception.Message) 1
+            }
+            Start-Sleep -Seconds 2
+            Close-BladeProcesses
+        }
     }
     try {
         Copy-Item $engineSrc $engineDir -Recurse -Force
