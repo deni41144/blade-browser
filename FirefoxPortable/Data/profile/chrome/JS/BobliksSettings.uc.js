@@ -1583,6 +1583,31 @@
       });
       }
     } catch (e) { mark('ERR createWidget', e); }
+    // Кнопка загрузок обязана быть в тулбаре: после обновления движка FF155
+    // виджет выпадал из nav-bar — панель загрузок становилась недоступна
+    // (репорт владельца 2026-09-14). ensure-плейсмент идемпотентен: если
+    // кнопка уже на месте — ничего не делает
+    try {
+      // строго: кнопка обязана жить в nav-bar (после FF155 выпадала в
+      // overflow/palette — панель загрузок становилась недоступна)
+      const pl = CustomizableUI && CustomizableUI.getPlacementOfWidget('downloads-button');
+      if (!pl || pl.area !== 'nav-bar') {
+        CustomizableUI.addWidgetToArea('downloads-button', 'nav-bar');
+        mark('OK downloads-button restored');
+      }
+    } catch (e) { mark('ERR dlbtn ' + e); }
+    // Блокировка плитки aha-music (Shazam): фича отозвана владельцем 2026-09-14
+    // («калл, плитка не удаляется»). Через штатный NewTabUtils — работает и для
+    // frecency-плиток (новые визиты больше не воскресают), и для pinned.
+    // Идемпотентно: link уже заблокирован — no-op
+    try {
+      const NTU = ChromeUtils.importESModule('resource://gre/modules/NewTabUtils.sys.mjs').NewTabUtils;
+      const shazamUrl = 'https://aha-music.com/';
+      if (NTU && NTU.blockedLinks && !NTU.blockedLinks.isBlocked({ url: shazamUrl })) {
+        NTU.blockedLinks.block({ url: shazamUrl });
+        mark('OK shazam tile blocked');
+      }
+    } catch (e) { mark('ERR shazamBlock ' + e); }
     // Горячие клавиши ЧЕРЕЗ KEYSET: настоящие <key> работают при любом фокусе,
     // включая страницу (window-keydown из контента не долетал — баг красной команды №11)
     try {
