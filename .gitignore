@@ -66,3 +66,9 @@ Release/
 *.blade-bak*
 FirefoxPortable/Data/profile/chrome/JS/BladeShield_backup.txt
 Skeleton-Stage/xul.dll
+
+# --- приватное и графические исходники (аудит 2026-09-14: уехали в пуш, вырезаны из истории) ---
+Иконки/
+Иконки старые/
+FirefoxPortable/Data/profile/chrome/img/Без названия.jpg
+TestReports/**/*.png
