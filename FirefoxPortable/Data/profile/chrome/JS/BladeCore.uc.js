@@ -44,6 +44,18 @@
     { id: 'voltbg',    label: 'Volt Yellow',        file: 'bg_volt.jpg' },
     { id: 'blade',   label: 'Blade',         file: 'bg_blade.jpg' },
     { id: 'acheron', label: 'Acheron',       file: 'bg_acheron.jpg' },
+    // серия V2.0 (2026-09-15, обои владельца «BLADE WALLPAPER V2.0»): 2560x1440,
+    // палитра каждой подобрана под соотв. тему (red/blood/cherry/midnight/
+    // violet/toxic/ashen/ember/volt)
+    { id: 'v2red',     label: 'V2 Red',     file: 'bg_v2_red.jpg' },
+    { id: 'v2blood',   label: 'V2 Blood',   file: 'bg_v2_blood.jpg' },
+    { id: 'v2cherry',  label: 'V2 Cherry',  file: 'bg_v2_cherry.jpg' },
+    { id: 'v2midnight',label: 'V2 Midnight',file: 'bg_v2_midnight.jpg' },
+    { id: 'v2violet',  label: 'V2 Violet',  file: 'bg_v2_violet.jpg' },
+    { id: 'v2toxic',   label: 'V2 Toxic',   file: 'bg_v2_toxic.jpg' },
+    { id: 'v2ashen',   label: 'V2 Ashen',   file: 'bg_v2_ashen.jpg' },
+    { id: 'v2ember',   label: 'V2 Ember',   file: 'bg_v2_ember.jpg' },
+    { id: 'v2volt',    label: 'V2 Volt',    file: 'bg_v2_volt.jpg' },
     // живые фоны: WebP-анимация (файл) и CSS-анимация (file: null — только преф)
     { id: 'emberflow', label: 'Ember Flow (WebP)',      file: 'bg_emberflow.webp' },
     { id: 'pulse',     label: 'Pulse (CSS-анимация)',   file: null },

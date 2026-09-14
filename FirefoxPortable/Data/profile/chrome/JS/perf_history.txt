@@ -1,5 +1,3 @@
-v2.0.0 2026-09-13T04:16:00.542Z dcl=204ms load=280ms paint=398ms ssr=420ms
-v2.0.0 2026-09-13T12:33:40.593Z dcl=227ms load=304ms paint=431ms ssr=451ms
 v2.0.0 2026-09-13T12:43:56.450Z dcl=201ms load=271ms paint=399ms ssr=421ms
 v2.0.0 2026-09-13T12:46:25.419Z dcl=205ms load=275ms paint=402ms ssr=421ms
 v2.0.0 2026-09-13T14:36:39.534Z dcl=337ms load=420ms
@@ -48,3 +46,5 @@ v2.0.0 2026-09-14T04:20:21.382Z dcl=268ms load=343ms
 v2.0.0 2026-09-14T04:38:51.532Z dcl=270ms load=346ms
 v2.0.0 2026-09-14T04:39:32.208Z dcl=195ms load=276ms paint=248ms
 v2.0.0 2026-09-14T11:36:48.529Z dcl=272ms load=362ms paint=483ms ssr=524ms
+v2.0.0 2026-09-14T21:37:49.900Z dcl=270ms load=352ms paint=466ms ssr=508ms
+v2.0.0 2026-09-14T21:40:15.773Z dcl=198ms load=266ms paint=396ms ssr=410ms
