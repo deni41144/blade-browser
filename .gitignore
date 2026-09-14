@@ -58,3 +58,10 @@ saved-telemetry-pings/
 storage/
 cache2/
 startupCache/
+
+__pycache__/
+
+# --- релизные артефакты и диагностические бэкапы (вечер 2026-09-14) ---
+Release/
+*.blade-bak*
+FirefoxPortable/Data/profile/chrome/JS/BladeShield_backup.txt

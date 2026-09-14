@@ -38,6 +38,8 @@
    22. КЛИНОК ЖИВЁТ: МИКРО-ВАУ ЭФФЕКТЫ (A1, A6, A9, A10, A11)  (1779)
    Без зарядки гасим бесконечные анимации хрома — GPU не крутит композит  (2022)
    23. ДИЗАЙН-ВОЛНА «ПОЛИР 2.0»: МЕНЮ B И ПАЛИТРА BLADE
+   24. ДОЖДЬ НА ПАНЕЛИ: КАПЛИ НА НАВБАРЕ (blade.weather.rain)
+   25. AVA 3.0: СПЛЕШ СТАРТА (#blade-splash) И ЗАСТАВКА ПРОСТОЯ (#blade-idle)
 ═════════════════════════════════════════════════════════════════════════ */
 
 
@@ -82,6 +84,8 @@
   --accent: #ff2a2a;
   --accent-soft: rgba(255, 42, 42, 0.35);
   --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent);
+  --blade-rain-core: #ff4a4a;
+  --blade-rain-halo: rgba(255, 42, 42, 0.65);
   --bg: #0a0a0c;
   --panel: #14141a;
   --panel-hover: #1e1e28;
@@ -384,6 +388,8 @@ menuseparator {
   :root, html|html {
     --accent: #b44bff;
     --accent-soft: rgba(180, 75, 255, 0.35);
+    --blade-rain-core: #d075ff;
+    --blade-rain-halo: rgba(180, 75, 255, 0.65);
     --bg: #0c0a10;
     --panel: #16121c;
     --panel-hover: #221a2e;
@@ -397,6 +403,8 @@ menuseparator {
   :root, html|html {
     --accent: #00ff88;
     --accent-soft: rgba(0, 255, 136, 0.3);
+    --blade-rain-core: #33ff9f;
+    --blade-rain-halo: rgba(0, 255, 136, 0.65);
     --bg: #060a08;
     --panel: #0e1612;
     --panel-hover: #14241c;
@@ -410,6 +418,8 @@ menuseparator {
   :root, html|html {
     --accent: #8a8f98;
     --accent-soft: rgba(138, 143, 152, 0.35);
+    --blade-rain-core: #d8dde6;
+    --blade-rain-halo: rgba(180, 186, 198, 0.60);
     --bg: #0e0f11;
     --panel: #17181b;
     --panel-hover: #212327;
@@ -423,6 +433,8 @@ menuseparator {
   :root, html|html {
     --accent: #ff6a1f;
     --accent-soft: rgba(255, 106, 31, 0.35);
+    --blade-rain-core: #ff9147;
+    --blade-rain-halo: rgba(255, 106, 31, 0.65);
     --bg: #0c0a08;
     --panel: #171310;
     --panel-hover: #241c16;
@@ -436,6 +448,8 @@ menuseparator {
   :root, html|html {
     --accent: #d02d4e;
     --accent-soft: rgba(208, 45, 78, 0.38);
+    --blade-rain-core: #ff5c85;
+    --blade-rain-halo: rgba(208, 45, 78, 0.65);
     --bg: #100508;
     --panel: #1c0a10;
     --panel-hover: #2b1119;
@@ -449,6 +463,8 @@ menuseparator {
   :root, html|html {
     --accent: #fff820;
     --accent-soft: rgba(255, 248, 32, 0.35);
+    --blade-rain-core: #ffff70;
+    --blade-rain-halo: rgba(255, 248, 32, 0.70);
     --bg: #0d0d05;
     --panel: #17150a;
     --panel-hover: #25220d;
@@ -462,6 +478,8 @@ menuseparator {
   :root, html|html {
     --accent: #2f6bff;
     --accent-soft: rgba(47, 107, 255, 0.38);
+    --blade-rain-core: #5a8aff;
+    --blade-rain-halo: rgba(47, 107, 255, 0.65);
     --bg: #04060d;
     --panel: #0a101d;
     --panel-hover: #101a2e;
@@ -475,6 +493,8 @@ menuseparator {
   :root, html|html {
     --accent: #a80f0f;
     --accent-soft: rgba(168, 15, 15, 0.38);
+    --blade-rain-core: #e8324a;
+    --blade-rain-halo: rgba(215, 20, 45, 0.65);
     --bg: #0d0506;
     --panel: #170a0c;
     --panel-hover: #251014;
@@ -489,42 +509,47 @@ menuseparator {
    #main-window (= :root) — обычный пересчёт стилей срабатывает всегда.
    Специфичность (0,1,1) бьёт преф-блоки выше (0,0,1). */
 :root[data-blade-theme="purple"], html|html[data-blade-theme="purple"] {
-  --accent: #b44bff; --accent-soft: rgba(180, 75, 255, 0.35); --bg: #0c0a10; --panel: #16121c; --panel-hover: #221a2e; --text: #ece6f2;
+  --accent: #b44bff; --accent-soft: rgba(180, 75, 255, 0.35); --blade-rain-core: #d075ff; --blade-rain-halo: rgba(180, 75, 255, 0.65); --bg: #0c0a10; --panel: #16121c; --panel-hover: #221a2e; --text: #ece6f2;
 }
 :root[data-blade-theme="purple"] ::selection, html|html[data-blade-theme="purple"] ::selection { background-color: #b44bff !important; color: #ffffff !important; }
 :root[data-blade-theme="green"], html|html[data-blade-theme="green"] {
-  --accent: #00ff88; --accent-soft: rgba(0, 255, 136, 0.3); --bg: #060a08; --panel: #0e1612; --panel-hover: #14241c; --text: #e2f2ea;
+  --accent: #00ff88; --accent-soft: rgba(0, 255, 136, 0.3); --blade-rain-core: #33ff9f; --blade-rain-halo: rgba(0, 255, 136, 0.65); --bg: #060a08; --panel: #0e1612; --panel-hover: #14241c; --text: #e2f2ea;
 }
 :root[data-blade-theme="green"] ::selection, html|html[data-blade-theme="green"] ::selection { background-color: #00ff88 !important; color: #000000 !important; }
 :root[data-blade-theme="grey"], html|html[data-blade-theme="grey"] {
-  --accent: #8a8f98; --accent-soft: rgba(138, 143, 152, 0.35); --bg: #0e0f11; --panel: #17181b; --panel-hover: #212327; --text: #e6e7e9;
+  --accent: #8a8f98; --accent-soft: rgba(138, 143, 152, 0.35); --blade-rain-core: #d8dde6; --blade-rain-halo: rgba(180, 186, 198, 0.60); --bg: #0e0f11; --panel: #17181b; --panel-hover: #212327; --text: #e6e7e9;
 }
 :root[data-blade-theme="grey"] ::selection, html|html[data-blade-theme="grey"] ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
 :root[data-blade-theme="orange"], html|html[data-blade-theme="orange"] {
-  --accent: #ff6a1f; --accent-soft: rgba(255, 106, 31, 0.35); --bg: #0c0a08; --panel: #171310; --panel-hover: #241c16; --text: #f2ece6;
+  --accent: #ff6a1f; --accent-soft: rgba(255, 106, 31, 0.35); --blade-rain-core: #ff9147; --blade-rain-halo: rgba(255, 106, 31, 0.65); --bg: #0c0a08; --panel: #171310; --panel-hover: #241c16; --text: #f2ece6;
 }
 :root[data-blade-theme="orange"] ::selection, html|html[data-blade-theme="orange"] ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
 :root[data-blade-theme="cherry"], html|html[data-blade-theme="cherry"] {
-  --accent: #d02d4e; --accent-soft: rgba(208, 45, 78, 0.38); --bg: #100508; --panel: #1c0a10; --panel-hover: #2b1119; --text: #f2e2e6;
+  --accent: #d02d4e; --accent-soft: rgba(208, 45, 78, 0.38); --blade-rain-core: #ff5c85; --blade-rain-halo: rgba(208, 45, 78, 0.65); --bg: #100508; --panel: #1c0a10; --panel-hover: #2b1119; --text: #f2e2e6;
 }
 :root[data-blade-theme="cherry"] ::selection, html|html[data-blade-theme="cherry"] ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
 :root[data-blade-theme="volt"], html|html[data-blade-theme="volt"] {
-  --accent: #fff820; --accent-soft: rgba(255, 248, 32, 0.35); --bg: #0d0d05; --panel: #17150a; --panel-hover: #25220d; --text: #f2f2dc;
+  --accent: #fff820; --accent-soft: rgba(255, 248, 32, 0.35); --blade-rain-core: #ffff70; --blade-rain-halo: rgba(255, 248, 32, 0.70); --bg: #0d0d05; --panel: #17150a; --panel-hover: #25220d; --text: #f2f2dc;
 }
 :root[data-blade-theme="volt"] ::selection, html|html[data-blade-theme="volt"] ::selection { background-color: #fff820 !important; color: #000000 !important; }
 :root[data-blade-theme="midnight"], html|html[data-blade-theme="midnight"] {
-  --accent: #2f6bff; --accent-soft: rgba(47, 107, 255, 0.38); --bg: #04060d; --panel: #0a101d; --panel-hover: #101a2e; --text: #e0e8f5;
+  --accent: #2f6bff; --accent-soft: rgba(47, 107, 255, 0.38); --blade-rain-core: #5a8aff; --blade-rain-halo: rgba(47, 107, 255, 0.65); --bg: #04060d; --panel: #0a101d; --panel-hover: #101a2e; --text: #e0e8f5;
 }
 :root[data-blade-theme="midnight"] ::selection, html|html[data-blade-theme="midnight"] ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
 :root[data-blade-theme="blood"], html|html[data-blade-theme="blood"] {
-  --accent: #a80f0f; --accent-soft: rgba(168, 15, 15, 0.38); --bg: #0d0506; --panel: #170a0c; --panel-hover: #251014; --text: #efe3e3;
+  --accent: #a80f0f; --accent-soft: rgba(168, 15, 15, 0.38); --blade-rain-core: #e8324a; --blade-rain-halo: rgba(215, 20, 45, 0.65); --bg: #0d0506; --panel: #170a0c; --panel-hover: #251014; --text: #efe3e3;
 }
 :root[data-blade-theme="blood"] ::selection, html|html[data-blade-theme="blood"] ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
 /* red-дубль: возврат на дефолт должен перебивать застрявший преф-блок темы */
 :root[data-blade-theme="red"], html|html[data-blade-theme="red"] {
-  --accent: #ff2a2a; --accent-soft: rgba(255, 42, 42, 0.35); --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent); --bg: #0a0a0c; --panel: #14141a; --panel-hover: #1e1e28; --text: #e8e8e8;
+  --accent: #ff2a2a; --accent-soft: rgba(255, 42, 42, 0.35); --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent); --blade-rain-core: #ff4a4a; --blade-rain-halo: rgba(255, 42, 42, 0.65); --bg: #0a0a0c; --panel: #14141a; --panel-hover: #1e1e28; --text: #e8e8e8;
 }
 :root[data-blade-theme="red"] ::selection, html|html[data-blade-theme="red"] ::selection { background-color: #ff2a2a !important; color: #ffffff !important; }
+/* custom-дубль: конструктор тем наследует цвет капель от кастомного акцента */
+:root[data-blade-theme="custom"], html|html[data-blade-theme="custom"] {
+  --blade-rain-core: color-mix(in srgb, var(--accent) 70%, #ffffff 30%);
+  --blade-rain-halo: color-mix(in srgb, var(--accent) 65%, transparent);
+}
 
 /* ==========================================================================
    НОЧНАЯ ЗАБОТА (22:00–6:00, «Живой Клинок»)
@@ -2185,3 +2210,238 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
   outline: 2px solid var(--accent, #ff2a2a) !important;
   outline-offset: -1px !important;
 }
+
+/* ============================================================================
+   24. ДОЖДЬ НА ПАНЕЛИ: КАПЛИ НА НАВБАРЕ (blade.weather.rain)
+   ============================================================================
+   Атмосферный дождь «Живой Клинок» на плавающей капсуле #nav-bar.
+   Перенесён с обоев newtab (урок 2026-09-14: заливка страницы портила обои).
+
+   КОНЦЕПЦИЯ И ХАРАКТЕР ПО ТЕМАМ:
+   - Капли окрашены в цвет темы через --blade-rain-core и --blade-rain-halo.
+     У каждой темы свой яркий светящийся почерк:
+     * blood: яркий рубин #e8324a с алой искрой в ядре
+     * volt: электрически-жёлтая плазма #ffff70 с белым ядром
+     * cherry: сладкий розово-вишнёвый #ff5c85 с карамельным отблеском
+     * midnight: светящийся индиго #5a8aff с льдистым блеском
+     * purple: неоново-фиолетовый #d075ff синтивейв
+     * green: неоново-изумрудный #33ff9f чип-тюн
+     * grey: почти белый матово-серебристый #d8dde6 монохром
+     * orange: тёплый янтарный #ff9147
+     * red/GX: фирменный алый клинка #ff4a4a
+     * custom/конструктор: автонаследование color-mix от var(--accent).
+   - Капли на стекле: 11 крупных выразительных капель (3-7px) с белыми
+     спекулярными бликами и шлейфами скользят вниз по капсуле навбара.
+   - Капли на нижней грани: 4 росинки с яркой точкой отрыва конденсируются
+     у нижнего бордюра, вытягиваются и срываются вниз, растворяясь.
+
+   СОСТОЯНИЯ И ДОСТУПНОСТЬ (A11Y / 4 СОСТОЯНИЯ):
+   - Success (активен): blade.weather.rain=true -> живая анимация (opacity 0.68).
+   - Empty (сухо): при blade.weather.rain=false стили не активируются, GPU спит.
+   - Loading (ожидание): до ответа Open-Meteo/BladeClock панель остаётся чистой.
+   - Error / Fallback: blade.battery и prefers-reduced-motion отключают анимацию.
+   - ARIA / A11y: pointer-events: none, капли на z-index: 0 позади кнопок и
+     строки адреса (z-index: 1) — клики, фокус и контраст не затрагиваются.
+   - Перформанс (конвенция 6): в @keyframes ТОЛЬКО transform и opacity.
+   ============================================================================ */
+
+@media -moz-pref("blade.weather.rain") {
+  /* Контент навбара (кнопки, поле адреса, виджеты) строго над каплями */
+  #nav-bar > * {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Слой капель на стекле навбара и срывающихся росинок с нижней кромки */
+  #nav-bar::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: -10px !important;
+    border-radius: 16px 16px 18px 18px !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    opacity: 0;
+
+    background-image:
+      /* 1. Поверхность: капля слева (5% 8px, 4x6px, белый спекуляр 2.5px) */
+      radial-gradient(ellipse 2px 3px at 5% 8px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 2. Поверхность: крупная светящаяся капля (13% 14px, 5x7.5px) */
+      radial-gradient(ellipse 2.5px 3.8px at 13% 14px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 3. Поверхность: капля со светящимся шлейфом стекания (22% 20px, шлейф 1.5x14px) */
+      linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 60%, transparent) 8px, var(--blade-rain-core, #ff4a4a) 14px, transparent 15px),
+      radial-gradient(ellipse 2.2px 3.4px at 22% 22px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 45%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 4. Поверхность: средняя капля (31% 10px, 3.6x5.6px) */
+      radial-gradient(ellipse 1.8px 2.8px at 31% 10px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 5. Поверхность: крупная доминанта центра (42% 16px, 5.6x8.4px, спекуляр 3.5px) */
+      radial-gradient(ellipse 2.8px 4.2px at 42% 16px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 88%, transparent 100%),
+
+      /* 6. Поверхность: капля со шлейфом в правом центре (54% 18px, шлейф 1.5x16px) */
+      linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 55%, transparent) 9px, var(--blade-rain-core, #ff4a4a) 15px, transparent 16px),
+      radial-gradient(ellipse 2.4px 3.6px at 54% 20px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 7. Поверхность: яркая капля (64% 11px, 4x6.4px) */
+      radial-gradient(ellipse 2px 3.2px at 64% 11px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 8. Поверхность: крупная жемчужина (73% 15px, 5.2x7.6px) */
+      radial-gradient(ellipse 2.6px 3.8px at 73% 15px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 9. Поверхность: средняя капля справа (83% 9px, 3.6x5.6px) */
+      radial-gradient(ellipse 1.8px 2.8px at 83% 9px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 10. Поверхность: капля на правом крыле (92% 17px, 4.4x6.8px) */
+      radial-gradient(ellipse 2.2px 3.4px at 92% 17px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 11. Поверхность: капля у правого края (97% 12px, 3.2x4.8px) */
+      radial-gradient(ellipse 1.6px 2.4px at 97% 12px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 12. Нижняя кромка: росинка с яркой точкой отрыва (17% calc(100% - 9px), 5.2x9.2px) */
+      radial-gradient(ellipse 2.6px 4.6px at 17% calc(100% - 9px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 13. Нижняя кромка: крупная нависающая капля (37% calc(100% - 7px), 6x10.4px) */
+      radial-gradient(ellipse 3px 5.2px at 37% calc(100% - 7px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 88%, transparent 100%),
+
+      /* 14. Нижняя кромка: росинка отрыва (67% calc(100% - 9px), 5.2x9.2px) */
+      radial-gradient(ellipse 2.6px 4.6px at 67% calc(100% - 9px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 15. Нижняя кромка: тяжелая капля перед срывом (87% calc(100% - 8px), 5.6x10px) */
+      radial-gradient(ellipse 2.8px 5px at 87% calc(100% - 8px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 88%, transparent 100%) !important;
+
+    background-size:
+      100% 100%, 100% 100%, 1.5px 14px, 100% 100%, 100% 100%,
+      100% 100%, 1.5px 16px, 100% 100%, 100% 100%, 100% 100%,
+      100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100% !important;
+    background-position:
+      0 0, 0 0, 22% 8px, 0 0, 0 0,
+      0 0, 54% 6px, 0 0, 0 0, 0 0,
+      0 0, 0 0, 0 0, 0 0, 0 0 !important;
+    background-repeat: no-repeat !important;
+
+    /* Compositor-only анимация скольжения и срыва капель (2.8s, ощутимый ход ~64px) */
+    animation: blade-navbar-rain-glide 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+  }
+}
+
+/* Compositor-only: только transform и opacity (конвенция 6 — перф) */
+@keyframes blade-navbar-rain-glide {
+  0% {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+  16% {
+    opacity: 0.68;
+  }
+  76% {
+    opacity: 0.68;
+  }
+  90% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(38px);
+    opacity: 0;
+  }
+}
+
+/* Энергосбережение: остановка анимации без питания */
+:root[data-blade-battery] #nav-bar::after {
+  animation: none !important;
+  display: none !important;
+}
+
+/* Доступность: уважение системной настройки reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #nav-bar::after {
+    animation: none !important;
+  }
+}
+
+/* ============================================================================
+   25. AVA 3.0: СПЛЕШ СТАРТА (#blade-splash) И ЗАСТАВКА ПРОСТОЯ (#blade-idle)
+   ============================================================================ */
+
+/* ── 25.1 Сплеш старта (#blade-splash) ─────────────────────────────────────────
+   Новый брендинг AVA 3.0: тёмный фон, красное свечение логотипа, «шинг»-лезвие.
+   4 состояния: [Loading, Error, Empty, Success]. a11y: role="dialog". */
+#blade-splash {
+  background: radial-gradient(ellipse 65% 55% at 50% 52%, #180305 0%, #080203 55%, #020102 100%) !important;
+}
+
+#blade-splash .splash-logo {
+  width: 220px !important;
+  height: 220px !important;
+  object-fit: contain !important;
+  /* #FF0000 — фирменный градиент логотипа AVA 3.0 в сочетании с акцентной темой */
+  filter: drop-shadow(0 0 28px rgba(255, 0, 0, 0.72)) drop-shadow(0 0 8px color-mix(in srgb, var(--accent, #ff2a2a) 85%, transparent)) !important;
+}
+
+#blade-splash .word {
+  font-family: var(--blade-display, "Unbounded", "Segoe UI", sans-serif) !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  font-size: 34px !important;
+  letter-spacing: 22px !important;
+  text-indent: 22px !important;
+  text-shadow: 0 0 24px rgba(255, 0, 0, 0.8), 0 0 10px var(--accent, #ff2a2a) !important;
+}
+
+/* ── 25.2 Заставка простоя (#blade-idle) ──────────────────────────────────────
+   Центр — ava-sq.png с акцентным обрамлением, монохромные часы 96px, статус.
+   4 состояния: [Loading, Error, Empty, Success]. a11y: role="region". */
+#blade-idle {
+  background: #030204 !important;
+}
+
+#blade-idle .bi-logo {
+  width: 160px !important;
+  height: 160px !important;
+  object-fit: contain !important;
+  border-radius: 20px !important;
+  box-shadow: 0 0 35px rgba(255, 0, 0, 0.45), 0 0 15px color-mix(in srgb, var(--accent, #ff2a2a) 60%, transparent) !important;
+}
+
+#blade-idle .bi-clock {
+  font-family: var(--blade-mono, "JetBrains Mono", monospace) !important;
+  font-size: 96px !important;
+  font-weight: 200 !important;
+  color: #f0f0f4 !important;
+  letter-spacing: 4px !important;
+  text-shadow: 0 0 30px rgba(255, 0, 0, 0.45), 0 0 10px var(--accent, #ff2a2a) !important;
+}
+
+#blade-idle .bi-status {
+  font-family: var(--blade-mono, "JetBrains Mono", monospace) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 5px !important;
+  color: var(--accent, #ff2a2a) !important;
+}
+
+/* 4 состояния для Splash и Idle: [Loading, Error, Empty, Success] */
+#blade-splash[data-state="loading"] .splash-tag,
+#blade-idle[data-state="loading"] .bi-status {
+  opacity: 0.6 !important;
+}
+
+#blade-splash[data-state="error"] .splash-tag,
+#blade-idle[data-state="error"] .bi-status {
+  color: #ff3b30 !important;
+}
+
+#blade-splash[data-state="empty"] .splash-logo,
+#blade-idle[data-state="empty"] .bi-logo {
+  opacity: 0.25 !important;
+}
+
+#blade-splash[data-state="success"] .splash-tag,
+#blade-idle[data-state="success"] .bi-status {
+  color: color-mix(in srgb, var(--accent, #ff2a2a) 95%, white) !important;
+}
+
+
