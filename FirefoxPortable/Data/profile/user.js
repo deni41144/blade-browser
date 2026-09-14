@@ -271,12 +271,17 @@ user_pref("places.history.expiration.max_pages", 15000);
    (Twitter, новости, стримы) не жрут трафик и не орут в наушники */
 user_pref("media.autoplay.default", 5);
 
-/* НАШИ ПЛИТКИ: дефолтные сайты новой вкладки — наши, не Firefox-овские
-   (Wiki/Amazon). Покрыты тематическими обложками для всех 9 тем.
-   Шазам-плитка (aha-music) ОТЗВАНА владельцем 2026-09-14: плитка «калл»,
-   не удалялась до конца — теперь блокируется через NewTabUtils
-   (см. BobliksSettings) и отсутствует в дефолтах */
-user_pref("browser.newtabpage.activity-stream.default.sites", "[{\"url\": \"https://youtube.com\", \"title\": \"YouTube\"}, {\"url\": \"https://music.youtube.com\", \"title\": \"YouTube Music\"}, {\"url\": \"https://instagram.com\", \"title\": \"Instagram\"}, {\"url\": \"https://www.olx.ua\", \"title\": \"OLX\"}, {\"url\": \"https://pinterest.com\", \"title\": \"Pinterest\"}, {\"url\": \"https://rozetka.com.ua\", \"title\": \"Rozetka\"}, {\"url\": \"https://temu.com\", \"title\": \"Temu\"}, {\"url\": \"https://aliexpress.com\", \"title\": \"AliExpress\"}, {\"url\": \"https://mail.google.com\", \"title\": \"Gmail\"}, {\"url\": \"https://classroom.google.com\", \"title\": \"Classroom\"}]");
+/* ПЛИТКИ НОВОЙ ВКЛАДКИ, режим «pinnedOnly» (2026-09-14): сетка показывает
+   ТОЛЬКО закреплённые плитки — удалённая (откреплённая) плитка оставляет
+   пустой слот, «новые» плитки из истории больше не залетают на её место.
+   Количество закреплённых не ограничено (движковый slice по rows×perRow
+   отключён патчем). Требует движковый патч Apply-Blade-Tiles.ps1
+   (TopSitesFeed + insertPinned); без патча преф инертен, поведение стоковое.
+   Пиннинг наших 10 сайтов — одноразовый сид (blade.tiles.seeded в
+   BobliksSettings). Мёртвый преф default.sites снесён: движок ждёт URL
+   через запятую и читает его только при useRemoteSetting=false (дефолт
+   true) — наш JSON там игнорировался. Раскладку (5 колонок) делает CSS. */
+user_pref("browser.newtabpage.blade.pinnedOnly", true);
 
 /* --- BLADE: АУДИО КАЧЕСТВО (без потери производительности) --- */
 
@@ -311,3 +316,14 @@ user_pref("media.suspend-background-video.delay-ms", 3600000);
    лучи). Личность клинка важнее: форсим «без уменьшения движения» внутри
    браузера, системная настройка остаётся нетронутой для остальных программ. */
 user_pref("ui.prefersReducedMotion", 0);
+
+// ============================================================================
+// ЯЗЫК ИНТЕРФЕЙСА: русский из коробки (2.0.1, инцидент «в Browser Language
+// нету русского»). langpack-ru@firefox.mozilla.org (скрабленный, Blade вместо
+// Firefox в строках) едет в chrome\extensions\ поставки; BladeSetup при
+// установке копирует его в profile\extensions\ и прописывает в policies.json
+// (тот же механизм, что у боевой копии владельца — но путь машины друга).
+// Здесь только желаемая локаль: ru первым, en-US фолбэком (если langpack ещё
+// не установлен — движок молча откатывается на en-US, без краха).
+// ============================================================================
+user_pref("intl.locale.requested", "ru,en-US");

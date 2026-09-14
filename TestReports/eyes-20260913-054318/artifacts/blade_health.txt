@@ -1,4 +1,4 @@
-v1.0.0 2026-09-13T17:57:03.143Z HEALTH: GREEN
+v1.0.0 2026-09-13T20:15:19.330Z HEALTH: GREEN
 [OK] core-contract: window.Blade жив
 [OK] node-navbar: #nav-bar
 [OK] node-clock: #blade-clock-widget
@@ -7,5 +7,5 @@ v1.0.0 2026-09-13T17:57:03.143Z HEALTH: GREEN
 [OK] font-unbounded: Unbounded загружен
 [OK] font-rubik: Rubik загружен
 [OK] font-jetbrains-mono: JetBrains Mono загружен
-[OK] file-version: VERSION=2.0.0
+[OK] file-version: VERSION=2.0.1
 [OK] file-covers: covers.css
