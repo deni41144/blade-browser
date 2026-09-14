@@ -6,7 +6,7 @@
 //                  (BladeClock 2.6.0 сам прячется на главной: дублей нет).
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.5.0
+// @version         1.5.1
 // ==/UserScript==
 (function () {
   if (window.BladeNewtabHero) return;
@@ -21,7 +21,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.5.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.5.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -126,6 +126,22 @@
       color: color-mix(in srgb, var(--accent, #ff2a2a) 78%, white);
       margin-left: 10px; vertical-align: 14px;
     }
+    /* AVA 3.0: фирменная лазерная грань-разделитель под циферблатом */
+    #blade-hero .bh-accent-line {
+      position: relative;
+      width: 240px; height: 1px;
+      margin: 14px auto 10px auto;
+      /* #FF0000 — фирменный градиент бренда AVA 3.0 в гармонии с var(--accent) */
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 0, 0, 0.35) 20%, var(--accent, #ff2a2a) 50%, rgba(255, 0, 0, 0.35) 80%, transparent 100%);
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.55), 0 0 4px var(--accent, #ff2a2a);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #blade-hero .bh-accent-core {
+      width: 5px; height: 5px;
+      background: #ffffff;
+      transform: rotate(45deg);
+      box-shadow: 0 0 6px #ffffff, 0 0 12px rgba(255, 0, 0, 0.9);
+    }
     #blade-hero .bh-date {
       font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
       margin-top: 10px; font-size: 14px; font-weight: 600; letter-spacing: 4px;
@@ -138,6 +154,11 @@
       color: var(--accent, #ff2a2a);
       text-shadow: 0 0 10px color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent);
     }
+    /* 4 состояния Hero: [Loading, Error, Empty, Success] */
+    #blade-hero[data-state="loading"] .bh-clock { opacity: 0.6; }
+    #blade-hero[data-state="error"] .bh-status { color: #ff3333; }
+    #blade-hero[data-state="empty"] .bh-date { display: none; }
+    #blade-hero[data-state="success"] { opacity: 1; }
     #blade-hero-chronicle {
       position: absolute; left: 18px; bottom: 14px;
       font-family: var(--blade-mono, 'JetBrains Mono', monospace); font-size: 10px; letter-spacing: 1px;
@@ -160,11 +181,12 @@
     const wrap = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
     wrap.id = 'blade-hero-wrap';
     wrap.innerHTML =
-      '<div id="blade-hero">' +
-        '<div class="bh-greet"></div>' +
-        '<div class="bh-clock"><span class="bh-hm">--:--</span><span class="bh-sec">--</span></div>' +
+      '<div id="blade-hero" role="banner" aria-label="AVA 3.0 Hero" data-state="success">' +
+        '<div class="bh-greet" role="heading" aria-level="2"></div>' +
+        '<div class="bh-clock" role="timer" aria-live="off"><span class="bh-hm">--:--</span><span class="bh-sec">--</span></div>' +
+        '<div class="bh-accent-line" aria-hidden="true"><span class="bh-accent-core"></span></div>' +
         '<div class="bh-date"></div>' +
-        '<div class="bh-status">BLADE OS // ONLINE</div>' +
+        '<div class="bh-status" role="status" aria-live="polite">BLADE OS // ONLINE</div>' +
       '</div>';
     deck.appendChild(wrap);
 

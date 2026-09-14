@@ -4,21 +4,22 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <!-- ======================================================== -->
-        <!-- BLADE PALETTE CONSTANTS                                  -->
+        <!-- AVA 3.0 / OPERA GX PALETTE (AVA-волна 2026-09-14)        -->
+        <!-- Базовая палитра: глубокий черный #060000, алый #FF0000   -->
         <!-- ======================================================== -->
-        <Color x:Key="ColorBgWindow">#0a0a0c</Color>
-        <Color x:Key="ColorCardBg">#14141a</Color>
-        <Color x:Key="ColorCardBgLight">#1a1a24</Color>
-        <Color x:Key="ColorAccentRed">#ff2a2a</Color>
-        <Color x:Key="ColorAccentHover">#ff4545</Color>
-        <Color x:Key="ColorAccentGlow">#80ff2a2a</Color>
-        <Color x:Key="ColorTextPrimary">#e8e8e8</Color>
-        <Color x:Key="ColorTextSecondary">#8a8f98</Color>
-        <Color x:Key="ColorTextMuted">#585c68</Color>
-        <Color x:Key="ColorBorderSubtle">#2a2a34</Color>
-        <Color x:Key="ColorBorderHover">#ff2a2a</Color>
+        <Color x:Key="ColorBgWindow">#060002</Color>
+        <Color x:Key="ColorCardBg">#0d0305</Color>
+        <Color x:Key="ColorCardBgLight">#18060a</Color>
+        <Color x:Key="ColorAccentRed">#FF0000</Color>
+        <Color x:Key="ColorAccentHover">#FF2B2B</Color>
+        <Color x:Key="ColorAccentGlow">#80FF0000</Color>
+        <Color x:Key="ColorTextPrimary">#FFFFFF</Color>
+        <Color x:Key="ColorTextSecondary">#9E9397</Color>
+        <Color x:Key="ColorTextMuted">#635359</Color>
+        <Color x:Key="ColorBorderSubtle">#260A0E</Color>
+        <Color x:Key="ColorBorderHover">#FF0000</Color>
 
-        <!-- SolidColorBrush Resources -->
+        <!-- SolidColorBrush кисти -->
         <SolidColorBrush x:Key="BrushBgWindow" Color="{StaticResource ColorBgWindow}" />
         <SolidColorBrush x:Key="BrushCardBg" Color="{StaticResource ColorCardBg}" />
         <SolidColorBrush x:Key="BrushCardBgLight" Color="{StaticResource ColorCardBgLight}" />
@@ -30,30 +31,36 @@
         <SolidColorBrush x:Key="BrushBorderSubtle" Color="{StaticResource ColorBorderSubtle}" />
         <SolidColorBrush x:Key="BrushBorderHover" Color="{StaticResource ColorBorderHover}" />
 
-        <!-- Effects -->
+        <!-- Неоновые эффекты свечения AVA DropShadowEffect -->
         <DropShadowEffect x:Key="BladeGlowEffect"
-                          Color="#ff2a2a"
+                          Color="#FF0000"
                           BlurRadius="20"
-                          Opacity="0.4"
+                          Opacity="0.45"
                           ShadowDepth="0" />
 
         <DropShadowEffect x:Key="BladeAccentGlowEffect"
-                          Color="#ff2a2a"
-                          BlurRadius="24"
-                          Opacity="0.65"
-                          ShadowDepth="0" />
-
-        <DropShadowEffect x:Key="LaserGlowEffect"
-                          Color="#ff2a2a"
-                          BlurRadius="12"
+                          Color="#FF0000"
+                          BlurRadius="26"
                           Opacity="0.85"
                           ShadowDepth="0" />
 
+        <DropShadowEffect x:Key="BladeMegaGlowEffect"
+                          Color="#FF0000"
+                          BlurRadius="34"
+                          Opacity="0.95"
+                          ShadowDepth="0" />
+
+        <DropShadowEffect x:Key="LaserGlowEffect"
+                          Color="#FF0000"
+                          BlurRadius="14"
+                          Opacity="0.95"
+                          ShadowDepth="0" />
+
         <!-- ======================================================== -->
-        <!-- BUTTON STYLES                                            -->
+        <!-- BUTTON STYLES: OPERA GX TACTILE SCALE & NEON GLOW        -->
         <!-- ======================================================== -->
 
-        <!-- Standard Button Style -->
+        <!-- Стандартная кнопка (AVA Secondary/Utility) -->
         <Style x:Key="BladeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource BrushCardBg}" />
             <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
@@ -71,67 +78,51 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
+                                CornerRadius="6"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="ButtonScale" ScaleX="1.0" ScaleY="1.0" />
+                            </Border.RenderTransform>
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Margin="{TemplateBinding Padding}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1.02" Duration="0:0:0.12" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1.02" Duration="0:0:0.12" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.15" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+
                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
                                 <Setter TargetName="border" Property="Background" Value="{StaticResource BrushCardBgLight}" />
                                 <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
-                                <Setter Property="Foreground" Value="#ffffff" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#0e0e14" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="#ff4545" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4" />
-                                <Setter Property="Cursor" Value="Arrow" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="0.98" Duration="0:0:0.06" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="0.98" Duration="0:0:0.06" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
 
-        <!-- Accent Red Button Style (Primary Action) -->
-        <Style x:Key="BladeAccentButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#220c0e" />
-            <Setter Property="Foreground" Value="#ffffff" />
-            <Setter Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
-            <Setter Property="BorderThickness" Value="1.5" />
-            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Padding" Value="20,10" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Effect" Value="{StaticResource BladeGlowEffect}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
-                                Effect="{TemplateBinding Effect}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccentRed}" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentHover}" />
-                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeAccentGlowEffect}" />
-                                <Setter Property="Foreground" Value="#ffffff" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#cc1f1f" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="#ffffff" />
+                                <Setter TargetName="border" Property="Background" Value="#060102" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#C50606" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
@@ -143,7 +134,101 @@
             </Setter>
         </Style>
 
-        <!-- Ghost Button Style (Back / Cancel / Exit) -->
+        <!-- Акцентная кнопка AVA 3.0 / Opera GX (Scale 1.03 + MegaGlow при Hover) -->
+        <Style x:Key="BladeAccentButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
+            <Setter Property="BorderThickness" Value="1.2" />
+            <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="20,10" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Effect" Value="{StaticResource BladeGlowEffect}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Effect="{TemplateBinding Effect}"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="ButtonScale" ScaleX="1.0" ScaleY="1.0" />
+                            </Border.RenderTransform>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#C50606" Offset="0.0" />
+                                    <GradientStop Color="#8E0202" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1.03" Duration="0:0:0.12" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1.03" Duration="0:0:0.12" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.15" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FFFFFF" />
+                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeMegaGlowEffect}" />
+                                <Setter TargetName="border" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#FF1A1A" Offset="0.0" />
+                                            <GradientStop Color="#D60606" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Foreground" Value="#FFFFFF" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="0.97" Duration="0:0:0.06" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="0.97" Duration="0:0:0.06" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF0000" />
+                                <Setter TargetName="border" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#750101" Offset="0.0" />
+                                            <GradientStop Color="#520000" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35" />
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Ghost-кнопка AVA (Назад / Отмена / Выйти со scale и мягким свечением) -->
         <Style x:Key="BladeGhostButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}" />
@@ -161,22 +246,55 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
+                                CornerRadius="6"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="ButtonScale" ScaleX="1.0" ScaleY="1.0" />
+                            </Border.RenderTransform>
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Margin="{TemplateBinding Padding}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushTextSecondary}" />
-                                <Setter TargetName="border" Property="Background" Value="#121218" />
-                                <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1.02" Duration="0:0:0.12" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1.02" Duration="0:0:0.12" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.15" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
+                                <Setter TargetName="border" Property="Background" Value="#140407" />
+                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#09090c" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="0.98" Duration="0:0:0.06" />
+                                            <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="0.98" Duration="0:0:0.06" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+
+                                <Setter TargetName="border" Property="Background" Value="#080102" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#C50606" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4" />
+                                <Setter Property="Opacity" Value="0.35" />
+                                <Setter Property="Cursor" Value="Arrow" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -184,15 +302,15 @@
             </Setter>
         </Style>
 
-        <!-- Window Close Button (✕) -->
+        <!-- Кнопки управления окном в TitleBar (— и ✕) -->
         <Style x:Key="BladeCloseButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Width" Value="36" />
+            <Setter Property="Width" Value="38" />
             <Setter Property="Height" Value="32" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -200,17 +318,17 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="0,10,0,6">
+                                CornerRadius="0,8,0,4">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccentRed}" />
-                                <Setter Property="Foreground" Value="#ffffff" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#cc1f1f" />
+                                <Setter TargetName="border" Property="Background" Value="#A80000" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -219,10 +337,10 @@
         </Style>
 
         <!-- ======================================================== -->
-        <!-- TEXTBOX STYLE                                            -->
+        <!-- TEXTBOX STYLE: AVA 3.0 (4 состояния ввода)               -->
         <!-- ======================================================== -->
         <Style x:Key="BladeTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource BrushCardBg}" />
+            <Setter Property="Background" Value="#090204" />
             <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
             <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -246,14 +364,14 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushTextSecondary}" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#661A22" />
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
                                 <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5" />
+                                <Setter Property="Opacity" Value="0.4" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -262,7 +380,7 @@
         </Style>
 
         <!-- ======================================================== -->
-        <!-- CHECKBOX STYLE                                           -->
+        <!-- CHECKBOX STYLE: AVA 3.0                                  -->
         <!-- ======================================================== -->
         <Style x:Key="BladeCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
@@ -275,7 +393,7 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Grid Width="18" Height="18" Margin="0,0,10,0">
                                 <Border x:Name="boxBorder"
-                                        Background="#0a0a0c"
+                                        Background="#060102"
                                         BorderBrush="{StaticResource BrushBorderSubtle}"
                                         BorderThickness="1.5"
                                         CornerRadius="4" />
@@ -294,14 +412,14 @@
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="checkMark" Property="Visibility" Value="Visible" />
                                 <Setter TargetName="boxBorder" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
-                                <Setter TargetName="boxBorder" Property="Background" Value="#14141a" />
+                                <Setter TargetName="boxBorder" Property="Background" Value="#140306" />
                                 <Setter TargetName="boxBorder" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="boxBorder" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4" />
+                                <Setter Property="Opacity" Value="0.35" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -310,7 +428,7 @@
         </Style>
 
         <!-- ======================================================== -->
-        <!-- SLICK MINIMALIST SCROLLBAR                               -->
+        <!-- SCROLLBAR: AVA 3.0 MINIMAL RED ACCENT                    -->
         <!-- ======================================================== -->
         <Style x:Key="BladeScrollBarThumb" TargetType="Thumb">
             <Setter Property="Template">
@@ -329,7 +447,7 @@
         </Style>
 
         <Style TargetType="ScrollBar">
-            <Setter Property="Background" Value="#0a0a0c" />
+            <Setter Property="Background" Value="#060002" />
             <Setter Property="Width" Value="6" />
             <Setter Property="Template">
                 <Setter.Value>
