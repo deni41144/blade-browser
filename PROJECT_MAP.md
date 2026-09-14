@@ -112,7 +112,8 @@ F:\firefox michael edition\
 | BladeBattery.uc.js | 1.0.0 | Режим экономии (волна «Сок»): navigator.getBattery → data-blade-battery на :root + преф blade.battery.sav; CSS гасит бесконечные анимации хрома и живых фонов newtab, idle-заставка не поднимается. Порог: не заряжается и <60% |
 | BladePerf.uc.js | 2.0.0 | Замер фаз старта окна (dcl/load/paint/ssr) → `perf_mark.txt` + история `perf_history.txt` (ротация 50) — бенчмарки волн 2.0 |
 | BladePulse.uc.js | 1.0.0 | Пульс Клинка: самодиагностика при старте (`@onlyonce`, `@loadOrder 99`) — контракт Blade, узлы (навбар/часы/меню B/Hero), шрифты, VERSION/covers → `blade_health.txt`, вердикт GREEN/YELLOW/RED |
-| BladeTranslate.uc.js | 1.0.0 | «Перевести страницу» в контекстном меню ПКМ (как в Chrome): menuitem в contentAreaContextMenu, вызов штатной FullPageTranslationsPanel; только http/https/file. Появился 2026-09-13 по слову владельца |
+| BladeTranslate.uc.js | 1.0.0 | «Перевести страницу» в контекстном меню ПКМ (как в Chrome): menuitem в contentAreaContextMenu, вызов штатной FullPageTranslationsPanel; только http/https/file (2026-09-13, по слову владельца) |
+| BladeShield.uc.js | 1.8.1 | Сторож анти-детект списков uBlock (2026-09-14): при старте сверяет selectedFilterLists с эталоном (awrl+annoyances) и дописывает недостающие. Путь: ПРЯМОЙ mozStorage-доступ к sqlite storage.local uBO (snappy+structured-clone кодек, roundtrip-верифицирован). ⚠️ Все IDB-пути (7 версий) движок режет UnknownErr — гейт квота-менеджера на moz-extension принципалы из chrome-окна. Бэкап перед записью: BladeShield_backup.txt |
 | BobliksChromeStyle 1.3.0 / AboutStyle 1.0.1 / BladeSounds 1.4.0 | — | Стили хрома/about (incl. порт SIGNATURE), звуки: саундскрины тем + контекст (непогода/ночь/приватность глушат тембр), шинг при смене темы (шина theme:changed) |
 
 **Тёмный режим сайтов (решение 2026-09-13):** делает **Dark Reader** — ставится
@@ -120,6 +121,27 @@ F:\firefox michael edition\
 механика (инверт-фильтр blade.reader.on, кнопка в меню B, команда палитры,
 хоткей F2, ручной Google-блок в userContent секция 14) — снесена полностью.
 Замер A/B: цена DR по CPU/RAM — нулевая (лёгкие и тяжёлые сайты).
+Google-блок оформления ВОЗВРАЩЁН через день (владелец заметил слетевшую тему):
+живёт ПОВЕРХ DR (!important перекрывают генерическую покраску).
+
+**Фичи по слову владельца (2026-09-13—14):**
+- «Перевести страницу» в ПКМ — BladeTranslate.uc.js (см. таблицу).
+- Шазам-плитка (aha-music + микрофон-политика) — ОТЗВАНА владельцем через день
+  («калл, плитка не удаляется»): снесена из pinned/default.sites/полиси,
+  обложки удалены, NewTabUtils.blockedLinks блокирует возврат (BobliksSettings).
+- Кнопка загрузок: FF155 прячет её autohide'ом (`browser.download.autohideButton`
+  default true — «меню загрузок не открывается»); фикс: преф false в user.js +
+  ensure-плейсмент в nav-bar (BobliksSettings).
+
+**Анти-детект адблока (урок 2026-09-14, критичный):** `ublock0.adminSettings`
+из user.js — МЁРТВЫЙ канал в Firefox (это Chrome storage.managed; uBO читает
+через vAPI.adminStorage, куда Gecko префы не попадают). Работал раньше только
+на старой версии uBO, после её обновления списки откатывались к дефолту.
+Замена — BladeShield.uc.js (см. таблицу). Эталон списков: user-filters,
+ublock-filters/quick-fixes/annoyances/badware/privacy/unbreak, easylist,
+easyprivacy, adguard-generic/other-annoyances/social + URL-импорты:
+awrl (antiadblockfilters.txt), AdGuard 14 (ключи awrl/adguard-annoyance/
+ublock-annoyance из стока uBO 1.74 удалены — маппинг на живые URL).
 
 ## Конвейеры
 
@@ -217,9 +239,10 @@ UserChoice-хешем (алгоритм PS-SFTA, MIT). http/https: автома�
    клавиатурные комбинации, клавиатурную навигацию/фокус-ринги и прочую
    «доступность», которой никто не пользуется, режимы чтения/фокуса,
    тем-по-дням/праздникам/лунным фазам и вообще вещи, которые никто
-   использовать не будет. Критерий отбора: либо реальная ежедневная польза,
-   либо вау без нагрузки на ядро. Одобрено владельцем по этому критерию:
-   саундскрины тем (1.9.5).
+   использовать не будет. Подтверждение практики (2026-09-14): плитка-шазам
+   отозвана владельцем через день. Критерий отбора: либо реальная ежедневная
+   польза, либо вау без нагрузки на ядро. Одобрено владельцем по этому критерию:
+   саундскрины тем (1.9.5), перевод в ПКМ, кнопка загрузок.
 13. **PS 5.1 Start-Process не квотит пробелы в аргументах** (урок ночи 2.0):
    `-ArgumentList '-profile','F:\firefox michael edition\...'` уезжает в cmdline
    БЕЗ кавычек → Firefox создаёт мусорный профиль из первого слова пути, а
