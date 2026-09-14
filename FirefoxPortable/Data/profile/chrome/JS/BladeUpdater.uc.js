@@ -3,7 +3,7 @@
 // @description     Автопроверка и установка обновлений Blade с GitHub (приватный репо, в один клик)
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.3.5
+// @version         1.3.6
 // ==/UserScript==
 (function () {
   if (window.BladeUpdater) return;
@@ -36,7 +36,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.3.5 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.3.6 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -580,8 +580,12 @@
     const ps = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
     ps.initWithPath(PS_EXE);
     if (!ps.exists()) throw new Error('powershell.exe не найден');
+    // 1.3.6, инцидент 2026-09-14: powershell наследует CWD firefox = каталог
+    // движка (Setup/ярлыки ставят WorkingDirectory=App\Blade) — applier сам
+    // запирал свой Move-Item. Уводим CWD в USERPROFILE ещё ДО старта applier:
+    // страховка и для старых applier'ов без self-fix.
     const psLine =
-      "& '" + q(applier.path) + "' -ZipPath '" + q(zipPath) +
+      "Set-Location $env:USERPROFILE; & '" + q(applier.path) + "' -ZipPath '" + q(zipPath) +
       "' -BladeRoot '" + q(root) + "' -ProfileDir '" + q(profDir) + "' -Auto";
     runPsEncoded(psLine);
     mark('applier launched root=' + root);
