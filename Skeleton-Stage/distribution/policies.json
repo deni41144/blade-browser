@@ -3,13 +3,15 @@
     "Extensions": {
       "Install": [
         "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi",
-        "https://addons.mozilla.org/firefox/downloads/latest/sponsorblock/addon-1007315-latest.xpi"
-      ],
-      "Disabled": [
-        "addon@darkreader.org"
+        "https://addons.mozilla.org/firefox/downloads/latest/sponsorblock/addon-1007315-latest.xpi",
+        "https://addons.mozilla.org/firefox/downloads/latest/darkreader/addon-1147461-latest.xpi"
       ]
     },
     "ExtensionUpdate": true,
+    "ExtensionSettings": {
+      "langpack-ru@firefox.mozilla.org": { "updates_disabled": true },
+      "langpack-en-GB@firefox.mozilla.org": { "updates_disabled": true }
+    },
     "SearchEngines": {
       "Default": "Google",
       "Remove": [

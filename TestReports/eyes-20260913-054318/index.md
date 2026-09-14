@@ -1,4 +1,4 @@
-﻿# Глаза — отчёт 2026-09-13 20:58:35
+﻿# Глаза — отчёт 2026-09-13 23:16:32
 
 ## Скриншоты
 - 01-boot-splash.png
@@ -24,9 +24,9 @@
 
 ## Артефакты
 - blade_health.txt (433 б)
-- perf_history.txt (2783 б)
-- perf_mark.txt (52 б)
+- perf_history.txt (3492 б)
+- perf_mark.txt (64 б)
 - VERSION.txt (5 б)
 
 ## Вердикт здоровья
-v1.0.0 2026-09-13T17:57:03.143Z HEALTH: GREEN
+v1.0.0 2026-09-13T20:15:19.330Z HEALTH: GREEN

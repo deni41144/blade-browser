@@ -12,559 +12,930 @@
         Icon="Blade.ico"
         Loaded="Window_Loaded">
 
-    <!-- Outer Window Frame with Neon/OLED styling -->
+    <!-- ======================================================== -->
+    <!-- AVA 3.0 / OPERA GX SCENE (AVA-волна 2026-09-14)         -->
+    <!-- Дышащий неоновый фон, частицы-искры, бегущий сканер каймы -->
+    <!-- ======================================================== -->
     <Border CornerRadius="12"
             BorderBrush="{StaticResource BrushBorderSubtle}"
             BorderThickness="1"
             ClipToBounds="True">
-        <Border.Background>
-            <RadialGradientBrush Center="0.5,1.1" GradientOrigin="0.5,1.1" RadiusX="0.85" RadiusY="0.65">
-                <GradientStop Color="#2c0507" Offset="0.0" />
-                <GradientStop Color="#100d12" Offset="0.5" />
-                <GradientStop Color="#09080a" Offset="1.0" />
-            </RadialGradientBrush>
-        </Border.Background>
-
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="36" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+            <!-- 1. СЛОЙ ЖИВОГО ФОНА: Дышащее радиальное свечение снизу (6-8 с цикл) -->
+            <Border Background="#060002" />
 
-            <!-- ======================================================== -->
-            <!-- TITLE BAR (DragMove enabled strictly here)               -->
-            <!-- ======================================================== -->
-            <Border x:Name="TitleBar"
-                    Grid.Row="0"
-                    Background="Transparent"
-                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <Grid>
-                    <!-- Left: Title indicator -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                        <Image RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True" Source="blade-logo-14.png" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center" />
-                        <TextBlock Text="B L A D E   S E T U P"
-                                   Foreground="{StaticResource BrushTextMuted}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="11"
-                                   FontWeight="Bold"
-                                   VerticalAlignment="Center" />
-                    </StackPanel>
-
-                    <!-- Right: Window controls -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Style="{StaticResource BladeCloseButtonStyle}"
-                                Content="—"
-                                Width="36"
-                                Height="36"
-                                Click="MinimizeButton_Click" />
-                        <Button Style="{StaticResource BladeCloseButtonStyle}"
-                                Content="✕"
-                                Width="38"
-                                Height="36"
-                                Click="CloseButton_Click" />
-                    </StackPanel>
-                </Grid>
+            <!-- Анимированное дыхание красного неона -->
+            <Border IsHitTestVisible="False">
+                <Border.Background>
+                    <RadialGradientBrush Center="0.5,1.18" GradientOrigin="0.5,1.18" RadiusX="0.88" RadiusY="0.75">
+                        <GradientStop Color="#4A0207" Offset="0.0" />
+                        <GradientStop Color="#1C0306" Offset="0.50" />
+                        <GradientStop Color="#00060002" Offset="1.0" />
+                    </RadialGradientBrush>
+                </Border.Background>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 From="0.50" To="0.95"
+                                                 Duration="0:0:3.8">
+                                    <DoubleAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseInOut" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
             </Border>
 
-            <!-- ======================================================== -->
-            <!-- WIZARD SCREENS CONTAINER                                 -->
-            <!-- ======================================================== -->
-            <Grid Grid.Row="1" Margin="24,0,24,20">
+            <!-- Тонкая виньетка по периметру окна -->
+            <Border IsHitTestVisible="False" Opacity="0.45">
+                <Border.Background>
+                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.75" RadiusY="0.75">
+                        <GradientStop Color="#00000000" Offset="0.65" />
+                        <GradientStop Color="#B0000000" Offset="1.0" />
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- 2. СЛОЙ ЧАСТИЦ-ИСКР: 30-60 частиц на Canvas под контентом (Opera GX) -->
+            <Canvas x:Name="ParticlesCanvas"
+                    IsHitTestVisible="False"
+                    ClipToBounds="True" />
+
+            <!-- 3. СКАНИРУЮЩАЯ КАЙМА (Лазерный блик по верхнему канту) -->
+            <Grid VerticalAlignment="Top" Height="1.5" IsHitTestVisible="False" ClipToBounds="True">
+                <Rectangle Fill="#260A0E" Height="1.5" />
+                <Rectangle Width="140" Height="1.5" HorizontalAlignment="Left">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00FF0000" Offset="0.0" />
+                            <GradientStop Color="#FF0000" Offset="0.3" />
+                            <GradientStop Color="#FFFFFF" Offset="0.5" />
+                            <GradientStop Color="#FF0000" Offset="0.7" />
+                            <GradientStop Color="#00FF0000" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                    <Rectangle.RenderTransform>
+                        <TranslateTransform x:Name="ScannerTranslate" X="-140" />
+                    </Rectangle.RenderTransform>
+                    <Rectangle.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation Storyboard.TargetName="ScannerTranslate"
+                                                     Storyboard.TargetProperty="X"
+                                                     From="-140" To="590"
+                                                     Duration="0:0:3.2">
+                                        <DoubleAnimation.EasingFunction>
+                                            <QuadraticEase EasingMode="EaseInOut" />
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Rectangle.Triggers>
+                </Rectangle>
+            </Grid>
+
+            <!-- 4. ОСНОВНОЙ СЛОЙ ИНТЕРФЕЙСА -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="36" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
                 <!-- ==================================================== -->
-                <!-- SCREEN 1: SPLASH & PATH                              -->
+                <!-- TITLE BAR: AVA 3.0 (DragMove включен строго здесь)   -->
                 <!-- ==================================================== -->
-                <Grid x:Name="ScreenSplash" Visibility="Visible">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <!-- Logo and Title Area -->
-                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,4,0,14">
-                        <!-- Pulsing Logo with separated backing glow (preserves crisp image rendering) -->
-                        <Grid HorizontalAlignment="Center"
-                              RenderTransformOrigin="0.5,0.5">
-                            <Grid.RenderTransform>
-                                <ScaleTransform x:Name="LogoScale" ScaleX="1.0" ScaleY="1.0" />
-                            </Grid.RenderTransform>
-                            <Grid.Triggers>
-                                <EventTrigger RoutedEvent="Loaded">
-                                    <BeginStoryboard>
-                                        <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                            <DoubleAnimation Storyboard.TargetName="LogoScale"
-                                                             Storyboard.TargetProperty="ScaleX"
-                                                             From="0.95" To="1.05"
-                                                             Duration="0:0:1.5">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <QuadraticEase EasingMode="EaseInOut" />
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation Storyboard.TargetName="LogoScale"
-                                                             Storyboard.TargetProperty="ScaleY"
-                                                             From="0.95" To="1.05"
-                                                             Duration="0:0:1.5">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <QuadraticEase EasingMode="EaseInOut" />
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </Grid.Triggers>
-
-                            <!-- Backing Glow: takes the DropShadowEffect offscreen shader so the Image stays crisp -->
-                            <Border Width="68" Height="68"
-                                    CornerRadius="16"
-                                    Background="#14080a"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                                <Border.Effect>
-                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="24" Opacity="0.65" ShadowDepth="0" />
-                                </Border.Effect>
-                            </Border>
-
-                            <!-- Sharp 1:1 Pre-resized Logo Image -->
-                            <Image x:Name="PulsingLogo"
-                                   Source="blade-logo-78.png"
-                                   Width="78"
-                                   Height="78"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
+                <Border x:Name="TitleBar"
+                        Grid.Row="0"
+                        Background="Transparent"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid>
+                        <!-- Левая часть: логотип AVA 14px и заголовок -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                            <Image RenderOptions.BitmapScalingMode="HighQuality"
                                    SnapsToDevicePixels="True"
-                                   RenderOptions.BitmapScalingMode="HighQuality" />
-                        </Grid>
-
-                        <!-- Title B L A D E -->
-                        <TextBlock Text="B  L  A  D  E"
-                                   Foreground="{StaticResource BrushAccentRed}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="24"
-                                   FontWeight="Black"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,8,0,0">
-                            <TextBlock.Effect>
-                                <DropShadowEffect Color="#ff2a2a" BlurRadius="20" Opacity="0.5" ShadowDepth="0" />
-                            </TextBlock.Effect>
-                        </TextBlock>
-
-                        <!-- Version -->
-                        <TextBlock x:Name="VersionTextBlock"
-                                   Text="v…"
-                                   Foreground="{StaticResource BrushTextSecondary}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="12"
-                                   FontWeight="Medium"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,2,0,0" />
-                    </StackPanel>
-
-                    <!-- Path Selection Card -->
-                    <Border Grid.Row="1"
-                            Background="{StaticResource BrushCardBg}"
-                            BorderBrush="{StaticResource BrushBorderSubtle}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="16,12"
-                            VerticalAlignment="Center">
-                        <StackPanel>
-                            <TextBlock Text="ПАПКА УСТАНОВКИ"
-                                       Foreground="{StaticResource BrushTextSecondary}"
+                                   Source="ava-logo-14.png"
+                                   Width="14"
+                                   Height="14"
+                                   Margin="0,0,8,0"
+                                   VerticalAlignment="Center" />
+                            <TextBlock Text="B L A D E   S E T U P"
+                                       Foreground="{StaticResource BrushTextMuted}"
+                                       FontFamily="Segoe UI, sans-serif"
                                        FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Margin="0,0,0,8" />
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="10" />
-                                    <ColumnDefinition Width="42" />
-                                </Grid.ColumnDefinitions>
-                                <TextBox x:Name="TargetFolderTextBox"
-                                         Grid.Column="0"
-                                         Style="{StaticResource BladeTextBoxStyle}"
-                                         TextWrapping="NoWrap" />
-                                <Button Grid.Column="2"
-                                        Style="{StaticResource BladeButtonStyle}"
-                                        Content="…"
-                                        Padding="0"
-                                        FontSize="14"
-                                        Click="BrowseFolder_Click" />
-                            </Grid>
-
-                            <CheckBox x:Name="CreateDesktopShortcutCheckBox"
-                                      Style="{StaticResource BladeCheckBoxStyle}"
-                                      Content="Создать ярлык на рабочем столе"
-                                      IsChecked="True"
-                                      Margin="0,12,0,0" />
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
-                    </Border>
 
-                    <!-- Bottom Action Button -->
-                    <Grid Grid.Row="2" Margin="0,16,0,0">
-                        <Button Style="{StaticResource BladeAccentButtonStyle}"
-                                Content="ДАЛЕЕ →"
-                                HorizontalAlignment="Right"
-                                Width="150"
-                                Height="40"
-                                Click="NextToLicenseButton_Click" />
+                        <!-- Правая часть: кнопки управления окном -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Style="{StaticResource BladeCloseButtonStyle}"
+                                    Content="—"
+                                    Width="36"
+                                    Height="36"
+                                    Click="MinimizeButton_Click"
+                                    AutomationProperties.Name="Свернуть окно" />
+                            <Button Style="{StaticResource BladeCloseButtonStyle}"
+                                    Content="✕"
+                                    Width="38"
+                                    Height="36"
+                                    Click="CloseButton_Click"
+                                    AutomationProperties.Name="Закрыть окно" />
+                        </StackPanel>
                     </Grid>
-                </Grid>
+                </Border>
 
                 <!-- ==================================================== -->
-                <!-- SCREEN 2: LICENSE AGREEMENT                          -->
+                <!-- КОНТЕЙНЕР ЭКРАНОВ ВИЗАРДА (4 ЭКРАНА)                 -->
                 <!-- ==================================================== -->
-                <Grid x:Name="ScreenLicense" Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                <Grid Grid.Row="1" Margin="24,0,24,20">
 
-                    <!-- License Header -->
-                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                        <TextBlock Text="ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ"
-                                   Foreground="{StaticResource BrushTextPrimary}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="15"
-                                   FontWeight="Bold" />
-                        <TextBlock Text="Пожалуйста, ознакомьтесь с условиями перед установкой Blade"
-                                   Foreground="{StaticResource BrushTextSecondary}"
-                                   FontSize="11"
-                                   Margin="0,2,0,0" />
-                    </StackPanel>
-
-                    <!-- License Text Box -->
-                    <Border Grid.Row="1"
-                            Background="#08080a"
-                            BorderBrush="{StaticResource BrushBorderSubtle}"
-                            BorderThickness="1"
-                            CornerRadius="6"
-                            Padding="2">
-                        <TextBox x:Name="LicenseTextBox"
-                                 IsReadOnly="True"
-                                 TextWrapping="Wrap"
-                                 VerticalScrollBarVisibility="Auto"
-                                 Background="Transparent"
-                                 Foreground="#b8b8c4"
-                                 BorderThickness="0"
-                                 FontFamily="Segoe UI, Consolas, sans-serif"
-                                 FontSize="11"
-                                 Padding="8"
-                                 CaretBrush="{StaticResource BrushAccentRed}" />
-                    </Border>
-
-                    <!-- Agreement Checkbox -->
-                    <CheckBox x:Name="AcceptLicenseCheckBox"
-                              Grid.Row="2"
-                              Style="{StaticResource BladeCheckBoxStyle}"
-                              Content="Я принимаю условия лицензии"
-                              IsChecked="False"
-                              Margin="0,12,0,0"
-                              Checked="AcceptLicenseCheckBox_Changed"
-                              Unchecked="AcceptLicenseCheckBox_Changed" />
-
-                    <!-- Bottom Buttons -->
-                    <Grid Grid.Row="3" Margin="0,14,0,0">
-                        <Button Style="{StaticResource BladeGhostButtonStyle}"
-                                Content="← НАЗАД"
-                                HorizontalAlignment="Left"
-                                Width="120"
-                                Height="38"
-                                Click="BackToSplashButton_Click" />
-
-                        <Button x:Name="InstallFromLicenseButton"
-                                Style="{StaticResource BladeAccentButtonStyle}"
-                                Content="УСТАНОВИТЬ"
-                                HorizontalAlignment="Right"
-                                Width="150"
-                                Height="38"
-                                IsEnabled="False"
-                                Opacity="0.4"
-                                Click="StartInstallButton_Click" />
-                    </Grid>
-                </Grid>
-
-                <!-- ==================================================== -->
-                <!-- SCREEN 3: INSTALLING & PROGRESS                      -->
-                <!-- ==================================================== -->
-                <Grid x:Name="ScreenInstalling" Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <!-- Center Area: Logo + Status -->
-                    <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Dim glowing logo with separated backing glow -->
-                        <Grid HorizontalAlignment="Center">
-                            <Border Width="48" Height="48"
-                                    CornerRadius="12"
-                                    Background="#120608"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                                <Border.Effect>
-                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="16" Opacity="0.5" ShadowDepth="0" />
-                                </Border.Effect>
-                            </Border>
-                            <Image Source="blade-logo-56.png"
-                                   Width="56"
-                                   Height="56"
-                                   Opacity="0.9"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   SnapsToDevicePixels="True"
-                                   RenderOptions.BitmapScalingMode="HighQuality" />
-                        </Grid>
-
-                        <TextBlock x:Name="InstallStageTextBlock"
-                                   Text="Подготовка к установке..."
-                                   Foreground="{StaticResource BrushTextPrimary}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="15"
-                                   FontWeight="SemiBold"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,16,0,0" />
-
-                        <TextBlock x:Name="InstallDetailsTextBlock"
-                                   Text="Проверка файлов архива..."
-                                   Foreground="{StaticResource BrushTextSecondary}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,4,0,0" />
-                    </StackPanel>
-
-                    <!-- Real Laser Progress Bar (User Fix 2) -->
-                    <Grid Grid.Row="1" Margin="20,10,20,10">
+                    <!-- ================================================ -->
+                    <!-- ЭКРАН 1: СПЛЕШ И ВЫБОР ПУТИ (ИНТРО И СЛЭШ AVA)    -->
+                    <!-- ================================================ -->
+                    <Grid x:Name="ScreenSplash" Visibility="Visible" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <TranslateTransform X="0" Y="0" />
+                        </Grid.RenderTransform>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <!-- Progress Bar Container -->
-                        <Grid x:Name="ProgressBarTrack" Grid.Row="0" Height="4" SizeChanged="ProgressBarTrack_SizeChanged">
-                            <!-- Inactive Track -->
-                            <Border Background="#1c1c24" CornerRadius="2" />
+                        <!-- Блок брендинга: интро логотипа + слэш клинка + вордмарк A V A -->
+                        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,4,0,14">
+                            <!-- Контейнер логотипа с интро-сборкой и пульсацией -->
+                            <Grid HorizontalAlignment="Center"
+                                  ClipToBounds="True"
+                                  RenderTransformOrigin="0.5,0.5">
+                                <Grid.RenderTransform>
+                                    <ScaleTransform x:Name="LogoScale" ScaleX="1.0" ScaleY="1.0" />
+                                </Grid.RenderTransform>
+                                <Grid.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <!-- Интро-зум логотипа от 0.6 до 1.0 за 1.1 с -->
+                                                <DoubleAnimation Storyboard.TargetName="LogoScale"
+                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                 From="0.6" To="1.0"
+                                                                 Duration="0:0:1.1">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <BackEase Amplitude="0.4" EasingMode="EaseOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="LogoScale"
+                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                 From="0.6" To="1.0"
+                                                                 Duration="0:0:1.1">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <BackEase Amplitude="0.4" EasingMode="EaseOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <!-- Запуск непрерывной мягкой пульсации после интро -->
+                                                <DoubleAnimation Storyboard.TargetName="LogoScale"
+                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                 From="0.97" To="1.04"
+                                                                 BeginTime="0:0:1.1"
+                                                                 Duration="0:0:1.6"
+                                                                 RepeatBehavior="Forever"
+                                                                 AutoReverse="True">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <QuadraticEase EasingMode="EaseInOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="LogoScale"
+                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                 From="0.97" To="1.04"
+                                                                 BeginTime="0:0:1.1"
+                                                                 Duration="0:0:1.6"
+                                                                 RepeatBehavior="Forever"
+                                                                 AutoReverse="True">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <QuadraticEase EasingMode="EaseInOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Grid.Triggers>
 
-                            <!-- Active Real Progress Fill -->
-                            <Border x:Name="ProgressBarFill"
-                                    HorizontalAlignment="Left"
-                                    Width="0"
-                                    Background="{StaticResource BrushAccentRed}"
-                                    CornerRadius="2"
-                                    ClipToBounds="True">
-                                <Border.Effect>
-                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="10" Opacity="0.85" ShadowDepth="0" />
-                                </Border.Effect>
+                                <!-- Неоновая вспыхивающая подложка логотипа -->
+                                <Border x:Name="LogoGlowBorder"
+                                        Width="68" Height="68"
+                                        CornerRadius="16"
+                                        Background="#140204"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="28" Opacity="0.80" ShadowDepth="0" />
+                                    </Border.Effect>
+                                    <Border.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     From="0.2" To="1.0"
+                                                                     Duration="0:0:0.8"
+                                                                     AutoReverse="True" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Border.Triggers>
+                                </Border>
 
-                                <!-- Laser Beam Animation Overlay on top of real progress -->
-                                <Rectangle x:Name="LaserBeamRect" Width="100" HorizontalAlignment="Left">
+                                <!-- Четкий логотип AVA 78px -->
+                                <Image x:Name="PulsingLogo"
+                                       Source="ava-logo-78.png"
+                                       Width="78"
+                                       Height="78"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+
+                                <!-- ФИРМЕННЫЙ СЛЭШ КЛИНКА (Белый лазерный блик, рассекающий логотип) -->
+                                <Rectangle Width="26" Height="120"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"
+                                           RenderTransformOrigin="0.5,0.5">
                                     <Rectangle.Fill>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#00ff2a2a" Offset="0.0" />
-                                            <GradientStop Color="#ffff6666" Offset="0.5" />
-                                            <GradientStop Color="#ffffff" Offset="0.75" />
-                                            <GradientStop Color="#00ff2a2a" Offset="1.0" />
+                                            <GradientStop Color="#00FFFFFF" Offset="0.0" />
+                                            <GradientStop Color="#E6FFFFFF" Offset="0.5" />
+                                            <GradientStop Color="#00FFFFFF" Offset="1.0" />
                                         </LinearGradientBrush>
                                     </Rectangle.Fill>
                                     <Rectangle.RenderTransform>
-                                        <TranslateTransform x:Name="LaserTranslate" X="-100" />
+                                        <TransformGroup>
+                                            <RotateTransform Angle="28" />
+                                            <TranslateTransform x:Name="BladeSlashTranslate" X="-110" Y="0" />
+                                        </TransformGroup>
                                     </Rectangle.RenderTransform>
                                     <Rectangle.Triggers>
                                         <EventTrigger RoutedEvent="Loaded">
                                             <BeginStoryboard>
-                                                <Storyboard RepeatBehavior="Forever">
-                                                    <DoubleAnimation Storyboard.TargetName="LaserTranslate"
+                                                <Storyboard BeginTime="0:0:0.95">
+                                                    <DoubleAnimation Storyboard.TargetName="BladeSlashTranslate"
                                                                      Storyboard.TargetProperty="X"
-                                                                     From="-100" To="540"
-                                                                     Duration="0:0:1.6" />
+                                                                     From="-110" To="110"
+                                                                     Duration="0:0:0.42">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </EventTrigger>
                                     </Rectangle.Triggers>
                                 </Rectangle>
-                            </Border>
-                        </Grid>
+                            </Grid>
 
-                        <!-- Percent Indicator -->
-                        <Grid Grid.Row="1" Margin="0,6,0,0">
-                            <TextBlock x:Name="ProgressPercentTextBlock"
-                                       Text="0%"
-                                       Foreground="{StaticResource BrushAccentRed}"
+                            <!-- Вордмарк «B L A D E»: посимвольное появление букв с красным неоном -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                <!-- Буква B (1) -->
+                                <TextBlock Text="B"
+                                           Foreground="#FFFFFF"
+                                           FontFamily="Segoe UI, sans-serif"
+                                           FontSize="24"
+                                           FontWeight="Black"
+                                           Margin="0,0,8,0"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <TranslateTransform Y="8" />
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="22" Opacity="0.85" ShadowDepth="0" />
+                                    </TextBlock.Effect>
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard BeginTime="0:0:0.55">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.35" />
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="8" To="0" Duration="0:0:0.35">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
+
+                                <!-- Буква L (2) -->
+                                <TextBlock Text="L"
+                                           Foreground="#FFFFFF"
+                                           FontFamily="Segoe UI, sans-serif"
+                                           FontSize="24"
+                                           FontWeight="Black"
+                                           Margin="0,0,8,0"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <TranslateTransform Y="8" />
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="22" Opacity="0.85" ShadowDepth="0" />
+                                    </TextBlock.Effect>
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard BeginTime="0:0:0.70">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.35" />
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="8" To="0" Duration="0:0:0.35">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
+
+                                <!-- Буква A (3) -->
+                                <TextBlock Text="A"
+                                           Foreground="#FFFFFF"
+                                           FontFamily="Segoe UI, sans-serif"
+                                           FontSize="24"
+                                           FontWeight="Black"
+                                           Margin="0,0,8,0"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <TranslateTransform Y="8" />
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="22" Opacity="0.85" ShadowDepth="0" />
+                                    </TextBlock.Effect>
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard BeginTime="0:0:0.85">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.35" />
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="8" To="0" Duration="0:0:0.35">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
+
+                                <!-- Буква D (4) -->
+                                <TextBlock Text="D"
+                                           Foreground="#FFFFFF"
+                                           FontFamily="Segoe UI, sans-serif"
+                                           FontSize="24"
+                                           FontWeight="Black"
+                                           Margin="0,0,8,0"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <TranslateTransform Y="8" />
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="22" Opacity="0.85" ShadowDepth="0" />
+                                    </TextBlock.Effect>
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard BeginTime="0:0:1.00">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.35" />
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="8" To="0" Duration="0:0:0.35">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
+
+                                <!-- Буква E (5) -->
+                                <TextBlock Text="E"
+                                           Foreground="#FFFFFF"
+                                           FontFamily="Segoe UI, sans-serif"
+                                           FontSize="24"
+                                           FontWeight="Black"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <TranslateTransform Y="8" />
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="22" Opacity="0.85" ShadowDepth="0" />
+                                    </TextBlock.Effect>
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard BeginTime="0:0:1.15">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.35" />
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="8" To="0" Duration="0:0:0.35">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!-- Версия установщика -->
+                            <TextBlock x:Name="VersionTextBlock"
+                                       Text="v…"
+                                       Foreground="{StaticResource BrushTextSecondary}"
                                        FontFamily="Segoe UI, sans-serif"
                                        FontSize="12"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Right" />
-                        </Grid>
-                    </Grid>
-
-                    <!-- Bottom Cancel Action -->
-                    <Grid Grid.Row="2" Margin="0,10,0,0">
-                        <Button x:Name="CancelInstallButton"
-                                Style="{StaticResource BladeGhostButtonStyle}"
-                                Content="Отмена"
-                                HorizontalAlignment="Center"
-                                Padding="20,6"
-                                Click="CancelInstallButton_Click" />
-                    </Grid>
-                </Grid>
-
-                <!-- ==================================================== -->
-                <!-- SCREEN 4: DONE & LAUNCH                              -->
-                <!-- ==================================================== -->
-                <Grid x:Name="ScreenDone" Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Icon with separated backing glow -->
-                        <Grid HorizontalAlignment="Center">
-                            <Border Width="64" Height="64"
-                                    CornerRadius="16"
-                                    Background="#14080a"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                                <Border.Effect>
-                                    <DropShadowEffect Color="#ff2a2a" BlurRadius="28" Opacity="0.75" ShadowDepth="0" />
-                                </Border.Effect>
-                            </Border>
-                            <Image Source="blade-logo-72.png"
-                                   Width="72"
-                                   Height="72"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   SnapsToDevicePixels="True"
-                                   RenderOptions.BitmapScalingMode="HighQuality" />
-                        </Grid>
-
-                        <!-- Victory Title -->
-                        <TextBlock Text="⚡ BLADE ГОТОВ К БОЮ"
-                                   Foreground="{StaticResource BrushAccentRed}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="22"
-                                   FontWeight="Black"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,16,0,0">
-                            <TextBlock.Effect>
-                                <DropShadowEffect Color="#ff2a2a" BlurRadius="18" Opacity="0.6" ShadowDepth="0" />
-                            </TextBlock.Effect>
-                        </TextBlock>
-
-                        <TextBlock Text="Установка завершена успешно!"
-                                   Foreground="{StaticResource BrushTextPrimary}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="13"
-                                   FontWeight="Medium"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,6,0,0" />
-
-                        <TextBlock x:Name="DoneTargetDirectoryTextBlock"
-                                   Text=""
-                                   Foreground="{StaticResource BrushTextSecondary}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,4,0,0" />
-
-                        <CheckBox x:Name="DoneDesktopShortcutCheckBox"
-                                  Style="{StaticResource BladeCheckBoxStyle}"
-                                  Content="Добавить ярлык на рабочий стол"
-                                  IsChecked="True"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,16,0,0"
-                                  Checked="DoneDesktopShortcutCheckBox_Changed"
-                                  Unchecked="DoneDesktopShortcutCheckBox_Changed" />
-                    </StackPanel>
-
-                    <!-- Bottom Action Buttons -->
-                    <Grid Grid.Row="1" Margin="0,14,0,0">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource BladeAccentButtonStyle}"
-                                    Content="ЗАПУСТИТЬ BLADE"
-                                    Width="180"
-                                    Height="42"
-                                    Margin="0,0,12,0"
-                                    Click="LaunchBladeButton_Click" />
-
-                            <Button Style="{StaticResource BladeGhostButtonStyle}"
-                                    Content="ВЫЙТИ"
-                                    Width="120"
-                                    Height="42"
-                                    Click="ExitButton_Click" />
+                                       FontWeight="Medium"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,2,0,0" />
                         </StackPanel>
+
+                        <!-- Карточка выбора пути установки -->
+                        <Border Grid.Row="1"
+                                Background="{StaticResource BrushCardBg}"
+                                BorderBrush="{StaticResource BrushBorderSubtle}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16,12"
+                                VerticalAlignment="Center">
+                            <StackPanel>
+                                <TextBlock Text="ПАПКА УСТАНОВКИ"
+                                           Foreground="{StaticResource BrushTextSecondary}"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Margin="0,0,0,8" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="42" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="TargetFolderTextBox"
+                                             Grid.Column="0"
+                                             Style="{StaticResource BladeTextBoxStyle}"
+                                             TextWrapping="NoWrap"
+                                             AutomationProperties.Name="Путь к папке установки Blade" />
+                                    <Button Grid.Column="2"
+                                            Style="{StaticResource BladeButtonStyle}"
+                                            Content="…"
+                                            Padding="0"
+                                            FontSize="14"
+                                            Click="BrowseFolder_Click"
+                                            AutomationProperties.Name="Выбрать папку установки" />
+                                </Grid>
+
+                                <CheckBox x:Name="CreateDesktopShortcutCheckBox"
+                                          Style="{StaticResource BladeCheckBoxStyle}"
+                                          Content="Создать ярлык на рабочем столе"
+                                          IsChecked="True"
+                                          Margin="0,12,0,0"
+                                          AutomationProperties.Name="Создать ярлык на рабочем столе" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Кнопка перехода к лицензии -->
+                        <Grid Grid.Row="2" Margin="0,16,0,0">
+                            <Button Style="{StaticResource BladeAccentButtonStyle}"
+                                    Content="ДАЛЕЕ →"
+                                    HorizontalAlignment="Right"
+                                    Width="150"
+                                    Height="40"
+                                    Click="NextToLicenseButton_Click"
+                                    AutomationProperties.Name="Перейти к лицензионному соглашению" />
+                        </Grid>
                     </Grid>
-                </Grid>
 
-            </Grid>
+                    <!-- ================================================ -->
+                    <!-- ЭКРАН 2: ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ                 -->
+                    <!-- ================================================ -->
+                    <Grid x:Name="ScreenLicense" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <TranslateTransform X="0" Y="0" />
+                        </Grid.RenderTransform>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-            <!-- ======================================================== -->
-            <!-- IN-WINDOW MODAL DIALOG OVERLAY                           -->
-            <!-- ======================================================== -->
-            <Grid x:Name="ModalDialogOverlay"
-                  Grid.Row="0"
-                  Grid.RowSpan="2"
-                  Background="#e008080a"
-                  Visibility="Collapsed">
-                <Border Width="460"
-                        Background="{StaticResource BrushCardBg}"
-                        BorderBrush="{StaticResource BrushBorderSubtle}"
-                        BorderThickness="1"
-                        CornerRadius="10"
-                        Padding="20"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Center">
-                    <Border.Effect>
-                        <DropShadowEffect Color="#000000" BlurRadius="25" Opacity="0.8" ShadowDepth="4" />
-                    </Border.Effect>
-                    <StackPanel>
-                        <!-- Modal Title -->
-                        <TextBlock x:Name="ModalDialogTitle"
-                                   Text="Сообщение"
-                                   Foreground="{StaticResource BrushAccentRed}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="15"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,8">
-                            <TextBlock.Effect>
-                                <DropShadowEffect Color="#ff2a2a" BlurRadius="12" Opacity="0.4" ShadowDepth="0" />
-                            </TextBlock.Effect>
-                        </TextBlock>
+                        <!-- Заголовок лицензии -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                            <TextBlock Text="ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ"
+                                       Foreground="{StaticResource BrushTextPrimary}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="15"
+                                       FontWeight="Bold" />
+                            <TextBlock Text="Пожалуйста, ознакомьтесь с условиями перед установкой Blade"
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       FontSize="11"
+                                       Margin="0,2,0,0" />
+                        </StackPanel>
 
-                        <!-- Modal Message -->
-                        <TextBlock x:Name="ModalDialogMessage"
-                                   Text=""
-                                   Foreground="{StaticResource BrushTextPrimary}"
-                                   FontFamily="Segoe UI, sans-serif"
-                                   FontSize="12.5"
-                                   TextWrapping="Wrap"
-                                   LineHeight="18"
-                                   Margin="0,0,0,18" />
+                        <!-- Окно текста лицензии -->
+                        <Border Grid.Row="1"
+                                Background="#060102"
+                                BorderBrush="{StaticResource BrushBorderSubtle}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="2">
+                            <TextBox x:Name="LicenseTextBox"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"
+                                     Background="Transparent"
+                                     Foreground="#C7BDC2"
+                                     BorderThickness="0"
+                                     FontFamily="Segoe UI, Consolas, sans-serif"
+                                     FontSize="11"
+                                     Padding="8"
+                                     CaretBrush="{StaticResource BrushAccentRed}"
+                                     AutomationProperties.Name="Текст лицензионного соглашения" />
+                        </Border>
 
-                        <!-- Modal Buttons -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button x:Name="ModalSecondaryButton"
+                        <!-- Чекбокс согласия с лицензией -->
+                        <CheckBox x:Name="AcceptLicenseCheckBox"
+                                  Grid.Row="2"
+                                  Style="{StaticResource BladeCheckBoxStyle}"
+                                  Content="Я принимаю условия лицензии"
+                                  IsChecked="False"
+                                  Margin="0,12,0,0"
+                                  Checked="AcceptLicenseCheckBox_Changed"
+                                  Unchecked="AcceptLicenseCheckBox_Changed"
+                                  AutomationProperties.Name="Принять условия лицензионного соглашения" />
+
+                        <!-- Кнопки навигации -->
+                        <Grid Grid.Row="3" Margin="0,14,0,0">
+                            <Button Style="{StaticResource BladeGhostButtonStyle}"
+                                    Content="← НАЗАД"
+                                    HorizontalAlignment="Left"
+                                    Width="120"
+                                    Height="38"
+                                    Click="BackToSplashButton_Click"
+                                    AutomationProperties.Name="Вернуться на экран выбора пути" />
+
+                            <Button x:Name="InstallFromLicenseButton"
+                                    Style="{StaticResource BladeAccentButtonStyle}"
+                                    Content="УСТАНОВИТЬ"
+                                    HorizontalAlignment="Right"
+                                    Width="150"
+                                    Height="38"
+                                    IsEnabled="False"
+                                    Opacity="0.4"
+                                    Click="StartInstallButton_Click"
+                                    AutomationProperties.Name="Начать установку Blade" />
+                        </Grid>
+                    </Grid>
+
+                    <!-- ================================================ -->
+                    <!-- ЭКРАН 3: ПРОГРЕСС УСТАНОВКИ (СПЕКТАКЛЬ OPERA GX)  -->
+                    <!-- ================================================ -->
+                    <Grid x:Name="ScreenInstalling" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <TranslateTransform X="0" Y="0" />
+                        </Grid.RenderTransform>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Центральная часть: дышащий логотип AVA 56px и статусы -->
+                        <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <!-- Дышащий неоновый логотип -->
+                            <Grid HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                <Grid.RenderTransform>
+                                    <ScaleTransform x:Name="InstallLogoScale" ScaleX="1.0" ScaleY="1.0" />
+                                </Grid.RenderTransform>
+                                <Grid.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                <DoubleAnimation Storyboard.TargetName="InstallLogoScale"
+                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                 From="0.96" To="1.04"
+                                                                 Duration="0:0:1.8">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <SineEase EasingMode="EaseInOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="InstallLogoScale"
+                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                 From="0.96" To="1.04"
+                                                                 Duration="0:0:1.8">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <SineEase EasingMode="EaseInOut" />
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Grid.Triggers>
+
+                                <Border Width="50" Height="50"
+                                        CornerRadius="14"
+                                        Background="#140204"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="22" Opacity="0.75" ShadowDepth="0" />
+                                    </Border.Effect>
+                                </Border>
+                                <Image Source="ava-logo-56.png"
+                                       Width="56"
+                                       Height="56"
+                                       Opacity="0.95"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+                            </Grid>
+
+                            <TextBlock x:Name="InstallStageTextBlock"
+                                       Text="Подготовка к установке..."
+                                       Foreground="{StaticResource BrushTextPrimary}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,16,0,0" />
+
+                            <TextBlock x:Name="InstallDetailsTextBlock"
+                                       Text="Проверка файлов архива..."
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,4,0,0" />
+                        </StackPanel>
+
+                        <!-- Фирменный лазерный прогрессбар AVA: Белое ядро + Алые края -->
+                        <Grid Grid.Row="1" Margin="20,10,20,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Контейнер трека прогрессбара -->
+                            <Grid x:Name="ProgressBarTrack" Grid.Row="0" Height="5" SizeChanged="ProgressBarTrack_SizeChanged">
+                                <!-- Фоновый неактивный трек -->
+                                <Border Background="#1A0609" CornerRadius="2.5" />
+
+                                <!-- Активное заполнение с двойным неоновым свечением -->
+                                <Border x:Name="ProgressBarFill"
+                                        HorizontalAlignment="Left"
+                                        Width="0"
+                                        Background="{StaticResource BrushAccentRed}"
+                                        CornerRadius="2.5"
+                                        ClipToBounds="True">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="14" Opacity="0.95" ShadowDepth="0" />
+                                    </Border.Effect>
+
+                                    <!-- Лазерный луч с ярким белым ядром клинка -->
+                                    <Rectangle x:Name="LaserBeamRect" Width="120" HorizontalAlignment="Left">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="#00FF0000" Offset="0.0" />
+                                                <GradientStop Color="#FF0000" Offset="0.25" />
+                                                <GradientStop Color="#FFAAAA" Offset="0.55" />
+                                                <GradientStop Color="#FFFFFF" Offset="0.75" />
+                                                <GradientStop Color="#FF0000" Offset="0.90" />
+                                                <GradientStop Color="#00FF0000" Offset="1.0" />
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                        <Rectangle.RenderTransform>
+                                            <TranslateTransform x:Name="LaserTranslate" X="-120" />
+                                        </Rectangle.RenderTransform>
+                                        <Rectangle.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard>
+                                                    <Storyboard RepeatBehavior="Forever">
+                                                        <DoubleAnimation Storyboard.TargetName="LaserTranslate"
+                                                                         Storyboard.TargetProperty="X"
+                                                                         From="-120" To="540"
+                                                                         Duration="0:0:1.5" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </Rectangle.Triggers>
+                                    </Rectangle>
+                                </Border>
+                            </Grid>
+
+                            <!-- Индикатор процентов -->
+                            <Grid Grid.Row="1" Margin="0,6,0,0">
+                                <TextBlock x:Name="ProgressPercentTextBlock"
+                                           Text="0%"
+                                           Foreground="{StaticResource BrushAccentRed}"
+                                           FontFamily="Segoe UI, sans-serif"
+                                           FontSize="13"
+                                           FontWeight="Black"
+                                           HorizontalAlignment="Right">
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="12" Opacity="0.6" ShadowDepth="0" />
+                                    </TextBlock.Effect>
+                                </TextBlock>
+                            </Grid>
+                        </Grid>
+
+                        <!-- Кнопка отмены процесса -->
+                        <Grid Grid.Row="2" Margin="0,10,0,0">
+                            <Button x:Name="CancelInstallButton"
                                     Style="{StaticResource BladeGhostButtonStyle}"
                                     Content="Отмена"
-                                    Width="110"
-                                    Height="36"
-                                    Margin="0,0,10,0"
-                                    Click="ModalSecondaryButton_Click" />
+                                    HorizontalAlignment="Center"
+                                    Padding="20,6"
+                                    Click="CancelInstallButton_Click"
+                                    AutomationProperties.Name="Отменить процесс установки" />
+                        </Grid>
+                    </Grid>
 
-                            <Button x:Name="ModalPrimaryButton"
-                                    Style="{StaticResource BladeAccentButtonStyle}"
-                                    Content="ОК"
-                                    Width="120"
-                                    Height="36"
-                                    Click="ModalPrimaryButton_Click" />
+                    <!-- ================================================ -->
+                    <!-- ЭКРАН 4: ЗАВЕРШЕНИЕ УСТАНОВКИ (AVA ГОТОВА)        -->
+                    <!-- ================================================ -->
+                    <Grid x:Name="ScreenDone" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <TranslateTransform X="0" Y="0" />
+                        </Grid.RenderTransform>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <!-- Логотип завершения AVA 72px со свечением -->
+                            <Grid HorizontalAlignment="Center">
+                                <Border Width="64" Height="64"
+                                        CornerRadius="16"
+                                        Background="#140204"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF0000" BlurRadius="30" Opacity="0.85" ShadowDepth="0" />
+                                    </Border.Effect>
+                                </Border>
+                                <Image Source="ava-logo-72.png"
+                                       Width="72"
+                                       Height="72"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+                            </Grid>
+
+                            <!-- Заголовок завершения в стиле Blade -->
+                            <TextBlock Text="B L A D E   Г О Т О В"
+                                       Foreground="#FFFFFF"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="23"
+                                       FontWeight="Black"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,16,0,0">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF0000" BlurRadius="24" Opacity="0.85" ShadowDepth="0" />
+                                </TextBlock.Effect>
+                            </TextBlock>
+
+                            <TextBlock Text="Установка завершена успешно!"
+                                       Foreground="{StaticResource BrushTextPrimary}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="13"
+                                       FontWeight="Medium"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0" />
+
+                            <TextBlock x:Name="DoneTargetDirectoryTextBlock"
+                                       Text=""
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,4,0,0" />
+
+                            <CheckBox x:Name="DoneDesktopShortcutCheckBox"
+                                      Style="{StaticResource BladeCheckBoxStyle}"
+                                      Content="Добавить ярлык на рабочий стол"
+                                      IsChecked="True"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,16,0,0"
+                                      Checked="DoneDesktopShortcutCheckBox_Changed"
+                                      Unchecked="DoneDesktopShortcutCheckBox_Changed"
+                                      AutomationProperties.Name="Добавить ярлык на рабочий стол" />
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+
+                        <!-- Кнопки завершения: запуск и выход -->
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource BladeAccentButtonStyle}"
+                                        Content="ЗАПУСТИТЬ BLADE"
+                                        Width="180"
+                                        Height="42"
+                                        Margin="0,0,12,0"
+                                        Click="LaunchBladeButton_Click"
+                                        AutomationProperties.Name="Запустить браузер Blade" />
+
+                                <Button Style="{StaticResource BladeGhostButtonStyle}"
+                                        Content="ВЫЙТИ"
+                                        Width="120"
+                                        Height="42"
+                                        Click="ExitButton_Click"
+                                        AutomationProperties.Name="Выйти из мастера установки" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+
+                </Grid>
+
+                <!-- ==================================================== -->
+                <!-- МОДАЛЬНЫЙ ДИАЛОГ ВНУТРИ ОКНА (ERROR / CONFIRMATION)   -->
+                <!-- ==================================================== -->
+                <Grid x:Name="ModalDialogOverlay"
+                      Grid.Row="0"
+                      Grid.RowSpan="2"
+                      Background="#E6040001"
+                      Visibility="Collapsed">
+                    <Border Width="460"
+                            Background="{StaticResource BrushCardBg}"
+                            BorderBrush="{StaticResource BrushBorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="20"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" BlurRadius="30" Opacity="0.9" ShadowDepth="4" />
+                        </Border.Effect>
+                        <StackPanel>
+                            <!-- Заголовок модального окна -->
+                            <TextBlock x:Name="ModalDialogTitle"
+                                       Text="Сообщение"
+                                       Foreground="{StaticResource BrushAccentRed}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       Margin="0,0,0,8">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF0000" BlurRadius="12" Opacity="0.5" ShadowDepth="0" />
+                                </TextBlock.Effect>
+                            </TextBlock>
+
+                            <!-- Текст сообщения модального окна -->
+                            <TextBlock x:Name="ModalDialogMessage"
+                                       Text=""
+                                       Foreground="{StaticResource BrushTextPrimary}"
+                                       FontFamily="Segoe UI, sans-serif"
+                                       FontSize="12.5"
+                                       TextWrapping="Wrap"
+                                       LineHeight="18"
+                                       Margin="0,0,0,18" />
+
+                            <!-- Кнопки управления модальным окном -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="ModalSecondaryButton"
+                                        Style="{StaticResource BladeGhostButtonStyle}"
+                                        Content="Отмена"
+                                        Width="110"
+                                        Height="36"
+                                        Margin="0,0,10,0"
+                                        Click="ModalSecondaryButton_Click"
+                                        AutomationProperties.Name="Отменить действие диалога" />
+
+                                <Button x:Name="ModalPrimaryButton"
+                                        Style="{StaticResource BladeAccentButtonStyle}"
+                                        Content="ОК"
+                                        Width="120"
+                                        Height="36"
+                                        Click="ModalPrimaryButton_Click"
+                                        AutomationProperties.Name="Подтвердить действие диалога" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
             </Grid>
+
+            <!-- 5. СЛОЙ БЕЛОЙ ВСПЫШКИ (Флеш на 100% завершения установки) -->
+            <Border x:Name="FlashOverlay"
+                    Background="#FFFFFF"
+                    Opacity="0"
+                    IsHitTestVisible="False" />
 
         </Grid>
     </Border>

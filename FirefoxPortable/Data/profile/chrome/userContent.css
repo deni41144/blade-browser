@@ -544,11 +544,12 @@
   }
 
   /* СЕТКА: прибита к геометрическому центру окна (position: fixed).
-     Не зависит от поиска, погодного виджета и высоты экрана —
-     на полном экране больше не съезжает. */
+     Разрешение-безопасная геометрия: top: max(50%, 430px) гарантирует, что
+     на 1080p (высота вьюпорта ~960px) сетка строго по центру (50%), а на низких
+     экранах (900p / 768p) не поднимается выше безопасной границы под Hero-часами. */
   .top-sites-list {
     position: fixed !important;
-    top: 50% !important;
+    top: max(50%, 430px) !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     display: flex !important;
@@ -565,12 +566,18 @@
     z-index: 2 !important;
   }
 
-  /* Низкие экраны (ноутбуки 768p с тулбаром и таскбаром): 5 рядов плиток
-     по высоте не влезают, а скролл выключен — ужимаем масштаб блока
-     (Gemini ревью-2, краевой случай 3) */
-  @media (max-height: 650px) {
+  /* Низкие экраны (ноутбуки 900p и 768p с тулбаром и таскбаром, высота <=800px):
+     плитки компактно масштабируются, чтобы 2-3 ряда сидели строго ниже Hero-часов
+     с чистым визуальным зазором и не обрезались снизу */
+  @media (max-height: 800px) {
     .top-sites-list {
-      transform: translate(-50%, -50%) scale(0.82) !important;
+      transform: translate(-50%, -50%) scale(0.86) !important;
+    }
+  }
+
+  @media (max-height: 620px) {
+    .top-sites-list {
+      transform: translate(-50%, -50%) scale(0.78) !important;
     }
   }
 
@@ -582,11 +589,10 @@
     float: none !important;
   }
 
-  /* Ровно 15 плиток (3 ряда по 5). Лишние — скрываем.
-     .add-button (плитка "+") не прячем никогда. */
-  .top-sites-list li.top-site-outer:nth-child(n+16):not(.add-button) {
-    display: none !important;
-  }
+  /* КАП nth-child(n+16) УДАЛЁН (аудит-фикс, вернулся с git-откатом 2026-09-14):
+     реакт-бандл сам режет по rows×perRow; наш кап рассинхронизировался при
+     rows>2 и прятал легитимные закреплённые плитки в pinnedOnly-режиме. */
+
 
   /* ==========================================================================
      4. ПЛИТКИ: ГЕОМЕТРИЯ 170x95 (16:9), РАМКА, СКРЫТИЕ ФАВИКОНОК И ТЕКСТА
@@ -1262,70 +1268,13 @@ input, textarea, [contenteditable] {
 @-moz-document url("about:home"), url("about:newtab") {
 
   /* --- 1. ДОЖДЬ (blade.weather.rain) ---
-     Два слоя диагональных струй со смещёнными углами и скоростями (~0.55s и ~0.9s),
-     бесшовный transform translateY(0 -> 50%) по высоте текстуры + тёмная вуаль. */
-  @media -moz-pref("blade.weather.rain") {
-    body.activity-stream {
-      box-shadow: inset 0 0 120vmax rgba(0, 0, 10, 0.18) !important;
-    }
+     [Урок]: дождь переехал на панель (userChrome секция 24), 2026-09-14:
+     заливка страницы портила обои, владелец против. На newtab дождь полностью отключён. */
 
-    html::before {
-      content: "" !important;
-      position: fixed !important;
-      top: -100% !important;
-      left: -15% !important;
-      width: 130% !important;
-      height: 200% !important;
-      pointer-events: none !important;
-      z-index: 1 !important;
-      background-image: repeating-linear-gradient(
-        180deg,
-        transparent 0,
-        transparent 40px,
-        rgba(200, 225, 255, 0.65) 41px,
-        rgba(255, 255, 255, 0.85) 46px,
-        transparent 50px,
-        transparent 95px
-      ) !important;
-      background-size: 65px 50% !important;
-      opacity: 0.15 !important;
-      transform: skewX(-16deg) translateY(0) !important;
-      animation: blade-rain-drop-a 0.55s linear infinite !important;
-    }
-
-    html::after {
-      content: "" !important;
-      position: fixed !important;
-      top: -100% !important;
-      left: -15% !important;
-      width: 130% !important;
-      height: 200% !important;
-      pointer-events: none !important;
-      z-index: 1 !important;
-      background-image: repeating-linear-gradient(
-        180deg,
-        transparent 0,
-        transparent 60px,
-        rgba(180, 210, 255, 0.5) 61px,
-        rgba(225, 240, 255, 0.75) 68px,
-        transparent 74px,
-        transparent 135px
-      ) !important;
-      background-size: 95px 50% !important;
-      opacity: 0.11 !important;
-      transform: skewX(-11deg) translateY(0) !important;
-      animation: blade-rain-drop-b 0.9s linear infinite !important;
-    }
-  }
-
+  /* Струи грозы (используются в секции 2) */
   @keyframes blade-rain-drop-a {
     from { transform: skewX(-16deg) translateY(0); }
     to   { transform: skewX(-16deg) translateY(50%); }
-  }
-
-  @keyframes blade-rain-drop-b {
-    from { transform: skewX(-11deg) translateY(0); }
-    to   { transform: skewX(-11deg) translateY(50%); }
   }
 
   /* --- 2. ГРОЗА (blade.weather.thunder) ---
@@ -1595,11 +1544,6 @@ input, textarea, [contenteditable] {
   }
 
   /* Комбинации погоды и ночи (наложение виньеток осадков и тёплого ночного полумрака) */
-  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.rain")) {
-    body.activity-stream {
-      box-shadow: inset 0 0 120vmax rgba(0, 0, 10, 0.18), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
-    }
-  }
   @media -moz-pref("blade.night") and (-moz-pref("blade.weather.thunder")) {
     body.activity-stream {
       box-shadow: inset 0 0 120vmax rgba(0, 0, 15, 0.24), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;

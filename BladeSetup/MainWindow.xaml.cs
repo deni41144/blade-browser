@@ -1,9 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace BladeSetup;
 
@@ -75,12 +81,9 @@ public partial class MainWindow : Window
     // ================================================================
     private void ShowScreen(FrameworkElement targetScreen)
     {
-        ScreenSplash.Visibility = Visibility.Collapsed;
-        ScreenLicense.Visibility = Visibility.Collapsed;
-        ScreenInstalling.Visibility = Visibility.Collapsed;
-        ScreenDone.Visibility = Visibility.Collapsed;
-
-        targetScreen.Visibility = Visibility.Visible;
+        // AVA GX: все переключения экранов идут через кинематографичный
+        // переход (fade + слайд + режимы частиц/вспышка — см. регион эффектов)
+        AnimateScreenTransition(targetScreen);
     }
 
     // ================================================================
@@ -98,7 +101,9 @@ public partial class MainWindow : Window
 
         if (dialog.ShowDialog(this) == true)
         {
-            TargetFolderTextBox.Text = dialog.FolderName;
+            // нормализуем выбор сразу: юзер видит итоговый путь до установки
+            // (D:\Games -> D:\Games\Blade), а не после распаковки вперемешку
+            TargetFolderTextBox.Text = InstallerLogic.EnsureBladeSubfolder(dialog.FolderName);
         }
     }
 
@@ -118,7 +123,8 @@ public partial class MainWindow : Window
 
         try
         {
-            Path.GetFullPath(targetDir);
+            // System.IO.Path — квалифицировано: using Shapes (AVA-эффекты) делает Path неоднозначным
+            System.IO.Path.GetFullPath(targetDir);
         }
         catch
         {
@@ -130,6 +136,12 @@ public partial class MainWindow : Window
             );
             return;
         }
+
+        // Нормализация подпапки (баг владельца: распаковка «просто в место»):
+        // D:\Games -> D:\Games\Blade; «…\Blade»/существующая установка — как есть.
+        // Пишем обратно в поле: юзер видит итоговый путь ДО установки.
+        targetDir = InstallerLogic.EnsureBladeSubfolder(targetDir);
+        TargetFolderTextBox.Text = targetDir;
 
         _currentTargetDir = targetDir;
         ShowScreen(ScreenLicense);
@@ -201,6 +213,23 @@ public partial class MainWindow : Window
             return;
         }
 
+        // Check 4: защита от каши — целевая папка существует, НЕ пуста и не
+        // является установкой Blade (выше уже отсеяно) => предупреждение.
+        // Спасает от случайной распаковки в чужую папку, если юзер руками
+        // стёр «Blade» из пути.
+        if (Directory.Exists(_currentTargetDir) && Directory.EnumerateFileSystemEntries(_currentTargetDir).Any())
+        {
+            ShowModalDialog(
+                title: "Папка не пуста",
+                message: "Папка не пуста и не похожа на установку Blade.\n\nПродолжить установку в эту папку?",
+                primaryText: "Продолжить",
+                onPrimary: () => ExecuteInstallation(dataZipPath, isUpdate: false),
+                secondaryText: "Отмена",
+                onSecondary: () => { }
+            );
+            return;
+        }
+
         // Clean installation
         ExecuteInstallation(dataZipPath, isUpdate: false);
     }
@@ -241,6 +270,8 @@ public partial class MainWindow : Window
                 bool createDesktop = Dispatcher.Invoke(() => CreateDesktopShortcutCheckBox.IsChecked == true);
                 InstallerLogic.CreateShortcuts(_currentTargetDir, createDesktop);
                 InstallerLogic.CreateUninstaller(_currentTargetDir);
+                InstallerLogic.SeedFirefoxProfilesIni(_currentTargetDir);
+                InstallerLogic.SeedLangpackPolicy(_currentTargetDir);
             }, token);
 
             UpdateProgress(100, "Завершено!", "Blade готов к запуску.");
@@ -375,5 +406,290 @@ public partial class MainWindow : Window
     {
         ModalDialogOverlay.Visibility = Visibility.Collapsed;
         _onModalSecondary?.Invoke();
+    }
+
+    // ================================================================
+    // ===== AVA EFFECTS (FrontendDesigner - Opera GX Level) ==========
+    // ================================================================
+
+    public enum AvaParticleMode
+    {
+        Normal,
+        Quiet,
+        Victory
+    }
+
+    private sealed class AvaParticle
+    {
+        public Ellipse Element { get; }
+        public double X;
+        public double Y;
+        public double Vx;
+        public double Vy;
+        public double Life;
+        public double MaxLife;
+        public double BaseOpacity;
+        public double WobbleSpeed;
+        public double WobbleAngle;
+
+        public AvaParticle(Ellipse element)
+        {
+            Element = element;
+        }
+    }
+
+    private readonly List<AvaParticle> _particles = new();
+    private DispatcherTimer? _particleTimer;
+    private readonly Random _random = new();
+    private int _activeParticleLimit = 40;
+    private bool _isEffectsInitialized = false;
+
+    protected override void OnContentRendered(EventArgs e)
+    {
+        base.OnContentRendered(e);
+        InitAvaEffects();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        StopAvaEffects();
+        base.OnClosed(e);
+    }
+
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+        if (WindowState == WindowState.Minimized)
+        {
+            _particleTimer?.Stop();
+        }
+        else
+        {
+            _particleTimer?.Start();
+        }
+    }
+
+    /// <summary>
+    /// Инициализация пула частиц на Canvas без DropShadow для максимальной производительности (60 FPS).
+    /// </summary>
+    private void InitAvaEffects()
+    {
+        if (_isEffectsInitialized || ParticlesCanvas == null) return;
+        _isEffectsInitialized = true;
+
+        const int maxPoolSize = 60;
+        _particles.Clear();
+        ParticlesCanvas.Children.Clear();
+
+        var redBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x00, 0x00));
+        var brightRedBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x33, 0x33));
+        var whiteBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
+        var orangeRedBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x55, 0x22));
+        redBrush.Freeze();
+        brightRedBrush.Freeze();
+        whiteBrush.Freeze();
+        orangeRedBrush.Freeze();
+
+        for (int i = 0; i < maxPoolSize; i++)
+        {
+            double size = _random.NextDouble() * 3.2 + 1.8; // 1.8px .. 5.0px
+            Brush fill;
+            double roll = _random.NextDouble();
+            if (roll < 0.55) fill = redBrush;
+            else if (roll < 0.75) fill = brightRedBrush;
+            else if (roll < 0.90) fill = orangeRedBrush;
+            else fill = whiteBrush;
+
+            var ellipse = new Ellipse
+            {
+                Width = size,
+                Height = size,
+                Fill = fill,
+                IsHitTestVisible = false,
+                Opacity = 0.0
+            };
+
+            ParticlesCanvas.Children.Add(ellipse);
+            var particle = new AvaParticle(ellipse);
+            RespawnParticle(particle, isBurst: false, initialScatter: true);
+            _particles.Add(particle);
+        }
+
+        _particleTimer = new DispatcherTimer(DispatcherPriority.Render)
+        {
+            Interval = TimeSpan.FromMilliseconds(25) // ~40 FPS мягкий шаг, 0% CPU overhead
+        };
+        _particleTimer.Tick += ParticleTimer_Tick;
+        _particleTimer.Start();
+    }
+
+    private void StopAvaEffects()
+    {
+        _particleTimer?.Stop();
+        _particleTimer = null;
+    }
+
+    private void ParticleTimer_Tick(object? sender, EventArgs e)
+    {
+        double canvasWidth = ParticlesCanvas.ActualWidth > 0 ? ParticlesCanvas.ActualWidth : 580;
+        double canvasHeight = ParticlesCanvas.ActualHeight > 0 ? ParticlesCanvas.ActualHeight : 420;
+
+        int count = Math.Min(_particles.Count, _activeParticleLimit);
+        for (int i = 0; i < _particles.Count; i++)
+        {
+            var p = _particles[i];
+            if (i >= count)
+            {
+                p.Element.Opacity = 0.0;
+                continue;
+            }
+
+            p.Life -= 1.0;
+            p.WobbleAngle += p.WobbleSpeed;
+            p.X += p.Vx + Math.Sin(p.WobbleAngle) * 0.4;
+            p.Y += p.Vy;
+
+            if (p.Life <= 0 || p.Y < -10 || p.X < -20 || p.X > canvasWidth + 20)
+            {
+                RespawnParticle(p, isBurst: false, initialScatter: false);
+            }
+            else
+            {
+                double progress = Math.Clamp(p.Life / p.MaxLife, 0.0, 1.0);
+                p.Element.Opacity = p.BaseOpacity * progress;
+                Canvas.SetLeft(p.Element, p.X);
+                Canvas.SetTop(p.Element, p.Y);
+            }
+        }
+    }
+
+    private void RespawnParticle(AvaParticle p, bool isBurst, bool initialScatter)
+    {
+        double width = ParticlesCanvas.ActualWidth > 0 ? ParticlesCanvas.ActualWidth : 580;
+        double height = ParticlesCanvas.ActualHeight > 0 ? ParticlesCanvas.ActualHeight : 420;
+
+        p.X = _random.NextDouble() * width;
+        if (initialScatter)
+        {
+            p.Y = _random.NextDouble() * height;
+        }
+        else if (isBurst)
+        {
+            p.Y = height * 0.65 + _random.NextDouble() * (height * 0.35);
+        }
+        else
+        {
+            p.Y = height + _random.NextDouble() * 12;
+        }
+
+        p.Vx = (_random.NextDouble() - 0.5) * (isBurst ? 2.8 : 0.6);
+        p.Vy = isBurst ? -(_random.NextDouble() * 3.8 + 1.6) : -(_random.NextDouble() * 1.3 + 0.45);
+        p.MaxLife = isBurst ? _random.Next(25, 55) : _random.Next(80, 150);
+        p.Life = initialScatter ? _random.NextDouble() * p.MaxLife : p.MaxLife;
+        p.BaseOpacity = _random.NextDouble() * 0.65 + 0.35;
+        p.WobbleSpeed = _random.NextDouble() * 0.08 + 0.02;
+        p.WobbleAngle = _random.NextDouble() * Math.PI * 2;
+
+        Canvas.SetLeft(p.Element, p.X);
+        Canvas.SetTop(p.Element, p.Y);
+        p.Element.Opacity = 0.0;
+    }
+
+    /// <summary>
+    /// Переключение плотности частиц под текущий экран (тихий на лицензии, густой на победном).
+    /// </summary>
+    public void SetParticleMode(AvaParticleMode mode)
+    {
+        _activeParticleLimit = mode switch
+        {
+            AvaParticleMode.Quiet => 15,
+            AvaParticleMode.Victory => 60,
+            _ => 40
+        };
+    }
+
+    /// <summary>
+    /// Залп искр (разовое ускорение частиц) при достижении 100% или победном экране.
+    /// </summary>
+    public void TriggerParticleBurst()
+    {
+        int burstCount = Math.Min(30, _particles.Count);
+        for (int i = 0; i < burstCount; i++)
+        {
+            RespawnParticle(_particles[i], isBurst: true, initialScatter: false);
+        }
+    }
+
+    /// <summary>
+    /// Белая вспышка всего окна (Opera GX Flash) на 100% завершения установки.
+    /// </summary>
+    public void TriggerWindowFlash()
+    {
+        if (FlashOverlay == null) return;
+
+        var anim = new DoubleAnimationUsingKeyFrames();
+        anim.KeyFrames.Add(new LinearDoubleKeyFrame(0.0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+        anim.KeyFrames.Add(new LinearDoubleKeyFrame(0.38, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(80))));
+        anim.KeyFrames.Add(new SplineDoubleKeyFrame(0.0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(500)),
+            new KeySpline(0.25, 0.1, 0.25, 1.0)));
+
+        FlashOverlay.BeginAnimation(UIElement.OpacityProperty, anim);
+        TriggerParticleBurst();
+    }
+
+    /// <summary>
+    /// Плавный кинематографичный переход между экранами визарда (Fade + Horizontal Slide 24px).
+    /// </summary>
+    public void AnimateScreenTransition(FrameworkElement targetScreen)
+    {
+        FrameworkElement? currentScreen = null;
+        if (ScreenSplash.Visibility == Visibility.Visible) currentScreen = ScreenSplash;
+        else if (ScreenLicense.Visibility == Visibility.Visible) currentScreen = ScreenLicense;
+        else if (ScreenInstalling.Visibility == Visibility.Visible) currentScreen = ScreenInstalling;
+        else if (ScreenDone.Visibility == Visibility.Visible) currentScreen = ScreenDone;
+
+        if (currentScreen == targetScreen) return;
+
+        if (currentScreen != null)
+        {
+            var fadeOut = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(160));
+            fadeOut.Completed += (_, _) =>
+            {
+                currentScreen.Visibility = Visibility.Collapsed;
+            };
+            currentScreen.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+        }
+
+        targetScreen.Visibility = Visibility.Visible;
+        targetScreen.Opacity = 0.0;
+
+        var fadeIn = new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(320))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+        targetScreen.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+
+        if (targetScreen.RenderTransform is TranslateTransform tt)
+        {
+            var slideIn = new DoubleAnimation(24.0, 0.0, TimeSpan.FromMilliseconds(340))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            tt.BeginAnimation(TranslateTransform.XProperty, slideIn);
+        }
+
+        if (targetScreen == ScreenLicense)
+        {
+            SetParticleMode(AvaParticleMode.Quiet);
+        }
+        else if (targetScreen == ScreenDone)
+        {
+            SetParticleMode(AvaParticleMode.Victory);
+            TriggerWindowFlash();
+        }
+        else
+        {
+            SetParticleMode(AvaParticleMode.Normal);
+        }
     }
 }

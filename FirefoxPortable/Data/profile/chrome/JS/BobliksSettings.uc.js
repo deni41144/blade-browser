@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.14.2
+// @version         1.14.5
 // ==/UserScript==
 // ═══════════════════════════════════════════════════════════════════════
 // КАРТА ФАЙЛА (Волна 2 «Blade Studio», разметка по карте Analyst):
@@ -37,10 +37,16 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.14.2 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.14.5 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
+  // Финальный статус: bookmarks-IIFE (чистка дефолтных закладок) дописывает
+  // mark ПОСЛЕ синхронного финала скрипта и перезаписывал его в файле
+  // диагностики — 'ERR fatal' мог быть стёрт поздним 'OK bookmarks'
+  // (диагностическая ловушка, найдена при разборе инцидента 2026-09-14).
+  // Финальный вердикт обязан переживать поздние асинхронные записи.
+  let finalStatus = null;
     mark('START');
     // Версия сборки из chrome\VERSION (пишется патч-системой); читается один
     // раз при старте окна (после обновления браузер всё равно перезапускается)
@@ -1297,7 +1303,7 @@
             } catch (e) { break; }
           }
         }
-        mark('OK bookmarks');
+        mark(finalStatus ? finalStatus + ' · bookmarks OK' : 'OK bookmarks');
       } catch (e) { mark('ERR bookmarks ' + e); }
     })();
 
@@ -1547,42 +1553,83 @@
     } catch (e) { mark('ERR idle ' + e); }
 
 
-    // Кнопка: если виджет уже зарегистрирован (повторный запуск скрипта) — пропускаем
-    try {
-      if (!CustomizableUI.getWidget(WIDGET_ID)) {
-      CustomizableUI.createWidget({
-      id: WIDGET_ID,
-      type: 'custom',
-      label: 'Blade',
-      tooltiptext: 'Настройки Blade (тема, фон, плитки)',
-      defaultArea: CustomizableUI.AREA_NAVBAR,
-      // FF155: без type:'custom'+onBuild движок строит голую кнопку с текстовой
-      // меткой — БЕЗ ребёнка .toolbarbutton-icon, на котором висит весь облик
-      // кнопки (иконка btn_blade, рамка, ховер и пульсации тем из userChrome
-      // 5.1 «живые темы»). Строим структуру сами — как BladeClock.
-      // ВАЖНО: для type:'custom' движок НЕ вызывает ни onBeforeCreated, ни
-      // onCreated (весь блок сборки в buildWidgetNode пропускается) — слушатель
-      // клика вешаем здесь же, в onBuild, иначе кнопка мертва.
-      onBuild(doc) {
-        const btn = doc.createXULElement('toolbarbutton');
-        btn.id = WIDGET_ID;
-        btn.className = 'toolbarbutton-1 chromeclass-toolbar-additional';
-        btn.setAttribute('label', 'Blade');
-        btn.setAttribute('tooltiptext', 'Настройки Blade (тема, фон, плитки)');
-        const icon = doc.createXULElement('image');
-        icon.className = 'toolbarbutton-icon';
-        btn.appendChild(icon);
-        btn.addEventListener('command', () => {
-          try {
-            const p = ensurePopup(btn.ownerDocument);
-            p.openPopup(btn, 'after_start', 0, 0, false, false);
-          } catch (e) { mark('ERR open ' + e); }
-        });
-        return btn;
-      },
+    // 1.14.4: CustomizableUI в FF155 не строит узел и не сохраняет плейсмент
+    // позднерегистрируемого custom-виджета (placement без DOM — тот же корень,
+    // что у часов в 1.9.2; свежие профили установщика оставались без кнопки B,
+    // Pulse RED node-menub, живой тест 2026-09-14). Переведено на прямую
+    // DOM-вставку — нативный паттерн движка, как BladeClock. Регистрацию через
+    // CustomizableUI.createWidget убрали полностью: в старых профилях CUI
+    // построил бы кнопку по сохранённому плейсменту + наша вставка = дубликат;
+    // неизвестный id движок сам выкинет из стейта при следующем сохранении
+    // (штатная санитизация, миграция безопасна).
+    // Структура узла — та же, что была в onBuild: ребёнок .toolbarbutton-icon
+    // несёт весь облик кнопки (иконка btn_blade, рамка, ховер, пульсации тем
+    // из userChrome 5.1 «живые темы»); слушатель command вешаем сами.
+    const buildMenuButton = (doc) => {
+      const btn = doc.createXULElement('toolbarbutton');
+      btn.id = WIDGET_ID;
+      btn.className = 'toolbarbutton-1 chromeclass-toolbar-additional';
+      btn.setAttribute('label', 'Blade');
+      btn.setAttribute('tooltiptext', 'Настройки Blade (тема, фон, плитки)');
+      const icon = doc.createXULElement('image');
+      icon.className = 'toolbarbutton-icon';
+      btn.appendChild(icon);
+      btn.addEventListener('command', () => {
+        try {
+          const p = ensurePopup(btn.ownerDocument);
+          p.openPopup(btn, 'after_start', 0, 0, false, false);
+        } catch (e) { mark('ERR open ' + e); }
       });
-      }
-    } catch (e) { mark('ERR createWidget', e); }
+      return btn;
+    };
+    // Эталон BladeClock: гвард дублей → nav-bar → вставка перед overflow-кнопкой,
+    // иначе appendChild.
+    // 1.14.5: дубль кнопки (живой тест стенда): ранний mount попадал под
+    // buildArea CustomizableUI — узел стэшился, ретрай вставлял второго,
+    // стэш возвращался = две кнопки. Монтирование перенесено на
+    // browser-delayed-startup-finished (nav-bar финален) + таймер-страховка
+    // 2.5с + дедуп.
+    const mountMenuButton = () => {
+      try {
+        const doc = window.document;
+        const nav = doc.getElementById('nav-bar');
+        if (!nav) return;
+        // Гвард + дедуп-броня одним запросом: узел уже есть — выходим;
+        // если пережили ДВА узла — оставляем последний, младшие сносим
+        // и тоже выходим (кнопка уже есть, лишние убраны)
+        const dups = doc.querySelectorAll('#' + WIDGET_ID);
+        if (dups.length > 1) {
+          for (let i = 0; i < dups.length - 1; i++) dups[i].remove();
+          return;
+        }
+        if (dups.length) return;
+        const btn = buildMenuButton(doc);
+        const anchor = doc.getElementById('nav-bar-overflow-button');
+        if (anchor && anchor.parentElement === nav) nav.insertBefore(btn, anchor);
+        else nav.appendChild(btn);
+      } catch (e) { mark('ERR menub-mount ' + e); }
+    };
+    // Монтирование ТОЛЬКО после завершения стартовой инициализации окна,
+    // когда nav-bar уже финален и CustomizableUI его больше не перестраивает.
+    // Топик глобальный (main-процесс), фильтровать не нужно: mountMenuButton
+    // сам гвардится в СВОЁМ окне (getElementById) и по отсутствию nav-bar;
+    // окно уже загружено к моменту топика.
+    const tryMount = () => mountMenuButton();
+    const onDelayedStartup = () => {
+      try {
+        // наблюдатель разовый: сняли себя и смонтировали
+        Services.obs.removeObserver(onDelayedStartup, 'browser-delayed-startup-finished');
+        tryMount();
+      } catch (e) { mark('ERR menub-obs ' + e); }
+    };
+    Services.obs.addObserver(onDelayedStartup, 'browser-delayed-startup-finished');
+    // Наблюдатель держит замыкание — на unload окна снимаем, чтобы не течь
+    window.addEventListener('unload', () => {
+      try { Services.obs.removeObserver(onDelayedStartup, 'browser-delayed-startup-finished'); } catch (e) {}
+    }, { once: true });
+    // Страховка: если топик уже успел пройти до регистрации наблюдателя
+    // (скрипт поздний) — таймер вставит кнопку; оба пути идемпотентны
+    setTimeout(tryMount, 2500);
     // Кнопка загрузок обязана быть в тулбаре: после обновления движка FF155
     // виджет выпадал из nav-bar — панель загрузок становилась недоступна
     // (репорт владельца 2026-09-14). ensure-плейсмент идемпотентен: если
@@ -1708,8 +1755,10 @@
     // ═══════════════════════════════════════════════════════════════════
     // СЕКЦИЯ: ФИНАЛ — mark OK / catch fatal
     // ═══════════════════════════════════════════════════════════════════
+    finalStatus = 'OK widget';
     mark('OK widget');
   } catch (e) {
+    finalStatus = 'ERR fatal';
     mark('ERR fatal', e);
     console.error('Bobliks fatal:', e);
   }
