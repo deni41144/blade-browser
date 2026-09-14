@@ -1600,6 +1600,29 @@
     // («калл, плитка не удаляется»). Через штатный NewTabUtils — работает и для
     // frecency-плиток (новые визиты больше не воскресают), и для pinned.
     // Идемпотентно: link уже заблокирован — no-op
+    // Страховка клика по кнопке загрузок: на некоторых профилях встроенный
+    // обработчик виджета мёртв (кнопка есть, клик не открывает панель — репорт
+    // владельца 2026-09-14). Наш command-обработчик открывает панель напрямую
+    // через движковый DownloadsPanel (downloads.js). Гвард от двойного
+    // открытия: если панель уже открыта — выходим
+    try {
+      const dlBtn = window.document.getElementById('downloads-button');
+      if (dlBtn && !dlBtn.dataset.bladeDlHook) {
+        dlBtn.dataset.bladeDlHook = '1';
+        dlBtn.addEventListener('command', (ev) => {
+          try {
+            const DP = window.DownloadsPanel;
+            // isPanelShowing — геттер downloads.js:235 (включая состояние
+            // закрытия); showPanel(openedManually) — открывает и грузит данные
+            if (DP && !DP.isPanelShowing) {
+              DP.showPanel(true);
+              mark('OK dl panel shown');
+            }
+          } catch (e) { mark('ERR dlShow ' + e); }
+        });
+        mark('OK dl hook');
+      }
+    } catch (e) { mark('ERR dlHook ' + e); }
     try {
       const NTU = ChromeUtils.importESModule('resource://gre/modules/NewTabUtils.sys.mjs').NewTabUtils;
       const shazamUrl = 'https://aha-music.com/';
