@@ -2363,6 +2363,262 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
 }
 
 /* ============================================================================
+   24-бис. ГРОЗА НА ПАНЕЛИ: МОЛНИИ И КАПЛИ НА НАВБАРЕ (blade.weather.thunder)
+   ============================================================================
+   Гроза «Живой Клинок» на плавающей капсуле #nav-bar.
+   Перенесена с обоев newtab (2026-09-15: полосы и вспышки портили обои).
+   Гроза = ливень (капли дождя на капсуле) + редкие электрические разряды молний.
+
+   КОНЦЕПЦИЯ И АНИМАЦИЯ:
+   - Молния на #nav-bar::before: диагональный зигзаг-росчерк из двух изломанных ветвей
+     с ядром из плазмы и ореолом темы (var(--blade-rain-core) и var(--blade-rain-halo)),
+     плюс синхронная подсветка капсулы (статический inset box-shadow и drop-shadow).
+   - Разряды происходят в трёх разных зонах навбара (лево, право, центр) с
+     паузами между сериями 6-9с, серия состоит из 2-3 быстрых пиков вспышки.
+   - Капли дождя на #nav-bar::after: дублируют механизм капель секции 24 (15 градиентов),
+     конфликтов нет — BladeClock устанавливает ровно один преф blade.weather.*.
+   - Перформанс (конвенция 6): в @keyframes ТОЛЬКО transform и opacity.
+
+   СОСТОЯНИЯ И ДОСТУПНОСТЬ (A11Y / 4 СОСТОЯНИЯ):
+   - Success (активен): blade.weather.thunder=true -> живая анимация разрядов и капель.
+   - Empty (сухо / другая погода): blade.weather.thunder=false -> стили не активны, GPU спит.
+   - Loading (ожидание): до ответа погодного провайдера панель остаётся чистой.
+   - Error / Fallback: blade.battery и prefers-reduced-motion гасят анимацию разрядов и капель.
+   - ARIA / A11y: pointer-events: none, слой молний (#nav-bar::before) и капель
+     (#nav-bar::after) на z-index: 0 позади кнопок и адресной строки (z-index: 1),
+     клики и контраст элементов управления не затрагиваются.
+   ============================================================================ */
+
+@media -moz-pref("blade.weather.thunder") {
+  /* Контент навбара (кнопки, поле адреса, виджеты) строго над каплями и молниями */
+  #nav-bar > * {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Молния на капсуле навбара */
+  #nav-bar::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 16px !important;
+    clip-path: inset(0 round 16px) !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    opacity: 0;
+
+    /* Зигзаг разряда + диффузное грозовое свечение капсулы */
+    background-image:
+      /* Верхняя диагональная ветвь разряда (118deg) */
+      linear-gradient(118deg,
+        transparent 0%,
+        transparent calc(50% - 14px),
+        var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) calc(50% - 7px),
+        color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 55%, #ffffff 45%) calc(50% - 1.5px),
+        #ffffff 50%,
+        color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 55%, #ffffff 45%) calc(50% + 1.5px),
+        var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) calc(50% + 7px),
+        transparent calc(50% + 14px),
+        transparent 100%),
+      /* Нижняя изломанная ветвь разряда (68deg) для эффекта зигзага */
+      linear-gradient(68deg,
+        transparent 0%,
+        transparent calc(50% - 12px),
+        var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) calc(50% - 6px),
+        color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 55%, #ffffff 45%) calc(50% - 1.5px),
+        #ffffff 50%,
+        color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 55%, #ffffff 45%) calc(50% + 1.5px),
+        var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) calc(50% + 6px),
+        transparent calc(50% + 12px),
+        transparent 100%),
+      /* Синхронная диффузная вспышка по капсуле */
+      radial-gradient(ellipse 320px 48px at 50% 50%,
+        color-mix(in srgb, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 50%, transparent) 0%,
+        transparent 100%) !important;
+
+    background-size: 100% 55%, 100% 55%, 100% 100% !important;
+    background-position: 0 0, 0 100%, 0 0 !important;
+    background-repeat: no-repeat !important;
+
+    /* Статическая внутренняя подсветка контура капсулы (проявляется через opacity) */
+    box-shadow: inset 0 0 18px color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 50%, transparent) !important;
+    filter: drop-shadow(0 0 10px var(--blade-rain-halo, rgba(255, 42, 42, 0.65))) !important;
+
+    /* Compositor-only: анимация разрядов молний (только transform и opacity) */
+    animation: blade-navbar-lightning 7.8s cubic-bezier(0.2, 0.8, 0.25, 1) infinite !important;
+  }
+
+  /* Слой капель дождя во время грозы (гроза = дождь + молния) */
+  #nav-bar::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: -10px !important;
+    border-radius: 16px 16px 18px 18px !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    opacity: 0;
+
+    background-image:
+      /* 1. Поверхность: капля слева (5% 8px, 4x6px, белый спекуляр 2.5px) */
+      radial-gradient(ellipse 2px 3px at 5% 8px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 2. Поверхность: крупная светящаяся капля (13% 14px, 5x7.5px) */
+      radial-gradient(ellipse 2.5px 3.8px at 13% 14px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 3. Поверхность: капля со светящимся шлейфом стекания (22% 20px, шлейф 1.5x14px) */
+      linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 60%, transparent) 8px, var(--blade-rain-core, #ff4a4a) 14px, transparent 15px),
+      radial-gradient(ellipse 2.2px 3.4px at 22% 22px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 45%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 4. Поверхность: средняя капля (31% 10px, 3.6x5.6px) */
+      radial-gradient(ellipse 1.8px 2.8px at 31% 10px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 5. Поверхность: крупная доминанта центра (42% 16px, 5.6x8.4px, спекуляр 3.5px) */
+      radial-gradient(ellipse 2.8px 4.2px at 42% 16px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 88%, transparent 100%),
+
+      /* 6. Поверхность: капля со шлейфом в правом центре (54% 18px, шлейф 1.5x16px) */
+      linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 55%, transparent) 9px, var(--blade-rain-core, #ff4a4a) 15px, transparent 16px),
+      radial-gradient(ellipse 2.4px 3.6px at 54% 20px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 7. Поверхность: яркая капля (64% 11px, 4x6.4px) */
+      radial-gradient(ellipse 2px 3.2px at 64% 11px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 8. Поверхность: крупная жемчужина (73% 15px, 5.2x7.6px) */
+      radial-gradient(ellipse 2.6px 3.8px at 73% 15px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 9. Поверхность: средняя капля справа (83% 9px, 3.6x5.6px) */
+      radial-gradient(ellipse 1.8px 2.8px at 83% 9px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 30%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 10. Поверхность: капля на правом крыле (92% 17px, 4.4x6.8px) */
+      radial-gradient(ellipse 2.2px 3.4px at 92% 17px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 11. Поверхность: капля у правого края (97% 12px, 3.2x4.8px) */
+      radial-gradient(ellipse 1.6px 2.4px at 97% 12px, #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 40%, #ffffff) 35%, var(--blade-rain-core, #ff4a4a) 65%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 12. Нижняя кромка: росинка с яркой точкой отрыва (17% calc(100% - 9px), 5.2x9.2px) */
+      radial-gradient(ellipse 2.6px 4.6px at 17% calc(100% - 9px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 13. Нижняя кромка: крупная нависающая капля (37% calc(100% - 7px), 6x10.4px) */
+      radial-gradient(ellipse 3px 5.2px at 37% calc(100% - 7px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 88%, transparent 100%),
+
+      /* 14. Нижняя кромка: росинка отрыва (67% calc(100% - 9px), 5.2x9.2px) */
+      radial-gradient(ellipse 2.6px 4.6px at 67% calc(100% - 9px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 35%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 85%, transparent 100%),
+
+      /* 15. Нижняя кромка: тяжелая капля перед срывом (87% calc(100% - 8px), 5.6x10px) */
+      radial-gradient(ellipse 2.8px 5px at 87% calc(100% - 8px), #ffffff 0%, color-mix(in srgb, var(--blade-rain-core, #ff4a4a) 30%, #ffffff) 25%, var(--blade-rain-core, #ff4a4a) 60%, var(--blade-rain-halo, rgba(255, 42, 42, 0.65)) 88%, transparent 100%) !important;
+
+    background-size:
+      100% 100%, 100% 100%, 1.5px 14px, 100% 100%, 100% 100%,
+      100% 100%, 1.5px 16px, 100% 100%, 100% 100%, 100% 100%,
+      100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100% !important;
+    background-position:
+      0 0, 0 0, 22% 8px, 0 0, 0 0,
+      0 0, 54% 6px, 0 0, 0 0, 0 0,
+      0 0, 0 0, 0 0, 0 0, 0 0 !important;
+    background-repeat: no-repeat !important;
+
+    /* Скольжение капель вниз по капсуле */
+    animation: blade-navbar-rain-glide 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+  }
+}
+
+/* Compositor-only: молнии анимируются строго через transform и opacity (конвенция 6) */
+@keyframes blade-navbar-lightning {
+  0%, 17.5% {
+    transform: translateX(-28%) scale(0.95);
+    opacity: 0;
+  }
+  /* Разряд 1: левая зона навбара (3 быстрых пика) */
+  18% {
+    transform: translateX(-28%) scale(0.95);
+    opacity: 0.90;
+  }
+  18.6% {
+    transform: translateX(-28%) scale(0.95);
+    opacity: 0.15;
+  }
+  19.2% {
+    transform: translateX(-28%) scale(0.95);
+    opacity: 0.96;
+  }
+  19.8% {
+    transform: translateX(-28%) scale(0.95);
+    opacity: 0.25;
+  }
+  20.4% {
+    transform: translateX(-28%) scale(0.95);
+    opacity: 0.75;
+  }
+  21.2% {
+    transform: translateX(-28%) scale(0.95);
+    opacity: 0;
+  }
+  21.3%, 56.5% {
+    transform: translateX(28%) scaleX(-1) scaleY(1.05);
+    opacity: 0;
+  }
+  /* Разряд 2: правая зона навбара (2 быстрых пика, отражение по X) */
+  57% {
+    transform: translateX(28%) scaleX(-1) scaleY(1.05);
+    opacity: 0.92;
+  }
+  57.6% {
+    transform: translateX(28%) scaleX(-1) scaleY(1.05);
+    opacity: 0.20;
+  }
+  58.2% {
+    transform: translateX(28%) scaleX(-1) scaleY(1.05);
+    opacity: 0.88;
+  }
+  59.0% {
+    transform: translateX(28%) scaleX(-1) scaleY(1.05);
+    opacity: 0;
+  }
+  59.1%, 82.5% {
+    transform: translateX(4%) scale(1.02);
+    opacity: 0;
+  }
+  /* Разряд 3: центральная зона навбара (2 пика) */
+  83% {
+    transform: translateX(4%) scale(1.02);
+    opacity: 0.95;
+  }
+  83.6% {
+    transform: translateX(4%) scale(1.02);
+    opacity: 0.18;
+  }
+  84.2% {
+    transform: translateX(4%) scale(1.02);
+    opacity: 0.82;
+  }
+  85.0% {
+    transform: translateX(4%) scale(1.02);
+    opacity: 0;
+  }
+  85.1%, 100% {
+    transform: translateX(4%) scale(1.02);
+    opacity: 0;
+  }
+}
+
+/* Энергосбережение: остановка молний и капель при питании от батареи */
+:root[data-blade-battery] #nav-bar::before,
+:root[data-blade-battery] #nav-bar::after {
+  animation: none !important;
+  display: none !important;
+}
+
+/* Доступность: уважение системной настройки reduced motion для грозы */
+@media (prefers-reduced-motion: reduce) {
+  #nav-bar::before,
+  #nav-bar::after {
+    animation: none !important;
+  }
+}
+
+/* ============================================================================
    25. AVA 3.0: СПЛЕШ СТАРТА (#blade-splash) И ЗАСТАВКА ПРОСТОЯ (#blade-idle)
    ============================================================================ */
 

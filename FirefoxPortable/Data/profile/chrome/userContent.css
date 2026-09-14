@@ -303,6 +303,62 @@
     }
   }
 
+  /* [2026-09-15] Встроенные обои V2 (2560x1440, тёмные с ярким центром под темы Blade).
+     url() инлайном — в var() относительный путь разрешался бы от документа. */
+  @media -moz-pref("bobliks.bg.v2red") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_red.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2blood") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_blood.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2cherry") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_cherry.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2midnight") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_midnight.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2violet") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_violet.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2toxic") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_toxic.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2ashen") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ashen.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2ember") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ember.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
+  @media -moz-pref("bobliks.bg.v2volt") {
+    body.activity-stream {
+      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_volt.jpg") center bottom / cover no-repeat fixed !important;
+    }
+  }
+
   /* --- ЖИВЫЕ ФОНЫ ---------------------------------------------------------- */
   /* Ember Flow: анимированный WebP (движок сам крутит кадры фоновой картинки).
      Файл img/bg_emberflow.webp можно заменить любым другим анимированным WebP
@@ -375,6 +431,16 @@
   :root[data-blade-bg="voltbg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="blade"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important; }
+  /* [2026-09-15] Атрибутные дубли фонов V2 для живого переключения через data-blade-bg без задержек префов */
+  :root[data-blade-bg="v2red"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_red.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2blood"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_blood.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2cherry"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_cherry.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2midnight"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_midnight.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2violet"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_violet.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2toxic"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_toxic.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ashen.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ember.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2volt"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_volt.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="emberflow"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="pulse"] body.activity-stream { background: #060404 !important; scrollbar-width: none !important; }
   :root[data-blade-bg="pulse"] body.activity-stream::before {
@@ -1271,102 +1337,8 @@ input, textarea, [contenteditable] {
      [Урок]: дождь переехал на панель (userChrome секция 24), 2026-09-14:
      заливка страницы портила обои, владелец против. На newtab дождь полностью отключён. */
 
-  /* Струи грозы (используются в секции 2) */
-  @keyframes blade-rain-drop-a {
-    from { transform: skewX(-16deg) translateY(0); }
-    to   { transform: skewX(-16deg) translateY(50%); }
-  }
-
   /* --- 2. ГРОЗА (blade.weather.thunder) ---
-     Ливень (струи на html::before и body::before) + грозовые вспышки (html::after),
-     2 коротких пика в цикле ~8s (opacity до 0.28, между пиками нули). */
-  @media -moz-pref("blade.weather.thunder") {
-    body.activity-stream {
-      box-shadow: inset 0 0 120vmax rgba(0, 0, 15, 0.24) !important;
-    }
-
-    html::before {
-      content: "" !important;
-      position: fixed !important;
-      top: -100% !important;
-      left: -15% !important;
-      width: 130% !important;
-      height: 200% !important;
-      pointer-events: none !important;
-      z-index: 1 !important;
-      background-image: repeating-linear-gradient(
-        180deg,
-        transparent 0,
-        transparent 40px,
-        rgba(200, 225, 255, 0.7) 41px,
-        rgba(255, 255, 255, 0.9) 46px,
-        transparent 50px,
-        transparent 95px
-      ) !important;
-      background-size: 65px 50% !important;
-      opacity: 0.16 !important;
-      transform: skewX(-16deg) translateY(0) !important;
-      animation: blade-rain-drop-a 0.55s linear infinite !important;
-    }
-
-    body::before {
-      content: "" !important;
-      position: fixed !important;
-      top: -100% !important;
-      left: -15% !important;
-      width: 130% !important;
-      height: 200% !important;
-      pointer-events: none !important;
-      z-index: 1 !important;
-      background-image: repeating-linear-gradient(
-        180deg,
-        transparent 0,
-        transparent 55px,
-        rgba(180, 210, 255, 0.55) 56px,
-        rgba(225, 240, 255, 0.8) 64px,
-        transparent 70px,
-        transparent 125px
-      ) !important;
-      background-size: 90px 50% !important;
-      opacity: 0.12 !important;
-      transform: skewX(-12deg) translateY(0) !important;
-      animation: blade-thunder-rain 0.85s linear infinite !important;
-    }
-
-    html::after {
-      content: "" !important;
-      position: fixed !important;
-      inset: 0 !important;
-      pointer-events: none !important;
-      z-index: 2 !important;
-      background: radial-gradient(ellipse 80% 60% at 50% 15%, rgba(220, 235, 255, 0.85) 0%, rgba(120, 170, 255, 0.4) 45%, rgba(40, 60, 140, 0.15) 75%, transparent 100%) !important;
-      opacity: 0 !important;
-      animation: blade-thunder-flash 8s ease-out infinite !important;
-    }
-  }
-
-  @keyframes blade-thunder-rain {
-    from { transform: skewX(-12deg) translateY(0); }
-    to   { transform: skewX(-12deg) translateY(50%); }
-  }
-
-  @keyframes blade-thunder-flash {
-    0%, 84%, 87%, 91%, 100% {
-      opacity: 0;
-    }
-    85% {
-      opacity: 0.28;
-    }
-    86% {
-      opacity: 0.08;
-    }
-    88% {
-      opacity: 0.24;
-    }
-    89% {
-      opacity: 0.04;
-    }
-  }
+     [2026-09-15] Гроза переехала на панель (userChrome секция 24-бис): струи+вспышки портили обои. На newtab гроза полностью отключена. */
 
   /* --- 3. СНЕГ (blade.weather.snow) ---
      2 слоя снежинок: мелкий быстрый (6s, дрейф по X) + крупный медленный (11s, дрейф по X),
@@ -1544,11 +1516,8 @@ input, textarea, [contenteditable] {
   }
 
   /* Комбинации погоды и ночи (наложение виньеток осадков и тёплого ночного полумрака) */
-  @media -moz-pref("blade.night") and (-moz-pref("blade.weather.thunder")) {
-    body.activity-stream {
-      box-shadow: inset 0 0 120vmax rgba(0, 0, 15, 0.24), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;
-    }
-  }
+  /* [2026-09-15] При грозе+ночи на newtab ничего не рисуется от грозы (гроза переехала на панель);
+     ночная вуаль blade.night остаётся штатной через базовый блок выше. */
   @media -moz-pref("blade.night") and (-moz-pref("blade.weather.clouds")) {
     body.activity-stream {
       box-shadow: inset 0 0 120vmax rgba(0, 0, 5, 0.26), inset 0 0 120vmax rgba(255, 190, 140, 0.05) !important;

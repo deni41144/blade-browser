@@ -43,7 +43,8 @@
     #blade-hero-wrap.blade-on { display: flex; }
     #blade-hero {
       position: relative;
-      margin-top: 10vh; text-align: center;
+      /* [2026-09-15] Подъём Hero-часов до 5vh (было 10vh): обои V2 с высокими композициями */
+      margin-top: 5vh; text-align: center;
       font-family: 'Segoe UI', sans-serif; user-select: none;
       animation: blade-hero-in .9s cubic-bezier(.2,.7,.3,1) both;
     }
