@@ -65,3 +65,4 @@ __pycache__/
 Release/
 *.blade-bak*
 FirefoxPortable/Data/profile/chrome/JS/BladeShield_backup.txt
+Skeleton-Stage/xul.dll
