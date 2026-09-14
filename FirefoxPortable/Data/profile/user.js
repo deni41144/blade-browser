@@ -159,6 +159,12 @@ user_pref("media.hardware-video-decoding.enabled", true); /* видео груз
 user_pref("browser.newtab.preload", true);                /* новая вкладка готова до открытия */
 
 
+
+/* Кнопка загрузок ВСЕГДА видима в тулбаре: дефолт FF155 — autohide (кнопка
+   прячется, когда загрузок нет — владельцу казалось, что «меню загрузок не
+   открывается»). indicator.js: autoHideDownloadsButton -> button.hidden */
+user_pref("browser.download.autohideButton", false);
+
 /* --- BLADE: обновления только вручную через Update-Blade (апдейтер удалён) --- */
 user_pref("app.update.enabled", false);
 user_pref("app.update.auto", false);
@@ -267,9 +273,10 @@ user_pref("media.autoplay.default", 5);
 
 /* НАШИ ПЛИТКИ: дефолтные сайты новой вкладки — наши, не Firefox-овские
    (Wiki/Amazon). Покрыты тематическими обложками для всех 9 тем.
-   aha-music — «шазам» браузера: распознавание музыки с микрофоном
-   (доступ выдан политикой Permissions.Microphone, без промпта) */
-user_pref("browser.newtabpage.activity-stream.default.sites", "[{\"url\":\"https://youtube.com\",\"title\":\"YouTube\"},{\"url\":\"https://music.youtube.com\",\"title\":\"YouTube Music\"},{\"url\":\"https://instagram.com\",\"title\":\"Instagram\"},{\"url\":\"https://www.olx.ua\",\"title\":\"OLX\"},{\"url\":\"https://pinterest.com\",\"title\":\"Pinterest\"},{\"url\":\"https://rozetka.com.ua\",\"title\":\"Rozetka\"},{\"url\":\"https://temu.com\",\"title\":\"Temu\"},{\"url\":\"https://aliexpress.com\",\"title\":\"AliExpress\"},{\"url\":\"https://mail.google.com\",\"title\":\"Gmail\"},{\"url\":\"https://classroom.google.com\",\"title\":\"Classroom\"},{\"url\":\"https://aha-music.com\",\"title\":\"Shazam\"}]");
+   Шазам-плитка (aha-music) ОТЗВАНА владельцем 2026-09-14: плитка «калл»,
+   не удалялась до конца — теперь блокируется через NewTabUtils
+   (см. BobliksSettings) и отсутствует в дефолтах */
+user_pref("browser.newtabpage.activity-stream.default.sites", "[{\"url\": \"https://youtube.com\", \"title\": \"YouTube\"}, {\"url\": \"https://music.youtube.com\", \"title\": \"YouTube Music\"}, {\"url\": \"https://instagram.com\", \"title\": \"Instagram\"}, {\"url\": \"https://www.olx.ua\", \"title\": \"OLX\"}, {\"url\": \"https://pinterest.com\", \"title\": \"Pinterest\"}, {\"url\": \"https://rozetka.com.ua\", \"title\": \"Rozetka\"}, {\"url\": \"https://temu.com\", \"title\": \"Temu\"}, {\"url\": \"https://aliexpress.com\", \"title\": \"AliExpress\"}, {\"url\": \"https://mail.google.com\", \"title\": \"Gmail\"}, {\"url\": \"https://classroom.google.com\", \"title\": \"Classroom\"}]");
 
 /* --- BLADE: АУДИО КАЧЕСТВО (без потери производительности) --- */
 
