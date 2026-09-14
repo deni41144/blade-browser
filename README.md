@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/blade-logo-512.png" width="200" alt="Blade">
+  <img src="assets/KVADROAVA2.0.png" width="200" alt="Blade">
 </p>
 
 <h1 align="center">BLADE</h1>
