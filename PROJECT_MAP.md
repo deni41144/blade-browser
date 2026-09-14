@@ -29,7 +29,7 @@
 | Зарегистрировать браузером по умолчанию | `powershell -File Patches\template\set-blade-default.ps1` |
 | Бэкап профиля | `Blade-Backup.bat` |
 | Диагностика кастома | смотреть `chrome\JS\*_mark.txt` (живой профиль) или `Blade-Diagnostic.bat` |
-| История проекта | `git log --oneline` / `git status` — репозиторий в корне; личное и артефакты (профиль, Backups, zip, Output/bin/obj) в `.gitignore` |
+| История проекта | `git log --oneline` / `git status` — репозиторий в корне; личное и артефакты (профиль, Backups, zip, Output/bin/obj, Release/) в `.gitignore`. **Запушено на GitHub (2026-09-14, force):** вся история 2.0.1 + слияние с веб-коммитами README/LICENSE; ⚠️ история ПЕРЕПИСАНА (filter-branch: вырезан Skeleton-Stage/xul.dll 168МБ > лимита GitHub 100МБ + инвалидный на Windows «README.md.») — старые хэши из этой карты (c84ed99, 4ec8577 и др.) в `git log` больше не сходятся, актуальные: b264fbb (волна 2.0.1), 4319ecb (merge); xul.dll в .gitignore, стейдж-движок целиком остаётся локальным артефактом |
 | Дизайн/вёрстка | НЕ делать молча самому: уточнить у Дени про Gemini (Antigravity) → добро → промпт по шаблону `Patches\gemini-prompt-*.md` → после работы GLM верифицирует и интегрирует |
 
 ## Команда: GLM + Gemini (обязательный тандем)
