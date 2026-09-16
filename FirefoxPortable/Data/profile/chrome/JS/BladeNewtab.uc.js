@@ -6,7 +6,7 @@
 //                  (BladeClock 2.6.0 сам прячется на главной: дублей нет).
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.5.1
+// @version         1.7.1
 // ==/UserScript==
 (function () {
   if (window.BladeNewtabHero) return;
@@ -21,7 +21,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.5.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.7.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -45,7 +45,7 @@
       position: relative;
       /* [2026-09-15] Подъём Hero-часов до 5vh (было 10vh): обои V2 с высокими композициями */
       margin-top: 5vh; text-align: center;
-      font-family: 'Segoe UI', sans-serif; user-select: none;
+      font-family: 'blade-horror', 'Segoe UI', sans-serif; user-select: none;
       animation: blade-hero-in .9s cubic-bezier(.2,.7,.3,1) both;
     }
     @keyframes blade-hero-in {
@@ -82,7 +82,7 @@
       100% { opacity: 0; }
     }
     #blade-hero .bh-clock {
-      font-size: 88px; font-weight: 200; line-height: 1; letter-spacing: 6px;
+      font-size: 88px; font-weight: 200; line-height: 1; letter-spacing: 10px;
       color: #f4f4f8;
       text-shadow:
         0 0 22px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent),
@@ -94,6 +94,254 @@
     @keyframes blade-hero-breathe {
       0%, 100% { opacity: 0.92; }
       50%      { opacity: 1; }
+    }
+    /* Per-theme шрифты и эффекты часов (2026-09-15): каждая тема — свой демонический шрифт и своя фишка циферблата. Только transform/opacity в keyframes, цвета через var(--accent). */
+    #blade-hero .bh-clock { position: relative; }
+    #blade-hero .bh-clock::before,
+    #blade-hero .bh-clock::after {
+      content: none;
+      position: absolute;
+      pointer-events: none;
+      z-index: -1;
+    }
+    /* red (дефолт) — horror-потёки Nosifer: благородный алый пульс клинка */
+    #blade-hero .bh-clock {
+      font-family: 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 88px;
+      letter-spacing: 10px;
+      text-shadow:
+        0 0 14px color-mix(in srgb, var(--accent, #ff2a2a) 65%, transparent),
+        0 0 32px color-mix(in srgb, var(--accent, #ff2a2a) 42%, transparent),
+        0 0 72px color-mix(in srgb, var(--accent, #ff2a2a) 25%, transparent);
+      animation: blade-hero-red-pulse 4.6s cubic-bezier(.4, 0, .2, 1) infinite;
+    }
+    @keyframes blade-hero-red-pulse {
+      0%, 100% { opacity: 0.92; transform: scale(1); }
+      50%      { opacity: 1;    transform: scale(1.006); }
+    }
+    /* blood — кастомный шрифт BladeBlood с впаянными в глифы каплями крови */
+    [data-blade-theme="blood"] #blade-hero .bh-clock {
+      font-family: 'blade-custom-blood', 'Segoe UI', sans-serif;
+      font-size: 88px;
+      letter-spacing: 8px;
+      /* Кровавая градиентная заливка глифов: мокрый блик сверху -> тёмная кровь на потёках */
+      background: linear-gradient(180deg,
+        color-mix(in srgb, var(--accent, #a80f0f) 65%, #fff) 0%,
+        color-mix(in srgb, var(--accent, #a80f0f) 85%, #fff) 22%,
+        var(--accent, #a80f0f) 46%,
+        color-mix(in srgb, var(--accent, #a80f0f) 60%, #000) 80%,
+        color-mix(in srgb, var(--accent, #a80f0f) 18%, #000) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: none;
+      filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent, #a80f0f) 65%, transparent))
+              drop-shadow(0 0 28px color-mix(in srgb, var(--accent, #a80f0f) 35%, transparent));
+      animation: blade-hero-blood-pulse 4.8s ease-in-out infinite;
+    }
+    @keyframes blade-hero-blood-pulse {
+      0%, 100% { opacity: 0.93; transform: scale(1); }
+      50%      { opacity: 1;    transform: scale(1.008); }
+    }
+    [data-blade-theme="blood"] #blade-hero .bh-sec {
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    /* purple — неоновая трубка Monoton: редкие реалистичные сбои неона */
+    [data-blade-theme="purple"] #blade-hero .bh-clock {
+      font-family: 'blade-neon', 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 82px;
+      letter-spacing: 4px;
+      text-shadow:
+        0 0 8px #ffffff,
+        0 0 20px color-mix(in srgb, var(--accent, #ff2a2a) 85%, transparent),
+        0 0 54px color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent),
+        0 0 85px color-mix(in srgb, var(--accent, #ff2a2a) 30%, transparent);
+      animation: blade-hero-purple-flicker 4.8s steps(1, end) infinite;
+    }
+    @keyframes blade-hero-purple-flicker {
+      0%, 41%, 45%, 87%, 90%, 100% { opacity: 1;    transform: none; }
+      42%                          { opacity: 0.62; transform: translateY(0.5px); }
+      43%                          { opacity: 0.88; transform: none; }
+      88%                          { opacity: 0.55; transform: translateY(-0.5px); }
+      89%                          { opacity: 0.95; transform: none; }
+    }
+    /* green — CRT-терминал VT323: ультратонкие сканлайны люминофора */
+    [data-blade-theme="green"] #blade-hero .bh-clock {
+      font-family: 'blade-terminal', 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 98px;
+      letter-spacing: 6px;
+      text-shadow:
+        0 0 10px color-mix(in srgb, var(--accent, #ff2a2a) 75%, transparent),
+        0 0 32px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent);
+    }
+    [data-blade-theme="green"] #blade-hero .bh-clock::before {
+      content: '';
+      position: absolute;
+      inset: -4px 0 -4px 0;
+      background: repeating-linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent, #ff2a2a) 14%, transparent) 0px,
+        color-mix(in srgb, var(--accent, #ff2a2a) 14%, transparent) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      mix-blend-mode: screen;
+      animation: blade-hero-green-scan 2.4s linear infinite;
+    }
+    @keyframes blade-hero-green-scan {
+      from { transform: translateY(0);   opacity: 0.65; }
+      to   { transform: translateY(3px); opacity: 0.65; }
+    }
+    /* grey — машинная сталь Michroma: благородный холод сатинированного титана */
+    [data-blade-theme="grey"] #blade-hero .bh-clock {
+      font-family: 'blade-steel', 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 74px;
+      letter-spacing: 2px;
+      text-shadow:
+        0 -1px 1px rgba(255, 255, 255, 0.7),
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 35%, #a8c4e0),
+        0 0 45px color-mix(in srgb, var(--accent, #ff2a2a) 18%, transparent);
+      animation: blade-hero-grey-pulse 6.5s ease-in-out infinite;
+    }
+    @keyframes blade-hero-grey-pulse {
+      0%, 100% { opacity: 0.88; transform: scale(1); }
+      50%      { opacity: 0.98; transform: scale(1.004); }
+    }
+    /* orange — обожжённые буквы Rubik Burned: мягкий жар пламени и угли снизу */
+    [data-blade-theme="orange"] #blade-hero .bh-clock {
+      font-family: 'blade-fire', 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 88px;
+      letter-spacing: 8px;
+      text-shadow:
+        0 0 14px color-mix(in srgb, var(--accent, #ff2a2a) 75%, #ffe600),
+        0 0 40px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent),
+        0 0 75px color-mix(in srgb, var(--accent, #ff2a2a) 25%, transparent);
+    }
+    [data-blade-theme="orange"] #blade-hero .bh-clock::after {
+      content: '';
+      position: absolute;
+      left: -5%;
+      right: -5%;
+      bottom: -8px;
+      height: 42px;
+      transform-origin: bottom center;
+      background:
+        radial-gradient(ellipse 55% 26px at 50% 100%, color-mix(in srgb, var(--accent, #ff2a2a) 55%, #fff) 0%, color-mix(in srgb, var(--accent, #ff2a2a) 38%, #ffcc00) 45%, transparent 75%),
+        radial-gradient(ellipse 35% 20px at 25% 100%, color-mix(in srgb, var(--accent, #ff2a2a) 45%, #ff8800) 0%, transparent 70%),
+        radial-gradient(ellipse 35% 20px at 75% 100%, color-mix(in srgb, var(--accent, #ff2a2a) 45%, #ff8800) 0%, transparent 70%);
+      mix-blend-mode: screen;
+      animation: blade-hero-orange-flame 3.2s ease-in-out infinite alternate;
+    }
+    @keyframes blade-hero-orange-flame {
+      0%   { transform: scaleY(0.9)  scaleX(0.98); opacity: 0.65; }
+      100% { transform: scaleY(1.08) scaleX(1.02); opacity: 0.9; }
+    }
+    /* cherry — японский деко-сериф Kaisei Decol: изящные лепестки сакуры по дуге */
+    [data-blade-theme="cherry"] #blade-hero .bh-clock {
+      font-family: 'blade-sakura', 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 88px;
+      letter-spacing: 6px;
+      text-shadow:
+        0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 60%, transparent),
+        0 0 40px color-mix(in srgb, var(--accent, #ff2a2a) 30%, transparent);
+    }
+    [data-blade-theme="cherry"] #blade-hero .bh-clock::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 6px;
+      width: 9px;
+      height: 9px;
+      border-radius: 65% 15% 65% 15% / 65% 15% 65% 15%;
+      background: color-mix(in srgb, var(--accent, #ff2a2a) 85%, #ffccd8);
+      box-shadow:
+        -125px -12px 0 -1px color-mix(in srgb, var(--accent, #ff2a2a) 90%, #fff),
+        -55px 10px 0 0px color-mix(in srgb, var(--accent, #ff2a2a) 80%, #fff),
+        60px -6px 0 -1px color-mix(in srgb, var(--accent, #ff2a2a) 85%, #fff),
+        135px 12px 0 0px color-mix(in srgb, var(--accent, #ff2a2a) 75%, #fff);
+      animation: blade-hero-cherry-fall 5.6s ease-out infinite;
+    }
+    @keyframes blade-hero-cherry-fall {
+      0%   { transform: translate(-50%, -8px) rotate(0deg); opacity: 0; }
+      20%  { opacity: 0.85; }
+      75%  { opacity: 0.75; }
+      100% { transform: translate(calc(-50% + 36px), 42px) rotate(120deg); opacity: 0; }
+    }
+    /* midnight — космический пунктир Zen Dots: деликатное сияние северной ночи */
+    [data-blade-theme="midnight"] #blade-hero .bh-clock {
+      font-family: 'blade-aurora', 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 78px;
+      letter-spacing: 2px;
+      text-shadow:
+        0 0 12px color-mix(in srgb, var(--accent, #ff2a2a) 85%, #00e5ff),
+        0 0 30px color-mix(in srgb, var(--accent, #ff2a2a) 55%, #b44bff),
+        0 0 65px color-mix(in srgb, var(--accent, #ff2a2a) 25%, transparent);
+      animation: blade-hero-midnight-glow 8.5s ease-in-out infinite alternate;
+    }
+    [data-blade-theme="midnight"] #blade-hero .bh-clock::before {
+      content: '';
+      position: absolute;
+      inset: -15px -25px;
+      border-radius: 40px;
+      background: radial-gradient(ellipse 70% 60% at 35% 45%, color-mix(in srgb, var(--accent, #ff2a2a) 22%, #00e5ff) 0%, transparent 70%);
+      animation: blade-hero-midnight-aurora-a 10s ease-in-out infinite alternate;
+    }
+    [data-blade-theme="midnight"] #blade-hero .bh-clock::after {
+      content: '';
+      position: absolute;
+      inset: -20px -30px;
+      border-radius: 40px;
+      background: radial-gradient(ellipse 65% 55% at 65% 55%, color-mix(in srgb, var(--accent, #ff2a2a) 20%, #8800ff) 0%, transparent 70%);
+      animation: blade-hero-midnight-aurora-b 14s ease-in-out infinite alternate;
+    }
+    @keyframes blade-hero-midnight-glow {
+      0%   { opacity: 0.92; transform: scale(1); }
+      50%  { opacity: 1;    transform: scale(1.008); }
+      100% { opacity: 0.94; transform: scale(0.996); }
+    }
+    @keyframes blade-hero-midnight-aurora-a {
+      from { transform: translate(-10px, -4px); opacity: 0.25; }
+      to   { transform: translate(10px, 4px);   opacity: 0.45; }
+    }
+    @keyframes blade-hero-midnight-aurora-b {
+      from { transform: translate(12px, 5px);   opacity: 0.22; }
+      to   { transform: translate(-8px, -5px);  opacity: 0.42; }
+    }
+    /* volt — электрический глитч Rubik Glitch: вспышки высоковольтного дугового разряда */
+    [data-blade-theme="volt"] #blade-hero .bh-clock {
+      font-family: 'blade-volt', 'blade-horror', 'Segoe UI', sans-serif;
+      font-size: 86px;
+      letter-spacing: 8px;
+      text-shadow:
+        0 0 8px #ffffff,
+        0 0 22px color-mix(in srgb, var(--accent, #ff2a2a) 85%, transparent),
+        0 0 58px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent);
+      animation: blade-hero-volt-strobe 4.5s steps(1, end) infinite;
+    }
+    [data-blade-theme="volt"] #blade-hero .bh-clock::after {
+      content: '';
+      position: absolute;
+      inset: -10px -20px;
+      background: linear-gradient(120deg, transparent 40%, var(--accent, #ff2a2a) 41%, var(--accent, #ff2a2a) 42%, transparent 43%, transparent 60%, var(--accent, #ff2a2a) 61%, var(--accent, #ff2a2a) 62%, transparent 63%);
+      clip-path: polygon(15% 0%, 25% 42%, 18% 44%, 32% 100%, 26% 56%, 33% 53%, 72% 0%, 82% 38%, 76% 41%, 88% 100%, 81% 52%, 87% 49%);
+      opacity: 0;
+      animation: blade-hero-volt-flash 4.5s steps(1, end) infinite;
+    }
+    @keyframes blade-hero-volt-strobe {
+      0%, 74%, 80%, 100% { opacity: 0.96; transform: none; }
+      75%                { opacity: 1;    transform: translateX(1px); }
+      77%                { opacity: 0.82; transform: translateX(-1px); }
+      78%                { opacity: 1;    transform: none; }
+    }
+    @keyframes blade-hero-volt-flash {
+      0%, 74%, 79%, 100% { opacity: 0;    transform: none; }
+      75%                { opacity: 0.95; transform: scale(1.02); }
+      77%                { opacity: 0; }
+      78%                { opacity: 0.85; transform: scale(0.99); }
     }
     /* Атмосферные «уголки» за часами: два радиальных пятна акцента,
        медленный дрейф transform + лёгкий пульс opacity (композит, дёшево) */
@@ -184,13 +432,16 @@
     wrap.innerHTML =
       '<div id="blade-hero" role="banner" aria-label="AVA 3.0 Hero" data-state="success">' +
         '<div class="bh-greet" role="heading" aria-level="2"></div>' +
-        '<div class="bh-clock" role="timer" aria-live="off"><span class="bh-hm">--:--</span><span class="bh-sec">--</span></div>' +
+        '<div class="bh-clock" role="timer" aria-live="off" aria-label="--:--:--">' +
+          '<span class="bh-hm">--:--</span><span class="bh-sec">--</span>' +
+        '</div>' +
         '<div class="bh-accent-line" aria-hidden="true"><span class="bh-accent-core"></span></div>' +
         '<div class="bh-date"></div>' +
         '<div class="bh-status" role="status" aria-live="polite">BLADE OS // ONLINE</div>' +
       '</div>';
     deck.appendChild(wrap);
 
+    const clockEl = wrap.querySelector('.bh-clock');
     const hm = wrap.querySelector('.bh-hm');
     const sec = wrap.querySelector('.bh-sec');
     const dateEl = wrap.querySelector('.bh-date');
@@ -234,8 +485,11 @@
       try {
         if (!wrap.classList.contains('blade-on')) return;
         const d = new Date();
-        hm.textContent = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        sec.textContent = d.toLocaleTimeString('ru-RU', { second: '2-digit' }).padStart(2, '0');
+        const hmStr = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const secStr = d.toLocaleTimeString('ru-RU', { second: '2-digit' }).padStart(2, '0');
+        if (hm.textContent !== hmStr) hm.textContent = hmStr;
+        if (sec.textContent !== secStr) sec.textContent = secStr;
+        if (clockEl) clockEl.setAttribute('aria-label', hmStr + ':' + secStr);
         if (d.getMinutes() !== lastMinute) {
           lastMinute = d.getMinutes();
           dateEl.textContent = d.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });

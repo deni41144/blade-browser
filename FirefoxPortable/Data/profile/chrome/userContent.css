@@ -42,7 +42,8 @@
 @import "covers.css";
 
 /* ============================================================================
-   КАСТОМНАЯ ТИПОГРАФИКА BLADE (OFL: Unbounded, Rubik, JetBrains Mono)
+   КАСТОМНАЯ ТИПОГРАФИКА BLADE (OFL: Unbounded, Rubik, JetBrains Mono, Nosifer,
+   Rubik Wet Paint, Monoton, VT323, Michroma, Rubik Burned, Kaisei Decol, Zen Dots, Rubik Glitch)
    ============================================================================ */
 @font-face {
   font-family: 'blade-display';
@@ -71,6 +72,76 @@
   font-family: 'blade-mono';
   src: url("fonts/JetBrainsMono[wght].ttf") format('truetype');
   font-weight: 100 800;
+  font-display: swap;
+}
+
+/* red (дефолт) — horror-потёки Nosifer */
+@font-face {
+  font-family: 'blade-horror';
+  src: url("fonts/Nosifer-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* blood — стекающие капли Rubik Wet Paint */
+@font-face {
+  font-family: 'blade-blood';
+  src: url("fonts/RubikWetPaint-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* blood — кастомный шрифт BladeBlood с впаянными каплями крови */
+@font-face {
+  font-family: 'blade-custom-blood';
+  src: url("fonts/BladeBlood-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* purple — неоновая трубка Monoton */
+@font-face {
+  font-family: 'blade-neon';
+  src: url("fonts/Monoton-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* green — CRT-терминал VT323 */
+@font-face {
+  font-family: 'blade-terminal';
+  src: url("fonts/VT323-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* grey — машинная сталь Michroma */
+@font-face {
+  font-family: 'blade-steel';
+  src: url("fonts/Michroma-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* orange — обожжённые буквы Rubik Burned */
+@font-face {
+  font-family: 'blade-fire';
+  src: url("fonts/RubikBurned-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* cherry — японский деко-сериф Kaisei Decol */
+@font-face {
+  font-family: 'blade-sakura';
+  src: url("fonts/KaiseiDecol-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* midnight — космический пунктир Zen Dots */
+@font-face {
+  font-family: 'blade-aurora';
+  src: url("fonts/ZenDots-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
+/* volt — электрический глитч Rubik Glitch */
+@font-face {
+  font-family: 'blade-volt';
+  src: url("fonts/RubikGlitch-Regular.ttf") format('truetype');
   font-display: swap;
 }
 
@@ -653,6 +724,21 @@
     margin: 0 !important;
     padding: 0 !important;
     float: none !important;
+  }
+
+  /* Плюсик «Добавить ярлык» (ин-грид тайл .add-button-tile и hover-оверлей .add-button-hidden):
+     прячем на обычной новой вкладке, чтобы кнопка-плюс не занимала слот в сетке
+     и не сдвигала закреплённые плитки. Добавление остаётся штатно доступным через
+     контекстное меню любой плитки («Добавить ярлык» / AddTopSite). */
+  .top-site-outer.add-button-tile,
+  .add-button-hidden {
+    display: none !important;
+  }
+
+  /* Ре-шоу плюса в скоупе контейнера редактирования (если открыт edit-режим) */
+  .edit-topsites-wrapper .top-site-outer.add-button-tile,
+  .edit-topsites .top-site-outer.add-button-tile {
+    display: list-item !important;
   }
 
   /* КАП nth-child(n+16) УДАЛЁН (аудит-фикс, вернулся с git-откатом 2026-09-14):
