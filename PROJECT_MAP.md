@@ -571,8 +571,30 @@ XHTML через `createElementNS`, кнопки — div, открытие
 5. **Бэкап до чистки:** `F:\blade-repo-BACKUP-20260916.bundle` (372 МБ, все ссылки) —
    полный откат, если что-то понадобится из старой истории.
 6. Хеши переписанной истории (использовать вместо старых из этой карты):
-   main = `ddd265a`, предыдущий релизный коммит `7759a13`, chore-чистка `24c40cb`,
-   тег v2.0.2 = `e0fa92f`, v2.0.3 = `84c56a1`, v2.0.4 = `7759a13`.
+   main = `ddd265a` (2.0.4) → `b735b68` (запись чистки в карте), chore-чистка `24c40cb`,
+   предыдущий релизный коммит `7759a13`, тег v2.0.2 = `e0fa92f`, v2.0.3 = `84c56a1`,
+   v2.0.4 = `7759a13`.
+
+**Как проверить результат чистки:**
+
+```
+# 1. Живой клон с GitHub — должно быть ~34 МБ (было ~300 МБ), 338 файлов
+git clone https://github.com/deni41144/blade-browser.git %TEMP%\blade-clone-check
+cd %TEMP%\blade-clone-check && git ls-files | wc -l
+
+# 2. Все ссылки на GitHub без мусора (в каждой строке junk=0)
+for t in $(gh api repos/deni41144/blade-browser/git/refs --jq '.[].ref'); do
+  echo "$t junk=$(gh api "repos/deni41144/blade-browser/git/trees/${t}?recursive=1" \
+    --jq '[.tree[].path | select(startswith("Skeleton-Stage") or startswith("Иконки") or startswith("Installer"))] | length')"
+done
+
+# 3. Локально: дерево чистое, движок виден только на диске
+git status --porcelain ; git check-ignore -v Skeleton-Stage/firefox.exe Installer/Blade-Installer.iss
+```
+
+Ожидаемо: клон 34 МБ / 338 файлов, 12 ссылок с `junk=0`, `git status` пуст,
+`Skeleton-Stage/` и `Installer/` игнорируются (файлы на диске целы),
+`chrome/VERSION` в клоне = `2.0.4`.
 
 ## Известные ограничения (осознанные)
 
@@ -586,11 +608,14 @@ XHTML через `createElementNS`, кнопки — div, открытие
    ждут Full-релиза.
 6. Ротации бэкапов нет — папка растёт, чистить руками.
 7. **Размер репо на GitHub ещё не пересчитан** (API отдаёт 305 999 КБ после чистки
-   2026-09-16): GitHub собирает мусор лениво, старые коммиты (`b594174`, `8361a8e`)
-   пока отдаются по прямой ссылке. Достижимый контент чист — все 12 ссылок
-   (main + 9 тегов + origin) содержат 0 файлов `Skeleton-Stage`/`Иконки`/`Installer`,
-   свежий клон маленький. Для немедленного пересчёта нужен запрос в GitHub Support
-   («run git gc on the repository»).
+   2026-09-16) — это устаревший счётчик: GitHub уже не отдаёт мусор, проверено
+   живым клоном (`git clone https://github.com/deni41144/blade-browser.git` →
+   34 МБ, из них `.git` 17 МБ, 1.7 с; было ~300 МБ). Достижимый контент чист —
+   все 12 ссылок (main + 9 тегов + origin) содержат 0 файлов
+   `Skeleton-Stage`/`Иконки`/`Installer`. Старые коммиты (`b594174`, `8361a8e`)
+   пока отдаются по прямой ссылке как висячие объекты; пересчёт счётчика `size`
+   и окончательный сбор мусора — запрос в GitHub Support («run git gc on the
+   repository»), на работу апдейтера и клонов не влияет.
 8. Локальный диск после чистки не тронут: `Release/` и `Backups/` ~по 1.3 ГБ,
    `Patches\*.zip` 617 МБ, `Installer\Output` 197 МБ, `Blade-Release-v1.4.2/` 201 МБ —
    всё это уже в `.gitignore` и в репо не уезжает; снос — решение владельца.
