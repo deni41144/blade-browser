@@ -72,3 +72,20 @@ Skeleton-Stage/xul.dll
 Иконки старые/
 FirefoxPortable/Data/profile/chrome/img/Без названия.jpg
 TestReports/**/*.png
+
+# --- чистка репозитория 2026-09-16 (аудит: 110 МБ движка + легаси болтались в индексе) ---
+# Стейдж-движок — локальный артефакт сборки (сборка Patch/Full идёт от установленной
+# копии и dev-профиля, ни один конвейер на него не опирается). Держим только на диске.
+Skeleton-Stage/
+# Inno Setup — легаси (BladeSetup на WPF — актуальный установщик, .iss никто не вызывает).
+Installer/
+# Состояние редакторов/агентов.
+.zcode/
+.vscode/
+.idea/
+# Генерируемая рантаймом диагностика внутри chrome (пишут BladePulse/BladePerf).
+FirefoxPortable/Data/profile/chrome/JS/blade_health.txt
+FirefoxPortable/Data/profile/chrome/JS/perf_history.txt
+FirefoxPortable/Data/profile/chrome/JS/perf_mark.txt
+# Черновики шрифтовых экспериментов (в поставку едет только итоговый ttf из chrome/fonts).
+TestReports/blood-font-preview/
