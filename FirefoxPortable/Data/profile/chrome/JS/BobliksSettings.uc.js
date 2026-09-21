@@ -877,7 +877,7 @@
         // «ЧТЕНИЕ / Принудительный тёмный» снесено 2026-09-13: тёмный режим
         // сайтов делает Dark Reader (ставится политикой), наш инверт удалён
         sub('DNS-ЗАЩИТА');
-        const trrMode = Services.prefs.getIntPref('network.trr.mode', 2);
+        const trrMode = Services.prefs.getIntPref('network.trr.mode', 0);
         const trrUri = Services.prefs.getStringPref('network.trr.uri', 'https://cloudflare-dns.com/dns-query');
         const DNS_LIST = [
           { id: 'cloudflare', label: 'Cloudflare (скорость)' },

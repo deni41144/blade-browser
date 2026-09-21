@@ -177,11 +177,9 @@ user_pref("browser.newtabpage.activity-stream.widgets.system.weather.enabled", f
 user_pref("browser.newtabpage.activity-stream.widgets.system.clocks.enabled", false);
 
 /* --- BLADE: шифрованный DNS (DoH) + ECH ---
-   Провайдер больше не видит, какие сайты ты открываешь (DNS уходит по HTTPS
-   в Cloudflare). Режим 2: DoH первым, при сбое фолбэк на системный DNS —
-   качество не теряется никогда. ECH прячет домен даже на рукопожатии TLS. */
-user_pref("network.trr.mode", 2);
-user_pref("network.trr.uri", "https://cloudflare-dns.com/dns-query");
+   DNS настраивается пользователем через меню "B" -> СИСТЕМА (по умолчанию выключен /
+   системный DNS). Выбор сохраняется в prefs.js и не сбрасывается при перезапуске.
+   ECH прячет домен даже на рукопожатии TLS. */
 user_pref("network.dns.echconfig.enable", true);
 user_pref("browser.aboutwelcome.enabled", false);
 

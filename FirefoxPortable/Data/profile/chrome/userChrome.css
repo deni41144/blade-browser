@@ -731,15 +731,17 @@ html|html[data-blade-theme="red"] #bobliks-settings-button .toolbarbutton-icon {
   animation: blade-live-blade-beat 2.8s ease-in-out infinite !important;
 }
 
-/* --- DEMONIC BLOOD: КРОВАВЫЙ ТУМАН — тёмно-багровая дымка дышит в тулбаре --- */
+/* --- DEMONIC BLOOD: КРОВАВЫЙ ТУМАН — тёмно-багровая дымка дышит в тулбаре + рубиновая лазерная грань --- */
 html|html[data-blade-theme="blood"] #navigator-toolbox::before {
-  background: radial-gradient(ellipse 85% 110% at 50% 55%, rgba(140, 10, 10, 0.55), transparent 75%) !important;
+  background: radial-gradient(ellipse 85% 110% at 50% 55%, rgba(180, 10, 25, 0.45), transparent 75%) !important;
   animation: blade-live-breathe 5s ease-in-out infinite !important;
 }
 html|html[data-blade-theme="blood"] #navigator-toolbox::after {
+  background-image: linear-gradient(90deg, transparent 0%, rgba(180, 10, 25, 0.3) 15%, #ff1a3c 50%, rgba(180, 10, 25, 0.3) 85%, transparent 100%) !important;
   animation: blade-live-breathe-strong 5s ease-in-out infinite !important;
 }
 html|html[data-blade-theme="blood"] #bobliks-settings-button .toolbarbutton-icon {
+  filter: drop-shadow(0 0 5px #ff1a3c) !important;
   animation: blade-live-button-breathe 5s ease-in-out infinite !important;
 }
 
@@ -754,6 +756,7 @@ html|html[data-blade-theme="purple"] #navigator-toolbox::after {
   animation: blade-live-neon-strong 7s linear infinite !important;
 }
 html|html[data-blade-theme="purple"] #bobliks-settings-button .toolbarbutton-icon {
+  filter: drop-shadow(0 0 4px #b44bff) !important;
   animation: blade-live-neon-btn 7s linear infinite !important;
 }
 
@@ -772,6 +775,9 @@ html|html[data-blade-theme="green"] #navigator-toolbox::after {
 }
 html|html[data-blade-theme="green"] #navigator-toolbox {
   box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
+}
+html|html[data-blade-theme="green"] #bobliks-settings-button .toolbarbutton-icon {
+  filter: drop-shadow(0 0 5px #00ff88) !important;
 }
 
 /* --- MINIMAL GREY: ПОЛИРОВАННАЯ СТАЛЬ — металлический отблеск тулбара,
@@ -802,6 +808,7 @@ html|html[data-blade-theme="orange"] #navigator-toolbox::after {
   animation: blade-live-ember-strong 3.4s linear infinite !important;
 }
 html|html[data-blade-theme="orange"] #bobliks-settings-button .toolbarbutton-icon {
+  filter: drop-shadow(0 0 5px #ff6a1f) !important;
   animation: blade-live-ember-btn 3.4s linear infinite !important;
 }
 
@@ -816,6 +823,7 @@ html|html[data-blade-theme="cherry"] #navigator-toolbox::after {
   animation: blade-live-cherry-strong 4s ease-in-out infinite !important;
 }
 html|html[data-blade-theme="cherry"] #bobliks-settings-button .toolbarbutton-icon {
+  filter: drop-shadow(0 0 5px #ff5c85) !important;
   animation: blade-live-cherry-btn 4s ease-in-out infinite !important;
 }
 
@@ -854,15 +862,22 @@ html|html[data-blade-theme="midnight"] #bobliks-settings-button[open] .toolbarbu
 
 /* --- VOLT YELLOW: ЭЛЕКТРИЧЕСТВО — импульс тока по линии, а пока печатешь
        в адресной строке — она гудит электричеством --- */
+html|html[data-blade-theme="volt"] #navigator-toolbox::before {
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255, 248, 32, 0.16), transparent 65%) !important;
+  animation: blade-live-volt-hum 3.6s ease-in-out infinite alternate !important;
+}
 html|html[data-blade-theme="volt"] #navigator-toolbox::after {
   right: auto !important;
   width: 30% !important;
   height: 4px !important;
-  background-image: linear-gradient(90deg, transparent, var(--accent), transparent) !important;
+  background-image: linear-gradient(90deg, transparent, #ffffff 45%, var(--accent) 55%, transparent) !important;
   animation: blade-beam-run 1.5s linear infinite !important;
 }
 html|html[data-blade-theme="volt"] #navigator-toolbox {
   box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
+}
+html|html[data-blade-theme="volt"] #bobliks-settings-button .toolbarbutton-icon {
+  filter: drop-shadow(0 0 3px #fff820) drop-shadow(0 0 6px rgba(255, 248, 32, 0.6)) !important;
 }
 
 /* Стоп-кадр на неактивном окне — ВЫКЛЮЧЕНО НАВСЕГДА (проверено дважды):
@@ -921,6 +936,10 @@ html|html:-moz-window-inactive #bobliks-settings-button .toolbarbutton-icon {
 @keyframes blade-live-button-breathe {
   0%, 100% { opacity: 0.82; }
   50%      { opacity: 1; }
+}
+@keyframes blade-live-volt-hum {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.85; }
 }
 @keyframes blade-live-neon {
   0%, 100% { opacity: 0.55; }
