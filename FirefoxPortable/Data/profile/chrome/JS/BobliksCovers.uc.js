@@ -124,7 +124,7 @@
         // ровно тот, что ставит BobliksSettings; имя в url() — URI-экранировано
         const safe = window.Blade.bgPrefId(name);
         const encodedName = encodeURI(name);
-        const BGSTYLE = 'background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/' + encodedName + '") center bottom / cover no-repeat fixed !important;';
+        const BGSTYLE = 'background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/' + encodedName + '") center bottom / cover no-repeat fixed !important;';
         // :root body... специфичностью (0,2,1) бьёт дефолт bg_acheron (0,1,1)
         // из userContent.css — раньше кастом проигрывал каскад (раунд 23)
         lines.push('@media -moz-pref("bobliks.bg.' + safe + '") { :root body.activity-stream { ' + BGSTYLE + ' } }');

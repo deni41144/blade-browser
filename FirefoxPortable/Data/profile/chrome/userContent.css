@@ -306,7 +306,7 @@
   }
 
   body.activity-stream {
-    background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_acheron.jpg") center bottom / cover no-repeat fixed !important;
+    background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_acheron.jpg") center bottom / cover no-repeat fixed !important;
     scrollbar-width: none !important;
   }
 
@@ -316,61 +316,61 @@
      Порядок обязателен: блоки ниже базового правила, чтобы побеждать его. */
   @media -moz-pref("bobliks.bg.inferno") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.cherrybg") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_cherry.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_cherry.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.bloodmoon") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_bloodmoon.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_bloodmoon.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.midnight") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_midnight.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_midnight.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.violet") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_violet.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_violet.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.toxic") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_toxic.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_toxic.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.ashen") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ashen.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ashen.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.voltbg") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.ember") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.blade") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
@@ -378,55 +378,55 @@
      url() инлайном — в var() относительный путь разрешался бы от документа. */
   @media -moz-pref("bobliks.bg.v2red") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_red.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_red.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2blood") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_blood.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_blood.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2cherry") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_cherry.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_cherry.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2midnight") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_midnight.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_midnight.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2violet") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_violet.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_violet.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2toxic") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_toxic.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_toxic.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2ashen") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ashen.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_ashen.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2ember") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ember.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_ember.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
   @media -moz-pref("bobliks.bg.v2volt") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_volt.jpg") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_volt.jpg") center bottom / cover no-repeat fixed !important;
     }
   }
 
@@ -436,7 +436,7 @@
      с тем же именем — код не меняется. Кейфреймы Pulse/Flow — наверху файла. */
   @media -moz-pref("bobliks.bg.emberflow") {
     body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important;
+      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important;
     }
   }
 
@@ -491,28 +491,28 @@
      пересчёт стилей работает всегда, даже когда -moz-pref замерз.
      Специфичность (0,2,2) бьёт преф-блоки выше. Acheron тоже нужен дубль:
      если преф-система застряла с чужим фоном, только он возвращает дефолт. */
-  :root[data-blade-bg="acheron"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_acheron.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="inferno"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="cherrybg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_cherry.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="bloodmoon"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_bloodmoon.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="midnight"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_midnight.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="violet"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_violet.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="toxic"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_toxic.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ashen.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="voltbg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="blade"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="acheron"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_acheron.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="inferno"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="cherrybg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_cherry.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="bloodmoon"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_bloodmoon.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="midnight"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_midnight.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="violet"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_violet.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="toxic"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_toxic.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ashen.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="voltbg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="blade"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important; }
   /* [2026-09-15] Атрибутные дубли фонов V2 для живого переключения через data-blade-bg без задержек префов */
-  :root[data-blade-bg="v2red"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_red.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2blood"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_blood.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2cherry"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_cherry.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2midnight"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_midnight.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2violet"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_violet.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2toxic"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_toxic.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ashen.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_ember.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="v2volt"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_v2_volt.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="emberflow"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2red"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_red.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2blood"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_blood.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2cherry"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_cherry.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2midnight"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_midnight.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2violet"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_violet.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2toxic"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_toxic.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_ashen.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_ember.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="v2volt"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_volt.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="emberflow"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="pulse"] body.activity-stream { background: #060404 !important; scrollbar-width: none !important; }
   :root[data-blade-bg="pulse"] body.activity-stream::before {
     content: "";

@@ -135,7 +135,7 @@
             st.id = 'blade-custom-bg-style';
             doc.documentElement.appendChild(st);
           }
-          st.textContent = 'body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/' + b.file + '") center bottom / cover no-repeat fixed !important; }';
+          st.textContent = 'body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/' + b.file + '") center bottom / cover no-repeat fixed !important; }';
         } else if (st) {
           st.remove();
         }
@@ -192,7 +192,7 @@
           f.append(bg.file);
           if (f.exists()) {
             cssText += ' @-moz-document url("about:home"), url("about:newtab") { body.activity-stream { ' +
-              'background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), ' +
+              'background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), ' +
               '#0a0a0a url("' + PathUtils.toFileURI(f.path) + '") center bottom / cover no-repeat fixed !important; } }';
             bgNote = ' bg=' + bg.id;
           }
@@ -364,7 +364,7 @@
         const fileUri = PathUtils.toFileURI(file.path);
         const cssText = '@-moz-document url("about:home"), url("about:newtab") { ' +
           ':root body.activity-stream { ' +
-          'background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), ' +
+          'background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), ' +
           '#0a0a0a url("' + fileUri + '") center bottom / cover no-repeat fixed !important; } }';
         const sheetUri = Services.io.newURI('data:text/css,' + encodeURIComponent(cssText), null, null);
         if (!SSS.sheetRegistered(sheetUri, SSS.USER_SHEET)) {
