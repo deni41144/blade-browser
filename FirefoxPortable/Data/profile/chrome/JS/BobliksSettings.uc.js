@@ -1069,18 +1069,9 @@
       return popup;
     }
     // Синхронизация Blade Reader и выделения при старте (THEMES уже объявлен)
+    // Авто-тема день/ночь вынесена в BladeAutoTheme.uc.js v1.0.0 (@loadOrder 12)
+    // — внешний клиент API: читает data-blade-theme, переключает setTheme()
     // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: АВТО-ТЕМА — день/ночь по префам (60с через реестр BladeCore)
-    // ═══════════════════════════════════════════════════════════════════
-    function autoThemeTick() {
-      try {
-        if (!Services.prefs.getBoolPref('blade.autotheme.on', false)) return;
-        const hour = new Date().getHours();
-        const prefName = (hour >= 8 && hour < 20) ? 'blade.autotheme.day' : 'blade.autotheme.night';
-        const target = Services.prefs.getStringPref(prefName, prefName === 'blade.autotheme.day' ? 'grey' : 'blood');
-        if (activeTheme() !== target) setTheme(target);
-      } catch (e) { mark('ERR autoTheme ' + e); }
-    }
 
     // СЕКЦИЯ: INIT — стартовая последовательность (ПОРЯДОК ВАЖЕН, риск 7)
     // reader->selection->themeSheet->liveAttrs->customBgSheet->seeding->docObs->виджет->keyset. Каждый блок — try с mark-диагностикой.
@@ -1365,13 +1356,7 @@
     // Каждое окно циклит само (как и прочая живая синхронизация файла);
     // setTheme идемпотентен — гонки между окнами безвредны.
     // ═══════════════════════════════════════════════════════════════════
-    autoThemeTick();
-    // Авто-тема: интервал через реестр BladeCore (2.0), ручной unload срезан
-    if (window.Blade && window.Blade.every) Blade.every(autoThemeTick, 60e3);
-    else {
-      const autoThemeTimer = setInterval(autoThemeTick, 60e3);
-      window.addEventListener('unload', () => { clearInterval(autoThemeTimer); }, { once: true });
-    }
+    // Авто-тема (циклер день/ночь) — BladeAutoTheme.uc.js (@loadOrder 12)
 
     // ---- API для будущей командной палитры (по образцу window.BladeUpdater) ----
     // Гварда не нужно: fx-autoconfig запускает скрипт один раз на окно, а при

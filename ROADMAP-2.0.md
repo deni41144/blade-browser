@@ -134,7 +134,13 @@
             локализирован. Верификация: node --check OK; live: Пульс GREEN
             (10/10), `BladeWindowFx_mark` = `v1.0.0 OK idle`. Скрин:
             TestReports\eyes-20260913-054318\02-step2-windowfx.png
-      - [ ] Шаг 3 — BladeAutoTheme (циклер день/ночь)
+      - [x] **Шаг 3 — BladeAutoTheme.uc.js 1.0.0** (2026-09-22): циклер вынесен
+            как внешний клиент API — текущую тему читает из `data-blade-theme`,
+            переключает `window.BladeSettings.setTheme()`, при отсутствии API
+            пишет `NO_API` и тихо завершается. Монолит 1401→1387.
+            **Функциональный тест:** `blade.autotheme.on=true` + 11:00 →
+            `bobliks.theme.grey: true` в prefs.js (дневная тема применилась).
+            Пульс GREEN. Тестовый преф возвращён в false
       - [ ] Шаг 4 — BladeSystemTools (бэкап, notify, DoH, RAM) — НЮАНС: действия
             DNS/RAM встроены в клик-диспетчер (строки ~1017–1036), чистый вынос
             возможен только для notifyBlade+launchBackup, остальное — со шагом 8
