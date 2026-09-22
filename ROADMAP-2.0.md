@@ -127,7 +127,13 @@
             **Визуальный рейд: скрин TestReports\eyes-20260913-054318\
             01-step1-housekeeping.png — нужен просмотр владельца (у агента
             нет vision в этой сессии).**
-      - [ ] Шаг 2 — BladeWindowFx (лазер, ghost, splash, idle, PiP)
+      - [x] **Шаг 2 — BladeWindowFx.uc.js 1.0.0** (2026-09-22): вынесены лазерный
+            луч загрузки, ghost-карточка, сплеш старта, заставка простоя.
+            Монолит 1644→1401 (−243). PiP-неон ОСТАВЛЕН в монолите — встроен в
+            `docObs` (параллельно делает applyLiveAttrs); `getImgDir`
+            локализирован. Верификация: node --check OK; live: Пульс GREEN
+            (10/10), `BladeWindowFx_mark` = `v1.0.0 OK idle`. Скрин:
+            TestReports\eyes-20260913-054318\02-step2-windowfx.png
       - [ ] Шаг 3 — BladeAutoTheme (циклер день/ночь)
       - [ ] Шаг 4 — BladeSystemTools (бэкап, notify, DoH, RAM) — НЮАНС: действия
             DNS/RAM встроены в клик-диспетчер (строки ~1017–1036), чистый вынос
