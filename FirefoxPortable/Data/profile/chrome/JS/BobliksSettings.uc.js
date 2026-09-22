@@ -8,17 +8,14 @@
 // ═══════════════════════════════════════════════════════════════════════
 // КАРТА ФАЙЛА (Волна 2 «Blade Studio», разметка по карте Analyst):
 //   CORE — контракт/диагностика/версия/CUI (26)
-//   ДАННЫЕ — THEMES/DNS/BGS/VISAGES константы (92)
-//   THEMES: каталог и живые доки (105)
-//   THEMES: щит и переключение (216)
-//   BGS: щит фона + setBg (598)
-//   VISAGES — пресеты «тема+фон» (651)
-//   SYSTEM — уведомления, бэкап (720)
-//   MENU — рендер/dispatcher/виджет/клавиши (759)
-//   INIT — стартовая последовательность (порядок важен) (1091)
-//   АВТО-ТЕМА — день/ночь (1079)
-//   API — window.BladeSettings (1659)
-//   ФИНАЛ — mark/catch (1673)
+//   ДАННЫЕ — THEMES/DNS константы (92)
+//   THEMES+BGS — вынесены в BladeThemeEngine.uc.js v1.0.0 (@loadOrder 8, 103)
+//   VISAGES — вынесены в BladeVisages.uc.js v1.0.0 (@loadOrder 12, 119)
+//   SYSTEM — уведомления/бэкап вынесены в BladeSystemTools.uc.js v1.0.0 (128)
+//   MENU — CSS, вкладки, рендер, dispatcher, виджет, клавиши (136)
+//   INIT — boot()->плитки->docObs->виджет->keyset (порядок важен) (453)
+//   API — window.BladeSettings: делегирует в движок (743)
+//   ФИНАЛ — mark/catch (765)
 // Риски 1-10 и план полной неймспейс-декомпозиции — ROADMAP-2.0.md раздел 10.
 // ═══════════════════════════════════════════════════════════════════════
 (function () {
@@ -89,8 +86,9 @@
     // Массив тем живёт в BladeCore (единый источник для Settings/ChromeStyle;
     // там же поле selFg — цвет текста выделения на акценте)
     // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: ДАННЫЕ — темы, DoH, фоны, облики (общие константы)
-    // THEMES/DNS_URI/BUILTIN_BGS/BLADE_VISAGES — единственный источник: BladeCore
+    // СЕКЦИЯ: ДАННЫЕ — темы, DoH (общие константы)
+    // THEMES/DNS_URI — единственный источник: BladeCore. Каталоги фонов
+    // (BUILTIN_BGS) уехали вместе с движком в BladeThemeEngine.uc.js
     // ═══════════════════════════════════════════════════════════════════
     const THEMES = window.Blade.themes;
     // DoH-провайдеры для секции DNS-ЗАЩИТА (mode 2: TRR-first, фолбэк на системный DNS)
@@ -99,360 +97,21 @@
       adguard:    'https://dns.adguard-dns.com/dns-query',
       quad9:      'https://dns.quad9.net/dns-query',
     };
-    // Системный цвет выделения в полях ввода (urlbar, формы на сайтах):
-    // CSS ::selection их не перебивает, а этот преф — да. Синхронизируем с темой.
     // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: THEMES: ВЫДЕЛЕНИЕ + СПИСОК ФОНОВ + КАТАЛОГ
-    // syncSelectionPrefs..applyBgToDoc. ВНИМАНИЕ (риск 1): applyLiveAttrs ниже зовёт activeBg/applyBgToDoc — цикл Themes<->Bgs
+    // СЕКЦИЯ: THEMES+BGS — ВЫНЕСЕНА в BladeThemeEngine.uc.js v1.0.0
+    // (@loadOrder 8 — грузится детерминированно РАНЬШЕ этого скрипта;
+    // API window.BladeEngine). Каталоги фонов, цветная математика кастомной
+    // темы, тематический щит USER_SHEET, живые data-атрибуты, setTheme/setBg
+    // и стартовая раскраска boot(). Монолит зовёт boot() в INIT; цикл
+    // setTheme <-> setBg остался внутри модуля — данные локальны (риск 1
+    // переехал вместе с кодом; разрыв через шину отменён — async-риск без
+    // выигрыша, подробнее ROADMAP-2.0 шаг 7). Контракт window.BladeSettings
+    // делегирует в движок — BladeThemeLab/BladeVisages/BladePalette/
+    // BladeAutoTheme не замечают переезда.
+    // THEMES — контракт BladeCore — читается здесь напрямую: buildPopup и
+    // keyset работают с сырым массивом (.pref/.accent/.page), как и раньше.
     // ═══════════════════════════════════════════════════════════════════
-    function syncSelectionPrefs(themeId) {
-      const t = THEMES.find(x => x.id === themeId) || THEMES[0];
-      const accent = (themeId === 'custom') ? getCustomColor() : t.accent;
-      try {
-        Services.prefs.setStringPref('ui.textSelectBackground', accent);
-        Services.prefs.setStringPref('ui.textSelectForeground', '#ffffff');
-      } catch (e) { mark('ERR selSync ' + e); }
-    }
-    const BUILTIN_BGS = window.Blade.builtinBgs;
-    // BLADE_VISAGES + userVisage/allVisages/applyVisage/saveVisage вынесены в
-    // BladeVisages.uc.js v1.0.0 (@loadOrder 12, API window.BladeVisages)
-    function getImgDir() {
-      const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
-      d.append('img');
-      return d;
-    }
-    // --- СВОИ ОБОИ (раунд 22): автоскан chrome/img/ — любой jpg/png/webp/gif/avif
-    // попадает в меню. Преф-имя файла санитизируется (file_<safe>) — правила
-    // генерит BobliksCovers в covers.css, контентный процесс их прочитает ---
-    function bgPrefId(fileName) {
-      // Реализация в BladeCore — единый хэш для Settings и Covers
-      return window.Blade.bgPrefId(fileName);
-    }
-    // Кэш на окно: скан chrome/img/ вызывается из getAllBgs() при каждом
-    // открытии меню и из applyThemeSheet. Инвалидация — через
-    // window.BladeSettings.invalidateBgCache() из BladeVisages после копирования
-    // нового файла
-    let customBgsCache = null;
-    function getCustomBgs() {
-      if (customBgsCache) return customBgsCache;
-      const customs = [];
-      try {
-        const dir = getImgDir();
-        if (!dir.exists() || !dir.isDirectory()) return customs;
-        const builtin = new Set(BUILTIN_BGS.filter(x => x.file).map(x => x.file.toLowerCase()));
-        builtin.add('btn_blade.png');
-        builtin.add('current_bg.jpg'); // мёртвый артефакт старого механизма
-        const iter = dir.directoryEntries;
-        while (iter.hasMoreElements()) {
-          const entry = iter.getNext().QueryInterface(Ci.nsIFile);
-          if (entry.isDirectory()) continue;
-          const name = entry.leafName;
-          if (!/[.](jpg|jpeg|png|webp|avif|gif)$/i.test(name)) continue;
-          if (builtin.has(name.toLowerCase())) continue;
-          const clean = name.replace(/[.][^.]+$/, '').replace(/^bg_/, '').replace(/[-_]+/g, ' ').trim();
-          const label = clean.length > 22 ? clean.slice(0, 20) + '…' : clean;
-          customs.push({
-            id: 'file:' + name,
-            label: '📁 ' + (label || name),
-            file: name,
-            isCustom: true,
-            prefId: bgPrefId(name)
-          });
-        }
-      } catch (e) { mark('ERR getCustomBgs ' + e); }
-      customBgsCache = customs;
-      return customs;
-    }
-    function getAllBgs() {
-      return BUILTIN_BGS.concat(getCustomBgs());
-    }
-    function activeTheme() {
-      // Последняя истинная по массиву — как в CSS-каскаде, где побеждает
-      // последний @media -moz-pref-блок (v1.8)
-      let id = 'red';
-      for (const t of THEMES) { if (t.pref && Services.prefs.getBoolPref(t.pref, false)) id = t.id; }
-      return id;
-    }
-    function activeBg() {
-      const saved = Services.prefs.getStringPref('bobliks.bg.current', '');
-      if (getAllBgs().some(x => x.id === saved)) return saved;
-      return 'acheron';
-    }
-    // Живое внедрение кастомного фона (если newtab в родительском процессе;
-    // для удалённой вкладки правила уже сгенерены в covers.css — сработают
-    // после перезапуска, преф переключается живьём)
-    function applyBgToDoc(doc, bgId) {
-      try {
-        if (!doc || !doc.documentElement) return;
-        let st = doc.getElementById('blade-custom-bg-style');
-        const b = getAllBgs().find(x => x.id === bgId);
-        if (b && b.isCustom && b.file) {
-          if (!st) {
-            st = doc.createElement('style');
-            st.id = 'blade-custom-bg-style';
-            doc.documentElement.appendChild(st);
-          }
-          st.textContent = 'body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), #0a0a0a url("img/' + b.file + '") center bottom / cover no-repeat fixed !important; }';
-        } else if (st) {
-          st.remove();
-        }
-      } catch (e) {}
-    }
-    // --- СВОЯ ТЕМА: генерация всех переменных из одного базового цвета ---
-    // Тематический щит (v1.8, обобщение кастомного канала v1.6 на ВСЕ темы):
-    // переменные --bob-* активной темы регистрируются USER_SHEET'ом БЕЗ
-    // @media-обёртки — перерегистрация листа принудительно рестайлит все
-    // документы во всех процессах, включая remote-контент (newtab, сайты,
-    // about:-страницы), до которого -moz-pref() в userContent.css не
-    // доезжает без перезапуска. Снятие + повторная регистрация того же
-    // листа и есть «перекрасить» (идемпотентно).
-    let currentThemeSheetUri = null;
-    // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: THEMES: ЩИТ И ЖИВОЕ ПЕРЕКЛЮЧЕНИЕ
-    // applyThemeSheet(USER_SHEET)/customVars/applyCustomToDoc/newtabDocs/applyLiveAttrs/setTheme. applyThemeSheet читает getAllBgs (риск 1); setTheme эмитит theme:changed в шину (BladeSounds шинг). openThemeLab → BladeThemeLab.uc.js v1.0.0 (шаг 5)
-    // ═══════════════════════════════════════════════════════════════════
-    function applyThemeSheet(themeId) {
-      try {
-        const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
-        if (currentThemeSheetUri) {
-          if (SSS.sheetRegistered(currentThemeSheetUri, SSS.USER_SHEET)) {
-            SSS.unregisterSheet(currentThemeSheetUri, SSS.USER_SHEET);
-          }
-          currentThemeSheetUri = null;
-        }
-        const t = THEMES.find(x => x.id === themeId) || THEMES[0];
-        let accent, page;
-        if (themeId === 'custom') {
-          accent = getCustomColor();
-          if (!/^#[0-9a-fA-F]{6}$/.test(accent)) return;
-          page = customVars(accent)['--bob-page'];
-        } else {
-          accent = t.accent;
-          page = t.page || '#0a0a0c';
-        }
-        const rgb = hexToRgb(accent);
-        const rgbStr = rgb.join(', ');
-        const contrast = (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) > 150 ? '#0a0a0c' : '#fff';
-        let cssText = ':root { ' +
-          '--bob-accent: ' + accent + ' !important;' +
-          ' --bob-accent-rgb: ' + rgbStr + ' !important;' +
-          ' --bob-accent-contrast: ' + contrast + ' !important;' +
-          ' --bob-page: ' + page + ' !important; }';
-        // Фон newtab в тот же щит: только встроенным фонам с файлом; URL —
-        // абсолютный file:// (относительный url() в data:-листе не
-        // разрешается). Кастомные обои красит отдельный applyCustomBgSheet,
-        // CSS-анимации (pulse/flow) живут только в userContent.css.
-        let bgNote = '';
-        const bg = getAllBgs().find(x => x.id === activeBg());
-        if (bg && !bg.isCustom && bg.file) {
-          const f = getImgDir();
-          f.append(bg.file);
-          if (f.exists()) {
-            cssText += ' @-moz-document url("about:home"), url("about:newtab") { body.activity-stream { ' +
-              'background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), ' +
-              '#0a0a0a url("' + PathUtils.toFileURI(f.path) + '") center bottom / cover no-repeat fixed !important; } }';
-            bgNote = ' bg=' + bg.id;
-          }
-        }
-        const uri = Services.io.newURI('data:text/css,' + encodeURIComponent(cssText), null, null);
-        if (!SSS.sheetRegistered(uri, SSS.USER_SHEET)) SSS.loadAndRegisterSheet(uri, SSS.USER_SHEET);
-        currentThemeSheetUri = uri;
-        mark('OK themeSheet ' + themeId + bgNote);
-      } catch (e) { mark('ERR themeSheet ' + e); }
-    }
-    function getCustomColor() {
-      try { return Services.prefs.getStringPref('blade.theme.customColor', '#ff2a2a'); }
-      catch (e) { return '#ff2a2a'; }
-    }
-    function hexToRgb(hex) {
-      const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '').trim());
-      if (!m) return [255, 42, 42];
-      const n = parseInt(m[1], 16);
-      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-    }
-    function customVars(color) {
-      const rgb = hexToRgb(color);
-      const c = rgb.map(x => x / 255);
-      const mx = Math.max(c[0], c[1], c[2]), mn = Math.min(c[0], c[1], c[2]);
-      let h = 0;
-      if (mx !== mn) {
-        const d = mx - mn;
-        if (mx === c[0]) h = ((c[1] - c[2]) / d + 6) % 6;
-        else if (mx === c[1]) h = (c[2] - c[0]) / d + 2;
-        else h = (c[0] - c[1]) / d + 4;
-        h = Math.round(h * 60);
-      }
-      const lum = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
-      customVars._selText = lum > 0.65 ? '#000000' : '#ffffff';
-      return {
-        '--accent': color,
-        '--accent-soft': 'rgba(' + rgb.join(', ') + ', 0.35)',
-        '--bg': 'hsl(' + h + ', 22%, 4%)',
-        '--panel': 'hsl(' + h + ', 22%, 8%)',
-        '--panel-hover': 'hsl(' + h + ', 22%, 13%)',
-        '--text': 'hsl(' + h + ', 15%, 92%)',
-        '--bob-accent': color,
-        '--bob-page': 'hsl(' + h + ', 22%, 4%)'
-      };
-    }
-    // Ставит/снимает кастомные переменные + ::selection на документе
-    function applyCustomToDoc(doc, color) {
-      try {
-        const el = doc.documentElement;
-        if (!el) return;
-        for (const p of ['--accent', '--accent-soft', '--bg', '--panel', '--panel-hover', '--text',
-                         '--bob-accent', '--bob-page']) {
-          el.style.removeProperty(p);
-        }
-        let st = doc.getElementById('blade-custom-sel');
-        if (color) {
-          const v = customVars(color);
-          for (const k of Object.keys(v)) el.style.setProperty(k, v[k]);
-          if (!st) {
-            st = doc.createElement('style');
-            st.id = 'blade-custom-sel';
-            el.appendChild(st);
-          }
-          st.textContent = '::selection, input::selection, textarea::selection, ' +
-            '#urlbar-input::selection, .urlbar-input::selection { background-color: ' + color +
-            ' !important; color: ' + customVars._selText + ' !important; }';
-        } else if (st) {
-          st.remove();
-        }
-      } catch (e) {}
-    }
-    // --- ЖИВОЕ ПЕРЕКЛЮЧЕНИЕ ЧЕРЕЗ АТРИБУТЫ -----------------------------------
-    // -moz-pref() в юзер-стилях иногда замерзает до перезапуска: префы меняются,
-    // а стили не переоцениваются («фоны и темы перестают меняться»). Атрибут на
-    // документе триггерит обычный пересчёт стилей — работает всегда. Префы
-    // остаются источником правды для холодного старта; в CSS лежат дубли на
-    // [data-blade-theme] / [data-blade-bg] с большей специфичностью.
-    function newtabDocs() {
-      // Обходим ВСЕ окна браузера (Gemini раунд 10) и берём currentURI:
-      // у <browser> нет documentURI — старый вариант всегда возвращал []
-      const docs = [];
-      try {
-        const wins = Services.wm.getEnumerator('navigator:browser');
-        while (wins.hasMoreElements()) {
-          const w = wins.getNext();
-          if (!w.gBrowser) continue;
-          for (const tab of w.gBrowser.tabs) {
-            const b = tab.linkedBrowser;
-            if (!b) continue;
-            try {
-              const spec = b.currentURI ? b.currentURI.spec : '';
-              if (/^about:(newtab|home)/.test(spec) && !b.isRemoteBrowser && b.contentDocument) {
-                docs.push(b.contentDocument);
-              }
-            } catch (e) {}
-          }
-        }
-      } catch (e) {}
-      return docs;
-    }
-    function applyLiveAttrs() {
-      try {
-        const theme = activeTheme();
-        const bg = activeBg();
-        const customColor = (theme === 'custom') ? getCustomColor() : null;
-        // интерфейс: все открытые окна браузера (#main-window = :root)
-        try {
-          const wins = Services.wm.getEnumerator('navigator:browser');
-          while (wins.hasMoreElements()) {
-            const w = wins.getNext();
-            try {
-              w.document.documentElement.setAttribute('data-blade-theme', theme);
-              applyCustomToDoc(w.document, customColor);
-            } catch (e) {}
-          }
-        } catch (e) {}
-        // открытые новые вкладки: в FF155 они remote, цикл практически пуст —
-        // контент красит тематический щит applyThemeSheet
-        for (const d of newtabDocs()) {
-          try {
-            d.documentElement.setAttribute('data-blade-theme', theme);
-            d.documentElement.setAttribute('data-blade-bg', bg);
-            applyCustomToDoc(d, customColor);
-            applyBgToDoc(d, bg);
-          } catch (e) {}
-        }
-      } catch (e) { mark('ERR liveAttrs ' + e); }
-    }
-    // --- КОНСТРУКТОР ТЕМ: вынесен в BladeThemeLab.uc.js v1.0.0
-    //     (@loadOrder 12, API window.BladeThemeLab.open). Цветная математика
-    //     (customVars/hexToRgb/applyCustomToDoc/getCustomColor/applyLiveAttrs)
-    //     осталась здесь и уйдёт в BladeThemeEngine (шаг 7) ---
-    function setTheme(themeId) {
-      for (const t of THEMES) { if (t.pref) Services.prefs.clearUserPref(t.pref); }
-      const t = THEMES.find(x => x.id === themeId);
-      if (t && t.pref) Services.prefs.setBoolPref(t.pref, true);
-      syncSelectionPrefs(themeId);
-      applyLiveAttrs();
-      // Тематический щит — для ЛЮБОЙ темы, включая red: единственный живой
-      // канал до remote-контента (newtab, скроллбары сайтов, about:-страницы)
-      applyThemeSheet(themeId);
-      // Звуковая волна 2.0: объявляем смену темы в шину — BladeSounds играет
-      // шинг тембра новой темы (data-blade-theme уже обновлён выше)
-      try {
-        if (window.Blade && window.Blade.bus) window.Blade.bus.emit('theme:changed', themeId);
-      } catch (e) {}
-    }
-    // Живой фон через nsIStyleSheetService USER_SHEET (раунд 23): новая
-    // вкладка удалённая, DOM не дотянуться — а юзер-щит доходит до контентного
-    // процесса и применяется МГНОВЕННО, без перезапуска
-    let currentCustomBgUri = null;
-    // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: BGS: ЩИТ ФОНА + SETBG
-    // applyCustomBgSheet/setBg. setBg зовёт applyThemeSheet (риск 1)
-    // ═══════════════════════════════════════════════════════════════════
-    function applyCustomBgSheet(fileLeafName) {
-      try {
-        const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
-        if (currentCustomBgUri) {
-          if (SSS.sheetRegistered(currentCustomBgUri, SSS.USER_SHEET)) {
-            SSS.unregisterSheet(currentCustomBgUri, SSS.USER_SHEET);
-          }
-          currentCustomBgUri = null;
-        }
-        if (!fileLeafName) return;
-        const file = getImgDir();
-        file.append(fileLeafName);
-        if (!file.exists()) return;
-        const fileUri = PathUtils.toFileURI(file.path);
-        const cssText = '@-moz-document url("about:home"), url("about:newtab") { ' +
-          ':root body.activity-stream { ' +
-          'background: linear-gradient(180deg, rgba(10,10,12,0.55) 0%, rgba(10,10,12,0.22) 45%, rgba(10,10,12,0.45) 100%), ' +
-          '#0a0a0a url("' + fileUri + '") center bottom / cover no-repeat fixed !important; } }';
-        const sheetUri = Services.io.newURI('data:text/css,' + encodeURIComponent(cssText), null, null);
-        if (!SSS.sheetRegistered(sheetUri, SSS.USER_SHEET)) {
-          SSS.loadAndRegisterSheet(sheetUri, SSS.USER_SHEET);
-        }
-        currentCustomBgUri = sheetUri;
-        mark('OK customBgSheet ' + fileLeafName);
-      } catch (e) { mark('ERR customBgSheet ' + e); }
-    }
-    function setBg(bgId) {
-      const b = getAllBgs().find(x => x.id === bgId);
-      if (!b) return;
-      // CSS-фоны (file: null) идут мимо файлов — им нужен только преф
-      if (b.file) {
-        const src = getImgDir().clone(); src.append(b.file);
-        if (!src.exists()) { mark('FAIL no file ' + b.file); return; }
-      }
-      // Префы — источник правды; правила кастомных генерит BobliksCovers
-      Services.prefs.setStringPref('bobliks.bg.current', bgId);
-      for (const x of BUILTIN_BGS) Services.prefs.clearUserPref('bobliks.bg.' + x.id);
-      for (const x of getCustomBgs()) Services.prefs.clearUserPref('bobliks.bg.' + x.prefId);
-      if (bgId !== 'acheron') {
-        Services.prefs.setBoolPref('bobliks.bg.' + (b.isCustom ? b.prefId : bgId), true);
-      }
-      // Кастомный — мгновенно через юзер-щит; штатный — снять юзер-щит
-      applyCustomBgSheet(b.isCustom && b.file ? b.file : null);
-      applyLiveAttrs();
-      // перегенерировать тематический щит: в нём же правило фона newtab
-      applyThemeSheet(activeTheme());
-      mark('OK setBg=' + bgId);
-    }
+
     // --- ОБЛИКИ КЛИНКА: пресеты «тема + фон» одним кликом ---
     // ═══════════════════════════════════════════════════════════════════
     // СЕКЦИЯ: VISAGES — вынесена в BladeVisages.uc.js v1.0.0
@@ -552,7 +211,7 @@
         body.appendChild(r);
       };
       if (tab === 'theme') {
-        const curTheme = activeTheme();
+        const curTheme = window.BladeEngine.activeTheme();
         for (const t of THEMES) {
           row(t.label, { bobliksTheme: t.id }, { on: curTheme === t.id, chip: t.accent });
         }
@@ -560,7 +219,7 @@
         // ОБЛИКИ: готовое сочетание «тема + фон» одним кликом; «Мой Облик»
         // появляется только после первого сохранения
         sub('ОБЛИКИ');
-        const curBgV = activeBg();
+        const curBgV = window.BladeEngine.activeBg();
         for (const v of window.BladeVisages.allVisages()) {
           row(v.label, { bladeVisage: v.id }, { on: (curTheme === v.theme && curBgV === v.bg) });
         }
@@ -575,8 +234,8 @@
         row('Тема дня: ' + autoLbl(Services.prefs.getStringPref('blade.autotheme.day', 'grey')), { bladeAutoDay: '1' });
         row('Тема ночи: ' + autoLbl(Services.prefs.getStringPref('blade.autotheme.night', 'blood')), { bladeAutoNight: '1' });
       } else if (tab === 'bg') {
-        const curBg = activeBg();
-        for (const b of getAllBgs()) {
+        const curBg = window.BladeEngine.activeBg();
+        for (const b of window.BladeEngine.getAllBgs()) {
           row(b.label, { bobliksBg: b.id }, { on: curBg === b.id });
         }
         row('+ Выбрать свой файл обоев…', { bladePickBg: '1' }, { noDot: true });
@@ -708,9 +367,9 @@
             if (Services.prefs.getBoolPref('blade.autotheme.on', false)) {
               Services.prefs.setBoolPref('blade.autotheme.on', false);
             }
-            setTheme(ds.bobliksTheme);
+            window.BladeEngine.setTheme(ds.bobliksTheme);
           }
-          else if (ds.bobliksBg) { await setBg(ds.bobliksBg); }
+          else if (ds.bobliksBg) { await window.BladeEngine.setBg(ds.bobliksBg); }
           else if (ds.bladeVisage) { try { window.BladeVisages.applyVisage(ds.bladeVisage); } catch (e) { mark('ERR visage ' + e); } }
           else if (ds.bladeVisageSave === '1') { try { window.BladeVisages.saveVisage(); } catch (e) { mark('ERR visageSave ' + e); } }
           else if (ds.bobliksEdit === 'on') { Services.prefs.setBoolPref('bobliks.dial.edit', true); }
@@ -769,7 +428,7 @@
           else if (ds.bladeLab) { close = true; window.BladeThemeLab.open(); }
           else if (ds.bobliksFolder) {
             close = true;
-            try { getImgDir().launch(); } catch (e) { try { getImgDir().reveal(); } catch (e2) {} }
+            try { window.BladeEngine.getImgDir().launch(); } catch (e) { try { window.BladeEngine.getImgDir().reveal(); } catch (e2) {} }
           }
           else if (ds.bladeSupport) { close = true; window.openTrustedLinkIn('about:support', 'tab'); }
           else if (ds.bladeAbout) {
@@ -796,13 +455,13 @@
     // в BladeHousekeeping.uc.js (@loadOrder 12, свой mark-файл) — гоняется отдельным скриптом
     // ═══════════════════════════════════════════════════════════════════
     try {
-      // blade.reader.on снесён 2026-09-13 (Dark Reader); преференс сайтов
-      // остаётся «тёмный» — сайты с родной тёмной темой включают её сами
-      Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', 2);
-      const savedTheme = activeTheme();
-      syncSelectionPrefs(savedTheme);
-      applyThemeSheet(savedTheme);
-    } catch (e) { mark('ERR sync', e); }
+      // Движок тем/фонов грузится @loadOrder 8 — детерминированно раньше
+      // этого скрипта — и сам делает стартовую раскраску: override->
+      // selection->themeSheet->liveAttrs->customBgSheet (см. boot() в
+      // BladeThemeEngine.uc.js). fail-режим: движок не загрузился — браузер
+      // остаётся без темы, ERR boot пишется в mark (Pulse ловит виджет).
+      window.BladeEngine.boot();
+    } catch (e) { mark('ERR boot', e); }
 
     // About-стиль, verticalTabs, чистильщик вкладок, «Чистый лист» (меню +
     // закладки) вынесены в BladeHousekeeping.uc.js v1.0.0 (@loadOrder 12)
@@ -849,10 +508,13 @@
     // вставляются в контентном процессе и сюда не доходит; контент красит
     // тематический щит applyThemeSheet.
     try {
-      applyLiveAttrs();
-      // сохранённый кастомный фон — юзер-щит живёт только до перезапуска
-      const initBg = getAllBgs().find(x => x.id === activeBg());
-      if (initBg && initBg.isCustom && initBg.file) applyCustomBgSheet(initBg.file);
+      // Атрибуты живого переключения и старт юзер-щитов — в
+      // BladeThemeEngine.boot() (модуль @loadOrder 8 отработал раньше).
+      // Здесь остаётся только PiP-неон: observer на вставку документа.
+      // Ветка newtab удалена (v1.8): about:newtab всегда remote — её
+      // документы вставляются в контентном процессе и сюда не доходит;
+      // контент красит тематический щит движка.
+      const TE = window.BladeEngine;
       const docObs = (doc) => {
         try {
           if (!doc || !doc.documentElement) return;
@@ -862,9 +524,9 @@
           if (url.includes('pictureinpicture/player.xhtml')) {
             try {
               if (doc.getElementById('blade-pip-neon')) return;
-              const theme = activeTheme();
+              const theme = TE.activeTheme();
               const t = THEMES.find(x => x.id === theme) || THEMES[0];
-              const accent = (theme === 'custom') ? getCustomColor() : t.accent;
+              const accent = (theme === 'custom') ? TE.getCustomColor() : t.accent;
               const st = doc.createElement('style');
               st.id = 'blade-pip-neon';
               st.textContent =
@@ -1032,7 +694,7 @@
       const cycleTheme = (dir) => {
         const cur = THEMES.findIndex(t => t.pref && Services.prefs.getBoolPref(t.pref, false));
         const next = THEMES[((cur < 0 ? 0 : cur) + dir + THEMES.length) % THEMES.length];
-        setTheme(next.id);
+        window.BladeEngine.setTheme(next.id);
       };
       const keyset = window.document.getElementById('mainKeyset');
       if (keyset) {
@@ -1079,19 +741,32 @@
     // повторном запуске в том же окне ссылка просто перезапишется на свежие
     // функции того же скоупа — состояния не ломаются
     // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: API — window.BladeSettings (собирается ПОСЛЕ всех секций, риск 8)
+    // СЕКЦИЯ: API — window.BladeSettings: тонкая делегация (риск 8).
+    // Шаг 7: темы/фоны уехали в BladeThemeEngine.uc.js (@loadOrder 8) —
+    // каждый метод просто перенаправляет в window.BladeEngine. Внешние
+    // клиенты (BladeThemeLab/BladeVisages/BladePalette/BladeAutoTheme)
+    // работают через этот контракт и переезда не замечают. Реализация
+    // должна оставаться делегирующей стрелкой — прямой проброс указателя
+    // сломал бы все потребители, если бы движок не загрузился.
     // ═══════════════════════════════════════════════════════════════════
     window.BladeSettings = {
-      themes: () => THEMES.map(t => ({ id: t.id, label: t.label })),
-      bgs: () => getAllBgs().map(b => ({ id: b.id, label: b.label })),
-      setTheme, setBg,
-      // Внутренний контракт для BladeThemeLab (шаг 5): цветная математика
-      // конструктора. Шагом 7 уезжает вместе с кастомной темой в BladeThemeEngine
-      customVars, hexToRgb, applyCustomToDoc, applyLiveAttrs, getCustomColor,
-      // Внутренний контракт для BladeVisages (шаг 6): чтение текущих темы/фона,
-      // каталог img и инвалидация кэша скана. Шаг 7 — в BladeThemeEngine
-      activeTheme, activeBg, getImgDir,
-      invalidateBgCache: () => { customBgsCache = null; },
+      themes: () => window.BladeEngine.themes().map(t => ({ id: t.id, label: t.label })),
+      bgs: () => window.BladeEngine.getAllBgs().map(b => ({ id: b.id, label: b.label })),
+      setTheme: (id) => window.BladeEngine.setTheme(id),
+      setBg: (id) => window.BladeEngine.setBg(id),
+      // Цветная математика конструктора темы (клиент — BladeThemeLab, шаг 5)
+      customVars: (...a) => window.BladeEngine.customVars(...a),
+      hexToRgb: (...a) => window.BladeEngine.hexToRgb(...a),
+      applyCustomToDoc: (...a) => window.BladeEngine.applyCustomToDoc(...a),
+      applyLiveAttrs: () => window.BladeEngine.applyLiveAttrs(),
+      getCustomColor: () => window.BladeEngine.getCustomColor(),
+      // Чтение текущих темы/фона, каталог img, инвалидация кэша скана
+      // (клиент — BladeVisages, шаг 6)
+      activeTheme: () => window.BladeEngine.activeTheme(),
+      activeBg: () => window.BladeEngine.activeBg(),
+      getImgDir: () => window.BladeEngine.getImgDir(),
+      invalidateBgCache: () => window.BladeEngine.invalidateBgCache(),
+      // Облики — BladeVisages.uc.js v1.0.0 (шаг 6)
       visages: () => window.BladeVisages.allVisages().map(v => ({ id: v.id, label: v.label })),
       applyVisage: (id) => window.BladeVisages.applyVisage(id),
       saveVisage: () => window.BladeVisages.saveVisage(),

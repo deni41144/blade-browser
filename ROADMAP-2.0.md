@@ -165,8 +165,19 @@
             своего облика = `OK visage saved` + «Мой Облик» в списке.
             chooseCustomWallpaper не кликался (нативный файловый диалог).
             Монолит 1168→1105 строк
-      - [ ] Шаг 7 — BladeThemeEngine + BladeBgEngine (разрыв цикла Themes↔Bgs
-            через шину `theme:changed`) — ВЫСОКИЙ риск
+      - [x] Шаг 7 — BladeThemeEngine.uc.js v1.0.0 (2026-09-22): вынесен весь
+            кластер THEMES+BGS (354 строки) — каталоги фонов, цветная
+            математика, юзер-щиты, живые атрибуты, setTheme/setBg. Стартовая
+            последовательность переехала в `boot()`, монолит зовёт её первым в
+            INIT; @loadOrder 8 (раньше монолита). ОТМЕНА: разрыв цикла
+            Themes↔Bgs через шину `theme:changed` — цикл оставлен ВНУТРИ модуля
+            (данные локальны, шина добавила бы async-риск без выигрыша).
+            window.BladeSettings стал тонкой делегирующей обёрткой —
+            ThemeLab/Visages/Palette/AutoTheme не заметили переезда. Тест:
+            Пульс GREEN 10/10, `OK boot`; клики — `OK setBg=v2ember`,
+            `OK themeSheet purple bg=v2ember` (цикл работает), Конструктор
+            «Применить» = `OK themeSheet custom`, облик coder =
+            `OK visage coder`. Монолит 1105→786 строк
       - [ ] Шаг 8 — BladeMenuPopup + BladeMenuButton (UI, keyset, виджет) —
             КРИТИЧЕСКИЙ риск
 - [ ] Отложенный старт остальных тяжёлых операций (аудит после 1-Б).
