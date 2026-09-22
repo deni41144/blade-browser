@@ -32,7 +32,7 @@
   const BLADE_VISAGES = [
     { id: 'hunter', label: 'Кровавый Охотник', theme: 'blood',    bg: 'bloodmoon' },
     { id: 'coder',  label: 'Полуночный Кодер', theme: 'midnight', bg: 'midnight' },
-    { id: 'neon',   label: 'Неоновый Город',   theme: 'purple',   bg: 'emberflow' },
+    { id: 'neon',   label: 'Неоновый Город',   theme: 'purple',   bg: 'v2violet' },
     { id: 'volt',   label: 'Высокое Напряжение', theme: 'volt',   bg: 'voltbg' },
     { id: 'cherry', label: 'Вишнёвый Сад',     theme: 'cherry',   bg: 'cherrybg' },
   ];

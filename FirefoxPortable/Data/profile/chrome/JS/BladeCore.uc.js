@@ -57,7 +57,6 @@
     { id: 'v2ember',   label: 'V2 Ember',   file: 'bg_v2_ember.jpg' },
     { id: 'v2volt',    label: 'V2 Volt',    file: 'bg_v2_volt.jpg' },
     // живые фоны: WebP-анимация (файл) и CSS-анимация (file: null — только преф)
-    { id: 'emberflow', label: 'Ember Flow (WebP)',      file: 'bg_emberflow.webp' },
     { id: 'pulse',     label: 'Pulse (CSS-анимация)',   file: null },
     { id: 'flow',      label: 'Blood Flow (CSS-анимация)', file: null },
   ];

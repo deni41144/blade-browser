@@ -431,14 +431,7 @@
   }
 
   /* --- ЖИВЫЕ ФОНЫ ---------------------------------------------------------- */
-  /* Ember Flow: анимированный WebP (движок сам крутит кадры фоновой картинки).
-     Файл img/bg_emberflow.webp можно заменить любым другим анимированным WebP
-     с тем же именем — код не меняется. Кейфреймы Pulse/Flow — наверху файла. */
-  @media -moz-pref("bobliks.bg.emberflow") {
-    body.activity-stream {
-      background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important;
-    }
-  }
+  /* Кейфреймы Pulse/Flow — наверху файла. */
 
   /* Pulse — живая бездна: дышащее кровавое свечение. Чистый CSS, файла нет:
      transform/opacity на псевдоэлементе = композитор, почти нулевая нагрузка. */
@@ -512,7 +505,6 @@
   :root[data-blade-bg="v2ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_ashen.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="v2ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_ember.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="v2volt"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_volt.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="emberflow"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_emberflow.webp") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="pulse"] body.activity-stream { background: #060404 !important; scrollbar-width: none !important; }
   :root[data-blade-bg="pulse"] body.activity-stream::before {
     content: "";
