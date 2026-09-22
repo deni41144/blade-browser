@@ -88,6 +88,12 @@
       100% { background-position: 160% 0; }
     }
 
+    @keyframes blade-katana-glint-blood {
+      0%   { background-position: -60% 0, 0 0; }
+      22%  { background-position: 160% 0, 0 0; }
+      100% { background-position: 160% 0, 0 0; }
+    }
+
     #blade-hero .bh-clock {
       position: relative;
       display: inline-flex;
@@ -143,8 +149,13 @@
       letter-spacing: 6px;
     }
     [data-blade-theme="blood"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #ffffff 0%, #ffffff 38%, #ff6b85 46%, #ffffff 50%, #ff6b85 54%, #ffffff 62%, #ffffff 100%);
-      background-size: 260% 100%;
+      /* двухслойный фон: верхний — проходящий катана-блик (прозрачный вне полосы),
+         нижний — статичный металлический градиент, дающий объём в покое */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(255,140,160,0.35) 44%, #ffffff 50%, rgba(255,140,160,0.35) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #fbe7ec 55%, #f2c0cc 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -155,7 +166,7 @@
         drop-shadow(0 0 45px rgba(214, 0, 41, 0.85))
         drop-shadow(0 4px 22px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-blood 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
     [data-blade-theme="blood"] #blade-hero .bh-sec {
