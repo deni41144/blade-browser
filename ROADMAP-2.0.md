@@ -147,7 +147,14 @@
             Готово: обе функции вынесены, оба вызова переведены на
             `window.BladeSystemTools.launchBackup()`. Пульс GREEN,
             `BladeSystemTools_mark` = `v1.0.0 OK tools`
-      - [ ] Шаг 5 — BladeThemeLab (HSL-конструктор, 190 строк)
+      - [x] Шаг 5 — BladeThemeLab (HSL-конструктор, 190 строк)
+            Готово: диалог вынесен целиком (192 строки), цветная математика
+            (customVars/hexToRgb/applyCustomToDoc/applyLiveAttrs/getCustomColor)
+            осталась в монолите и открыта как внутренний контракт
+            window.BladeSettings — шагом 7 уедет в BladeThemeEngine.
+            Полный функциональный тест: меню B → ТЕМА → «Конструктор темы…» →
+            диалог открылся, слайдеры наполнились через API, откат по
+            закрытию сработал. Монолит 1356→1168 строк
       - [ ] Шаг 6 — BladeVisages (пресеты тема+фон, выбор обоев)
       - [ ] Шаг 7 — BladeThemeEngine + BladeBgEngine (разрыв цикла Themes↔Bgs
             через шину `theme:changed`) — ВЫСОКИЙ риск
