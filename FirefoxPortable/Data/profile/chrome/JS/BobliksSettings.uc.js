@@ -114,14 +114,8 @@
       } catch (e) { mark('ERR selSync ' + e); }
     }
     const BUILTIN_BGS = window.Blade.builtinBgs;
-    // Облики — готовые сочетания «тема + фон», один клик вместо двух меню
-    const BLADE_VISAGES = [
-      { id: 'hunter', label: 'Кровавый Охотник', theme: 'blood',    bg: 'bloodmoon' },
-      { id: 'coder',  label: 'Полуночный Кодер', theme: 'midnight', bg: 'midnight' },
-      { id: 'neon',   label: 'Неоновый Город',   theme: 'purple',   bg: 'emberflow' },
-      { id: 'volt',   label: 'Высокое Напряжение', theme: 'volt',   bg: 'voltbg' },
-      { id: 'cherry', label: 'Вишнёвый Сад',     theme: 'cherry',   bg: 'cherrybg' },
-    ];
+    // BLADE_VISAGES + userVisage/allVisages/applyVisage/saveVisage вынесены в
+    // BladeVisages.uc.js v1.0.0 (@loadOrder 12, API window.BladeVisages)
     function getImgDir() {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       d.append('img');
@@ -135,8 +129,9 @@
       return window.Blade.bgPrefId(fileName);
     }
     // Кэш на окно: скан chrome/img/ вызывается из getAllBgs() при каждом
-    // открытии меню и из applyThemeSheet. Инвалидация — в
-    // chooseCustomWallpaper после копирования нового файла
+    // открытии меню и из applyThemeSheet. Инвалидация — через
+    // window.BladeSettings.invalidateBgCache() из BladeVisages после копирования
+    // нового файла
     let customBgsCache = null;
     function getCustomBgs() {
       if (customBgsCache) return customBgsCache;
@@ -460,72 +455,12 @@
     }
     // --- ОБЛИКИ КЛИНКА: пресеты «тема + фон» одним кликом ---
     // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: VISAGES — пресеты «тема+фон»
-    // userVisage/allVisages/applyVisage(=setTheme+setBg, риск 4)/saveVisage/chooseCustomWallpaper (пишет bobliks.covers.dirty — тумблер BobliksCovers, риск 6)
-    // ═══════════════════════════════════════════════════════════════════
-    function userVisage() {
-      // fail-soft: битый JSON или отсутствие префа — просто нет «своего» облика
-      try {
-        const raw = Services.prefs.getStringPref('blade.visage.mine', '');
-        if (!raw) return null;
-        const v = JSON.parse(raw);
-        if (v && typeof v.theme === 'string' && typeof v.bg === 'string') return v;
-        return null;
-      } catch (e) { return null; }
-    }
-    function allVisages() {
-      const list = BLADE_VISAGES.slice();
-      const mine = userVisage();
-      if (mine) list.push({ id: 'mine', label: 'Мой Облик', theme: mine.theme, bg: mine.bg });
-      return list;
-    }
-    function applyVisage(id) {
-      const v = allVisages().find(x => x.id === id);
-      if (!v) { mark('FAIL visage ' + id); return; }
-      setTheme(v.theme);
-      setBg(v.bg);
-      mark('OK visage ' + id);
-    }
-    function saveVisage() {
-      // Пользовательский слот независим: совпадение с builtin-обликом не
-      // мешает — сохраняем текущее сочетание как есть
-      Services.prefs.setStringPref('blade.visage.mine',
-        JSON.stringify({ theme: activeTheme(), bg: activeBg() }));
-      mark('OK visage saved');
-    }
-    // Проводник: init требует BrowsingContext (window больше не конвертится —
-    // раунд 23), open() — callback-based (Promise-вариант от Gemini ждал бы
-    // undefined). Имя файла: транслит-безопасное + таймстамп от коллизий
-    function chooseCustomWallpaper() {
-      try {
-        const fp = Cc['@mozilla.org/filepicker;1'].createInstance(Ci.nsIFilePicker);
-        const parentBC = window.browsingContext || (window.docShell && window.docShell.browsingContext) || null;
-        fp.init(parentBC, 'Выберите изображение для фона Blade', Ci.nsIFilePicker.modeOpen);
-        fp.appendFilters(Ci.nsIFilePicker.filterImages);
-        fp.open((res) => {
-          try {
-            if (res !== Ci.nsIFilePicker.returnOK || !fp.file) return;
-            const ext = fp.file.leafName.split('.').pop().toLowerCase();
-            if (!['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'].includes(ext)) return;
-            const cleanBase = fp.file.leafName.replace(/[.][^.]+$/, '')
-              .replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 20) || 'wallpaper';
-            const safeName = 'custom_' + cleanBase + '_' + Date.now().toString(36) + '.' + ext;
-            const imgDir = getImgDir();
-            const target = imgDir.clone(); target.append(safeName);
-            if (target.exists()) target.remove(false);
-            fp.file.copyTo(imgDir, safeName);
-            // новый файл = новый скан каталога и новый преф bobliks.bg.file_*
-            customBgsCache = null;
-            // Тумблер для BobliksCovers (@onlyonce, слушает преф): правило под
-            // новый преф должно появиться в covers.css без перезапуска
-            try {
-              Services.prefs.setBoolPref('bobliks.covers.dirty', !Services.prefs.getBoolPref('bobliks.covers.dirty', false));
-            } catch (e) {}
-            setBg('file:' + safeName);
-          } catch (e) { mark('ERR pickCopy ' + e); }
-        });
-      } catch (e) { mark('ERR pickBg ' + e); }
-    }
+    // СЕКЦИЯ: VISAGES — вынесена в BladeVisages.uc.js v1.0.0
+    // (@loadOrder 12, API window.BladeVisages: allVisages/applyVisage/
+    //  saveVisage/chooseCustomWallpaper). setTheme/setBg/activeTheme/
+    //  activeBg/getImgDir/invalidateBgCache открыты как контракт
+    // для этого модуля; шаг 7 уберет их в BladeThemeEngine
+    // ════════════════════════════════════════════════════════════
     // Локальное уведомление в nb окна (сигнатура FF155 — как notify() в
     // BladeUpdater): appendNotification(type, {label, image, priority})
     // ═══════════════════════════════════════════════════════════════════
@@ -626,7 +561,7 @@
         // появляется только после первого сохранения
         sub('ОБЛИКИ');
         const curBgV = activeBg();
-        for (const v of allVisages()) {
+        for (const v of window.BladeVisages.allVisages()) {
           row(v.label, { bladeVisage: v.id }, { on: (curTheme === v.theme && curBgV === v.bg) });
         }
         row('Сохранить текущее как «Мой Облик»', { bladeVisageSave: '1' }, { noDot: true });
@@ -776,8 +711,8 @@
             setTheme(ds.bobliksTheme);
           }
           else if (ds.bobliksBg) { await setBg(ds.bobliksBg); }
-          else if (ds.bladeVisage) { try { applyVisage(ds.bladeVisage); } catch (e) { mark('ERR visage ' + e); } }
-          else if (ds.bladeVisageSave === '1') { try { saveVisage(); } catch (e) { mark('ERR visageSave ' + e); } }
+          else if (ds.bladeVisage) { try { window.BladeVisages.applyVisage(ds.bladeVisage); } catch (e) { mark('ERR visage ' + e); } }
+          else if (ds.bladeVisageSave === '1') { try { window.BladeVisages.saveVisage(); } catch (e) { mark('ERR visageSave ' + e); } }
           else if (ds.bobliksEdit === 'on') { Services.prefs.setBoolPref('bobliks.dial.edit', true); }
           else if (ds.bobliksEdit === 'off') { Services.prefs.clearUserPref('bobliks.dial.edit'); }
           // bladeReader on/off снесён 2026-09-13 вместе с инверт-механикой (Dark Reader)
@@ -830,7 +765,7 @@
             const next = list[((cur < 0 ? 0 : cur) + 1) % list.length];
             if (next) Services.prefs.setStringPref(prefName, next.id);
           }
-          else if (ds.bladePickBg) { close = true; chooseCustomWallpaper(); }
+          else if (ds.bladePickBg) { close = true; window.BladeVisages.chooseCustomWallpaper(); }
           else if (ds.bladeLab) { close = true; window.BladeThemeLab.open(); }
           else if (ds.bobliksFolder) {
             close = true;
@@ -1153,8 +1088,13 @@
       // Внутренний контракт для BladeThemeLab (шаг 5): цветная математика
       // конструктора. Шагом 7 уезжает вместе с кастомной темой в BladeThemeEngine
       customVars, hexToRgb, applyCustomToDoc, applyLiveAttrs, getCustomColor,
-      visages: () => allVisages().map(v => ({ id: v.id, label: v.label })),
-      applyVisage, saveVisage,
+      // Внутренний контракт для BladeVisages (шаг 6): чтение текущих темы/фона,
+      // каталог img и инвалидация кэша скана. Шаг 7 — в BladeThemeEngine
+      activeTheme, activeBg, getImgDir,
+      invalidateBgCache: () => { customBgsCache = null; },
+      visages: () => window.BladeVisages.allVisages().map(v => ({ id: v.id, label: v.label })),
+      applyVisage: (id) => window.BladeVisages.applyVisage(id),
+      saveVisage: () => window.BladeVisages.saveVisage(),
       toggleSounds() { const on = !Services.prefs.getBoolPref('blade.sounds.on', true); Services.prefs.setBoolPref('blade.sounds.on', on); return on; },
       toggleIdle() { const v = !Services.prefs.getBoolPref('blade.idle.on', true); Services.prefs.setBoolPref('blade.idle.on', v); return v; },
       backup() { window.BladeSystemTools.launchBackup(); },

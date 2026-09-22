@@ -155,7 +155,16 @@
             Полный функциональный тест: меню B → ТЕМА → «Конструктор темы…» →
             диалог открылся, слайдеры наполнились через API, откат по
             закрытию сработал. Монолит 1356→1168 строк
-      - [ ] Шаг 6 — BladeVisages (пресеты тема+фон, выбор обоев)
+      - [x] Шаг 6 — BladeVisages (пресеты тема+фон, выбор обоев)
+            Готово: BLADE_VISAGES + userVisage/allVisages/applyVisage/
+            saveVisage/chooseCustomWallpaper вынесены в BladeVisages.uc.js
+            v1.0.0. В window.BladeSettings добавлен внутренний контракт
+            (activeTheme/activeBg/getImgDir/invalidateBgCache), applyVisage/
+            saveVisage переведены в делегирующие стрелки. Функциональный тест:
+            ОБЛИКИ отрисованы → клик пресета = `OK visage cherry` → сохранение
+            своего облика = `OK visage saved` + «Мой Облик» в списке.
+            chooseCustomWallpaper не кликался (нативный файловый диалог).
+            Монолит 1168→1105 строк
       - [ ] Шаг 7 — BladeThemeEngine + BladeBgEngine (разрыв цикла Themes↔Bgs
             через шину `theme:changed`) — ВЫСОКИЙ риск
       - [ ] Шаг 8 — BladeMenuPopup + BladeMenuButton (UI, keyset, виджет) —
