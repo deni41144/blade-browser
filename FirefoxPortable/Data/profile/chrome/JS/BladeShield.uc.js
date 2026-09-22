@@ -48,7 +48,7 @@
 (function () {
   'use strict';
 
-  const VER = 'v1.8.0';
+  const VER = 'v1.8.1';
 
   // ---- Эталонный набор (источник: user.js, adminSettings) ----
   // ВЕРСИЯ-ЗАВИСИМОСТЬ (uBO 1.74, assets.json): ключей awrl, adguard-annoyance

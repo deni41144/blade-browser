@@ -44,7 +44,13 @@
   const write = () => {
     if (written) return;
     written = true;
-    let s = 'v2.0.0 ' + new Date().toISOString();
+    let ver = 'v?';
+    try {
+      const f = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
+      f.append('VERSION');
+      ver = 'v' + IOUtils.readUTF8(f.path).trim();
+    } catch (e) {}
+    let s = ver + ' ' + new Date().toISOString();
     for (const p of ['dcl', 'load', 'paint', 'ssr']) {
       if (typeof t[p] === 'number') s += ' ' + p + '=' + Math.round(t[p]) + 'ms';
     }

@@ -428,26 +428,7 @@ menupopup,
   border-radius: 10px !important;
 }
 
-menupopup > menuitem,
-menupopup > menu {
-  appearance: none !important;
-  color: var(--text) !important;
-  margin: 2px 6px !important;
-  padding-block: 4px !important;
-  border-radius: 6px !important;
-}
-
-menupopup > menuitem[_moz-menuactive="true"],
-menupopup > menu[_moz-menuactive="true"] {
-  background-color: color-mix(in srgb, var(--accent) 28%, transparent) !important;
-  color: #ffffff !important;
-}
-
-menuseparator {
-  appearance: none !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  margin: 4px 10px !important;
-}
+/* Полная стилизация контекстных меню (лазерные срезы, навигация, шорткаты) — см. Секцию 21.1 */
 
 /* ==========================================================================
    THEME SWITCHER: темы включаются префами (кнопка Bobliks в тулбаре).
@@ -1765,34 +1746,208 @@ findbar .findbar-label {
    21. МЕНЮ ФИШЕК BLADE (menupopup, PanelUI, downloads, tooltip)
    ========================================================================== */
 
-/* 21.1 Контекстные меню (menupopup) */
+/* 21.1 КИБЕРПАНК КОНТЕКСТНЫЕ МЕНЮ (Cyberpunk Context Menu) */
 menupopup {
-  --panel-background: rgba(12, 12, 16, 0.96) !important;
-  --panel-color: var(--text, #e8e8e8) !important;
-  --panel-border-color: rgba(255, 255, 255, 0.08) !important;
+  appearance: none !important;
+  -moz-default-appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+  --panel-background: #0c0b10 !important;
+  --panel-color: var(--text, #e8e8ea) !important;
+  --panel-border-color: rgba(255, 255, 255, 0.12) !important;
   --panel-border-radius: 10px !important;
-  font-family: var(--blade-ui) !important;
+  --panel-box-shadow-margin: 0px !important;
+  --panel-padding: 4px 2px !important;
+  font-family: var(--blade-ui, 'Rubik', sans-serif) !important;
 }
 
+/* Обсидиановый стеклянный контейнер с лазерной гранью темы сверху */
 menupopup::part(content) {
-  background: rgba(12, 12, 16, 0.96) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  appearance: none !important;
+  -moz-default-appearance: none !important;
+  background: #0c0b10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-top: 2px solid var(--accent, #ff2a2a) !important;
   border-radius: 10px !important;
-  backdrop-filter: blur(16px) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
-  padding: 4px !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 22%, transparent) !important;
+  padding: 4px 2px !important;
+  overflow: clip !important;
 }
 
-menuitem[_moz-menuactive="true"],
-menu[_moz-menuactive="true"] {
-  background-color: color-mix(in srgb, var(--accent, #ff2a2a) 15%, transparent) !important;
-  color: #ffffff !important;
+/* Ликвидация подчеркиваний букв-акселераторов. Точный селектор: движок
+   рендерит подчёркивание только на html|span.accesskey внутри label
+   (xul.css: «label html|span.accesskey { text-decoration: underline }»).
+   Голый «menupopup span» был слишком широким — гасил text-decoration
+   у любых спанов в меню, а не только у букв-акселераторов. */
+menupopup label span.accesskey,
+menupopup label html|span.accesskey {
+  text-decoration: none !important;
+}
+
+/* Скрытие мусорных и служебных пунктов меню */
+#context-inspect-a11y,
+#context-sep-bidi,
+#context-bidi-text-direction-toggle,
+#context-bidi-page-direction-toggle {
+  display: none !important;
+}
+
+/* Пункты меню: базовая геометрия и типографика */
+menupopup menuitem,
+menupopup menu {
+  appearance: none !important;
+  font-family: var(--blade-ui, 'Rubik', sans-serif) !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  color: var(--text, #e8e8ea) !important;
   border-radius: 6px !important;
+  margin: 1.5px 3px !important;
+  padding: 5px 9px !important;
+  border-left: 3px solid transparent !important;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease !important;
 }
 
-menuseparator {
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-  margin: 4px 6px !important;
+/* Активный пункт: лазерный срез темы + градиентный шлейф */
+menupopup menuitem[_moz-menuactive="true"]:not([disabled="true"]),
+menupopup menu[_moz-menuactive="true"]:not([disabled="true"]) {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent, #ff2a2a) 28%, transparent) 0%,
+    color-mix(in srgb, var(--accent, #ff2a2a) 8%, transparent) 60%,
+    transparent 100%) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  border-left: 3px solid var(--accent, #ff2a2a) !important;
+  box-shadow: inset 2px 0 8px color-mix(in srgb, var(--accent, #ff2a2a) 40%, transparent) !important;
+}
+
+/* Назначение SVG-иконок пунктам меню. Единый источник истины — реестр
+   ICON_MAP в BladeContextMenu.uc.js: скрипт вешает класс .menuitem-iconic
+   и ставит переменную --menuitem-icon прямо на пункт (канон движка, так же
+   делает contextmenu.css омни: #context-back { --menuitem-icon: url(...) }).
+   Дублирующий список из 16 id тут убран: два источника рассинхронизировались
+   (13 пунктов оставались без иконки, в #context-inspect лежал несуществующий
+   chrome://devtools/skin/images/command-pick.svg, а #context-translate
+   вообще не существует в browser.xhtml — реальный id context-translate-selection). */
+
+/* Включение и выравнивание иконок пунктов */
+menupopup menuitem.menuitem-iconic .menu-icon,
+menupopup menuitem[image] .menu-icon {
+  content: var(--menuitem-icon) !important;
+  display: -moz-inline-box !important;
+  display: inline-block !important;
+  visibility: visible !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-inline-end: 10px !important;
+  -moz-context-properties: fill, fill-opacity !important;
+  fill: currentColor !important;
+}
+
+/* Иконки пунктов меню при наведении */
+menupopup menuitem .menu-icon,
+menupopup menuitem .menu-iconic-icon,
+menupopup menu .menu-icon,
+menupopup menu .menu-iconic-icon {
+  margin-inline-end: 9px !important;
+  fill: currentColor !important;
+  transition: transform 0.15s ease, filter 0.15s ease, fill 0.15s ease !important;
+}
+menupopup menuitem[_moz-menuactive="true"]:not([disabled="true"]) .menu-iconic-icon,
+menupopup menuitem[_moz-menuactive="true"]:not([disabled="true"]) .menu-icon {
+  filter: drop-shadow(0 0 6px var(--accent, #ff2a2a)) !important;
+  fill: var(--accent, #ff2a2a) !important;
+  transform: scale(1.08) !important;
+}
+
+/* Горячие клавиши (шорткаты): моноширинный шрифт JetBrains Mono */
+menupopup .menu-accel,
+menupopup .menu-iconic-accel {
+  font-family: var(--blade-mono, 'JetBrains Mono', monospace) !important;
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.42) !important;
+  margin-inline-start: 14px !important;
+  letter-spacing: 0.3px !important;
+  transition: color 0.12s ease, text-shadow 0.12s ease !important;
+}
+menupopup menuitem[_moz-menuactive="true"]:not([disabled="true"]) .menu-accel,
+menupopup menuitem[_moz-menuactive="true"]:not([disabled="true"]) .menu-iconic-accel {
+  color: color-mix(in srgb, var(--accent, #ff2a2a) 75%, #ffffff) !important;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent) !important;
+}
+
+/* Стрелка подменю: плавный сдвиг при наведении */
+menupopup menu > .menu-right,
+menupopup menu::after {
+  transition: transform 0.15s ease, fill 0.15s ease !important;
+}
+menupopup menu[_moz-menuactive="true"]:not([disabled="true"]) > .menu-right,
+menupopup menu[_moz-menuactive="true"]:not([disabled="true"])::after {
+  fill: var(--accent, #ff2a2a) !important;
+  filter: drop-shadow(0 0 5px var(--accent, #ff2a2a)) !important;
+  transform: translateX(2px) !important;
+}
+
+/* Отключённые пункты */
+menupopup menuitem[disabled="true"],
+menupopup menu[disabled="true"] {
+  opacity: 0.32 !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  background: transparent !important;
+  border-left-color: transparent !important;
+}
+
+/* Лазерные разделители (menuseparator) */
+menupopup menuseparator {
+  appearance: none !important;
+  height: 1px !important;
+  border: none !important;
+  margin: 5px 8px !important;
+  padding: 0 !important;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.11) 20%,
+    rgba(255, 255, 255, 0.11) 80%,
+    transparent 100%) !important;
+}
+menupopup menuseparator::before {
+  display: none !important;
+}
+
+/* Чекбоксы и радио-кнопки меню */
+menupopup menuitem[type="checkbox"][checked="true"] .menu-iconic-icon,
+menupopup menuitem[type="radio"][checked="true"] .menu-iconic-icon {
+  fill: var(--accent, #ff2a2a) !important;
+  filter: drop-shadow(0 0 5px var(--accent, #ff2a2a)) !important;
+}
+
+/* Панель быстрой навигации в шапке контекстного меню (#context-navigation) */
+#context-navigation {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 9px !important;
+  margin: 3px 4px 6px 4px !important;
+  padding: 3px !important;
+  display: flex !important;
+}
+#context-navigation > .menuitem-iconic {
+  flex: 1 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 6px !important;
+  margin: 0 2px !important;
+  padding: 4px 0 !important;
+  border-left: none !important;
+  transition: background 0.15s ease, transform 0.12s ease, filter 0.15s ease !important;
+}
+#context-navigation > .menuitem-iconic:not([disabled="true"]):hover {
+  background: color-mix(in srgb, var(--accent, #ff2a2a) 26%, transparent) !important;
+  fill: var(--accent, #ff2a2a) !important;
+  filter: drop-shadow(0 0 6px var(--accent, #ff2a2a)) !important;
+  transform: scale(1.06) !important;
+}
+#context-navigation > .menuitem-iconic[disabled="true"] {
+  opacity: 0.22 !important;
 }
 
 /* 21.2 Главное меню ≡ (PanelUI / #appMenu-popup) */

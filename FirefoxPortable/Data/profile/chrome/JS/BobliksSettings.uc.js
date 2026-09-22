@@ -41,12 +41,6 @@
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
-  // Финальный статус: bookmarks-IIFE (чистка дефолтных закладок) дописывает
-  // mark ПОСЛЕ синхронного финала скрипта и перезаписывал его в файле
-  // диагностики — 'ERR fatal' мог быть стёрт поздним 'OK bookmarks'
-  // (диагностическая ловушка, найдена при разборе инцидента 2026-09-14).
-  // Финальный вердикт обязан переживать поздние асинхронные записи.
-  let finalStatus = null;
     mark('START');
     // Версия сборки из chrome\VERSION (пишется патч-системой); читается один
     // раз при старте окна (после обновления браузер всё равно перезапускается)
@@ -1089,7 +1083,9 @@
     }
 
     // СЕКЦИЯ: INIT — стартовая последовательность (ПОРЯДОК ВАЖЕН, риск 7)
-    // reader->selection->themeSheet->liveAttrs->customBgSheet->seeding->docObs->verticalTabs->чистильщики->закладки->лазер->ghost->splash->idle->виджет->keyset. Каждый блок — try с mark-диагностикой
+    // reader->selection->themeSheet->liveAttrs->customBgSheet->seeding->docObs->лазер->ghost->splash->idle->виджет->keyset. Каждый блок — try с mark-диагностикой.
+    // Очистка (about-стиль, verticalTabs, чистильщик, «Чистый лист», закладки) вынесена
+    // в BladeHousekeeping.uc.js (@loadOrder 12, свой mark-файл) — гоняется отдельным скриптом
     // ═══════════════════════════════════════════════════════════════════
     try {
       // blade.reader.on снесён 2026-09-13 (Dark Reader); преференс сайтов
@@ -1100,32 +1096,8 @@
       applyThemeSheet(savedTheme);
     } catch (e) { mark('ERR sync', e); }
 
-    // Стиль About-диалога «О Blade»: тёмный, без текстов сообщества Mozilla
-    const ABOUT_DLG_CSS = `
-      #aboutDialog, #aboutDialogContainer, #clientBox, #leftBox, #rightBox, #detailsBox {
-        background: #0a0a0c !important;
-        color: #e8e8e8 !important;
-      }
-      #version { color: #ff2a2a !important; font-weight: 700 !important; }
-      label, description, button { color: #e8e8e8 !important; }
-      .text-link { color: #ff2a2a !important; }
-      #submit-feedback, #communityDesc, #communityExperimentalDesc,
-      #contributeDesc, #contributeDescReferrals, #currentChannelText {
-        display: none !important;
-      }
-    `;
-
-    // About-диалог: стиль через nsIStyleSheetService (USER_SHEET). <style>
-    // внутри XUL-окна не работает (проверено), а регистрация листа действует
-    // на все окна; id-селекторы ограничивают его только этим диалогом.
-    try {
-      const cssUri = Services.io.newURI('data:text/css,' + encodeURIComponent(ABOUT_DLG_CSS), null, null);
-      const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
-      if (!SSS.sheetRegistered(cssUri, SSS.USER_SHEET)) {
-        SSS.loadAndRegisterSheet(cssUri, SSS.USER_SHEET);
-      }
-      mark('OK aboutSheet');
-    } catch (e) { mark('ERR aboutSheet ' + e); }
+    // About-стиль, verticalTabs, чистильщик вкладок, «Чистый лист» (меню +
+    // закладки) вынесены в BladeHousekeeping.uc.js v1.0.0 (@loadOrder 12)
 
     // ПЛИТКИ НОВОЙ ВКЛАДКИ: пиннам НАШИ сайты при первом запуске (раунд 25)
     (async () => {
@@ -1215,97 +1187,6 @@
         try { Services.obs.removeObserver(docObs, 'document-element-inserted'); } catch (e) {}
       });
     } catch (e) { mark('ERR attrsInit', e); }
-
-    // Вертикальные вкладки ОТКЛОНЕНЫ (решение владельца: непрактично).
-    // Страховка: если преф каким-то образом включён (нативный тумблер в
-    // контекстном меню тулбара) — табстрип уезжает в сайдбар, который наш
-    // CSS глухо прячет, и вкладки исчезают совсем. Гасим преф на старте.
-    try {
-      if (Services.prefs.getBoolPref('sidebar.verticalTabs', false)) {
-        Services.prefs.setBoolPref('sidebar.verticalTabs', false);
-        mark('vtabs off (отклонён)');
-      }
-    } catch (e) {}
-
-
-    // Чистильщик первого запуска: расширения (SponsorBlock) открывают свой
-    // help при автоустановке. Закрываем их — только в первую минуту после
-    // старта, дальше юзер сам решает, что открывать.
-    try {
-      const BORN = Date.now();
-      const NOISE = /moz-extension:\/\/[^/]+\/help\/index\.html/;
-      const closeNoise = (tab) => {
-        if (Date.now() - BORN > 60000) return;
-        try {
-          if (NOISE.test(tab.linkedBrowser.currentURI.spec)) window.gBrowser.removeTab(tab);
-        } catch (e) {}
-      };
-      window.gBrowser.tabContainer.addEventListener('TabOpen', (ev) => {
-        setTimeout(() => closeNoise(ev.target), 900);
-      });
-      for (const t of window.gBrowser.tabs) closeNoise(t);
-      mark('OK janitor');
-    } catch (e) { mark('ERR janitor ' + e); }
-
-    // ЧИСТЫЙ ЛИСТ: вырезаем порталы Mozilla из всех меню (Help и ≡).
-    // Работает по data-l10n-id — стабильно между версиями и языками.
-    try {
-      const BANNED = new Set([
-        'menu-get-help', 'menu-report-broken-site',
-        'menu-help-report-deceptive-site', 'menu-help-not-deceptive',
-        'menu-help-switch-device', 'menu-help-enter-troubleshoot-mode2',
-        'appmenuitem-get-help', 'appmenuitem-report-broken-site',
-        'appmenuitem-report-deceptive-site', 'appmenuitem-switch-device',
-        'appmenuitem-enter-troubleshoot-mode'
-      ]);
-      const hideBanned = (root) => {
-        for (const mi of root.querySelectorAll('[data-l10n-id]')) {
-          if (BANNED.has(mi.getAttribute('data-l10n-id')) || mi.id === 'aboutName') {
-            mi.hidden = true;
-          }
-        }
-      };
-      window.document.addEventListener('popupshowing', (ev) => {
-        try { hideBanned(ev.target); } catch (e) {}
-      }, true);
-      // Стартовый проход не гонщик: меню, открытые до idle, прикроет
-      // popupshowing-слушатель выше
-      const hideBannedIdle = () => { try { hideBanned(window.document); } catch (e) {} };
-      if (window.requestIdleCallback) requestIdleCallback(hideBannedIdle, { timeout: 2000 });
-      else setTimeout(hideBannedIdle, 2000);
-      mark('OK menuclean');
-    } catch (e) { mark('ERR menuclean ' + e); }
-
-    // ЧИСТЫЙ ЛИСТ: дефолтные mozilla-закладки свежего профиля — в утиль.
-    // Удаляем только известные дефолтные URL, свои закладки не трогаем.
-    (async () => {
-      try {
-        const DEFAULTS = [
-          'https://www.mozilla.org/ru/firefox/central/',
-          'https://www.mozilla.org/en-US/firefox/central/',
-          'https://www.mozilla.org/ru/about/',
-          'https://www.mozilla.org/en-US/about/',
-          'https://support.mozilla.org/',
-          'https://addons.mozilla.org/',
-          // дефолтная закладка PortableApps (наследие портабл-сборки)
-          'https://portableapps.com/',
-          'http://portableapps.com/',
-          'https://portableapps.com/apps/internet/firefox_portable',
-          'https://portableapps.com/apps'
-        ];
-        const { PlacesUtils } = ChromeUtils.importESModule('resource://gre/modules/PlacesUtils.sys.mjs');
-        for (const url of DEFAULTS) {
-          for (let i = 0; i < 10; i++) {
-            try {
-              const bm = await PlacesUtils.bookmarks.fetch({ url });
-              if (!bm) break;
-              await PlacesUtils.bookmarks.remove(bm);
-            } catch (e) { break; }
-          }
-        }
-        mark(finalStatus ? finalStatus + ' · bookmarks OK' : 'OK bookmarks');
-      } catch (e) { mark('ERR bookmarks ' + e); }
-    })();
 
     // ЛАЗЕРНЫЙ ЛУЧ ЗАГРУЗКИ: пока активная вкладка грузится, тулбокс несёт
     // data-blade-loading — линия под ним бежит лучом (CSS, userChrome §12)
@@ -1755,10 +1636,8 @@
     // ═══════════════════════════════════════════════════════════════════
     // СЕКЦИЯ: ФИНАЛ — mark OK / catch fatal
     // ═══════════════════════════════════════════════════════════════════
-    finalStatus = 'OK widget';
     mark('OK widget');
   } catch (e) {
-    finalStatus = 'ERR fatal';
     mark('ERR fatal', e);
     console.error('Bobliks fatal:', e);
   }
