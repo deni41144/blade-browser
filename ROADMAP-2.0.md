@@ -141,9 +141,12 @@
             **Функциональный тест:** `blade.autotheme.on=true` + 11:00 →
             `bobliks.theme.grey: true` в prefs.js (дневная тема применилась).
             Пульс GREEN. Тестовый преф возвращён в false
-      - [ ] Шаг 4 — BladeSystemTools (бэкап, notify, DoH, RAM) — НЮАНС: действия
-            DNS/RAM встроены в клик-диспетчер (строки ~1017–1036), чистый вынос
-            возможен только для notifyBlade+launchBackup, остальное — со шагом 8
+      - [x] Шаг 4 — BladeSystemTools (бэкап, notify) — НЮАНС: действия
+            DNS/RAM встроены в клик-диспетчер, чистый вынос
+            возможен только для notifyBlade+launchBackup, остальное — со шагом 8.
+            Готово: обе функции вынесены, оба вызова переведены на
+            `window.BladeSystemTools.launchBackup()`. Пульс GREEN,
+            `BladeSystemTools_mark` = `v1.0.0 OK tools`
       - [ ] Шаг 5 — BladeThemeLab (HSL-конструктор, 190 строк)
       - [ ] Шаг 6 — BladeVisages (пресеты тема+фон, выбор обоев)
       - [ ] Шаг 7 — BladeThemeEngine + BladeBgEngine (разрыв цикла Themes↔Bgs

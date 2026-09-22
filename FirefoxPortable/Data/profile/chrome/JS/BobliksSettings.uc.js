@@ -718,40 +718,9 @@
     // BladeUpdater): appendNotification(type, {label, image, priority})
     // ═══════════════════════════════════════════════════════════════════
     // СЕКЦИЯ: SYSTEM — уведомления, бэкап
-    // notifyBlade(gNotificationBox FF155)/launchBackup(Blade.runPsEncoded)
+    // notifyBlade/launchBackup вынесены в BladeSystemTools.uc.js v1.0.0
+    // (@loadOrder 12, API window.BladeSystemTools.launchBackup)
     // ═══════════════════════════════════════════════════════════════════
-    function notifyBlade(label) {
-      try {
-        const nb = window.gNotificationBox;
-        nb.appendNotification('blade-backup-notification', {
-          label,
-          image: 'chrome://browser/skin/notification-icons/popup.svg',
-          priority: nb.PRIORITY_INFO_HIGH,
-        }, [], false);
-      } catch (e) { mark('ERR notify ' + e); }
-    }
-    // Бэкап профиля: BladeCore.runPsEncoded гонит resources\blade-backup.ps1
-    // через powershell.exe -EncodedCommand (base64 UTF-16LE, без аргументов
-    // командной строки — пробелы в путях не рвутся)
-    function launchBackup() {
-      try {
-        const script = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
-        script.append('resources'); script.append('blade-backup.ps1');
-        if (!script.exists()) {
-          notifyBlade('нет chrome\\resources\\blade-backup.ps1');
-          return;
-        }
-        const q = (s) => String(s).replace(/'/g, "''");
-        const profDir = Services.dirsvc.get('ProfD', Ci.nsIFile).path;
-        const psLine = "& '" + q(script.path) + "' -ProfileDir '" + q(profDir) + "'";
-        try {
-          window.Blade.runPsEncoded(psLine);
-          notifyBlade('⚡ Бэкап профиля создаётся — архив появится в папке Backups рядом с браузером.');
-        } catch (e) {
-          notifyBlade('не удалось запустить бэкап: ' + e.message);
-        }
-      } catch (e) { mark('ERR backup ' + e); }
-    }
     // ПАНЕЛЬ МЕНЮ (GX, вкладочная): кастомный panel с HTML внутри.
     // Рамка/фон/тени — только через ::part(content): в FF155 попапы рисуются
     // в Shadow DOM (проверено ранее на панелях).
@@ -1035,7 +1004,7 @@
             Services.prefs.setBoolPref('blade.idle.on',
               !Services.prefs.getBoolPref('blade.idle.on', true));
           }
-          else if (ds.bladeBackup === '1') { close = true; launchBackup(); }
+          else if (ds.bladeBackup === '1') { close = true; window.BladeSystemTools.launchBackup(); }
           else if (ds.bladeAutoTheme === 'on') { Services.prefs.setBoolPref('blade.autotheme.on', true); }
           else if (ds.bladeAutoTheme === 'off') { Services.prefs.setBoolPref('blade.autotheme.on', false); }
           else if (ds.bladeAutoDay === '1' || ds.bladeAutoNight === '1') {
@@ -1373,7 +1342,7 @@
       applyVisage, saveVisage,
       toggleSounds() { const on = !Services.prefs.getBoolPref('blade.sounds.on', true); Services.prefs.setBoolPref('blade.sounds.on', on); return on; },
       toggleIdle() { const v = !Services.prefs.getBoolPref('blade.idle.on', true); Services.prefs.setBoolPref('blade.idle.on', v); return v; },
-      backup() { launchBackup(); },
+      backup() { window.BladeSystemTools.launchBackup(); },
     };
 
     // ═══════════════════════════════════════════════════════════════════
