@@ -113,10 +113,12 @@
       unload; мигрированы интервалы Clock (погода) / Newtab (тик) / Settings
       (idle, авто-тема, idle-часы); срезан слепой 5с-ретрай mountClock.
       Верификация: Пульс GREEN, перф без регрессии (dcl 213/221 против 215).
-- [~] **1-Б: декомпозиция BobliksSettings** — Свежая карта Ideator (2026-09-22,
+- [x] **1-Б: декомпозиция BobliksSettings** — Свежая карта Ideator (2026-09-22,
       файл подрос 1599→1765 строк в волнах 2.0.1/2.0.5): 8 шагов по возрастанию
       риска. Протокол: `node --check` → живой прогон на F: → Пульс GREEN →
       клик-тест меню B → коммит. При сбое — `git revert` шага.
+      **ИТОГ (2026-09-22): все 8 шагов выполнены, 1765→351 строк (−80%),
+      8 новых модулей. Ни одного реверта не потребовалось.**
       - [x] **Шаг 1 — BladeHousekeeping.uc.js 1.0.0** (2026-09-22): вынесены
             About-стиль, сброс verticalTabs, чистильщик вкладок, «Чистый
             лист» (меню + закладки). Монолит 1765→1644 (−121). Заодно удалена
@@ -178,8 +180,25 @@
             `OK themeSheet purple bg=v2ember` (цикл работает), Конструктор
             «Применить» = `OK themeSheet custom`, облик coder =
             `OK visage coder`. Монолит 1105→786 строк
-      - [ ] Шаг 8 — BladeMenuPopup + BladeMenuButton (UI, keyset, виджет) —
-            КРИТИЧЕСКИЙ риск
+      - [x] Шаг 8 — BladeMenuPopup + BladeMenuButton (UI, keyset, виджет) —
+            КРИТИЧЕСКИЙ риск. Готово (2026-09-22): панель целиком переехала в
+            BladeMenuPopup.uc.js v1.0.0 @loadOrder 11 (POPUP_ID, MENU_CSS,
+            BP_TABS, buildPopup, клик-диспетчер со всеми действиями вкладок,
+            читатели VERSION/CODENAME, PERF, DNS_URI; API
+            window.BladeMenuPopup = { ensurePopup, open }); виджет и клавиши —
+            в BladeMenuButton.uc.js v1.0.0 @loadOrder 12 (WIDGET_ID,
+            buildMenuButton, САМОМОНТ: наблюдатель browser-delayed-startup-
+            finished + таймер 2.5с перенесены ДОСЛОВНО, немедленный tryMount()
+            НЕ вызывается — причина инцидента 1.14.5 «две кнопки»; keyset:
+            Alt+B/F1 → открытие меню, Shift+F2/F3 → цикл тем). THEMES —
+            window.Blade.themes, дублирования нет. Тест: Пульс GREEN 10/10
+            (node-menub OK на первом прогоне нового модуля), оба mark LOADED,
+            bobliks_settings_mark = `OK init`; клик-тест — кнопка B → панель
+            со всеми 6 вкладками и шапкой «v2.0.5 · Срез Катаны» → ФОН
+            «Acheron» = `OK setBg=acheron` → ТЕМА «Cyber Green» =
+            `OK themeSheet green bg=acheron` (цикл Themes↔Bgs жив) → Escape
+            закрыл → Alt+B открыл снова. Монолит 786→351 строк.
+            **ДЕКОМПОЗИЦИЯ ЗАВЕРШЕНА: 1765→351 строк, 8 модулей.**
 - [ ] Отложенный старт остальных тяжёлых операций (аудит после 1-Б).
 
 ### Фаза 2 — «Стиль»: CSS-диета (1–2 волны)
