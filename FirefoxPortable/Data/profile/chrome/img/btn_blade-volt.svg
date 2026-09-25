@@ -1,0 +1,17 @@
+<!-- Blade toolbar icon, volt theme. Literal accent fill:
+     context-fill / currentColor do not resolve for SVGs loaded via
+     list-style-image in this build, so each theme ships its own file.
+     Geometry: blade 2.8u thick with sori-curved spine, single-edged
+     kissaki (spine runs straight into the tip, edge sweeps up), guard
+     7.2u tall, 1.4u gaps, 83% of the 24u viewBox. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="Blade">
+  <title>Blade</title>
+  <g transform="rotate(-45 11.6 12)" fill="#fff820">
+    <!-- hilt (tsuka) -->
+    <path d="M1.2 11.0 h4.4 v2.0 h-4.4 Z"/>
+    <!-- guard (tsuba) -->
+    <path d="M7.0 8.4 h1.8 v7.2 h-1.8 Z"/>
+    <!-- blade: sori spine straight into the tip, edge sweeps up -->
+    <path d="M10.2 10.6 Q15.2 9.8 22.0 10.6 L18.5 13.4 h-8.3 Z"/>
+  </g>
+</svg>

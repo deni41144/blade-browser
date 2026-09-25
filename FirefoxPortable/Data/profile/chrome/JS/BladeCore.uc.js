@@ -33,14 +33,14 @@
   ];
 
   const BUILTIN_BGS = [
-    { id: 'inferno',   label: 'Inferno (Red)',      file: 'bg_inferno.jpg' },
+    { id: 'infernobg', label: 'Inferno (Red)',      file: 'bg_inferno.jpg' },
     { id: 'cherrybg',  label: 'Cherry',             file: 'bg_cherry.jpg' },
     { id: 'bloodmoon', label: 'Blood Moon',         file: 'bg_bloodmoon.jpg' },
     { id: 'midnight',  label: 'Midnight Blue',      file: 'bg_midnight.jpg' },
     { id: 'violet',    label: 'Violet',             file: 'bg_violet.jpg' },
     { id: 'toxic',     label: 'Toxic Green',        file: 'bg_toxic.jpg' },
     { id: 'ashen',     label: 'Ashen Grey',         file: 'bg_ashen.jpg' },
-    { id: 'ember',     label: 'Ember Orange',       file: 'bg_ember.jpg' },
+    { id: 'emberbg',   label: 'Ember Orange',       file: 'bg_ember.jpg' },
     { id: 'voltbg',    label: 'Volt Yellow',        file: 'bg_volt.jpg' },
     { id: 'blade',   label: 'Blade',         file: 'bg_blade.jpg' },
     { id: 'acheron', label: 'Acheron',       file: 'bg_acheron.jpg' },
@@ -57,8 +57,17 @@
     { id: 'v2ember',   label: 'V2 Ember',   file: 'bg_v2_ember.jpg' },
     { id: 'v2volt',    label: 'V2 Volt',    file: 'bg_v2_volt.jpg' },
     // живые фоны: WebP-анимация (файл) и CSS-анимация (file: null — только преф)
-    { id: 'pulse',     label: 'Pulse (CSS-анимация)',   file: null },
-    { id: 'flow',      label: 'Blood Flow (CSS-анимация)', file: null },
+    { id: 'pulse',     label: 'Pulse (CSS-анимация)',       file: null },
+    { id: 'flow',      label: 'Blood Flow (CSS-анимация)',  file: null },
+    // Волна 2 (2026-09-22): 8 живых полотен для всех тем (чистый CSS, 0 файлов)
+    { id: 'aurora',    label: 'Aurora (CSS-анимация)',      file: null },
+    { id: 'matrix',    label: 'Matrix (CSS-анимация)',      file: null },
+    { id: 'ember',     label: 'Ember (CSS-анимация)',       file: null },
+    { id: 'plasma',    label: 'Plasma (CSS-анимация)',      file: null },
+    { id: 'synthwave', label: 'Synthwave (CSS-анимация)',   file: null },
+    { id: 'mist',      label: 'Mist (CSS-анимация)',        file: null },
+    { id: 'sakura',    label: 'Sakura (CSS-анимация)',      file: null },
+    { id: 'inferno',   label: 'Inferno (CSS-анимация)',     file: null },
   ];
 
   const Blade = {

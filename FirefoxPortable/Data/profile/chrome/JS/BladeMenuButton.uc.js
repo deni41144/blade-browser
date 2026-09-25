@@ -49,19 +49,59 @@
     // Структура узла — та же, что была в onBuild: ребёнок .toolbarbutton-icon
     // несёт весь облик кнопки (иконка btn_blade, рамка, ховер, пульсации тем
     // из userChrome 5.1 «живые темы»); слушатель command вешаем сами.
+    const hookPopupState = (doc) => {
+      try {
+        if (!doc) return;
+        const popup = doc.getElementById('bobliks-settings-popup');
+        if (!popup || popup._bladeButtonBound) return;
+        popup._bladeButtonBound = true;
+        const setOpenState = (isOpen) => {
+          try {
+            const b = doc.getElementById(WIDGET_ID);
+            if (!b) return;
+            if (isOpen) {
+              b.setAttribute('open', 'true');
+              b.setAttribute('aria-expanded', 'true');
+            } else {
+              b.removeAttribute('open');
+              b.setAttribute('aria-expanded', 'false');
+            }
+          } catch (e) {}
+        };
+        popup.addEventListener('popupshown', () => setOpenState(true));
+        popup.addEventListener('popuphiding', () => setOpenState(false));
+        popup.addEventListener('popuphidden', () => setOpenState(false));
+      } catch (e) {}
+    };
+
+    const openMenu = (targetBtn) => {
+      try {
+        const doc = (targetBtn && targetBtn.ownerDocument) || window.document;
+        const btn = targetBtn || doc.getElementById(WIDGET_ID);
+        if (btn) {
+          btn.setAttribute('open', 'true');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+        if (window.BladeMenuPopup && typeof window.BladeMenuPopup.open === 'function') {
+          window.BladeMenuPopup.open(btn);
+          hookPopupState(doc);
+        }
+      } catch (e) { mark('ERR open ' + e); }
+    };
+
     const buildMenuButton = (doc) => {
       const btn = doc.createXULElement('toolbarbutton');
       btn.id = WIDGET_ID;
       btn.className = 'toolbarbutton-1 chromeclass-toolbar-additional';
       btn.setAttribute('label', 'Blade');
       btn.setAttribute('tooltiptext', 'Настройки Blade (тема, фон, плитки)');
+      btn.setAttribute('aria-haspopup', 'true');
+      btn.setAttribute('aria-expanded', 'false');
       const icon = doc.createXULElement('image');
       icon.className = 'toolbarbutton-icon';
       btn.appendChild(icon);
       btn.addEventListener('command', () => {
-        try {
-          window.BladeMenuPopup.open(btn);
-        } catch (e) { mark('ERR open ' + e); }
+        openMenu(btn);
       });
       return btn;
     };
@@ -90,6 +130,7 @@
         const anchor = doc.getElementById('nav-bar-overflow-button');
         if (anchor && anchor.parentElement === nav) nav.insertBefore(btn, anchor);
         else nav.appendChild(btn);
+        hookPopupState(doc);
       } catch (e) { mark('ERR menub-mount ' + e); }
     };
     // Монтирование ТОЛЬКО после завершения стартовой инициализации окна,
@@ -143,7 +184,7 @@
         const openBladeMenu = () => {
           try {
             const btn = window.document.getElementById(WIDGET_ID);
-            if (btn) window.BladeMenuPopup.open(btn);
+            openMenu(btn);
           } catch (e) { mark('ERR menuKey ' + e); }
         };
         mkKey('blade-key-menu', 'B', 'alt', openBladeMenu);

@@ -82,37 +82,76 @@
     const MENU_CSS = `
       #bobliks-settings-popup::part(content) {
         appearance: none; -moz-appearance: none;
-        border: 1px solid color-mix(in srgb, var(--accent, #ff2a2a) 80%, transparent);
-        border-radius: 14px;
+        border: 1px solid color-mix(in srgb, var(--bob-accent, var(--accent, #ff2a2a)) 80%, transparent);
+        border-radius: 10px;
         padding: 0;
-        background: linear-gradient(180deg, #17171f 0%, #0a0a0e 100%);
-        box-shadow: 0 14px 50px rgba(0,0,0,0.85), 0 0 30px color-mix(in srgb, var(--accent, #ff2a2a) 20%, transparent);
+        /* part(content) — единственная поверхность, реально рисующая фон panel
+           в FF155. backdrop-filter здесь мёртв: panel — отдельное нативное
+           окно ОС и не сэмплирует родителя, полупрозрачный фон просто
+           проваливается в системный чёрный. Поэтому даём плотный материал:
+           базовый вертикальный градиент + верхний блик + акцентный подмес
+           снизу (тема читается даже без рамки). --bob-accent инжектит
+           BladeThemeEngine USER_SHEET-ом гарантированно (PROJECT_MAP конв. 26) */
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 38%, transparent 100%),
+          linear-gradient(180deg, color-mix(in srgb, var(--bob-accent, #ff2a2a) 7%, #181820) 0%, #0d0d13 62%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 4%, #0a0a0e) 100%);
+        box-shadow: 0 14px 50px rgba(0,0,0,0.85), 0 0 30px color-mix(in srgb, var(--bob-accent, #ff2a2a) 20%, transparent), inset 0 1px 0 rgba(255,255,255,0.07);
         overflow: hidden;
       }
       .bp-wrap { width: 352px; font-family: var(--blade-ui, 'Rubik', 'Segoe UI', sans-serif); color: #e9e9ee; animation: bp-in .16s ease-out; }
       @keyframes bp-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
       .bp-head { display: flex; align-items: center; gap: 9px; padding: 12px 14px 9px; }
-      .bp-logo { font-family: var(--blade-display, 'Unbounded', sans-serif); font-weight: 800; font-size: 15px; letter-spacing: 2px; color: #fff; text-shadow: 0 0 14px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent); }
-      .bp-ver { font-family: var(--blade-mono, 'JetBrains Mono', monospace); font-size: 10.5px; font-weight: 700; color: var(--accent, #ff2a2a); border: 1px solid color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent); background: color-mix(in srgb, var(--accent, #ff2a2a) 12%, transparent); border-radius: 20px; padding: 2px 9px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .bp-tabs { display: flex; gap: 2px; padding: 0 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-      .bp-tab { flex: 1; text-align: center; font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; color: #8f8f9c; padding: 7px 2px 8px; cursor: pointer; border-radius: 6px 6px 0 0; border-bottom: 2px solid transparent; }
-      .bp-tab:hover { color: #dcdce4; background: rgba(255,255,255,0.04); }
-      .bp-tab.on { color: #fff; border-bottom-color: var(--accent, #ff2a2a); background: color-mix(in srgb, var(--accent, #ff2a2a) 12%, transparent); text-shadow: 0 0 10px color-mix(in srgb, var(--accent, #ff2a2a) 60%, transparent); }
-      .bp-body { max-height: 46vh; overflow-y: auto; padding: 6px 4px 8px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--accent, #ff2a2a) 55%, transparent) transparent; }
-      .bp-sub { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #7f7f8c; padding: 9px 12px 3px; }
-      .bp-row { display: flex; align-items: center; gap: 9px; margin: 1px 5px; padding: 7px 10px; border-radius: 8px; font-size: 13px; color: #c9c9d2; cursor: pointer; transition: transform 0.12s ease, background 0.12s ease; }
-      .bp-row:hover { transform: translateY(1px); background: color-mix(in srgb, var(--accent, #ff2a2a) 15%, transparent); color: #fff; box-shadow: inset 2px 0 0 var(--accent, #ff2a2a); }
-      .bp-dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #55555f; flex: none; }
-      .bp-row.on .bp-dot { background: var(--accent, #ff2a2a); border-color: var(--accent, #ff2a2a); box-shadow: 0 0 8px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent); }
-      .bp-row.on { color: var(--accent, #ff2a2a); font-weight: 600; }
+      .bp-logo { font-family: var(--blade-display, 'Unbounded', sans-serif); font-weight: 800; font-size: 15px; letter-spacing: 2px; color: #fff; text-shadow: 0 0 14px color-mix(in srgb, var(--bob-accent, #ff2a2a) 70%, transparent); }
+      .bp-ver { font-family: var(--blade-mono, 'JetBrains Mono', monospace); font-size: 10.5px; font-weight: 700; color: var(--bob-accent, #ff2a2a); border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 45%, transparent); background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 12%, transparent); border-radius: 20px; padding: 2px 9px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .bp-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px 8px 9px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .bp-tab {
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        min-height: 48px; padding: 6px 2px;
+        border-radius: 2px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background-color: #131214;
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.35) 55%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 20%, transparent) 100%);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+        color: #8f8f9c;
+        font-size: 9.5px; font-weight: 700; letter-spacing: 0.6px;
+        cursor: pointer;
+        transition: color 0.12s ease, background 0.16s ease, border-color 0.12s ease, box-shadow 0.16s ease, transform 0.12s ease;
+      }
+      .bp-tab svg { width: 16px; height: 16px; flex: none; }
+      .bp-tab:hover { color: #e8e8f0; transform: translateY(-1px); border-color: rgba(255,255,255,0.12); }
+      .bp-tab.on {
+        color: var(--bob-accent, #ff2a2a);
+        border-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 55%, transparent);
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 14%, #0d0d10) 55%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 34%, transparent) 100%);
+        box-shadow: inset 0 -2px 0 var(--bob-accent, #ff2a2a), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -10px 16px -10px color-mix(in srgb, var(--bob-accent, #ff2a2a) 80%, transparent);
+        text-shadow: 0 0 10px color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent);
+      }
+      .bp-body { max-height: 46vh; overflow-y: auto; padding: 8px 8px 10px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 55%, transparent) transparent; }
+      .bp-sub { font-size: 9.5px; font-weight: 700; letter-spacing: 1.8px; color: #6f6f7c; padding: 10px 4px 5px; }
+      .bp-row {
+        display: flex; align-items: center; gap: 9px;
+        margin: 3px 0; padding: 7px 10px;
+        border-radius: 2px;
+        border: 1px solid rgba(255,255,255,0.05);
+        background-color: #15141a;
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(0,0,0,0.30) 55%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 13%, transparent) 100%);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        font-size: 13px; color: #c9c9d2; cursor: pointer;
+        transition: color 0.12s ease, background 0.16s ease, border-color 0.12s ease, box-shadow 0.16s ease, transform 0.12s ease;
+      }
+      .bp-row:hover { color: #fff; transform: translateY(-1px); border-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 45%, transparent); box-shadow: inset 0 -2px 0 var(--bob-accent, #ff2a2a), inset 0 1px 0 rgba(255,255,255,0.07); }
+      .bp-dot { width: 8px; height: 8px; border-radius: 1px; border: 1.5px solid #55555f; flex: none; }
+      .bp-row.on .bp-dot { background: var(--bob-accent, #ff2a2a); border-color: var(--bob-accent, #ff2a2a); box-shadow: 0 0 8px color-mix(in srgb, var(--bob-accent, #ff2a2a) 70%, transparent); }
+      .bp-row.on { color: var(--bob-accent, #ff2a2a); font-weight: 600; border-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 55%, transparent); box-shadow: inset 0 -2px 0 var(--bob-accent, #ff2a2a), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -10px 16px -10px color-mix(in srgb, var(--bob-accent, #ff2a2a) 80%, transparent); }
       .bp-row.on:hover { color: #fff; }
-      .bp-chip { width: 12px; height: 12px; border-radius: 50%; flex: none; border: 1px solid rgba(255,255,255,0.25); }
-      .bp-row.on .bp-chip { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent); }
-      .bp-row.accent { color: var(--accent, #ff2a2a); font-weight: 700; }
+      .bp-chip { width: 12px; height: 12px; border-radius: 2px; flex: none; border: 1px solid rgba(255,255,255,0.25); }
+      .bp-row.on .bp-chip { box-shadow: 0 0 0 2px color-mix(in srgb, var(--bob-accent, #ff2a2a) 45%, transparent); }
+      .bp-row.accent { color: var(--bob-accent, #ff2a2a); font-weight: 700; }
       .bp-lbl { flex: 1; }
-      .bp-foot { display: flex; border-top: 1px solid rgba(255,255,255,0.08); padding: 4px 6px; }
-      .bp-foot .bp-row { flex: 1; justify-content: center; font-size: 11.5px; color: #9a9aa6; }
-      .bp-foot .bp-row:hover { box-shadow: none; color: #fff; }
+      .bp-foot { display: flex; gap: 4px; border-top: 1px solid rgba(255,255,255,0.08); padding: 6px 8px 8px; }
+      .bp-foot .bp-row { flex: 1; justify-content: center; font-size: 11.5px; color: #9a9aa6; padding: 6px 4px; }
+      .bp-foot .bp-row:hover { color: #fff; }
       /* Смена вкладки: контент мягко въезжает (transform+opacity) */
       .bp-body.bp-anim { animation: bp-body-in .18s ease-out; }
       @keyframes bp-body-in {
@@ -120,17 +159,17 @@
         to   { opacity: 1; transform: none; }
       }
       /* Вкладка ПЕРФ: строки замеров — не строки-кнопки, отступ как у sub */
-      .bp-perf-val { padding: 2px 12px; font-family: var(--blade-mono, 'JetBrains Mono', monospace); }
+      .bp-perf-val { padding: 2px 4px; font-family: var(--blade-mono, 'JetBrains Mono', monospace); }
       .bp-perf-val .bp-lbl { font-size: 12px; color: #b9b9c4; padding: 2px 0; font-family: var(--blade-mono, 'JetBrains Mono', monospace); }
-      .bp-perf-hint { font-size: 11px; color: #8a8f98; padding: 2px 12px 6px; }
+      .bp-perf-hint { font-size: 11px; color: #8a8f98; padding: 2px 4px 6px; }
     `;
     const BP_TABS = [
-      { id: 'theme',  label: 'ТЕМА' },
-      { id: 'bg',     label: 'ФОН' },
-      { id: 'tiles',  label: 'ПЛИТКИ' },
-      { id: 'update', label: 'ОБНОВЫ' },
-      { id: 'perf',   label: 'ПЕРФ' },
-      { id: 'system', label: 'СИСТЕМА' },
+      { id: 'theme',  label: 'ТЕМА',   icon: '<path d="M12 3s-6 6.5-6 10a6 6 0 0 0 12 0c0-3.5-6-10-6-10z"/>' },
+      { id: 'bg',     label: 'ФОН',    icon: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.5"/><path d="M4 17l5-5 4 4 3-3 4 4"/>' },
+      { id: 'tiles',  label: 'ПЛИТКИ', icon: '<rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/>' },
+      { id: 'update', label: 'ОБНОВЫ', icon: '<path d="M12 3v11"/><path d="M7.5 10.5L12 15l4.5-4.5"/><path d="M4 19.5h16"/>' },
+      { id: 'perf',   label: 'ПЕРФ',   icon: '<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4.5-4.5"/><circle cx="12" cy="17" r="1.4" fill="currentColor" stroke="none"/>' },
+      { id: 'system', label: 'СИСТЕМА', icon: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/><rect x="10" y="10" width="4" height="4"/><path d="M10 3.5v3M14 3.5v3M10 17.5v3M14 17.5v3M3.5 10h3M3.5 14h3M17.5 10h3M17.5 14h3"/>' },
     ];
     function buildPopup(doc, popup) {
       // Обновляем активную вкладку + тело панели под преф blade.menu.tab
@@ -270,9 +309,21 @@
       const ver = doc.createElementNS(H, 'span'); ver.className = 'bp-ver';
       head.appendChild(logo); head.appendChild(ver);
       const tabs = doc.createElementNS(H, 'div'); tabs.className = 'bp-tabs';
+      const SVGNS = 'http://www.w3.org/2000/svg';
       for (const t of BP_TABS) {
         const el = doc.createElementNS(H, 'div'); el.className = 'bp-tab';
-        el.textContent = t.label; el.dataset.tab = t.id;
+        el.dataset.tab = t.id;
+        const svg = doc.createElementNS(SVGNS, 'svg');
+        svg.setAttribute('class', 'bp-tico');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '1.6');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        svg.innerHTML = t.icon;
+        const lbl = doc.createElementNS(H, 'span'); lbl.className = 'bp-tlbl'; lbl.textContent = t.label;
+        el.appendChild(svg); el.appendChild(lbl);
         tabs.appendChild(el);
       }
       const body = doc.createElementNS(H, 'div'); body.className = 'bp-body';

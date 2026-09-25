@@ -94,6 +94,83 @@
       100% { background-position: 160% 0, 0 0; }
     }
 
+    /* [Волна 1] Per-theme keyframes: двухслойный сдвиг верхнего блика (-60% -> 160%), нижний металл статичен */
+    @keyframes blade-katana-glint-red {
+      0%   { background-position: -60% 0, 0 0; }
+      8%   { background-position: 12% 0, 0 0; }
+      10%  { background-position: 8% 0, 0 0; }
+      15%  { background-position: 78% 0, 0 0; }
+      17%  { background-position: 72% 0, 0 0; }
+      22%  { background-position: 160% 0, 0 0; }
+      100% { background-position: 160% 0, 0 0; }
+    }
+
+    @keyframes blade-katana-glint-purple {
+      0%   { background-position: -60% 0, 0 0; opacity: 1; }
+      11%  { opacity: 1; }
+      12%  { opacity: 0.72; }
+      13%  { opacity: 1; }
+      22%  { background-position: 160% 0, 0 0; opacity: 1; }
+      58%  { opacity: 1; }
+      59%  { opacity: 0.68; }
+      60%  { opacity: 0.95; }
+      61%  { opacity: 0.74; }
+      62%  { opacity: 1; }
+      100% { background-position: 160% 0, 0 0; opacity: 1; }
+    }
+
+    @keyframes blade-katana-glint-green {
+      0%   { background-position: 0 0, -60% 0, 0 0; }
+      22%  { background-position: 0 0, 160% 0, 0 0; }
+      100% { background-position: 0 0, 160% 0, 0 0; }
+    }
+
+    @keyframes blade-katana-glint-grey {
+      0%   { background-position: -60% 0, 0 0; }
+      22%  { background-position: 160% 0, 0 0; }
+      100% { background-position: 160% 0, 0 0; }
+    }
+
+    @keyframes blade-katana-glint-orange {
+      0%   { background-position: -60% 0, 0 0; }
+      22%  { background-position: 160% 0, 0 0; }
+      100% { background-position: 160% 0, 0 0; }
+    }
+
+    @keyframes blade-katana-glint-cherry {
+      0%   { background-position: -60% 0, 0 0; }
+      22%  { background-position: 160% 0, 0 0; }
+      100% { background-position: 160% 0, 0 0; }
+    }
+
+    @keyframes blade-katana-glint-midnight {
+      0%   { background-position: -60% 0, 0 0; }
+      22%  { background-position: 160% 0, 0 0; }
+      100% { background-position: 160% 0, 0 0; }
+    }
+
+    @keyframes blade-katana-glint-volt {
+      0%   { background-position: -60% 0, 0 0; transform: translate(0, 0); }
+      7%   { background-position: 10% 0, 0 0; transform: translate(-2px, 1px); }
+      8%   { transform: translate(2px, -1px); }
+      9%   { transform: translate(0, 0); }
+      18%  { transform: translate(1px, 1px); }
+      19%  { transform: translate(-1px, 0); }
+      20%  { transform: translate(0, 0); }
+      22%  { background-position: 160% 0, 0 0; transform: translate(0, 0); }
+      55%  { transform: translate(0, 0); }
+      56%  { transform: translate(-2px, 0); }
+      57%  { transform: translate(2px, 0); }
+      58%  { transform: translate(0, 0); }
+      100% { background-position: 160% 0, 0 0; transform: translate(0, 0); }
+    }
+
+    @keyframes blade-katana-glint-custom {
+      0%   { background-position: -60% 0, 0 0; }
+      22%  { background-position: 160% 0, 0 0; }
+      100% { background-position: 160% 0, 0 0; }
+    }
+
     #blade-hero .bh-clock {
       position: relative;
       display: inline-flex;
@@ -118,7 +195,7 @@
       white-space: nowrap;
       user-select: none;
     }
-    /* --- red (дефолт) / custom — благородный алый монолит AVA 3.0 --- */
+    /* --- red (дефолт) — благородный алый монолит AVA 3.0: heat-haze и тёплый outer-glow --- */
     #blade-hero .bh-clock {
       font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
       font-size: 88px;
@@ -126,26 +203,30 @@
       letter-spacing: 6px;
     }
     #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #ffffff 0%, #ffffff 38%, color-mix(in srgb, var(--accent, #ff2a2a) 70%, #fff) 46%, #ffffff 50%, color-mix(in srgb, var(--accent, #ff2a2a) 70%, #fff) 54%, #ffffff 62%, #ffffff 100%);
-      background-size: 260% 100%;
+      /* двухслойный объём: верхний sweep-слой с heat-haze дрожанием, нижний алый металл */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(255, 100, 100, 0.4) 44%, #ffffff 50%, rgba(255, 100, 100, 0.4) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #ffe8e8 55%, #b3001e 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       filter:
         drop-shadow(0 0 2px #ffffff)
-        drop-shadow(0 0 12px color-mix(in srgb, var(--accent, #ff2a2a) 85%, #ff4d4d))
-        drop-shadow(0 0 32px color-mix(in srgb, var(--accent, #ff2a2a) 65%, transparent))
-        drop-shadow(0 0 72px color-mix(in srgb, var(--accent, #ff2a2a) 35%, transparent))
+        drop-shadow(0 0 12px #ff2a2a)
+        drop-shadow(0 0 28px rgba(255, 60, 0, 0.75))
+        drop-shadow(0 0 68px rgba(255, 42, 42, 0.45))
         drop-shadow(0 4px 22px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-red 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
-    /* --- blood — демонический рубиновый клинок: цельный срез катаны Unbounded 800 --- */
+    /* --- blood — демонический рубиновый клинок: Metal Mania 400 --- */
     [data-blade-theme="blood"] #blade-hero .bh-clock {
-      font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
+      font-family: 'blade-metal-mania', 'blade-display', 'Segoe UI', sans-serif;
       font-size: 88px;
-      font-weight: 800;
+      font-weight: 400;
       letter-spacing: 6px;
     }
     [data-blade-theme="blood"] #blade-hero .bh-hm {
@@ -170,9 +251,9 @@
     }
 
     [data-blade-theme="blood"] #blade-hero .bh-sec {
-      font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
+      font-family: 'blade-metal-mania', 'blade-display', 'Segoe UI', sans-serif;
       font-size: 26px;
-      font-weight: 800;
+      font-weight: 400;
       letter-spacing: 2px;
       color: #ffffff;
       text-shadow:
@@ -182,15 +263,19 @@
         0 2px 8px rgba(0, 0, 0, 0.95);
     }
 
-    /* --- purple — неоновая трубка Monoton: чистый ультрафиолетовый плазменный импульс --- */
+    /* --- purple — неоновая трубка Monoton: чистый ультрафиолетовый импульс и neon flicker --- */
     [data-blade-theme="purple"] #blade-hero .bh-clock {
       font-family: 'blade-neon', 'Segoe UI', sans-serif;
       font-size: 84px;
       letter-spacing: 5px;
     }
     [data-blade-theme="purple"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #ffffff 0%, #ffffff 38%, #d075ff 46%, #ffffff 50%, #b44bff 54%, #ffffff 62%, #ffffff 100%);
-      background-size: 260% 100%;
+      /* двухслойный объём: верхний проходящий неоновый блик, нижний фиолетовый металлический градиент */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(208, 117, 255, 0.4) 44%, #ffffff 50%, rgba(180, 75, 255, 0.4) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #f6e6ff 55%, #7e12c4 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -201,43 +286,53 @@
         drop-shadow(0 0 55px rgba(180, 75, 255, 0.75))
         drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-purple 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
 
-    /* --- green — CRT-терминал VT323: изумрудный тактический луч --- */
+    /* --- green — CRT-терминал VT323: фосфорный луч со scanlines и afterglow --- */
     [data-blade-theme="green"] #blade-hero .bh-clock {
       font-family: 'blade-terminal', 'Segoe UI', sans-serif;
       font-size: 100px;
       letter-spacing: 7px;
     }
     [data-blade-theme="green"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #e6fff2 0%, #e6fff2 38%, #00ff88 46%, #ffffff 50%, #00ff88 54%, #e6fff2 62%, #e6fff2 100%);
-      background-size: 260% 100%;
+      /* трёхслойный CRT-эффект: scanlines, проходящий изумрудный луч, фосфорный градиент */
+      background:
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 4px),
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(51, 255, 159, 0.4) 44%, #ffffff 50%, rgba(51, 255, 159, 0.4) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #a3ffce 55%, #008f4c 100%);
+      background-size: 100% 100%, 260% 100%, 100% 100%;
+      background-position: 0 0, -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       filter:
-        drop-shadow(0 0 3px #ffffff)
-        drop-shadow(0 0 10px #33ff9f)
-        drop-shadow(0 0 24px #00ff88)
-        drop-shadow(0 0 50px rgba(0, 255, 136, 0.65))
+        drop-shadow(0 0 2px #ffffff)
+        drop-shadow(0 0 8px #33ff9f)
+        drop-shadow(0 0 22px #00ff88)
+        drop-shadow(0 0 50px rgba(0, 255, 136, 0.7))
+        drop-shadow(0 0 80px rgba(0, 255, 136, 0.35))
         drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-green 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
 
-    /* --- grey — титан и платина Unbounded 800: алмазный срез Masamune --- */
+    /* --- grey — титан и платина Michroma 400: полированный хром и алмазный срез Masamune --- */
     [data-blade-theme="grey"] #blade-hero .bh-clock {
-      font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
+      font-family: 'blade-steel', 'blade-display', 'Segoe UI', sans-serif;
       font-size: 88px;
-      font-weight: 800;
+      font-weight: 400;
       letter-spacing: 6px;
     }
     [data-blade-theme="grey"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #ffffff 0%, #ffffff 38%, #c5d5ea 46%, #ffffff 50%, #c5d5ea 54%, #ffffff 62%, #ffffff 100%);
-      background-size: 260% 100%;
+      /* двухслойный объём: верхний холодный блик, нижний полированный хром (6 стопов) */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(197, 213, 234, 0.45) 44%, #ffffff 50%, rgba(197, 213, 234, 0.45) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #e8ecf2 28%, #c5d5ea 52%, #9cb3ce 74%, #e8ecf2 88%, #ffffff 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -248,13 +343,13 @@
         drop-shadow(0 0 55px rgba(170, 185, 205, 0.45))
         drop-shadow(0 4px 24px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-grey 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
     [data-blade-theme="grey"] #blade-hero .bh-sec {
-      font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
+      font-family: 'blade-steel', 'blade-display', 'Segoe UI', sans-serif;
       font-size: 26px;
-      font-weight: 800;
+      font-weight: 400;
       letter-spacing: 2px;
       color: #e4e8f0;
       text-shadow:
@@ -263,25 +358,31 @@
         0 2px 8px rgba(0, 0, 0, 0.95);
     }
 
-    /* --- orange — обожжённые буквы Rubik Burned: магматическое пламя --- */
+    /* --- orange — обожжённые буквы Rubik Burned: расплавленный металл, восходящий жар лавы --- */
     [data-blade-theme="orange"] #blade-hero .bh-clock {
       font-family: 'blade-fire', 'Segoe UI', sans-serif;
       font-size: 88px;
       letter-spacing: 8px;
     }
     [data-blade-theme="orange"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #ffffff 0%, #ffe17d 25%, #ff881f 44%, #ffffff 50%, #ff881f 56%, #d14500 78%, #ffa033 100%);
-      background-size: 260% 100%;
+      /* двухслойный объём: верхний sweep-блик, нижний углублённый градиент магматической лавы (5 стопов) */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(255, 170, 51, 0.45) 44%, #ffffff 50%, rgba(255, 170, 51, 0.45) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #ffe17d 22%, #ff881f 48%, #e04a00 72%, #7a1500 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       filter:
-        drop-shadow(0 0 1px #fff0b3)
-        drop-shadow(0 0 14px #ff6a1f)
-        drop-shadow(0 0 35px rgba(255, 106, 31, 0.65))
+        drop-shadow(0 0 2px #fff0b3)
+        drop-shadow(0 0 10px #ff881f)
+        drop-shadow(0 0 24px #ff6a1f)
+        drop-shadow(0 0 45px rgba(255, 106, 31, 0.65))
+        drop-shadow(0 0 75px rgba(209, 69, 0, 0.45))
         drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-orange 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
     [data-blade-theme="orange"] #blade-hero .bh-sec {
@@ -292,15 +393,19 @@
       filter: drop-shadow(0 0 8px #ff881f) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
     }
 
-    /* --- cherry — японский деко-сериф Kaisei Decol: морозный розовый хрусталь --- */
+    /* --- cherry — японский деко-сериф Kaisei Decol: морозная сакура и мягкое диффузное свечение --- */
     [data-blade-theme="cherry"] #blade-hero .bh-clock {
       font-family: 'blade-sakura', 'Segoe UI', sans-serif;
       font-size: 88px;
       letter-spacing: 6px;
     }
     [data-blade-theme="cherry"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #fff0f4 0%, #fff0f4 38%, #ff758f 46%, #ffffff 50%, #ff758f 54%, #fff0f4 62%, #fff0f4 100%);
-      background-size: 260% 100%;
+      /* двухслойный объём: верхний мягкий диффузный блик (40-60%), нижний морозный лепестковый градиент */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 30%, rgba(255, 182, 193, 0.25) 40%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 182, 193, 0.25) 60%, transparent 70%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #ffe4ec 50%, #f497aa 80%, #d02d4e 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -311,11 +416,11 @@
         drop-shadow(0 0 55px rgba(208, 45, 78, 0.6))
         drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-cherry 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
 
-    /* --- midnight — небесный арктический Unbounded 800: сияние авроры и звездный лед --- */
+    /* --- midnight — небесный арктический Unbounded 800: aurora-shimmer (циан/синий/индиго) --- */
     [data-blade-theme="midnight"] #blade-hero .bh-clock {
       font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
       font-size: 88px;
@@ -323,8 +428,12 @@
       letter-spacing: 6px;
     }
     [data-blade-theme="midnight"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #f0faff 0%, #f0faff 38%, #00e5ff 46%, #ffffff 50%, #2f6bff 54%, #f0faff 62%, #f0faff 100%);
-      background-size: 260% 100%;
+      /* двухслойный объём: верхний проходящий арктический луч, нижний 3-цветный шиммер авроры */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(0, 229, 255, 0.45) 44%, #ffffff 50%, rgba(47, 107, 255, 0.45) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #b8f4ff 30%, #00e5ff 55%, #2f6bff 80%, #151854 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -336,19 +445,23 @@
         drop-shadow(0 0 95px rgba(0, 229, 255, 0.35))
         drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-midnight 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
 
-    /* --- volt — электрический глитч Rubik Glitch: ослепительный высоковольтный разряд --- */
+    /* --- volt — электрический глитч Rubik Glitch: плазма, glitch-сдвиги и разрядные вспышки --- */
     [data-blade-theme="volt"] #blade-hero .bh-clock {
       font-family: 'blade-volt', 'Segoe UI', sans-serif;
       font-size: 86px;
       letter-spacing: 7px;
     }
     [data-blade-theme="volt"] #blade-hero .bh-hm {
-      background: linear-gradient(115deg, #ffffff 0%, #ffffff 38%, #ffff66 46%, #ffffff 50%, #ffff66 54%, #ffffff 62%, #ffffff 100%);
-      background-size: 260% 100%;
+      /* двухслойный объём: верхний высоковольтный импульс с плазменным глитчем, нижний разрядный градиент */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(255, 255, 102, 0.45) 44%, #ffffff 50%, rgba(255, 255, 102, 0.45) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, #ffffd6 45%, #fff820 75%, #cca800 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -360,16 +473,35 @@
         drop-shadow(0 0 90px rgba(255, 248, 32, 0.35))
         drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint 6.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-volt 6.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
 
-    /* --- custom — конструктор: автонаследование от --accent --- */
+    /* --- custom — конструктор: автонаследование от --accent (хамелеон) --- */
     [data-blade-theme="custom"] #blade-hero .bh-clock {
       font-family: var(--blade-display, 'Unbounded', 'Segoe UI', sans-serif);
       font-size: 88px;
-      font-weight: 300;
+      font-weight: 600;
       letter-spacing: 6px;
+    }
+    [data-blade-theme="custom"] #blade-hero .bh-hm {
+      /* двухслойный объём на color-mix: адаптивный хамелеон под любой акцент */
+      background:
+        linear-gradient(115deg, transparent 0%, transparent 38%, color-mix(in srgb, var(--accent, #ff2a2a) 45%, #ffffff) 44%, #ffffff 50%, color-mix(in srgb, var(--accent, #ff2a2a) 45%, #ffffff) 56%, transparent 62%, transparent 100%),
+        linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--accent, #ff2a2a) 30%, #ffffff) 55%, color-mix(in srgb, var(--accent, #ff2a2a) 70%, #000000) 100%);
+      background-size: 260% 100%, 100% 100%;
+      background-position: -60% 0, 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter:
+        drop-shadow(0 0 2px #ffffff)
+        drop-shadow(0 0 10px color-mix(in srgb, var(--accent, #ff2a2a) 85%, #fff))
+        drop-shadow(0 0 26px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent))
+        drop-shadow(0 0 60px color-mix(in srgb, var(--accent, #ff2a2a) 40%, transparent))
+        drop-shadow(0 4px 22px rgba(0, 0, 0, 0.98))
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+      animation: blade-katana-glint-custom 7.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
     /* Атмосферные «уголки» за часами: два радиальных пятна акцента,
        медленный дрейф transform + лёгкий пульс opacity (композит, дёшево) */
@@ -454,11 +586,24 @@
        ========================================================================== */
     #blade-atmosphere {
       position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1;
+      animation: ba-fadein 1.4s ease-out both;
     }
     :root[data-blade-battery] #blade-atmosphere { display: none !important; }
 
+    /* 4 состояния атмосферы: [Loading, Error, Empty, Success] */
+    #blade-atmosphere[data-state="loading"] { opacity: 0.45; filter: saturate(0.65); }
+    #blade-atmosphere[data-state="error"]   { filter: grayscale(0.55) brightness(0.8); }
+    #blade-atmosphere[data-state="empty"]   { opacity: 0.12; }
+    #blade-atmosphere[data-state="success"] { opacity: 1; }
+
+    @keyframes ba-fadein {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
     .ba-blood, .ba-volt, .ba-cherry, .ba-orange, .ba-midnight, .ba-green, .ba-purple, .ba-grey, .ba-red {
       display: none; position: absolute; inset: 0; pointer-events: none;
+      animation: ba-fadein 1.3s ease-out both;
     }
     [data-blade-theme="blood"] .ba-blood { display: block; }
     [data-blade-theme="volt"] .ba-volt { display: block; }
@@ -473,7 +618,7 @@
 
     /* --- blood: Демонический кровавый туман, разящий след чибуруи (стряхивание крови) и тёмные рубиновые искры --- */
     .ba-blood-mist {
-      position: absolute; inset: 0;
+      position: absolute; inset: 0; z-index: 1;
       background: radial-gradient(ellipse 85% 55% at 50% 95%, rgba(160, 0, 20, 0.18) 0%, rgba(70, 0, 8, 0.08) 50%, transparent 75%);
       filter: blur(16px);
       pointer-events: none;
@@ -484,16 +629,16 @@
       100% { opacity: 0.95; transform: scale(1.03); }
     }
     .ba-blood-arc {
-      position: absolute; top: 12%; right: 14%; width: 280px; height: 160px;
-      filter: drop-shadow(0 0 4px #ffffff) drop-shadow(0 0 12px #ff1a40) drop-shadow(0 0 35px rgba(214, 0, 41, 0.85));
+      position: absolute; top: 12%; right: 14%; width: 280px; height: 160px; z-index: 3;
+      filter: drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 14px #ff1a40) drop-shadow(0 0 40px rgba(214, 0, 41, 0.9));
       opacity: 0; pointer-events: none;
       animation: ba-blood-slash-strike 8.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
     }
     .ba-blood-arc path {
-      stroke: #ff2a4b; stroke-width: 2.2; stroke-linecap: round;
+      stroke: #ff2a4b; stroke-width: 2.6; stroke-linecap: round;
     }
     .ba-blood-flash {
-      position: absolute; inset: 0;
+      position: absolute; inset: 0; z-index: 1;
       background: radial-gradient(circle at 75% 25%, rgba(255, 26, 60, 0.14) 0%, transparent 60%);
       opacity: 0; pointer-events: none;
       animation: ba-blood-sky-flash 8.5s linear infinite;
@@ -514,104 +659,131 @@
       100%     { opacity: 0; }
     }
     .ba-blood-mote {
-      position: absolute; top: -10px;
-      width: 3px; height: 3px; border-radius: 50%;
+      position: absolute; top: -10px; border-radius: 50%;
       background: #ff2a4b;
-      box-shadow: 0 0 5px #ff2a4b, 0 0 12px rgba(180, 0, 25, 0.6);
       opacity: 0; pointer-events: none;
     }
-    .ba-bm1 { left: 18%; animation: ba-bmote-fall 11s linear 0s infinite; }
-    .ba-bm2 { left: 42%; animation: ba-bmote-fall 14s linear 3.5s infinite; }
-    .ba-bm3 { left: 74%; animation: ba-bmote-fall 12s linear 1.5s infinite; }
-    .ba-bm4 { left: 88%; animation: ba-bmote-fall 13.5s linear 5.5s infinite; }
-    @keyframes ba-bmote-fall {
+    /* Разнесение капель крови по планам глубины: дальние (медленнее/тоньше) и ближние (быстрее/ярче) */
+    .ba-bm1 { left: 18%; width: 3.5px; height: 3.5px; z-index: 3; box-shadow: 0 0 7px #ff2a4b, 0 0 16px rgba(255, 26, 60, 0.85); animation: ba-bmote-fall-near 9.5s linear 0s infinite; }
+    .ba-bm2 { left: 42%; width: 2.5px; height: 2.5px; z-index: 1; box-shadow: 0 0 4px #ff2a4b; animation: ba-bmote-fall-far 14.5s linear 3.5s infinite; }
+    .ba-bm3 { left: 74%; width: 3.5px; height: 3.5px; z-index: 3; box-shadow: 0 0 7px #ff2a4b, 0 0 16px rgba(255, 26, 60, 0.85); animation: ba-bmote-fall-near 10.5s linear 1.5s infinite; }
+    .ba-bm4 { left: 88%; width: 2.5px; height: 2.5px; z-index: 1; box-shadow: 0 0 4px #ff2a4b; animation: ba-bmote-fall-far 15s linear 5.5s infinite; }
+    @keyframes ba-bmote-fall-near {
       0%   { transform: translateY(-10px) translateX(0); opacity: 0; }
-      15%  { opacity: 0.7; }
-      80%  { opacity: 0.6; }
-      100% { transform: translateY(105vh) translateX(40px); opacity: 0; }
+      15%  { opacity: 0.92; }
+      80%  { opacity: 0.82; }
+      100% { transform: translateY(105vh) translateX(46px); opacity: 0; }
+    }
+    @keyframes ba-bmote-fall-far {
+      0%   { transform: translateY(-10px) translateX(0); opacity: 0; }
+      15%  { opacity: 0.65; }
+      80%  { opacity: 0.55; }
+      100% { transform: translateY(105vh) translateX(32px); opacity: 0; }
     }
 
     /* --- volt: Бьющая молния в небе + электрический разряд --- */
     .ba-lightning {
-      position: absolute; right: 14%; top: 25px; width: 110px; height: 250px;
-      filter: drop-shadow(0 0 8px #fff820) drop-shadow(0 0 20px rgba(255, 248, 32, 0.85)) drop-shadow(0 0 45px rgba(255, 230, 0, 0.5));
-      opacity: 0;
+      position: absolute; right: 14%; top: 25px; width: 110px; height: 250px; z-index: 3;
+      filter: drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 14px #fff820) drop-shadow(0 0 32px rgba(255, 248, 32, 0.95)) drop-shadow(0 0 65px rgba(255, 230, 0, 0.6));
+      opacity: 0; pointer-events: none;
       animation: ba-volt-strike 6.5s linear infinite;
     }
     .ba-lightning path {
-      stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+      stroke: #ffffff; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round;
     }
     .ba-lightning-flash {
-      position: absolute; inset: 0;
+      position: absolute; inset: 0; z-index: 1;
       background: radial-gradient(circle at 82% 22%, rgba(255, 248, 32, 0.16) 0%, transparent 60%);
-      opacity: 0;
+      opacity: 0; pointer-events: none;
       animation: ba-volt-sky-flash 6.5s linear infinite;
     }
     @keyframes ba-volt-strike {
       0%, 93%    { opacity: 0; }
       94%        { opacity: 1; }
-      95%        { opacity: 0.15; }
-      96%        { opacity: 0.95; }
-      97.5%      { opacity: 0.35; }
-      98.5%      { opacity: 0.85; }
+      95%        { opacity: 0.2; }
+      96%        { opacity: 0.98; }
+      97.5%      { opacity: 0.4; }
+      98.5%      { opacity: 0.9; }
       100%       { opacity: 0; }
     }
     @keyframes ba-volt-sky-flash {
       0%, 93%    { opacity: 0; }
-      94%, 96.5% { opacity: 0.85; }
-      95%, 97.5% { opacity: 0.2; }
+      94%, 96.5% { opacity: 0.88; }
+      95%, 97.5% { opacity: 0.22; }
       100%       { opacity: 0; }
     }
 
     /* --- cherry: Летающие и кружащиеся лепестки сакуры --- */
     .ba-petal {
       position: absolute;
-      width: 13px; height: 16px;
-      background: linear-gradient(135deg, #ffffff 0%, #ffccd5 30%, #ff809b 80%, #d02d4e 100%);
       border-radius: 65% 15% 65% 15% / 65% 15% 65% 15%;
-      box-shadow: 0 0 6px rgba(255, 128, 155, 0.65);
-      opacity: 0;
+      background: linear-gradient(135deg, #ffffff 0%, #ffccd5 28%, #ff809b 75%, #d02d4e 100%);
+      opacity: 0; pointer-events: none;
     }
-    .ba-p1 { left: 8%;  top: -20px; animation: ba-petal-fall 10s linear 0s infinite; }
-    .ba-p2 { left: 22%; top: -20px; animation: ba-petal-fall 13s linear 2.5s infinite; }
-    .ba-p3 { left: 38%; top: -20px; animation: ba-petal-fall 11s linear 5s infinite; }
-    .ba-p4 { left: 55%; top: -20px; animation: ba-petal-fall 14s linear 1.2s infinite; }
-    .ba-p5 { left: 70%; top: -20px; animation: ba-petal-fall 9.5s linear 3.8s infinite; }
-    .ba-p6 { left: 84%; top: -20px; animation: ba-petal-fall 12s linear 6.5s infinite; }
-    .ba-p7 { left: 93%; top: -20px; animation: ba-petal-fall 15s linear 4s infinite; }
+    /* Разнесение лепестков по 3 планам глубины: дальние (тоньше/медленнее), средние и ближние (крупнее/быстрее/ярче) */
+    .ba-p1 { left: 8%;  top: -20px; width: 16px; height: 20px; z-index: 3; box-shadow: 0 0 10px rgba(255, 128, 155, 0.9), 0 0 20px rgba(208, 45, 78, 0.45); animation: ba-petal-fall-near 8.8s linear 0s infinite; }
+    .ba-p2 { left: 22%; top: -20px; width: 10px; height: 12px; z-index: 1; filter: blur(0.5px); box-shadow: 0 0 4px rgba(255, 128, 155, 0.45); animation: ba-petal-fall-far 14.5s linear 2.5s infinite; }
+    .ba-p3 { left: 38%; top: -20px; width: 13px; height: 16px; z-index: 2; box-shadow: 0 0 7px rgba(255, 128, 155, 0.7); animation: ba-petal-fall 11.5s linear 5s infinite; }
+    .ba-p4 { left: 55%; top: -20px; width: 10px; height: 12px; z-index: 1; filter: blur(0.5px); box-shadow: 0 0 4px rgba(255, 128, 155, 0.45); animation: ba-petal-fall-far 15.5s linear 1.2s infinite; }
+    .ba-p5 { left: 70%; top: -20px; width: 16px; height: 20px; z-index: 3; box-shadow: 0 0 10px rgba(255, 128, 155, 0.9), 0 0 20px rgba(208, 45, 78, 0.45); animation: ba-petal-fall-near 8.2s linear 3.8s infinite; }
+    .ba-p6 { left: 84%; top: -20px; width: 13px; height: 16px; z-index: 2; box-shadow: 0 0 7px rgba(255, 128, 155, 0.7); animation: ba-petal-fall 12.2s linear 6.5s infinite; }
+    .ba-p7 { left: 93%; top: -20px; width: 9px;  height: 11px; z-index: 1; filter: blur(0.6px); box-shadow: 0 0 4px rgba(255, 128, 155, 0.4); animation: ba-petal-fall-far 16s linear 4s infinite; }
+    @keyframes ba-petal-fall-near {
+      0%   { transform: translateY(-20px) translateX(0) rotate(0deg) rotateY(0deg); opacity: 0; }
+      10%  { opacity: 0.96; }
+      85%  { opacity: 0.88; }
+      100% { transform: translateY(105vh) translateX(135px) rotate(440deg) rotateY(180deg); opacity: 0; }
+    }
     @keyframes ba-petal-fall {
       0%   { transform: translateY(-20px) translateX(0) rotate(0deg) rotateY(0deg); opacity: 0; }
-      10%  { opacity: 0.85; }
-      85%  { opacity: 0.75; }
+      10%  { opacity: 0.88; }
+      85%  { opacity: 0.8; }
       100% { transform: translateY(105vh) translateX(120px) rotate(420deg) rotateY(180deg); opacity: 0; }
+    }
+    @keyframes ba-petal-fall-far {
+      0%   { transform: translateY(-20px) translateX(0) rotate(0deg) rotateY(0deg); opacity: 0; }
+      10%  { opacity: 0.65; }
+      85%  { opacity: 0.55; }
+      100% { transform: translateY(105vh) translateX(95px) rotate(360deg) rotateY(180deg); opacity: 0; }
     }
 
     /* --- orange: Поднимающиеся искры и угли магмы --- */
     .ba-ember {
-      position: absolute; bottom: 0; border-radius: 50%;
+      position: absolute; bottom: 0; border-radius: 50%; opacity: 0; pointer-events: none;
       background: radial-gradient(circle, #fff3b0 10%, #ff881f 65%, #d14500 100%);
-      box-shadow: 0 0 8px #ff881f, 0 0 16px rgba(255, 106, 31, 0.6);
-      opacity: 0;
     }
-    .ba-e1 { left: 15%; width: 5px; height: 5px; animation: ba-ember-up 8s ease-out 0s infinite; }
-    .ba-e2 { left: 28%; width: 4px; height: 4px; animation: ba-ember-up 10s ease-out 2s infinite; }
-    .ba-e3 { left: 45%; width: 6px; height: 6px; animation: ba-ember-up 7.5s ease-out 4s infinite; }
-    .ba-e4 { left: 62%; width: 4px; height: 4px; animation: ba-ember-up 9s ease-out 1s infinite; }
-    .ba-e5 { left: 78%; width: 5px; height: 5px; animation: ba-ember-up 11s ease-out 3.5s infinite; }
-    .ba-e6 { left: 88%; width: 6px; height: 6px; animation: ba-ember-up 8.5s ease-out 5.5s infinite; }
+    /* Разнесение углей магмы: дальние микроискры, средний план и пылающие искры переднего плана */
+    .ba-e1 { left: 15%; width: 5px; height: 5px; z-index: 2; box-shadow: 0 0 8px #ff881f, 0 0 16px rgba(255, 106, 31, 0.6); animation: ba-ember-up 8.5s ease-out 0s infinite; }
+    .ba-e2 { left: 28%; width: 3px; height: 3px; z-index: 1; box-shadow: 0 0 5px #ff881f; animation: ba-ember-up-far 11.5s ease-out 2s infinite; }
+    .ba-e3 { left: 45%; width: 7px; height: 7px; z-index: 3; background: radial-gradient(circle, #ffffff 15%, #ffe270 45%, #ff7700 80%, #d13000 100%); box-shadow: 0 0 10px #ff941f, 0 0 22px rgba(255, 110, 20, 0.85); animation: ba-ember-up-near 6.8s ease-out 4s infinite; }
+    .ba-e4 { left: 62%; width: 4.5px; height: 4.5px; z-index: 2; box-shadow: 0 0 8px #ff881f, 0 0 16px rgba(255, 106, 31, 0.6); animation: ba-ember-up 9.2s ease-out 1s infinite; }
+    .ba-e5 { left: 78%; width: 3px; height: 3px; z-index: 1; box-shadow: 0 0 5px #ff881f; animation: ba-ember-up-far 12s ease-out 3.5s infinite; }
+    .ba-e6 { left: 88%; width: 7px; height: 7px; z-index: 3; background: radial-gradient(circle, #ffffff 15%, #ffe270 45%, #ff7700 80%, #d13000 100%); box-shadow: 0 0 10px #ff941f, 0 0 22px rgba(255, 110, 20, 0.85); animation: ba-ember-up-near 7.2s ease-out 5.5s infinite; }
+    @keyframes ba-ember-up-near {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 0.98; }
+      70%  { opacity: 0.85; }
+      100% { transform: translateY(-82vh) translateX(42px); opacity: 0; }
+    }
     @keyframes ba-ember-up {
       0%   { transform: translateY(0) translateX(0); opacity: 0; }
       15%  { opacity: 0.9; }
-      70%  { opacity: 0.7; }
+      70%  { opacity: 0.78; }
       100% { transform: translateY(-75vh) translateX(35px); opacity: 0; }
+    }
+    @keyframes ba-ember-up-far {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 0.65; }
+      70%  { opacity: 0.5; }
+      100% { transform: translateY(-65vh) translateX(25px); opacity: 0; }
     }
 
     /* --- midnight: Северное сияние, мерцающие звёзды и метеоры --- */
     .ba-aurora-ribbon {
-      position: absolute; top: 0; left: 0; right: 0; height: 220px;
+      position: absolute; top: 0; left: 0; right: 0; height: 220px; z-index: 1;
       background: radial-gradient(ellipse 75% 140px at 50% 0%, rgba(0, 229, 255, 0.14) 0%, rgba(47, 107, 255, 0.08) 50%, transparent 80%);
       filter: blur(8px);
-      opacity: 0.65;
+      opacity: 0.65; pointer-events: none;
       animation: ba-aurora-breathe 8s ease-in-out infinite alternate;
     }
     @keyframes ba-aurora-breathe {
@@ -620,66 +792,103 @@
       100% { transform: scaleX(1) scaleY(1); opacity: 0.65; }
     }
     .ba-star {
-      position: absolute; border-radius: 50%; background: #ffffff;
-      box-shadow: 0 0 6px #00e5ff, 0 0 12px rgba(0, 229, 255, 0.8);
-      opacity: 0.3;
+      position: absolute; border-radius: 50%; background: #ffffff; pointer-events: none;
     }
-    .ba-st1 { top: 7%;  left: 11%; width: 3px; height: 3px; animation: ba-star-twinkle 3.2s ease-in-out 0.2s infinite alternate; }
-    .ba-st2 { top: 15%; left: 24%; width: 2px; height: 2px; animation: ba-star-twinkle 4.5s ease-in-out 1.5s infinite alternate; }
-    .ba-st3 { top: 5%;  left: 39%; width: 4px; height: 4px; box-shadow: 0 0 8px #00e5ff, 0 0 16px #ffffff; animation: ba-star-twinkle 3.8s ease-in-out 2.1s infinite alternate; }
-    .ba-st4 { top: 19%; left: 56%; width: 2px; height: 2px; animation: ba-star-twinkle 4.1s ease-in-out 0.8s infinite alternate; }
-    .ba-st5 { top: 8%;  left: 72%; width: 3px; height: 3px; animation: ba-star-twinkle 3.5s ease-in-out 3s infinite alternate; }
-    .ba-st6 { top: 22%; left: 83%; width: 2px; height: 2px; animation: ba-star-twinkle 4.8s ease-in-out 1.2s infinite alternate; }
-    .ba-st7 { top: 11%; left: 92%; width: 4px; height: 4px; box-shadow: 0 0 8px #00e5ff, 0 0 16px #ffffff; animation: ba-star-twinkle 3.6s ease-in-out 2.7s infinite alternate; }
-    .ba-st8 { top: 25%; left: 33%; width: 2px; height: 2px; animation: ba-star-twinkle 5s ease-in-out 0.5s infinite alternate; }
+    /* Разнесение звёзд по планам глубины: дальние микрозвёзды, заметные средние и сияющие алмазные ориентиры */
+    .ba-st1 { top: 7%;  left: 11%; width: 3.5px; height: 3.5px; z-index: 2; box-shadow: 0 0 6px #ffffff, 0 0 12px #00e5ff, 0 0 20px rgba(0, 229, 255, 0.85); animation: ba-star-twinkle 3.2s ease-in-out 0.2s infinite alternate; }
+    .ba-st2 { top: 15%; left: 24%; width: 2px; height: 2px; z-index: 1; box-shadow: 0 0 5px #00e5ff, 0 0 9px rgba(0, 229, 255, 0.6); animation: ba-star-twinkle-far 4.5s ease-in-out 1.5s infinite alternate; }
+    .ba-st3 { top: 5%;  left: 39%; width: 5px; height: 5px; z-index: 3; box-shadow: 0 0 4px #ffffff, 0 0 12px #00e5ff, 0 0 26px rgba(0, 229, 255, 0.95), 0 0 40px rgba(47, 107, 255, 0.65); animation: ba-star-twinkle-near 3.8s ease-in-out 2.1s infinite alternate; }
+    .ba-st4 { top: 19%; left: 56%; width: 2px; height: 2px; z-index: 1; box-shadow: 0 0 5px #00e5ff, 0 0 9px rgba(0, 229, 255, 0.6); animation: ba-star-twinkle-far 4.1s ease-in-out 0.8s infinite alternate; }
+    .ba-st5 { top: 8%;  left: 72%; width: 3.5px; height: 3.5px; z-index: 2; box-shadow: 0 0 6px #ffffff, 0 0 12px #00e5ff, 0 0 20px rgba(0, 229, 255, 0.85); animation: ba-star-twinkle 3.5s ease-in-out 3s infinite alternate; }
+    .ba-st6 { top: 22%; left: 83%; width: 2px; height: 2px; z-index: 1; box-shadow: 0 0 5px #00e5ff, 0 0 9px rgba(0, 229, 255, 0.6); animation: ba-star-twinkle-far 4.8s ease-in-out 1.2s infinite alternate; }
+    .ba-st7 { top: 11%; left: 92%; width: 5px; height: 5px; z-index: 3; box-shadow: 0 0 4px #ffffff, 0 0 12px #00e5ff, 0 0 26px rgba(0, 229, 255, 0.95), 0 0 40px rgba(47, 107, 255, 0.65); animation: ba-star-twinkle-near 3.6s ease-in-out 2.7s infinite alternate; }
+    .ba-st8 { top: 25%; left: 33%; width: 2px; height: 2px; z-index: 1; box-shadow: 0 0 5px #00e5ff, 0 0 9px rgba(0, 229, 255, 0.6); animation: ba-star-twinkle-far 5s ease-in-out 0.5s infinite alternate; }
+    @keyframes ba-star-twinkle-near {
+      0%   { opacity: 0.55; transform: scale(0.9); }
+      100% { opacity: 1;    transform: scale(1.55); }
+    }
     @keyframes ba-star-twinkle {
-      0%   { opacity: 0.2; transform: scale(0.7); }
-      100% { opacity: 1;   transform: scale(1.4); }
+      0%   { opacity: 0.4;  transform: scale(0.85); }
+      100% { opacity: 0.95; transform: scale(1.4); }
+    }
+    @keyframes ba-star-twinkle-far {
+      0%   { opacity: 0.25; transform: scale(0.8); }
+      100% { opacity: 0.75; transform: scale(1.2); }
     }
     .ba-meteor {
-      position: absolute; height: 2px;
-      background: linear-gradient(90deg, transparent 0%, rgba(0, 229, 255, 0.3) 30%, #00e5ff 75%, #ffffff 100%);
+      position: absolute; height: 2.5px; z-index: 3; pointer-events: none;
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 229, 255, 0.35) 30%, #00e5ff 75%, #ffffff 100%);
       border-radius: 2px;
-      box-shadow: 0 0 10px #00e5ff, 0 0 20px rgba(0, 229, 255, 0.7);
+      box-shadow: 0 0 12px #00e5ff, 0 0 24px rgba(0, 229, 255, 0.85), 0 0 3px #ffffff;
       opacity: 0;
     }
     .ba-m1 {
-      top: 10%; right: 22%; width: 140px;
+      top: 10%; right: 22%; width: 145px;
       animation: ba-meteor-1 7.5s ease-in-out 1s infinite;
     }
     .ba-m2 {
-      top: 6%; right: 48%; width: 110px;
+      top: 6%; right: 48%; width: 115px;
       animation: ba-meteor-2 10.5s ease-in-out 4.8s infinite;
     }
     @keyframes ba-meteor-1 {
       0%, 86%  { transform: translate(0, 0) rotate(-32deg); opacity: 0; }
-      87%      { opacity: 0.95; }
+      87%      { opacity: 0.98; }
       90%      { transform: translate(-260px, 160px) rotate(-32deg); opacity: 0; }
       100%     { opacity: 0; }
     }
     @keyframes ba-meteor-2 {
       0%, 88%  { transform: translate(0, 0) rotate(-28deg); opacity: 0; }
-      89%      { opacity: 0.9; }
+      89%      { opacity: 0.95; }
       92%      { transform: translate(-220px, 120px) rotate(-28deg); opacity: 0; }
       100%     { opacity: 0; }
     }
 
     /* --- green: Тактические матричные потоки (чистый киберпанк БЕЗ рамок и горизонтальных линий) --- */
     .ba-matrix-col {
-      position: absolute; top: 0; width: 2px; height: 180px;
-      background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.25) 30%, #00ff88 85%, #ffffff 100%);
-      box-shadow: 0 0 8px #00ff88, 0 0 16px rgba(0, 255, 136, 0.4);
-      opacity: 0;
+      position: absolute; top: 0; pointer-events: none; opacity: 0;
     }
-    .ba-mc1 { left: 4%;  animation: ba-matrix-stream 4.8s linear 0.5s infinite; }
-    .ba-mc2 { left: 12%; animation: ba-matrix-stream 6.2s linear 2.5s infinite; }
-    .ba-mc3 { right: 12%; animation: ba-matrix-stream 5.5s linear 1.2s infinite; }
-    .ba-mc4 { right: 4%;  animation: ba-matrix-stream 6.8s linear 3.8s infinite; }
+    /* Разнесение матричных потоков по 3 планам глубины: дальние, средние и быстрые передние */
+    .ba-mc1 { left: 4%;  width: 1.5px; height: 150px; z-index: 1; background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.2) 30%, rgba(0, 255, 136, 0.7) 85%, #d4ffea 100%); box-shadow: 0 0 5px #00ff88; animation: ba-matrix-stream-far 5.5s linear 0.5s infinite; }
+    .ba-mc2 { left: 12%; width: 2px;   height: 190px; z-index: 2; background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.25) 30%, #00ff88 85%, #ffffff 100%); box-shadow: 0 0 8px #00ff88, 0 0 16px rgba(0, 255, 136, 0.45); animation: ba-matrix-stream 6.2s linear 2.5s infinite; }
+    .ba-mc3 { right: 12%; width: 2.5px; height: 230px; z-index: 3; background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.35) 25%, #00ff88 80%, #ffffff 100%); box-shadow: 0 0 10px #00ff88, 0 0 24px rgba(0, 255, 136, 0.7); animation: ba-matrix-stream-near 4.5s linear 1.2s infinite; }
+    .ba-mc4 { right: 4%;  width: 2px;   height: 190px; z-index: 2; background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.25) 30%, #00ff88 85%, #ffffff 100%); box-shadow: 0 0 8px #00ff88, 0 0 16px rgba(0, 255, 136, 0.45); animation: ba-matrix-stream 6.8s linear 3.8s infinite; }
+    .ba-mc5 { left: 19%; width: 1.5px; height: 160px; z-index: 1; background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.2) 30%, rgba(0, 255, 136, 0.7) 85%, #d4ffea 100%); box-shadow: 0 0 5px #00ff88; animation: ba-matrix-stream-far 7.2s linear 1.8s infinite; }
+    .ba-mc6 { right: 22%; width: 2px;   height: 200px; z-index: 2; background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.25) 30%, #00ff88 85%, #ffffff 100%); box-shadow: 0 0 8px #00ff88, 0 0 16px rgba(0, 255, 136, 0.45); animation: ba-matrix-stream 5.8s linear 0.8s infinite; }
+    .ba-mc7 { right: 32%; width: 2.5px; height: 240px; z-index: 3; background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 136, 0.35) 25%, #00ff88 80%, #ffffff 100%); box-shadow: 0 0 10px #00ff88, 0 0 24px rgba(0, 255, 136, 0.7); animation: ba-matrix-stream-near 4.2s linear 3.2s infinite; }
+
+    /* Фосфорные капли бинарного кода */
+    .ba-matrix-drop {
+      position: absolute; top: -10px; border-radius: 50%; pointer-events: none; opacity: 0;
+      background: radial-gradient(circle, #ffffff 25%, #4dffaa 60%, #00ff88 100%);
+      box-shadow: 0 0 6px #00ff88, 0 0 14px rgba(0, 255, 136, 0.85);
+    }
+    .ba-md1 { left: 8%;  width: 3px; height: 3px; z-index: 2; animation: ba-matrix-drop-fall 5.2s ease-in 1.0s infinite; }
+    .ba-md2 { left: 52%; width: 4.5px; height: 4.5px; z-index: 3; box-shadow: 0 0 8px #ffffff, 0 0 18px #00ff88; animation: ba-matrix-drop-fall 4.4s ease-in 2.6s infinite; }
+    .ba-md3 { right: 8%; width: 3.5px; height: 3.5px; z-index: 2; animation: ba-matrix-drop-fall 6.0s ease-in 0.4s infinite; }
+
+    @keyframes ba-matrix-stream-near {
+      0%   { transform: translateY(-100%); opacity: 0; }
+      20%  { opacity: 0.95; }
+      80%  { opacity: 0.95; }
+      100% { transform: translateY(98vh); opacity: 0; }
+    }
     @keyframes ba-matrix-stream {
       0%   { transform: translateY(-100%); opacity: 0; }
-      20%  { opacity: 0.85; }
-      80%  { opacity: 0.85; }
+      20%  { opacity: 0.88; }
+      80%  { opacity: 0.88; }
       100% { transform: translateY(95vh); opacity: 0; }
+    }
+    @keyframes ba-matrix-stream-far {
+      0%   { transform: translateY(-100%); opacity: 0; }
+      20%  { opacity: 0.6; }
+      80%  { opacity: 0.6; }
+      100% { transform: translateY(92vh); opacity: 0; }
+    }
+    @keyframes ba-matrix-drop-fall {
+      0%   { transform: translateY(-10px); opacity: 0; }
+      15%  { opacity: 0.95; }
+      85%  { opacity: 0.88; }
+      100% { transform: translateY(105vh); opacity: 0; }
     }
 
     /* --- grey: Универсальная кинематографичная атмосфера — парящие перья, звёздный пепел, лунный туман и блики клинков --- */
@@ -732,28 +941,40 @@
       position: absolute; top: -20px;
       background: radial-gradient(circle, #ffffff 20%, rgba(220, 230, 245, 0.85) 50%, rgba(140, 155, 175, 0) 100%);
       border-radius: 50%;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.85), 0 0 14px rgba(180, 200, 225, 0.5);
       opacity: 0; pointer-events: none;
     }
-    .ba-a1 { left: 9%;  width: 5px; height: 5px; animation: ba-ash-fall 9.5s linear 0s infinite; }
-    .ba-a2 { left: 22%; width: 3px; height: 3px; animation: ba-ash-fall 12.5s linear 2.5s infinite; }
-    .ba-a3 { left: 33%; width: 6px; height: 6px; animation: ba-ash-fall 8.8s linear 4.8s infinite; }
-    .ba-a4 { left: 48%; width: 4px; height: 4px; animation: ba-ash-fall 11.2s linear 1.2s infinite; }
-    .ba-a5 { left: 63%; width: 5px; height: 5px; animation: ba-ash-fall 9.8s linear 3.7s infinite; }
-    .ba-a6 { left: 79%; width: 3px; height: 3px; animation: ba-ash-fall 13.5s linear 6.2s infinite; }
-    .ba-a7 { left: 89%; width: 6px; height: 6px; animation: ba-ash-fall 8.2s linear 2s infinite; }
-    .ba-a8 { left: 96%; width: 4px; height: 4px; animation: ba-ash-fall 10.8s linear 5s infinite; }
+    /* Разнесение хлопьев пепла: дальние микрочастицы, средние и сияющие близкие хлопья */
+    .ba-a1 { left: 9%;  width: 5px;   height: 5px;   z-index: 2; box-shadow: 0 0 6px rgba(255, 255, 255, 0.85), 0 0 14px rgba(180, 200, 225, 0.5); animation: ba-ash-fall 9.5s linear 0s infinite; }
+    .ba-a2 { left: 22%; width: 3px;   height: 3px;   z-index: 1; box-shadow: 0 0 4px rgba(255, 255, 255, 0.6); animation: ba-ash-fall-far 12.5s linear 2.5s infinite; }
+    .ba-a3 { left: 33%; width: 6.5px; height: 6.5px; z-index: 3; box-shadow: 0 0 8px #ffffff, 0 0 18px rgba(210, 230, 255, 0.75); animation: ba-ash-fall-near 8.5s linear 4.8s infinite; }
+    .ba-a4 { left: 48%; width: 3.5px; height: 3.5px; z-index: 1; box-shadow: 0 0 4px rgba(255, 255, 255, 0.6); animation: ba-ash-fall-far 11.2s linear 1.2s infinite; }
+    .ba-a5 { left: 63%; width: 5px;   height: 5px;   z-index: 2; box-shadow: 0 0 6px rgba(255, 255, 255, 0.85), 0 0 14px rgba(180, 200, 225, 0.5); animation: ba-ash-fall 9.8s linear 3.7s infinite; }
+    .ba-a6 { left: 79%; width: 3px;   height: 3px;   z-index: 1; box-shadow: 0 0 4px rgba(255, 255, 255, 0.6); animation: ba-ash-fall-far 13.5s linear 6.2s infinite; }
+    .ba-a7 { left: 89%; width: 6.5px; height: 6.5px; z-index: 3; box-shadow: 0 0 8px #ffffff, 0 0 18px rgba(210, 230, 255, 0.75); animation: ba-ash-fall-near 8s linear 2s infinite; }
+    .ba-a8 { left: 96%; width: 4.5px; height: 4.5px; z-index: 2; box-shadow: 0 0 6px rgba(255, 255, 255, 0.85), 0 0 14px rgba(180, 200, 225, 0.5); animation: ba-ash-fall 10.8s linear 5s infinite; }
+    @keyframes ba-ash-fall-near {
+      0%   { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+      15%  { opacity: 0.96; }
+      80%  { opacity: 0.88; }
+      100% { transform: translateY(105vh) translateX(65px) rotate(220deg); opacity: 0; }
+    }
     @keyframes ba-ash-fall {
       0%   { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
       15%  { opacity: 0.9; }
       80%  { opacity: 0.8; }
       100% { transform: translateY(105vh) translateX(55px) rotate(180deg); opacity: 0; }
     }
+    @keyframes ba-ash-fall-far {
+      0%   { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+      15%  { opacity: 0.65; }
+      80%  { opacity: 0.55; }
+      100% { transform: translateY(105vh) translateX(40px) rotate(140deg); opacity: 0; }
+    }
 
     /* Вспышки бликов лезвий и анаморфотные лучи (кинематографичный отблеск стали) */
     .ba-flare {
       position: absolute; display: flex; align-items: center; justify-content: center;
-      pointer-events: none; opacity: 0;
+      pointer-events: none; opacity: 0; z-index: 3;
     }
     .ba-fl-1 {
       top: 34%; left: 22%;
@@ -789,7 +1010,7 @@
 
     /* --- purple: Ретро-синтвейв туман горизонта и парящие неоновые частицы --- */
     .ba-synth-mist {
-      position: absolute; top: 0; left: 0; right: 0; height: 260px;
+      position: absolute; top: 0; left: 0; right: 0; height: 260px; z-index: 1;
       background: radial-gradient(ellipse 75% 140px at 50% 0%, rgba(180, 75, 255, 0.14) 0%, rgba(208, 117, 255, 0.05) 55%, transparent 100%);
       filter: blur(14px);
       pointer-events: none;
@@ -800,40 +1021,69 @@
       100% { opacity: 0.9; transform: scale(1.02); }
     }
     .ba-synth-mote {
-      position: absolute; bottom: 0; border-radius: 50%;
+      position: absolute; bottom: 0; border-radius: 50%; opacity: 0; pointer-events: none;
       background: radial-gradient(circle, #ffffff 15%, #d075ff 60%, #b44bff 100%);
-      box-shadow: 0 0 8px #b44bff, 0 0 18px rgba(180, 75, 255, 0.65);
-      opacity: 0; pointer-events: none;
     }
-    .ba-sm1 { left: 14%; width: 4px; height: 4px; animation: ba-synth-up 8s ease-out 0.5s infinite; }
-    .ba-sm2 { left: 28%; width: 5px; height: 5px; animation: ba-synth-up 10s ease-out 3s infinite; }
-    .ba-sm3 { left: 45%; width: 3px; height: 3px; animation: ba-synth-up 7.5s ease-out 1.2s infinite; }
-    .ba-sm4 { left: 65%; width: 4px; height: 4px; animation: ba-synth-up 9s ease-out 1.5s infinite; }
-    .ba-sm5 { left: 82%; width: 5px; height: 5px; animation: ba-synth-up 8.5s ease-out 4.5s infinite; }
-    .ba-sm6 { left: 92%; width: 3px; height: 3px; animation: ba-synth-up 11s ease-out 2s infinite; }
+    /* Разнесение неоновых частиц по планам глубины: дальние, средние и сияющие передние */
+    .ba-sm1 { left: 14%; width: 4.5px; height: 4.5px; z-index: 2; box-shadow: 0 0 8px #b44bff, 0 0 18px rgba(180, 75, 255, 0.65); animation: ba-synth-up 8.5s ease-out 0.5s infinite; }
+    .ba-sm2 { left: 28%; width: 6px;   height: 6px;   z-index: 3; background: radial-gradient(circle, #ffffff 20%, #e28aff 55%, #b44bff 100%); box-shadow: 0 0 10px #d075ff, 0 0 24px rgba(180, 75, 255, 0.85); animation: ba-synth-up-near 7.5s ease-out 3s infinite; }
+    .ba-sm3 { left: 45%; width: 3px;   height: 3px;   z-index: 1; box-shadow: 0 0 6px #b44bff; animation: ba-synth-up-far 11s ease-out 1.2s infinite; }
+    .ba-sm4 { left: 65%; width: 4.5px; height: 4.5px; z-index: 2; box-shadow: 0 0 8px #b44bff, 0 0 18px rgba(180, 75, 255, 0.65); animation: ba-synth-up 9s ease-out 1.5s infinite; }
+    .ba-sm5 { left: 82%; width: 6px;   height: 6px;   z-index: 3; background: radial-gradient(circle, #ffffff 20%, #e28aff 55%, #b44bff 100%); box-shadow: 0 0 10px #d075ff, 0 0 24px rgba(180, 75, 255, 0.85); animation: ba-synth-up-near 7.2s ease-out 4.5s infinite; }
+    .ba-sm6 { left: 92%; width: 3px;   height: 3px;   z-index: 1; box-shadow: 0 0 6px #b44bff; animation: ba-synth-up-far 12s ease-out 2s infinite; }
+    @keyframes ba-synth-up-near {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 0.96; }
+      70%  { opacity: 0.85; }
+      100% { transform: translateY(-82vh) translateX(36px); opacity: 0; }
+    }
     @keyframes ba-synth-up {
       0%   { transform: translateY(0) translateX(0); opacity: 0; }
-      15%  { opacity: 0.85; }
-      70%  { opacity: 0.7; }
+      15%  { opacity: 0.9; }
+      70%  { opacity: 0.78; }
       100% { transform: translateY(-75vh) translateX(30px); opacity: 0; }
+    }
+    @keyframes ba-synth-up-far {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 0.65; }
+      70%  { opacity: 0.52; }
+      100% { transform: translateY(-65vh) translateX(22px); opacity: 0; }
     }
 
     /* --- red / custom: Алые искры клинка AVA 3.0 (БЕЗ уголков) --- */
     .ba-red-mote {
-      position: absolute; bottom: 0; border-radius: 50%;
+      position: absolute; bottom: 0; border-radius: 50%; opacity: 0; pointer-events: none;
       background: radial-gradient(circle, #ffffff 15%, color-mix(in srgb, var(--accent, #ff2a2a) 80%, #fff) 50%, var(--accent, #ff2a2a) 100%);
-      box-shadow: 0 0 8px var(--accent, #ff2a2a), 0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent);
-      opacity: 0;
     }
-    .ba-rm1 { left: 16%; width: 4px; height: 4px; animation: ba-red-up 8.5s ease-out 0s infinite; }
-    .ba-rm2 { left: 32%; width: 5px; height: 5px; animation: ba-red-up 10.5s ease-out 2.5s infinite; }
-    .ba-rm3 { left: 70%; width: 4px; height: 4px; animation: ba-red-up 9s ease-out 1s infinite; }
-    .ba-rm4 { left: 85%; width: 5px; height: 5px; animation: ba-red-up 8s ease-out 4s infinite; }
+    /* 10 искр клинка на 3 планах глубины: фоновые, средние и мощные передние вспышки */
+    .ba-rm1  { left: 12%; width: 3.5px; height: 3.5px; z-index: 1; box-shadow: 0 0 5px var(--accent, #ff2a2a); animation: ba-red-up-far 11.5s ease-out 0s infinite; }
+    .ba-rm2  { left: 25%; width: 6.5px; height: 6.5px; z-index: 3; background: radial-gradient(circle, #ffffff 25%, color-mix(in srgb, var(--accent, #ff2a2a) 85%, #fff) 55%, var(--accent, #ff2a2a) 100%); box-shadow: 0 0 10px var(--accent, #ff2a2a), 0 0 24px color-mix(in srgb, var(--accent, #ff2a2a) 75%, transparent); animation: ba-red-up-near 7.5s ease-out 2.2s infinite; }
+    .ba-rm3  { left: 38%; width: 4.5px; height: 4.5px; z-index: 2; box-shadow: 0 0 8px var(--accent, #ff2a2a), 0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent); animation: ba-red-up 9s ease-out 1s infinite; }
+    .ba-rm4  { left: 54%; width: 3px;   height: 3px;   z-index: 1; box-shadow: 0 0 5px var(--accent, #ff2a2a); animation: ba-red-up-far 12.5s ease-out 4.5s infinite; }
+    .ba-rm5  { left: 66%; width: 6.5px; height: 6.5px; z-index: 3; background: radial-gradient(circle, #ffffff 25%, color-mix(in srgb, var(--accent, #ff2a2a) 85%, #fff) 55%, var(--accent, #ff2a2a) 100%); box-shadow: 0 0 10px var(--accent, #ff2a2a), 0 0 24px color-mix(in srgb, var(--accent, #ff2a2a) 75%, transparent); animation: ba-red-up-near 8s ease-out 3.2s infinite; }
+    .ba-rm6  { left: 75%; width: 4.5px; height: 4.5px; z-index: 2; box-shadow: 0 0 8px var(--accent, #ff2a2a), 0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent); animation: ba-red-up 9.5s ease-out 0.8s infinite; }
+    .ba-rm7  { left: 84%; width: 6px;   height: 6px;   z-index: 3; background: radial-gradient(circle, #ffffff 25%, color-mix(in srgb, var(--accent, #ff2a2a) 85%, #fff) 55%, var(--accent, #ff2a2a) 100%); box-shadow: 0 0 10px var(--accent, #ff2a2a), 0 0 24px color-mix(in srgb, var(--accent, #ff2a2a) 75%, transparent); animation: ba-red-up-near 7s ease-out 5s infinite; }
+    .ba-rm8  { left: 92%; width: 3px;   height: 3px;   z-index: 1; box-shadow: 0 0 5px var(--accent, #ff2a2a); animation: ba-red-up-far 13s ease-out 2s infinite; }
+    .ba-rm9  { left: 46%; width: 5px;   height: 5px;   z-index: 2; box-shadow: 0 0 8px var(--accent, #ff2a2a), 0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent); animation: ba-red-up 8.8s ease-out 6s infinite; }
+    .ba-rm10 { left: 6%;  width: 5px;   height: 5px;   z-index: 2; box-shadow: 0 0 8px var(--accent, #ff2a2a), 0 0 16px color-mix(in srgb, var(--accent, #ff2a2a) 50%, transparent); animation: ba-red-up 10s ease-out 4s infinite; }
+
+    @keyframes ba-red-up-near {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 0.96; }
+      70%  { opacity: 0.85; }
+      100% { transform: translateY(-82vh) translateX(38px); opacity: 0; }
+    }
     @keyframes ba-red-up {
       0%   { transform: translateY(0) translateX(0); opacity: 0; }
-      15%  { opacity: 0.85; }
-      70%  { opacity: 0.65; }
-      100% { transform: translateY(-70vh) translateX(30px); opacity: 0; }
+      15%  { opacity: 0.88; }
+      70%  { opacity: 0.75; }
+      100% { transform: translateY(-72vh) translateX(30px); opacity: 0; }
+    }
+    @keyframes ba-red-up-far {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 0.65; }
+      70%  { opacity: 0.5; }
+      100% { transform: translateY(-62vh) translateX(20px); opacity: 0; }
     }
   `;
 
@@ -851,7 +1101,7 @@
     const wrap = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
     wrap.id = 'blade-hero-wrap';
     wrap.innerHTML =
-      '<div id="blade-atmosphere" aria-hidden="true">' +
+      '<div id="blade-atmosphere" aria-hidden="true" data-state="success">' +
         '<div class="ba-blood">' +
           '<div class="ba-blood-mist"></div>' +
           '<svg class="ba-blood-arc" viewBox="0 0 320 180" fill="none"><path d="M 20 160 Q 150 70 300 20"/></svg>' +
@@ -880,6 +1130,8 @@
         '<div class="ba-green">' +
           '<div class="ba-matrix-col ba-mc1"></div><div class="ba-matrix-col ba-mc2"></div>' +
           '<div class="ba-matrix-col ba-mc3"></div><div class="ba-matrix-col ba-mc4"></div>' +
+          '<div class="ba-matrix-col ba-mc5"></div><div class="ba-matrix-col ba-mc6"></div><div class="ba-matrix-col ba-mc7"></div>' +
+          '<div class="ba-matrix-drop ba-md1"></div><div class="ba-matrix-drop ba-md2"></div><div class="ba-matrix-drop ba-md3"></div>' +
         '</div>' +
         '<div class="ba-grey">' +
           '<div class="ba-grey-mist"></div>' +
@@ -901,6 +1153,9 @@
         '<div class="ba-red">' +
           '<div class="ba-red-mote ba-rm1"></div><div class="ba-red-mote ba-rm2"></div>' +
           '<div class="ba-red-mote ba-rm3"></div><div class="ba-red-mote ba-rm4"></div>' +
+          '<div class="ba-red-mote ba-rm5"></div><div class="ba-red-mote ba-rm6"></div>' +
+          '<div class="ba-red-mote ba-rm7"></div><div class="ba-red-mote ba-rm8"></div>' +
+          '<div class="ba-red-mote ba-rm9"></div><div class="ba-red-mote ba-rm10"></div>' +
         '</div>' +
       '</div>' +
       '<div id="blade-hero" role="banner" aria-label="AVA 3.0 Hero" data-state="success">' +

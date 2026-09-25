@@ -145,6 +145,13 @@
   font-display: swap;
 }
 
+/* blood — готический металл Metal Mania */
+@font-face {
+  font-family: 'blade-metal-mania';
+  src: url("fonts/MetalMania-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
 /* ============================================================================
    0. ДВИЖОК ТЕМ (синхронизирован с userChrome.css и кнопкой Bobliks)
    Дефолт = GX RED. Темы включаются префами bobliks.theme.* (кнопка "B").
@@ -156,6 +163,10 @@
   --bob-accent-rgb: 255, 42, 42;
   --bob-accent-contrast: #ffffff;
   --bob-page: #0a0a0c;
+  --bob-surface: #14090a;          /* тёмно-красный карбон: базовая поверхность плитки */
+  --bob-surface-2: #1e0e10;        /* возвышение: hover/active */
+  --bob-surface-line: rgba(255, 42, 42, 0.25);  /* карбоновая кайма */
+  --bob-text: #f5e8e8;
 
   /* Кастомная типографика */
   --blade-display: 'blade-display', 'Unbounded', 'Segoe UI', sans-serif;
@@ -176,6 +187,10 @@
     --bob-page: #0c0a10;
     --bob-accent-rgb: 180, 75, 255;
     --bob-accent-contrast: #ffffff;
+    --bob-surface: #120a18;          /* ультрафиолетовый обсидиан */
+    --bob-surface-2: #1c1026;        /* возвышение: неоновый сумрак */
+    --bob-surface-line: rgba(180, 75, 255, 0.28);  /* неоновая фиолетовая кайма */
+    --bob-text: #f3e8fc;
   }
   ::selection { background-color: #b44bff !important; color: #ffffff !important; }
 }
@@ -186,6 +201,10 @@
     --bob-page: #060a08;
     --bob-accent-rgb: 0, 255, 136;
     --bob-accent-contrast: #0a0a0c;
+    --bob-surface: #06110a;          /* фосфорная глубина CRT */
+    --bob-surface-2: #0c1c11;        /* возвышение: терминал */
+    --bob-surface-line: rgba(0, 255, 136, 0.24);  /* фосфорная кайма */
+    --bob-text: #e2f7ed;
   }
   ::selection { background-color: #00ff88 !important; color: #000000 !important; }
 }
@@ -196,6 +215,10 @@
     --bob-page: #0e0f11;
     --bob-accent-rgb: 138, 143, 152;
     --bob-accent-contrast: #0a0a0c;
+    --bob-surface: #111316;          /* зеркальная сталь/платина */
+    --bob-surface-2: #1a1d22;        /* возвышение: шлифованный металл */
+    --bob-surface-line: rgba(200, 220, 245, 0.24);  /* платиновая кайма */
+    --bob-text: #e8ecf2;
   }
   ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
 }
@@ -206,6 +229,10 @@
     --bob-page: #0c0a08;
     --bob-accent-rgb: 255, 106, 31;
     --bob-accent-contrast: #ffffff;
+    --bob-surface: #140b07;          /* базальт раскалённой магмы */
+    --bob-surface-2: #21120b;        /* возвышение: лавовая корка */
+    --bob-surface-line: rgba(255, 106, 31, 0.28);  /* магматическая кайма */
+    --bob-text: #faebe5;
   }
   ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
 }
@@ -217,6 +244,10 @@
     --bob-page: #100508;
     --bob-accent-rgb: 208, 45, 78;
     --bob-accent-contrast: #ffffff;
+    --bob-surface: #15080c;          /* хрустальная сакура / тёмная вишня */
+    --bob-surface-2: #220d14;        /* возвышение: сакуровый блеск */
+    --bob-surface-line: rgba(255, 117, 143, 0.26);  /* хрустально-розовая кайма */
+    --bob-text: #fcebef;
   }
   ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
 }
@@ -228,6 +259,10 @@
     --bob-page: #0d0d05;
     --bob-accent-rgb: 255, 248, 32;
     --bob-accent-contrast: #0a0a0c;
+    --bob-surface: #121206;          /* высоковольтный диэлектрик */
+    --bob-surface-2: #1d1d0a;        /* возвышение: ионизированная среда */
+    --bob-surface-line: rgba(255, 248, 32, 0.28);  /* электрическая кайма */
+    --bob-text: #0d0d05;             /* тёмный контрастный текст под вольт */
   }
   ::selection { background-color: #fff820 !important; color: #000000 !important; }
 }
@@ -239,6 +274,10 @@
     --bob-page: #04060d;
     --bob-accent-rgb: 47, 107, 255;
     --bob-accent-contrast: #ffffff;
+    --bob-surface: #060914;          /* космическая бездна Midnight */
+    --bob-surface-2: #0b1122;        /* возвышение: орбитальная тень */
+    --bob-surface-line: rgba(0, 229, 255, 0.26);  /* циановый след кометы */
+    --bob-text: #e6f0ff;
   }
   ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
 }
@@ -250,6 +289,10 @@
     --bob-page: #0d0506;
     --bob-accent-rgb: 168, 15, 15;
     --bob-accent-contrast: #ffffff;
+    --bob-surface: #170a0c;          /* обсидиан: базовая поверхность плитки */
+    --bob-surface-2: #221013;        /* возвышение: hover/active */
+    --bob-surface-line: rgba(214, 0, 41, 0.28);  /* рубиновая кайма */
+    --bob-text: #f3e3e3;
   }
   ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
 }
@@ -272,7 +315,16 @@
 :root[data-blade-theme="volt"] ::selection { background-color: #fff820 !important; color: #000000 !important; }
 :root[data-blade-theme="midnight"] { --bob-accent: #2f6bff; --bob-page: #04060d; --bob-accent-rgb: 47, 107, 255; --bob-accent-contrast: #ffffff; }
 :root[data-blade-theme="midnight"] ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
-:root[data-blade-theme="blood"] { --bob-accent: #a80f0f; --bob-page: #0d0506; --bob-accent-rgb: 168, 15, 15; --bob-accent-contrast: #ffffff; }
+:root[data-blade-theme="blood"] {
+  --bob-accent: #a80f0f;
+  --bob-page: #0d0506;
+  --bob-accent-rgb: 168, 15, 15;
+  --bob-accent-contrast: #ffffff;
+  --bob-surface: #170a0c;          /* обсидиан: базовая поверхность плитки */
+  --bob-surface-2: #221013;        /* возвышение: hover/active */
+  --bob-surface-line: rgba(214, 0, 41, 0.28);  /* рубиновая кайма */
+  --bob-text: #f3e3e3;
+}
 :root[data-blade-theme="blood"] ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
 /* red-дубль: возврат на дефолт должен перебивать застрявший преф-блок темы */
 :root[data-blade-theme="red"] { --bob-accent: #ff2a2a; --bob-page: #0a0a0c; }
@@ -291,6 +343,102 @@
 @keyframes blade-flow-b {
   from { transform: translate(5%, 2%) scale(1.05); }
   to   { transform: translate(-5%, -3%) scale(1); }
+}
+
+/* --- Волна 2: Живые полотна-обои для всех тем (чистый CSS, 0 файлов) --- */
+/* Aurora (Midnight) — дрейф лент северного сияния 32s/40s */
+@keyframes blade-bg-aurora-a {
+  from { transform: translate(-3%, -2%) rotate(0deg) scale(1); }
+  to   { transform: translate(3%, 4%) rotate(2deg) scale(1.06); }
+}
+@keyframes blade-bg-aurora-b {
+  from { transform: translate(4%, 2%) rotate(0deg) scale(1.05); }
+  to   { transform: translate(-4%, -3%) rotate(-2deg) scale(1); }
+}
+
+/* Matrix (Green) — падающие фосфорные колонны и дыхание терминала */
+@keyframes blade-bg-matrix-a {
+  from { transform: translateY(-120px); }
+  to   { transform: translateY(0); }
+}
+@keyframes blade-bg-matrix-b {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+
+/* Ember (Orange) — восходящие искры и тлеющий магматический жар */
+@keyframes blade-bg-ember-a {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-150px); }
+}
+@keyframes blade-bg-ember-b {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.08); }
+}
+
+/* Plasma (Volt) — электрические дуги и разряды высокого напряжения */
+@keyframes blade-bg-plasma-a {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50%      { transform: scale(1.07) rotate(2deg); opacity: 1; }
+}
+@keyframes blade-bg-plasma-b {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  47%      { opacity: 0.4; }
+  50%      { opacity: 0.95; transform: scale(1.04) rotate(2deg); }
+  53%      { opacity: 0.45; }
+  77%      { opacity: 0.4; }
+  80%      { opacity: 0.9; transform: scale(1.02) rotate(-2deg); }
+  83%      { opacity: 0.4; }
+}
+
+/* Synthwave (Purple) — ретровейв горизонт и бегущая неоновая сетка */
+@keyframes blade-bg-synthwave-a {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.08); }
+}
+@keyframes blade-bg-synthwave-b {
+  from { transform: translateY(0); }
+  to   { transform: translateY(80px); }
+}
+
+/* Mist (Grey) — медленный перелив хладных градиентов в противоход 56s/68s */
+@keyframes blade-bg-mist-a {
+  from { transform: translate(-5%, -3%) scale(1); }
+  to   { transform: translate(4%, 3%) scale(1.07); }
+}
+@keyframes blade-bg-mist-b {
+  from { transform: translate(5%, 3%) scale(1.06); }
+  to   { transform: translate(-4%, -4%) scale(1); }
+}
+
+/* Sakura (Cherry) — мягкий дрейф розового тумана сакуры 45s/58s */
+@keyframes blade-bg-sakura-a {
+  from { transform: translate(-4%, -2%) scale(1); }
+  to   { transform: translate(4%, 3%) scale(1.08); }
+}
+@keyframes blade-bg-sakura-b {
+  from { transform: translate(5%, 2%) scale(1.05); }
+  to   { transform: translate(-5%, -3%) scale(1); }
+}
+
+/* Inferno (Red) — огненное дыхание бездны, улучшенный pulse */
+@keyframes blade-bg-inferno-a {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.14); }
+}
+@keyframes blade-bg-inferno-b {
+  from { transform: translate(-3%, 2%) scale(1); opacity: 0.6; }
+  to   { transform: translate(3%, -2%) scale(1.08); opacity: 0.9; }
+}
+
+/* Volt (Plasma) — пульсирующий glow плитки Speed Dial в покое 2.4s alternate */
+@keyframes blade-tile-volt-glow {
+  0% {
+    box-shadow: inset 0 1px 0 rgba(255, 248, 32, 0.12), inset 0 0 14px rgba(255, 248, 32, 0.20), 0 4px 18px rgba(0, 0, 0, 0.55), 0 0 4px rgba(255, 248, 32, 0.10);
+  }
+  100% {
+    box-shadow: inset 0 1px 0 rgba(255, 248, 32, 0.22), inset 0 0 18px rgba(255, 248, 32, 0.35), 0 4px 20px rgba(0, 0, 0, 0.60), 0 0 14px rgba(255, 248, 32, 0.35);
+  }
 }
 
 
@@ -314,7 +462,7 @@
      Полная подмена background с url() ИНЛАЙНОМ: в var() относительный путь
      разрешался бы от документа, а не от этой таблицы стилей.
      Порядок обязателен: блоки ниже базового правила, чтобы побеждать его. */
-  @media -moz-pref("bobliks.bg.inferno") {
+  @media -moz-pref("bobliks.bg.infernobg"), -moz-pref("bobliks.bg.static_inferno") {
     body.activity-stream {
       background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important;
     }
@@ -362,7 +510,7 @@
     }
   }
 
-  @media -moz-pref("bobliks.bg.ember") {
+  @media -moz-pref("bobliks.bg.emberbg"), -moz-pref("bobliks.bg.static_ember") {
     body.activity-stream {
       background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important;
     }
@@ -479,13 +627,258 @@
     }
   }
 
+  /* Aurora — живые ленты северного сияния (Midnight) */
+  @media -moz-pref("bobliks.bg.aurora") {
+    body.activity-stream {
+      background: #04060d !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 30% 25%, rgba(0, 229, 255, 0.32), transparent 70%),
+        radial-gradient(ellipse 60% 60% at 70% 60%, rgba(47, 107, 255, 0.28), transparent 75%);
+      animation: blade-bg-aurora-a 32s ease-in-out infinite alternate;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        linear-gradient(125deg, transparent 20%, rgba(0, 229, 255, 0.15) 40%, rgba(79, 70, 229, 0.25) 60%, transparent 80%),
+        radial-gradient(ellipse 50% 40% at 50% 80%, rgba(30, 27, 75, 0.40), transparent 70%);
+      animation: blade-bg-aurora-b 40s ease-in-out infinite alternate;
+    }
+  }
+
+  /* Matrix — падающие фосфорные колонны терминала (Green) */
+  @media -moz-pref("bobliks.bg.matrix") {
+    body.activity-stream {
+      background: #050a07 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, transparent 0px, transparent 32px, rgba(0, 255, 136, 0.07) 33px, rgba(0, 255, 136, 0.12) 34px, transparent 36px, transparent 64px),
+        repeating-linear-gradient(180deg, rgba(0, 255, 136, 0.18) 0px, transparent 40px, transparent 120px);
+      background-size: 100% 100%, 100% 240px;
+      animation: blade-bg-matrix-a 14s linear infinite;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        radial-gradient(ellipse 65% 45% at 50% 90%, rgba(0, 255, 136, 0.15) 0%, rgba(6, 17, 10, 0.30) 50%, transparent 80%);
+      animation: blade-bg-matrix-b 22s ease-in-out infinite alternate;
+    }
+  }
+
+  /* Ember — восходящие искры и тлеющий магматический жар (Orange) */
+  @media -moz-pref("bobliks.bg.ember") {
+    body.activity-stream {
+      background: #0c0a07 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, transparent 0, transparent 48px, rgba(255, 106, 31, 0.08) 49px, rgba(255, 160, 40, 0.15) 50px, transparent 52px, transparent 96px),
+        repeating-linear-gradient(0deg, rgba(255, 106, 31, 0.22) 0px, rgba(255, 140, 0, 0.10) 25px, transparent 50px, transparent 150px);
+      background-size: 100% 100%, 100% 300px;
+      animation: blade-bg-ember-a 18s linear infinite;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        radial-gradient(ellipse 70% 45% at 50% 95%, rgba(255, 106, 31, 0.35) 0%, rgba(180, 50, 10, 0.20) 45%, transparent 75%);
+      animation: blade-bg-ember-b 12s ease-in-out infinite alternate;
+    }
+  }
+
+  /* Plasma — электрические дуги и разряды (Volt) */
+  @media -moz-pref("bobliks.bg.plasma") {
+    body.activity-stream {
+      background: #0d0d05 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 50% 40% at 35% 40%, rgba(255, 248, 32, 0.28) 0%, rgba(200, 190, 20, 0.12) 40%, transparent 70%),
+        radial-gradient(ellipse 60% 45% at 65% 65%, rgba(255, 255, 80, 0.22) 0%, transparent 65%);
+      animation: blade-bg-plasma-a 11s ease-in-out infinite alternate;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        conic-gradient(from 180deg at 50% 50%, transparent 0deg, rgba(255, 248, 32, 0.12) 45deg, transparent 90deg, rgba(255, 248, 32, 0.16) 210deg, transparent 270deg);
+      animation: blade-bg-plasma-b 15s steps(1, end) infinite;
+    }
+  }
+
+  /* Synthwave — ретровейв горизонт и неоновая сетка (Purple) */
+  @media -moz-pref("bobliks.bg.synthwave") {
+    body.activity-stream {
+      background: #0c0a10 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 55%, rgba(180, 75, 255, 0.38) 0%, rgba(120, 30, 200, 0.18) 45%, transparent 70%),
+        linear-gradient(180deg, transparent 50%, rgba(180, 75, 255, 0.15) 55%, transparent 60%);
+      animation: blade-bg-synthwave-a 28s ease-in-out infinite alternate;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        repeating-linear-gradient(90deg, transparent 0, transparent 48px, rgba(180, 75, 255, 0.14) 49px, rgba(180, 75, 255, 0.22) 50px, transparent 51px, transparent 96px),
+        repeating-linear-gradient(0deg, rgba(180, 75, 255, 0.20) 0px, transparent 2px, transparent 40px);
+      background-size: 100% 100%, 100% 100%, 100% 80px;
+      animation: blade-bg-synthwave-b 20s linear infinite;
+    }
+  }
+
+  /* Mist — медленный перелив хладных градиентов (Grey) */
+  @media -moz-pref("bobliks.bg.mist") {
+    body.activity-stream {
+      background: #0e0f11 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 50% at 20% 40%, rgba(138, 143, 152, 0.24) 0%, rgba(90, 95, 105, 0.10) 50%, transparent 75%),
+        radial-gradient(ellipse 50% 55% at 80% 65%, rgba(180, 195, 215, 0.18) 0%, transparent 70%);
+      animation: blade-bg-mist-a 56s ease-in-out infinite alternate;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        radial-gradient(ellipse 65% 45% at 55% 35%, rgba(160, 170, 185, 0.20) 0%, rgba(70, 75, 85, 0.08) 55%, transparent 75%);
+      animation: blade-bg-mist-b 68s ease-in-out infinite alternate;
+    }
+  }
+
+  /* Sakura — мягкий дрейф розового тумана (Cherry) */
+  @media -moz-pref("bobliks.bg.sakura") {
+    body.activity-stream {
+      background: #100508 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 50% 60% at 25% 30%, rgba(208, 45, 78, 0.32), transparent 70%),
+        radial-gradient(ellipse 55% 50% at 75% 70%, rgba(255, 117, 143, 0.18), transparent 70%);
+      animation: blade-bg-sakura-a 45s ease-in-out infinite alternate;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        radial-gradient(ellipse 60% 40% at 60% 45%, rgba(170, 30, 60, 0.26), transparent 75%);
+      animation: blade-bg-sakura-b 58s ease-in-out infinite alternate;
+    }
+  }
+
+  /* Inferno — огненное дыхание бездны (Red) */
+  @media -moz-pref("bobliks.bg.inferno") {
+    body.activity-stream {
+      background: #0a0606 !important;
+      scrollbar-width: none !important;
+    }
+    body.activity-stream::before {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 45% at 50% 85%, rgba(255, 42, 42, 0.55) 0%, rgba(180, 20, 10, 0.28) 45%, transparent 72%),
+        radial-gradient(ellipse 40% 30% at 50% 95%, rgba(255, 120, 30, 0.40) 0%, transparent 60%);
+      animation: blade-bg-inferno-a 10s ease-in-out infinite;
+    }
+    body.activity-stream::after {
+      content: "";
+      position: fixed;
+      inset: -15%;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+        radial-gradient(ellipse 70% 50% at 40% 75%, rgba(150, 10, 10, 0.35) 0%, transparent 70%);
+      animation: blade-bg-inferno-b 16s ease-in-out infinite alternate;
+    }
+  }
+
   /* --- АТРИБУТНЫЕ ДУБЛИ ФОНОВ (живое переключение) --------------------------
      Кнопка "B" ставит data-blade-bg на документ новой вкладки — обычный
      пересчёт стилей работает всегда, даже когда -moz-pref замерз.
      Специфичность (0,2,2) бьёт преф-блоки выше. Acheron тоже нужен дубль:
      если преф-система застряла с чужим фоном, только он возвращает дефолт. */
   :root[data-blade-bg="acheron"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_acheron.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="inferno"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="infernobg"] body.activity-stream, :root[data-blade-bg="static_inferno"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_inferno.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="cherrybg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_cherry.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="bloodmoon"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_bloodmoon.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="midnight"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_midnight.jpg") center bottom / cover no-repeat fixed !important; }
@@ -493,7 +886,7 @@
   :root[data-blade-bg="toxic"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_toxic.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="ashen"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ashen.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="voltbg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_volt.jpg") center bottom / cover no-repeat fixed !important; }
-  :root[data-blade-bg="ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important; }
+  :root[data-blade-bg="emberbg"] body.activity-stream, :root[data-blade-bg="static_ember"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_ember.jpg") center bottom / cover no-repeat fixed !important; }
   :root[data-blade-bg="blade"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_blade.jpg") center bottom / cover no-repeat fixed !important; }
   /* [2026-09-15] Атрибутные дубли фонов V2 для живого переключения через data-blade-bg без задержек префов */
   :root[data-blade-bg="v2red"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/bg_v2_red.jpg") center bottom / cover no-repeat fixed !important; }
@@ -535,6 +928,211 @@
     pointer-events: none;
     background: radial-gradient(ellipse 60% 35% at 60% 45%, rgba(120,8,8,.32), transparent 75%);
     animation: blade-flow-b 61s ease-in-out infinite alternate;
+  }
+
+  /* Aurora — атрибутный дубль */
+  :root[data-blade-bg="aurora"] body.activity-stream { background: #04060d !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="aurora"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 50% at 30% 25%, rgba(0, 229, 255, 0.32), transparent 70%),
+      radial-gradient(ellipse 60% 60% at 70% 60%, rgba(47, 107, 255, 0.28), transparent 75%);
+    animation: blade-bg-aurora-a 32s ease-in-out infinite alternate;
+  }
+  :root[data-blade-bg="aurora"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      linear-gradient(125deg, transparent 20%, rgba(0, 229, 255, 0.15) 40%, rgba(79, 70, 229, 0.25) 60%, transparent 80%),
+      radial-gradient(ellipse 50% 40% at 50% 80%, rgba(30, 27, 75, 0.40), transparent 70%);
+    animation: blade-bg-aurora-b 40s ease-in-out infinite alternate;
+  }
+
+  /* Matrix — атрибутный дубль */
+  :root[data-blade-bg="matrix"] body.activity-stream { background: #050a07 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="matrix"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(90deg, transparent 0px, transparent 32px, rgba(0, 255, 136, 0.07) 33px, rgba(0, 255, 136, 0.12) 34px, transparent 36px, transparent 64px),
+      repeating-linear-gradient(180deg, rgba(0, 255, 136, 0.18) 0px, transparent 40px, transparent 120px);
+    background-size: 100% 100%, 100% 240px;
+    animation: blade-bg-matrix-a 14s linear infinite;
+  }
+  :root[data-blade-bg="matrix"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      radial-gradient(ellipse 65% 45% at 50% 90%, rgba(0, 255, 136, 0.15) 0%, rgba(6, 17, 10, 0.30) 50%, transparent 80%);
+    animation: blade-bg-matrix-b 22s ease-in-out infinite alternate;
+  }
+
+  /* Ember — атрибутный дубль */
+  :root[data-blade-bg="ember"] body.activity-stream { background: #0c0a07 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="ember"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(90deg, transparent 0, transparent 48px, rgba(255, 106, 31, 0.08) 49px, rgba(255, 160, 40, 0.15) 50px, transparent 52px, transparent 96px),
+      repeating-linear-gradient(0deg, rgba(255, 106, 31, 0.22) 0px, rgba(255, 140, 0, 0.10) 25px, transparent 50px, transparent 150px);
+    background-size: 100% 100%, 100% 300px;
+    animation: blade-bg-ember-a 18s linear infinite;
+  }
+  :root[data-blade-bg="ember"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      radial-gradient(ellipse 70% 45% at 50% 95%, rgba(255, 106, 31, 0.35) 0%, rgba(180, 50, 10, 0.20) 45%, transparent 75%);
+    animation: blade-bg-ember-b 12s ease-in-out infinite alternate;
+  }
+
+  /* Plasma — атрибутный дубль */
+  :root[data-blade-bg="plasma"] body.activity-stream { background: #0d0d05 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="plasma"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 50% 40% at 35% 40%, rgba(255, 248, 32, 0.28) 0%, rgba(200, 190, 20, 0.12) 40%, transparent 70%),
+      radial-gradient(ellipse 60% 45% at 65% 65%, rgba(255, 255, 80, 0.22) 0%, transparent 65%);
+    animation: blade-bg-plasma-a 11s ease-in-out infinite alternate;
+  }
+  :root[data-blade-bg="plasma"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      conic-gradient(from 180deg at 50% 50%, transparent 0deg, rgba(255, 248, 32, 0.12) 45deg, transparent 90deg, rgba(255, 248, 32, 0.16) 210deg, transparent 270deg);
+    animation: blade-bg-plasma-b 15s steps(1, end) infinite;
+  }
+
+  /* Synthwave — атрибутный дубль */
+  :root[data-blade-bg="synthwave"] body.activity-stream { background: #0c0a10 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="synthwave"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 55%, rgba(180, 75, 255, 0.38) 0%, rgba(120, 30, 200, 0.18) 45%, transparent 70%),
+      linear-gradient(180deg, transparent 50%, rgba(180, 75, 255, 0.15) 55%, transparent 60%);
+    animation: blade-bg-synthwave-a 28s ease-in-out infinite alternate;
+  }
+  :root[data-blade-bg="synthwave"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      repeating-linear-gradient(90deg, transparent 0, transparent 48px, rgba(180, 75, 255, 0.14) 49px, rgba(180, 75, 255, 0.22) 50px, transparent 51px, transparent 96px),
+      repeating-linear-gradient(0deg, rgba(180, 75, 255, 0.20) 0px, transparent 2px, transparent 40px);
+    background-size: 100% 100%, 100% 100%, 100% 80px;
+    animation: blade-bg-synthwave-b 20s linear infinite;
+  }
+
+  /* Mist — атрибутный дубль */
+  :root[data-blade-bg="mist"] body.activity-stream { background: #0e0f11 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="mist"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 55% 50% at 20% 40%, rgba(138, 143, 152, 0.24) 0%, rgba(90, 95, 105, 0.10) 50%, transparent 75%),
+      radial-gradient(ellipse 50% 55% at 80% 65%, rgba(180, 195, 215, 0.18) 0%, transparent 70%);
+    animation: blade-bg-mist-a 56s ease-in-out infinite alternate;
+  }
+  :root[data-blade-bg="mist"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      radial-gradient(ellipse 65% 45% at 55% 35%, rgba(160, 170, 185, 0.20) 0%, rgba(70, 75, 85, 0.08) 55%, transparent 75%);
+    animation: blade-bg-mist-b 68s ease-in-out infinite alternate;
+  }
+
+  /* Sakura — атрибутный дубль */
+  :root[data-blade-bg="sakura"] body.activity-stream { background: #100508 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="sakura"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 50% 60% at 25% 30%, rgba(208, 45, 78, 0.32), transparent 70%),
+      radial-gradient(ellipse 55% 50% at 75% 70%, rgba(255, 117, 143, 0.18), transparent 70%);
+    animation: blade-bg-sakura-a 45s ease-in-out infinite alternate;
+  }
+  :root[data-blade-bg="sakura"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      radial-gradient(ellipse 60% 40% at 60% 45%, rgba(170, 30, 60, 0.26), transparent 75%);
+    animation: blade-bg-sakura-b 58s ease-in-out infinite alternate;
+  }
+
+  /* Inferno — атрибутный дубль */
+  :root[data-blade-bg="inferno"] body.activity-stream { background: #0a0606 !important; scrollbar-width: none !important; }
+  :root[data-blade-bg="inferno"] body.activity-stream::before {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 85%, rgba(255, 42, 42, 0.55) 0%, rgba(180, 20, 10, 0.28) 45%, transparent 72%),
+      radial-gradient(ellipse 40% 30% at 50% 95%, rgba(255, 120, 30, 0.40) 0%, transparent 60%);
+    animation: blade-bg-inferno-a 10s ease-in-out infinite;
+  }
+  :root[data-blade-bg="inferno"] body.activity-stream::after {
+    content: "";
+    position: fixed;
+    inset: -15%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%),
+      radial-gradient(ellipse 70% 50% at 40% 75%, rgba(150, 10, 10, 0.35) 0%, transparent 70%);
+    animation: blade-bg-inferno-b 16s ease-in-out infinite alternate;
   }
 
   /* ==========================================================================
@@ -759,12 +1357,12 @@
     width: 170px !important;
     height: 95px !important;
     border-radius: 8px !important;
-    border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 35%, rgba(255, 255, 255, 0.08)) !important;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid color-mix(in srgb, var(--bob-accent, #ff4a4a) 30%, rgba(255, 255, 255, 0.05)) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 120, 120, 0.10), inset 0 0 14px rgba(120, 10, 15, 0.30), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
     /* v1.7: плитки без стекла, перф — постоянный backdrop-filter на 15 плитках
        заменён плотной подложкой (обложка сверху остаётся видна) */
-    background-color: color-mix(in srgb, var(--bob-page, #0a0a0c) 82%, transparent) !important;
-    background-image: linear-gradient(135deg, color-mix(in srgb, var(--bob-accent) 8%, transparent), rgba(0, 0, 0, 0.45)) !important; /* фолбэк */
+    background-color: var(--bob-surface, #14090a) !important;
+    background-image: linear-gradient(160deg, rgba(255, 42, 42, 0.10) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(255, 42, 42, 0.06) 100%) !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
@@ -793,7 +1391,7 @@
   }
 
   .top-site-outer .tile {
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, filter 0.18s ease !important;
+    transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease, filter 0.18s ease !important;
     transform-style: preserve-3d !important;
   }
 
@@ -802,8 +1400,8 @@
   .top-site-outer .top-site-button:focus-visible .tile {
     transform: perspective(600px) rotateX(7deg) rotateY(-9deg) translateY(-5px) scale(1.03) !important;
     filter: grayscale(0%) contrast(1.05) !important;
-    border-color: var(--bob-accent, #ff2a2a) !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 16px color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent) !important;
+    border-color: var(--bob-accent, #ff4a4a) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.65), 0 0 22px color-mix(in srgb, var(--bob-accent, #ff2a2a) 70%, transparent) !important;
   }
 
   .top-site-outer .top-site-icon {
@@ -864,13 +1462,13 @@
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    background: linear-gradient(115deg, transparent 0%, transparent 40%, var(--bob-accent, #ff2a2a) 47%, #ffffff 50%, var(--bob-accent, #ff2a2a) 53%, transparent 60%, transparent 100%) !important;
+    background: linear-gradient(115deg, transparent 0%, transparent 38%, #ff4a4a 45%, #ffffff 50%, #a31313 55%, transparent 62%, transparent 100%) !important;
     transform: translateX(-130%) skewX(-18deg) !important;
     transition: transform 0.35s ease, opacity 0.15s ease !important;
     pointer-events: none !important;
     border-radius: inherit !important;
     opacity: 0 !important;
-    filter: drop-shadow(0 0 5px var(--bob-accent, #ff2a2a)) !important;
+    filter: drop-shadow(0 0 6px #ff4a4a) drop-shadow(0 0 18px rgba(255, 42, 42, 0.8)) !important;
     z-index: 2 !important;
   }
   .top-site-outer:hover .tile::after,
@@ -880,94 +1478,183 @@
     opacity: 1 !important;
   }
 
-  /* ==========================================================================
-     ИНДИВИДУАЛЬНЫЕ СРЕЗЫ И ХОВЕРЫ ПЛИТОК ПО ТЕМАМ (AVA 3.0 Signature Hovers)
-     ========================================================================== */
-  /* grey: зеркальный платиновый срез лезвия */
-  :root[data-blade-theme="grey"] .tile::after {
-    background: linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255, 255, 255, 0.25) 46%, #ffffff 50%, rgba(200, 220, 245, 0.5) 54%, transparent 58%, transparent 100%) !important;
-    filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 16px rgba(220, 235, 255, 0.8)) !important;
-  }
-  :root[data-blade-theme="grey"] .top-site-outer:hover .tile {
-    border-color: #ffffff !important;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.7), 0 0 18px rgba(255, 255, 255, 0.45) !important;
-  }
-
-  /* volt: высоковольтный электрический разряд */
-  :root[data-blade-theme="volt"] .tile::after {
-    background: linear-gradient(115deg, transparent 0%, transparent 40%, #ffff4d 46%, #ffffff 50%, #fff820 54%, transparent 60%, transparent 100%) !important;
-    filter: drop-shadow(0 0 6px #fff820) drop-shadow(0 0 16px rgba(255, 248, 32, 0.9)) !important;
-  }
-  :root[data-blade-theme="volt"] .top-site-outer:hover .tile {
-    border-color: #fff820 !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 248, 32, 0.65) !important;
-  }
-
-  /* blood: тёмно-рубиновый срез крови */
-  :root[data-blade-theme="blood"] .tile::after {
-    background: linear-gradient(115deg, transparent 0%, transparent 38%, #ff1a40 45%, #ffffff 50%, #990014 55%, transparent 62%, transparent 100%) !important;
-    filter: drop-shadow(0 0 6px #ff1a40) drop-shadow(0 0 18px rgba(214, 0, 41, 0.85)) !important;
-  }
-  :root[data-blade-theme="blood"] .top-site-outer:hover .tile {
-    border-color: #ff2a4b !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.65), 0 0 22px rgba(214, 0, 41, 0.7) !important;
+  /* --- BLOOD: рубиновый срез + обсидиановые плитки (pilot) ----------------
+     about:newtab в FF155 — REMOTE-процесс: applyLiveAttrs() не ставит
+     data-blade-theme на его документ (гард !isRemoteBrowser), поэтому
+     атрибутные селекторы выше для newtab мертвы. Per-theme плитки красит
+     @media -moz-pref() — тот же механизм, что и блоки обоев. Лежит после
+     базовых .tile-правил, чтобы выигрывать source order при равной
+     специфичности. */
+  @media -moz-pref("bobliks.theme.blood") {
+    .tile::after {
+      background: linear-gradient(115deg, transparent 0%, transparent 38%, #ff1a40 45%, #ffffff 50%, #990014 55%, transparent 62%, transparent 100%) !important;
+      filter: drop-shadow(0 0 6px #ff1a40) drop-shadow(0 0 18px rgba(214, 0, 41, 0.85)) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #ff2a4b !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.65), 0 0 22px rgba(214, 0, 41, 0.7) !important;
+    }
+    /* обсидиановые плитки с рубиновым краевым светом в покое */
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #170a0c) !important;
+      background-image:
+        linear-gradient(160deg, rgba(214, 0, 41, 0.10) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(214, 0, 41, 0.06) 100%),
+        conic-gradient(from 215deg at 50% 50%, transparent 0deg, rgba(255, 120, 135, 0.04) 60deg, transparent 120deg) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #a80f0f) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 120, 135, 0.12), inset -1px -1px 0 rgba(255, 120, 135, 0.06), inset 0 0 14px rgba(120, 0, 15, 0.35), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+    }
+    /* кровь не должна быть grayscale — радиент убивает рубиновый оттенок */
+    .tile {
+      filter: grayscale(12%) contrast(1.02) !important;
+    }
   }
 
-  /* green: вертикальный сканлайн терминала CRT */
-  :root[data-blade-theme="green"] .tile::after {
-    background: linear-gradient(180deg, transparent 0%, transparent 40%, rgba(0, 255, 136, 0.4) 47%, #ffffff 50%, #00ff88 53%, transparent 60%, transparent 100%) !important;
-    transform: translateY(-130%) !important;
-    filter: drop-shadow(0 0 6px #00ff88) drop-shadow(0 0 14px rgba(0, 255, 136, 0.75)) !important;
-  }
-  :root[data-blade-theme="green"] .top-site-outer:hover .tile::after,
-  :root[data-blade-theme="green"] .top-site-outer .top-site-button:hover .tile::after,
-  :root[data-blade-theme="green"] .top-site-outer .top-site-button:focus-visible .tile::after {
-    transform: translateY(130%) !important;
-  }
-  :root[data-blade-theme="green"] .top-site-outer:hover .tile {
-    border-color: #00ff88 !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 136, 0.55) !important;
+  /* RED не имеет собственного префа — это дефолт при сброшенных темах.
+     Материал: базовый :root (--bob-surface #14090a) + базовое правило
+     .tile выше. Отдельный @media -moz-pref("bobliks.theme.red") мёртв —
+     такого префа в коде нет (BladeCore: red не описан как тема). */
+
+  /* --- PURPLE: ультрафиолетовый неон --- */
+  @media -moz-pref("bobliks.theme.purple") {
+    .tile::after {
+      background: linear-gradient(115deg, transparent 0%, transparent 40%, #d075ff 46%, #ffffff 50%, #b44bff 54%, transparent 60%, transparent 100%) !important;
+      filter: drop-shadow(0 0 6px #b44bff) drop-shadow(0 0 18px rgba(180, 75, 255, 0.8)) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #b44bff !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(180, 75, 255, 0.6) !important;
+    }
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #120a18) !important;
+      background-image: linear-gradient(160deg, rgba(180, 75, 255, 0.09) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(180, 75, 255, 0.05) 100%) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #b44bff) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(208, 117, 255, 0.12), inset 0 0 14px rgba(180, 75, 255, 0.25), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+    }
   }
 
-  /* orange: раскалённый срез магмы */
-  :root[data-blade-theme="orange"] .tile::after {
-    background: linear-gradient(115deg, transparent 0%, transparent 40%, #ff881f 46%, #fff3b0 50%, #d14500 54%, transparent 60%, transparent 100%) !important;
-    filter: drop-shadow(0 0 6px #ff881f) drop-shadow(0 0 16px rgba(255, 136, 31, 0.8)) !important;
-  }
-  :root[data-blade-theme="orange"] .top-site-outer:hover .tile {
-    border-color: #ff881f !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 136, 31, 0.6) !important;
-  }
-
-  /* cherry: хрустально-розовый срез сакуры */
-  :root[data-blade-theme="cherry"] .tile::after {
-    background: linear-gradient(115deg, transparent 0%, transparent 40%, #ff758f 46%, #ffffff 50%, #d02d4e 54%, transparent 60%, transparent 100%) !important;
-    filter: drop-shadow(0 0 6px #ff758f) drop-shadow(0 0 16px rgba(255, 117, 143, 0.75)) !important;
-  }
-  :root[data-blade-theme="cherry"] .top-site-outer:hover .tile {
-    border-color: #ff758f !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 117, 143, 0.55) !important;
-  }
-
-  /* midnight: цианово-космический след кометы */
-  :root[data-blade-theme="midnight"] .tile::after {
-    background: linear-gradient(115deg, transparent 0%, transparent 40%, #00e5ff 46%, #ffffff 50%, #2f6bff 54%, transparent 60%, transparent 100%) !important;
-    filter: drop-shadow(0 0 6px #00e5ff) drop-shadow(0 0 18px rgba(0, 229, 255, 0.8)) !important;
-  }
-  :root[data-blade-theme="midnight"] .top-site-outer:hover .tile {
-    border-color: #00e5ff !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 229, 255, 0.6) !important;
+  /* --- GREEN: CRT-терминал, фосфор --- */
+  @media -moz-pref("bobliks.theme.green") {
+    .tile::after {
+      background: linear-gradient(180deg, transparent 0%, transparent 40%, rgba(0, 255, 136, 0.4) 47%, #ffffff 50%, #00ff88 53%, transparent 60%, transparent 100%) !important;
+      transform: translateY(-130%) !important;
+      filter: drop-shadow(0 0 6px #00ff88) drop-shadow(0 0 14px rgba(0, 255, 136, 0.75)) !important;
+    }
+    .top-site-outer:hover .tile::after,
+    .top-site-outer .top-site-button:hover .tile::after,
+    .top-site-outer .top-site-button:focus-visible .tile::after {
+      transform: translateY(130%) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #00ff88 !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 136, 0.55) !important;
+    }
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #06110a) !important;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(0, 255, 136, 0.05) 0 1px, transparent 1px 3px),
+        linear-gradient(160deg, rgba(0, 255, 136, 0.08) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(0, 255, 136, 0.04) 100%) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #00ff88) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(0, 255, 136, 0.12), inset 0 0 14px rgba(0, 255, 136, 0.20), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+    }
   }
 
-  /* purple: ультрафиолетовый неон */
-  :root[data-blade-theme="purple"] .tile::after {
-    background: linear-gradient(115deg, transparent 0%, transparent 40%, #d075ff 46%, #ffffff 50%, #b44bff 54%, transparent 60%, transparent 100%) !important;
-    filter: drop-shadow(0 0 6px #b44bff) drop-shadow(0 0 18px rgba(180, 75, 255, 0.8)) !important;
+  /* --- GREY: зеркальная платина/сталь --- */
+  @media -moz-pref("bobliks.theme.grey") {
+    .tile::after {
+      background: linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255, 255, 255, 0.25) 46%, #ffffff 50%, rgba(200, 220, 245, 0.5) 54%, transparent 58%, transparent 100%) !important;
+      filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 16px rgba(220, 235, 255, 0.8)) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #ffffff !important;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.7), 0 0 18px rgba(255, 255, 255, 0.45) !important;
+    }
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #111316) !important;
+      background-image:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.10) 0%, rgba(138, 143, 152, 0.03) 50%, rgba(255, 255, 255, 0.08) 100%),
+        linear-gradient(160deg, rgba(200, 220, 245, 0.08) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(200, 220, 245, 0.04) 100%) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #8a8f98) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(138, 143, 152, 0.14), inset 0 0 14px rgba(138, 143, 152, 0.25), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+    }
   }
-  :root[data-blade-theme="purple"] .top-site-outer:hover .tile {
-    border-color: #b44bff !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(180, 75, 255, 0.6) !important;
+
+  /* --- ORANGE: раскалённая магма --- */
+  @media -moz-pref("bobliks.theme.orange") {
+    .tile::after {
+      background: linear-gradient(115deg, transparent 0%, transparent 40%, #ff881f 46%, #fff3b0 50%, #d14500 54%, transparent 60%, transparent 100%) !important;
+      filter: drop-shadow(0 0 6px #ff881f) drop-shadow(0 0 16px rgba(255, 136, 31, 0.8)) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #ff881f !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 136, 31, 0.6) !important;
+    }
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #140b07) !important;
+      background-image: linear-gradient(160deg, rgba(255, 106, 31, 0.09) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(255, 106, 31, 0.04) 100%) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #ff6a1f) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 170, 100, 0.12), inset 0 0 14px rgba(209, 69, 0, 0.25), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+    }
   }
+
+  /* --- CHERRY: хрустально-розовая сакура --- */
+  @media -moz-pref("bobliks.theme.cherry") {
+    .tile::after {
+      background: linear-gradient(115deg, transparent 0%, transparent 40%, #ff758f 46%, #ffffff 50%, #d02d4e 54%, transparent 60%, transparent 100%) !important;
+      filter: drop-shadow(0 0 6px #ff758f) drop-shadow(0 0 16px rgba(255, 117, 143, 0.75)) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #ff758f !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 117, 143, 0.55) !important;
+    }
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #15080c) !important;
+      background-image: linear-gradient(160deg, rgba(208, 45, 78, 0.09) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(208, 45, 78, 0.04) 100%) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #d02d4e) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 117, 143, 0.12), inset 0 0 14px rgba(208, 45, 78, 0.25), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+    }
+  }
+
+  /* --- VOLT YELLOW: высоковольтный электрический разряд --- */
+  @media -moz-pref("bobliks.theme.volt") {
+    .tile::after {
+      background: linear-gradient(115deg, transparent 0%, transparent 40%, #ffff4d 46%, #ffffff 50%, #fff820 54%, transparent 60%, transparent 100%) !important;
+      filter: drop-shadow(0 0 6px #fff820) drop-shadow(0 0 16px rgba(255, 248, 32, 0.9)) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #fff820 !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 248, 32, 0.65) !important;
+      animation: none !important;
+    }
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #121206) !important;
+      background-image: linear-gradient(160deg, rgba(255, 248, 32, 0.08) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(255, 248, 32, 0.04) 100%) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #fff820) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 248, 32, 0.12), inset 0 0 14px rgba(255, 248, 32, 0.20), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+      animation: blade-tile-volt-glow 2.4s ease-in-out infinite alternate !important;
+    }
+  }
+
+  /* --- MIDNIGHT BLUE: цианово-космическая комета --- */
+  @media -moz-pref("bobliks.theme.midnight") {
+    .tile::after {
+      background: linear-gradient(115deg, transparent 0%, transparent 40%, #00e5ff 46%, #ffffff 50%, #2f6bff 54%, transparent 60%, transparent 100%) !important;
+      filter: drop-shadow(0 0 6px #00e5ff) drop-shadow(0 0 18px rgba(0, 229, 255, 0.8)) !important;
+    }
+    .top-site-outer:hover .tile {
+      border-color: #00e5ff !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 229, 255, 0.6) !important;
+    }
+    .top-site-outer .tile {
+      background-color: var(--bob-surface, #060914) !important;
+      background-image:
+        linear-gradient(160deg, rgba(0, 229, 255, 0.08) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(47, 107, 255, 0.05) 100%),
+        conic-gradient(from 215deg at 50% 50%, transparent 0deg, rgba(0, 229, 255, 0.04) 60deg, transparent 120deg) !important;
+      border-color: color-mix(in srgb, var(--bob-accent, #2f6bff) 30%, rgba(255, 255, 255, 0.05)) !important;
+      box-shadow: inset 0 1px 0 rgba(0, 229, 255, 0.14), inset -1px -1px 0 rgba(47, 107, 255, 0.08), inset 0 0 14px rgba(47, 107, 255, 0.25), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+    }
+  }
+
+  /* Индивидуальные срезы и ховеры плиток по темам переехали в @media -moz-pref блоки выше */
 
 }
 /* Обложки плиток теперь генерируются BladeCovers в covers.css:

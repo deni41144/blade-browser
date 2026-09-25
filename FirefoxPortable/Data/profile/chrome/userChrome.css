@@ -150,6 +150,13 @@
   font-display: swap;
 }
 
+/* blood — готический металл Metal Mania */
+@font-face {
+  font-family: 'blade-metal-mania';
+  src: url("fonts/MetalMania-Regular.ttf") format('truetype');
+  font-display: swap;
+}
+
 :root, html|html {
   /* Дефолт = GX RED. Остальные темы включаются префами bobliks.theme.* (кнопка Bobliks в тулбаре) */
   --accent: #ff2a2a;
@@ -448,6 +455,9 @@ menupopup,
     --text: #ece6f2;
   }
   ::selection { background-color: #b44bff !important; color: #ffffff !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-purple.svg") !important;
+  }
 }
 
 /* --- CYBER GREEN --- */
@@ -463,6 +473,9 @@ menupopup,
     --text: #e2f2ea;
   }
   ::selection { background-color: #00ff88 !important; color: #000000 !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-green.svg") !important;
+  }
 }
 
 /* --- MINIMAL GREY --- */
@@ -478,6 +491,9 @@ menupopup,
     --text: #e6e7e9;
   }
   ::selection { background-color: #8a8f98 !important; color: #000000 !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-grey.svg") !important;
+  }
 }
 
 /* --- BLOOD ORANGE --- */
@@ -493,6 +509,9 @@ menupopup,
     --text: #f2ece6;
   }
   ::selection { background-color: #ff6a1f !important; color: #000000 !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-orange.svg") !important;
+  }
 }
 
 /* --- CHERRY (вишнёвая) --- */
@@ -508,6 +527,9 @@ menupopup,
     --text: #f2e2e6;
   }
   ::selection { background-color: #d02d4e !important; color: #ffffff !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-cherry.svg") !important;
+  }
 }
 
 /* --- VOLT YELLOW (вольт-жёлтая) --- */
@@ -523,6 +545,9 @@ menupopup,
     --text: #f2f2dc;
   }
   ::selection { background-color: #fff820 !important; color: #000000 !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-volt.svg") !important;
+  }
 }
 
 /* --- MIDNIGHT BLUE (сине-чёрная) --- */
@@ -538,6 +563,9 @@ menupopup,
     --text: #e0e8f5;
   }
   ::selection { background-color: #2f6bff !important; color: #ffffff !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-midnight.svg") !important;
+  }
 }
 
 /* --- DEMONIC BLOOD (кроваво-демоническая) --- */
@@ -553,6 +581,9 @@ menupopup,
     --text: #efe3e3;
   }
   ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
+  html|html #bobliks-settings-button .toolbarbutton-icon {
+    list-style-image: url("img/btn_blade-blood.svg") !important;
+  }
 }
 
 /* --- АТРИБУТНЫЕ ДУБЛИ ТЕМ (живое переключение) -----------------------------
@@ -592,6 +623,14 @@ menupopup,
   --accent: #a80f0f; --accent-soft: rgba(168, 15, 15, 0.38); --blade-rain-core: #e8324a; --blade-rain-halo: rgba(215, 20, 45, 0.65); --bg: #0d0506; --panel: #170a0c; --panel-hover: #251014; --text: #efe3e3;
 }
 :root[data-blade-theme="blood"] ::selection, html|html[data-blade-theme="blood"] ::selection { background-color: #a80f0f !important; color: #ffffff !important; }
+
+/* blood pilot: поисковая капсула из обсидиана с рубиновым внутренним светом */
+:root[data-blade-theme="blood"] #urlbar .urlbar-background,
+html|html[data-blade-theme="blood"] #urlbar .urlbar-background {
+  background-color: #170a0c !important;
+  border: 1px solid rgba(214, 0, 41, 0.35) !important;
+  box-shadow: inset 0 0 14px rgba(120, 0, 15, 0.4), 0 0 18px rgba(168, 15, 15, 0.18) !important;
+}
 /* red-дубль: возврат на дефолт должен перебивать застрявший преф-блок темы */
 :root[data-blade-theme="red"], html|html[data-blade-theme="red"] {
   --accent: #ff2a2a; --accent-soft: rgba(255, 42, 42, 0.35); --accent-glow: color-mix(in srgb, var(--accent) 45%, transparent); --blade-rain-core: #ff4a4a; --blade-rain-halo: rgba(255, 42, 42, 0.65); --bg: #0a0a0c; --panel: #14141a; --panel-hover: #1e1e28; --text: #e8e8e8;
@@ -711,19 +750,30 @@ html|html[data-blade-theme="red"] #navigator-toolbox::after {
 html|html[data-blade-theme="red"] #bobliks-settings-button .toolbarbutton-icon {
   animation: blade-live-blade-beat 2.8s ease-in-out infinite !important;
 }
+/* hover/[open]-отклик: алый ореол при наведении и открытом меню */
+html|html[data-blade-theme="red"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="red"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #ff4a4a) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
+}
 
 /* --- DEMONIC BLOOD: КРОВАВЫЙ ТУМАН — тёмно-багровая дымка дышит в тулбаре + рубиновая лазерная грань --- */
 html|html[data-blade-theme="blood"] #navigator-toolbox::before {
   background: radial-gradient(ellipse 85% 110% at 50% 55%, rgba(180, 10, 25, 0.45), transparent 75%) !important;
-  animation: blade-live-breathe 5s ease-in-out infinite !important;
+  animation: blade-live-breathe-double 5s ease-in-out infinite !important;
 }
 html|html[data-blade-theme="blood"] #navigator-toolbox::after {
   background-image: linear-gradient(90deg, transparent 0%, rgba(180, 10, 25, 0.3) 15%, #ff1a3c 50%, rgba(180, 10, 25, 0.3) 85%, transparent 100%) !important;
-  animation: blade-live-breathe-strong 5s ease-in-out infinite !important;
+  animation: blade-live-breathe-double-strong 5s ease-in-out infinite !important;
 }
 html|html[data-blade-theme="blood"] #bobliks-settings-button .toolbarbutton-icon {
+  list-style-image: url("img/btn_blade-blood.svg") !important;
   filter: drop-shadow(0 0 5px #ff1a3c) !important;
-  animation: blade-live-button-breathe 5s ease-in-out infinite !important;
+  animation: blade-live-button-breathe-double 5s ease-in-out infinite !important;
+}
+/* hover/[open]-отклик: кровавый ореол при наведении и открытом меню */
+html|html[data-blade-theme="blood"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="blood"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #ff1a3c) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
 }
 
 /* --- NEON PURPLE: НЕОНОВАЯ ВЫВЕСКА — фиолетовое свечение панели мигает
@@ -737,8 +787,14 @@ html|html[data-blade-theme="purple"] #navigator-toolbox::after {
   animation: blade-live-neon-strong 7s linear infinite !important;
 }
 html|html[data-blade-theme="purple"] #bobliks-settings-button .toolbarbutton-icon {
+  list-style-image: url("img/btn_blade-purple.svg") !important;
   filter: drop-shadow(0 0 4px #b44bff) !important;
   animation: blade-live-neon-btn 7s linear infinite !important;
+}
+/* hover/[open]-отклик: неоновый ореол при наведении и открытом меню */
+html|html[data-blade-theme="purple"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="purple"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #b44bff) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
 }
 
 /* --- CYBER GREEN: ТЕРМИНАЛ — бегущие сканлайны по всему тулбару + луч --- */
@@ -758,7 +814,16 @@ html|html[data-blade-theme="green"] #navigator-toolbox {
   box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
 }
 html|html[data-blade-theme="green"] #bobliks-settings-button .toolbarbutton-icon {
-  filter: drop-shadow(0 0 5px #00ff88) !important;
+  list-style-image: url("img/btn_blade-green.svg") !important;
+  /* Формула Midnight: двухслойный неоновый ореол (#00ff88 ядро + #00b35a ореол)
+     и compositor-анимация opacity */
+  filter: drop-shadow(0 0 3px #00ff88) drop-shadow(0 0 5px #00b35a) !important;
+  animation: blade-live-green-btn 3.2s ease-in-out infinite alternate !important;
+}
+/* hover/[open]-отклик: статичный ореол не перебивает ховер */
+html|html[data-blade-theme="green"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="green"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #00ff88) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
 }
 
 /* --- MINIMAL GREY: ПОЛИРОВАННАЯ СТАЛЬ — металлический отблеск тулбара,
@@ -779,6 +844,18 @@ html|html[data-blade-theme="grey"] #navigator-toolbox::after {
 html|html[data-blade-theme="grey"] #navigator-toolbox {
   box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
 }
+html|html[data-blade-theme="grey"] #bobliks-settings-button .toolbarbutton-icon {
+  list-style-image: url("img/btn_blade-grey.svg") !important;
+  /* Формула Midnight: полированная сталь — двухслойный титановый ореол (#8a8f98 ядро + #c8ccd2 ореол)
+     и плавная анимация opacity */
+  filter: drop-shadow(0 0 3px #8a8f98) drop-shadow(0 0 5px #c8ccd2) !important;
+  animation: blade-live-grey-btn 4s ease-in-out infinite alternate !important;
+}
+/* hover/[open]-отклик: металлический блеск при наведении и открытом меню */
+html|html[data-blade-theme="grey"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="grey"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #c8ccd2) drop-shadow(0 0 3px #ffffff) brightness(1.25) !important;
+}
 
 /* --- BLOOD ORANGE: ПЛАМЯ — оранжевое зарево огня лижет низ тулбара --- */
 html|html[data-blade-theme="orange"] #navigator-toolbox::before {
@@ -789,8 +866,14 @@ html|html[data-blade-theme="orange"] #navigator-toolbox::after {
   animation: blade-live-ember-strong 3.4s linear infinite !important;
 }
 html|html[data-blade-theme="orange"] #bobliks-settings-button .toolbarbutton-icon {
+  list-style-image: url("img/btn_blade-orange.svg") !important;
   filter: drop-shadow(0 0 5px #ff6a1f) !important;
   animation: blade-live-ember-btn 3.4s linear infinite !important;
+}
+/* hover/[open]-отклик: пламенный ореол при наведении и открытом меню */
+html|html[data-blade-theme="orange"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="orange"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #ff6a1f) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
 }
 
 /* --- CHERRY: САКУРА — мягкие вишнёвые отсветы по углам дышат --- */
@@ -798,14 +881,20 @@ html|html[data-blade-theme="cherry"] #navigator-toolbox::before {
   background:
     radial-gradient(circle at 12% 0%, rgba(208, 45, 78, 0.4), transparent 45%),
     radial-gradient(circle at 88% 0%, rgba(255, 130, 160, 0.25), transparent 45%) !important;
-  animation: blade-live-cherry 4s ease-in-out infinite !important;
+  animation: blade-live-cherry-petal 4.5s ease-in-out infinite !important;
 }
 html|html[data-blade-theme="cherry"] #navigator-toolbox::after {
-  animation: blade-live-cherry-strong 4s ease-in-out infinite !important;
+  animation: blade-live-cherry-petal 4.5s ease-in-out infinite !important;
 }
 html|html[data-blade-theme="cherry"] #bobliks-settings-button .toolbarbutton-icon {
+  list-style-image: url("img/btn_blade-cherry.svg") !important;
   filter: drop-shadow(0 0 5px #ff5c85) !important;
   animation: blade-live-cherry-btn 4s ease-in-out infinite !important;
+}
+/* hover/[open]-отклик: лепестковый ореол при наведении и открытом меню */
+html|html[data-blade-theme="cherry"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="cherry"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #ff5c85) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
 }
 
 /* --- MIDNIGHT BLUE: СЕВЕРНОЕ СИЯНИЕ — живое (Gemini раунд 11):
@@ -829,6 +918,7 @@ html|html[data-blade-theme="midnight"] #navigator-toolbox {
   box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
 }
 html|html[data-blade-theme="midnight"] #bobliks-settings-button .toolbarbutton-icon {
+  list-style-image: url("img/btn_blade-midnight.svg") !important;
   /* раунд 6: filter→opacity, перф — неоновый ореол кнопки статичен,
      keyframes ниже пульсирует только opacity */
   filter: drop-shadow(0 0 3px #2f6bff) drop-shadow(0 0 4px #00d4ff) !important;
@@ -845,7 +935,7 @@ html|html[data-blade-theme="midnight"] #bobliks-settings-button[open] .toolbarbu
        в адресной строке — она гудит электричеством --- */
 html|html[data-blade-theme="volt"] #navigator-toolbox::before {
   background: radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255, 248, 32, 0.16), transparent 65%) !important;
-  animation: blade-live-volt-hum 3.6s ease-in-out infinite alternate !important;
+  animation: blade-live-volt-flash 3s ease-out infinite !important;
 }
 html|html[data-blade-theme="volt"] #navigator-toolbox::after {
   right: auto !important;
@@ -858,7 +948,42 @@ html|html[data-blade-theme="volt"] #navigator-toolbox {
   box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
 }
 html|html[data-blade-theme="volt"] #bobliks-settings-button .toolbarbutton-icon {
-  filter: drop-shadow(0 0 3px #fff820) drop-shadow(0 0 6px rgba(255, 248, 32, 0.6)) !important;
+  list-style-image: url("img/btn_blade-volt.svg") !important;
+  /* Формула Midnight: двухслойный электрический ореол (#fff820 ядро + #b3ff00 ореол)
+     и пульс opacity */
+  filter: drop-shadow(0 0 3px #fff820) drop-shadow(0 0 5px #b3ff00) !important;
+  animation: blade-live-volt-btn 2.8s ease-in-out infinite alternate !important;
+}
+/* hover/[open]-отклик: электрический заряд при наведении и открытом меню */
+html|html[data-blade-theme="volt"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="volt"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px #fff820) drop-shadow(0 0 4px #b3ff00) brightness(1.2) !important;
+}
+
+/* --- CUSTOM: ХАМЕЛЕОН — универсальный адаптивный эффект на var(--accent) --- */
+html|html[data-blade-theme="custom"] #navigator-toolbox::before {
+  inset: 0 -20% !important;
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%) !important;
+  opacity: 0.85;
+  animation: blade-live-aurora-drift 7s ease-in-out infinite alternate !important;
+}
+html|html[data-blade-theme="custom"] #navigator-toolbox::after {
+  right: auto !important;
+  width: 40% !important;
+  background-image: linear-gradient(90deg, transparent, var(--accent), transparent) !important;
+  animation: blade-beam-run 4s linear infinite !important;
+}
+html|html[data-blade-theme="custom"] #navigator-toolbox {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent) 50%, transparent) !important;
+}
+html|html[data-blade-theme="custom"] #bobliks-settings-button .toolbarbutton-icon {
+  filter: drop-shadow(0 0 3px var(--accent)) drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 60%, #ffffff)) !important;
+  animation: blade-live-custom-btn 3.4s ease-in-out infinite alternate !important;
+}
+/* hover/[open]-отклик: динамический ореол при наведении и открытом меню */
+html|html[data-blade-theme="custom"] #bobliks-settings-button:hover .toolbarbutton-icon,
+html|html[data-blade-theme="custom"] #bobliks-settings-button[open] .toolbarbutton-icon {
+  filter: drop-shadow(0 0 7px var(--accent)) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
 }
 
 /* Стоп-кадр на неактивном окне — ВЫКЛЮЧЕНО НАВСЕГДА (проверено дважды):
@@ -905,22 +1030,31 @@ html|html:-moz-window-inactive #bobliks-settings-button .toolbarbutton-icon {
   30% { transform: scale(1.06); opacity: 0.93; }
   42% { transform: scale(1); opacity: 0.8; }
 }
-@keyframes blade-live-breathe {
-  0%, 100% { opacity: 0.15; }
-  50%      { opacity: 0.75; }
+@keyframes blade-live-breathe-double {
+  0%, 48%, 100% { opacity: 0.15; }
+  10%           { opacity: 0.75; }
+  20%           { opacity: 0.22; }
+  30%           { opacity: 0.65; }
 }
-@keyframes blade-live-breathe-strong {
-  0%, 100% { opacity: 0.25; }
-  50%      { opacity: 0.95; }
+@keyframes blade-live-breathe-double-strong {
+  0%, 48%, 100% { opacity: 0.25; }
+  10%           { opacity: 0.95; }
+  20%           { opacity: 0.35; }
+  30%           { opacity: 0.85; }
 }
-/* раунд 3: filter→opacity, перф */
-@keyframes blade-live-button-breathe {
-  0%, 100% { opacity: 0.82; }
-  50%      { opacity: 1; }
+@keyframes blade-live-button-breathe-double {
+  0%, 48%, 100% { transform: scale(1); opacity: 0.82; }
+  10%           { transform: scale(1.08); opacity: 1; }
+  20%           { transform: scale(1); opacity: 0.86; }
+  30%           { transform: scale(1.05); opacity: 0.96; }
 }
-@keyframes blade-live-volt-hum {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.85; }
+@keyframes blade-live-volt-flash {
+  0%, 100% { opacity: 0.2; }
+  2%       { opacity: 0.95; }
+  5%       { opacity: 0.7; }
+  7%       { opacity: 1; }
+  12%      { opacity: 0.45; }
+  40%      { opacity: 0.28; }
 }
 @keyframes blade-live-neon {
   0%, 100% { opacity: 0.55; }
@@ -1004,13 +1138,11 @@ html|html:-moz-window-inactive #bobliks-settings-button .toolbarbutton-icon {
   31% { opacity: 0.78; }
   71% { opacity: 1; }
 }
-@keyframes blade-live-cherry {
-  0%, 100% { opacity: 0.3; }
-  50%      { opacity: 0.9; }
-}
-@keyframes blade-live-cherry-strong {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.85; }
+@keyframes blade-live-cherry-petal {
+  0%, 100% { opacity: 0.22; }
+  18%      { opacity: 0.88; }
+  45%      { opacity: 0.55; }
+  75%      { opacity: 0.32; }
 }
 @keyframes blade-live-cherry-btn {
   0%, 100% { transform: scale(1); }
@@ -1024,6 +1156,23 @@ html|html:-moz-window-inactive #bobliks-settings-button .toolbarbutton-icon {
    в правиле иконки Midnight выше */
 @keyframes blade-live-aurora-btn {
   from { opacity: 0.8; }
+  to   { opacity: 1; }
+}
+/* Формула Midnight (compositor-only opacity keyframes) для green, grey, volt, custom */
+@keyframes blade-live-green-btn {
+  from { opacity: 0.82; }
+  to   { opacity: 1; }
+}
+@keyframes blade-live-grey-btn {
+  from { opacity: 0.8; }
+  to   { opacity: 1; }
+}
+@keyframes blade-live-volt-btn {
+  from { opacity: 0.82; }
+  to   { opacity: 1; }
+}
+@keyframes blade-live-custom-btn {
+  from { opacity: 0.82; }
   to   { opacity: 1; }
 }
 
@@ -1115,28 +1264,44 @@ panel:not(#bobliks-settings-popup):not(#blade-update-panel) {
   padding: 1px !important;
   border-radius: 7px !important;
   border: 1px solid var(--accent-soft) !important;
-  list-style-image: url("img/btn_blade.png") !important;
-  /* Криминалистика 1.9.2: глиф btn_blade тёмно-красный на тёмном фоне —
-     контраст 1.4:1, «кнопка убита». Статичный фильтр (вне keyframes — можно)
-     вытягивает яркость и даёт акцентную подсветку силуэту */
-  filter: brightness(1.7) saturate(1.3) drop-shadow(0 0 6px var(--accent)) !important;
-  transition: filter 0.15s ease-out !important;
+  /* AVA 3.0: векторный клинок (btn_blade.svg). fill:currentColor берёт
+     цвет из color элемента — одна иконка перекрашивается под каждую тему
+     без filter-костылей. Старый PNG (btn_blade.png 64px, контраст 1.4:1)
+     выкинут: brightness(1.7) saturate(1.3) делал его мыльным */
+  color: var(--accent) !important;
+  fill: currentColor !important;
+  -moz-context-properties: fill, fill-opacity !important;
+  list-style-image: url("img/btn_blade.svg") !important;
+  filter: drop-shadow(0 0 6px var(--accent)) !important;
+  transition: transform 0.08s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.15s ease-out, border-color 0.08s ease !important;
 }
 
 #bobliks-settings-button:hover .toolbarbutton-icon,
 #bobliks-settings-button[open] .toolbarbutton-icon {
-  filter: brightness(2) saturate(1.4) drop-shadow(0 0 9px var(--accent)) drop-shadow(0 0 3px #ffffff) !important;
+  filter: drop-shadow(0 0 9px var(--accent)) drop-shadow(0 0 3px #ffffff) !important;
+}
+
+/* Состояние нажатия (клик): механический отклик — микросжатие scale(0.91),
+   вспышка яркости (brightness 1.25) и подсветка рамки. Стейт-машина кнопки:
+   1. Покой: базовый контур и свечение темы;
+   2. Hover: усиление неонового ореола;
+   3. Active (клик): быстрый механический срез scale(0.91) + вспышка яркости;
+   4. Open [open]: стабильный активный маркер раскрытого меню. */
+#bobliks-settings-button:active .toolbarbutton-icon {
+  transform: scale(0.91) !important;
+  filter: drop-shadow(0 0 10px var(--accent)) drop-shadow(0 0 4px #ffffff) brightness(1.25) !important;
+  border-color: var(--accent) !important;
+  transition-duration: 0.04s !important;
 }
 
 /* --- Попап кнопки Bobliks: акриловое стекло + рамка темы (живая смена) --- */
 #bobliks-settings-popup {
+  /* Хост не несёт визуала: в FF155 видимая поверхность panel —
+     ::part(content), её красит MENU_CSS в BladeMenuPopup.uc.js.
+     Раньше border/radius/box-shadow хоста дублировали author-стиль
+     part(content) — двойной контур и мёртвый backdrop-filter */
   appearance: none !important;
-  background: rgba(12, 12, 16, 0.85) !important;
-  backdrop-filter: blur(24px) saturate(150%) !important;
   color: var(--text) !important;
-  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06) inset !important;
 }
 
 /* ==========================================================================
@@ -2051,96 +2216,6 @@ tooltip [class*="key"] {
    22. КЛИНОК ЖИВЁТ: МИКРО-ВАУ ЭФФЕКТЫ (A1, A6, A9, A10, A11)
    ========================================================================== */
 
-/* --- A1. Искры и карточка-призрак при закрытии вкладки --- */
-.blade-ghost {
-  position: absolute !important;
-  pointer-events: none !important;
-  z-index: 1000 !important;
-  border-radius: 8px 8px 0 0 !important;
-  background: color-mix(in srgb, var(--accent, #ff2a2a) 35%, #14141a) !important;
-  border: 1px solid var(--accent, #ff2a2a) !important;
-  border-bottom: none !important;
-  box-shadow: 0 0 16px var(--accent-glow, rgba(255, 42, 42, 0.45)), 0 -2px 8px var(--accent, #ff2a2a) !important;
-  animation: blade-ghost-fade 0.8s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
-}
-
-@keyframes blade-ghost-fade {
-  0% {
-    opacity: 0.95;
-    transform: scale(1) translateY(0);
-  }
-  30% {
-    opacity: 0.8;
-    transform: scale(0.97) translateY(-2px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.85) translateY(-8px);
-  }
-}
-
-.blade-ghost::before {
-  /* Прежние псевдоискры (8 точек box-shadow «растягивались вверх», а не
-     разлетались) заменены настоящими частицами .blade-spark ниже —
-     каждая летит по своему вектору --dx/--dy, transform-only */
-  content: none !important;
-}
-
-/* Настоящие искры: JS спавнит 7 частиц с индивидуальными векторами */
-.blade-spark {
-  position: absolute !important;
-  left: 50% !important;
-  top: 50% !important;
-  width: 3px !important;
-  height: 3px !important;
-  border-radius: 50% !important;
-  background: #ffffff !important;
-  box-shadow: 0 0 7px var(--accent, #ff2a2a), 0 0 3px #ffffff !important;
-  pointer-events: none !important;
-  animation: blade-spark-fly 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) forwards !important;
-}
-
-.blade-spark:nth-child(even) {
-  background: var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 7px #ffffff, 0 0 3px var(--accent, #ff2a2a) !important;
-}
-
-@keyframes blade-spark-fly {
-  0% {
-    opacity: 1;
-    transform: translate(0, 0) scale(1.2);
-  }
-  25% {
-    opacity: 1;
-    transform: translate(calc(var(--dx, 0px) * 0.35), calc(var(--dy, -40px) * 0.35)) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--dx, 0px), var(--dy, -40px)) scale(0.2);
-  }
-}
-
-.blade-ghost::after {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  pointer-events: none !important;
-  border-radius: 8px 8px 0 0 !important;
-  background: radial-gradient(ellipse at center, #ffffff 0%, rgba(255, 255, 255, 0.85) 20%, color-mix(in srgb, var(--accent, #ff2a2a) 65%, transparent) 50%, transparent 75%) !important;
-  animation: blade-ghost-flash 0.65s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
-}
-
-@keyframes blade-ghost-flash {
-  0% {
-    opacity: 1;
-    transform: scale(0.5);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.4);
-  }
-}
-
 /* --- A6. Разрядка капсулы при завершении загрузки (GLM контракт: .blade-loaded на <html>) --- */
 html|html.blade-loaded .urlbar-background,
 :root.blade-loaded .urlbar-background {
@@ -2311,60 +2386,41 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
    hover-микросдвиг строк с акцентным бордюром, фокус-ринг клавиатурной навигации
    со свечением, 4 состояния [Loading, Error, Empty, Success]. */
 
-/* Compositor-only анимация появления контента при открытии панели */
-#bobliks-settings-popup[open] .bp-wrap,
-#bobliks-settings-popup[panelopen="true"] .bp-wrap,
-#bobliks-settings-popup .bp-wrap {
-  animation: blade-menu-wrap-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
+/* Анимация контента панели управляется единым источником из BladeMenuPopup.uc.js
+   (bp-in для .bp-wrap и bp-body-in для .bp-body.bp-anim при смене вкладок).
+   Дублирующие анимации blade-menu-wrap-in и blade-menu-body-in удалены,
+   чтобы исключить гонку стилей и разблокировать tab-анимации. */
 
-#bobliks-settings-popup[open] .bp-body,
-#bobliks-settings-popup[panelopen="true"] .bp-body,
-#bobliks-settings-popup .bp-body {
-  animation: blade-menu-body-in 0.20s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-@keyframes blade-menu-wrap-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes blade-menu-body-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Hover-состояния строк меню: плавный сдвиг вправо и акцентная полоса */
+/* Hover-состояния строк меню: плавный сдвиг вправо и акцентная полоса (побеждает translateY(1px)) */
 #bobliks-settings-popup .bp-row {
-  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease !important;
+  transition: color 0.12s ease, background 0.16s ease, border-color 0.12s ease, box-shadow 0.16s ease, transform 0.12s ease !important;
 }
 
 #bobliks-settings-popup .bp-row:hover {
-  transform: translateX(3px) !important;
-  background: color-mix(in srgb, var(--accent, #ff2a2a) 16%, transparent) !important;
+  transform: translateY(-1px) !important;
   color: #ffffff !important;
-  box-shadow: inset 3px 0 0 var(--accent, #ff2a2a) !important;
+  border-color: color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent) !important;
+  box-shadow: inset 0 -2px 0 var(--accent, #ff2a2a), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+/* Активная строка на ховере: нижняя неоновая грань и внутренний glow не пропадают */
+#bobliks-settings-popup .bp-row.on:hover {
+  box-shadow: inset 0 -2px 0 var(--accent, #ff2a2a), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -10px 16px -10px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent) !important;
 }
 
 #bobliks-settings-popup .bp-tab {
-  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease !important;
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease, box-shadow 0.16s ease, transform 0.12s ease !important;
 }
 
 #bobliks-settings-popup .bp-tab:hover {
   color: #ffffff !important;
-  background: color-mix(in srgb, var(--accent, #ff2a2a) 12%, transparent) !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, color-mix(in srgb, var(--accent, #ff2a2a) 12%, transparent) 100%) !important;
+  border-color: color-mix(in srgb, var(--accent, #ff2a2a) 45%, transparent) !important;
+}
+
+/* Активная плитка на ховере: нижняя неоновая грань не должна пропадать */
+#bobliks-settings-popup .bp-tab.on:hover {
+  box-shadow: inset 0 -2px 0 var(--accent, #ff2a2a), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -10px 16px -10px color-mix(in srgb, var(--accent, #ff2a2a) 70%, transparent) !important;
 }
 
 /* Доступность и фокус-ринг клавиатурной навигации с акцентным свечением */
