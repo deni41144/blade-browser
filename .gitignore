@@ -6,6 +6,7 @@
 # --- бэкапы и собранные релизы/артефакты ---
 Backups/
 Blade-Release-v1.4.2/
+Blade-Workstation-*/
 Patches/build/
 *.zip
 *.sha256
