@@ -1,4 +1,4 @@
-# ============================================================================
+﻿# ============================================================================
 # Build-Blade-Workstation.ps1 — сборка пакета поставки для разработчика.
 #
 # Пакет = движок + свежий chrome из ACTUAL main + инструкции онбординга.
@@ -30,17 +30,20 @@ if (-not $ProfileDir) { $ProfileDir = Join-Path $repoRoot 'FirefoxPortable\Data\
 # --- 1. git pull: чужие правки приезжают до сборки ---
 if (-not $SkipPull) {
     Write-Host '[1/6] git pull (правки разработчика)...' -ForegroundColor Cyan
+    # git пишет прогресс в stderr — это не ошибка; временно ослабляем Stop
+    $ErrorActionPreference = 'Continue'
     & git -C $repoRoot pull --ff-only origin main 2>&1 | Out-Host
-    if ($LASTEXITCODE -ne 0) { throw 'git pull упал — разбирайся вручную (возможен конфликт слияния)' }
+    $code = $LASTEXITCODE
+    $ErrorActionPreference = 'Stop'
+    if ($code -ne 0) { throw 'git pull упал — разбирайся вручную (возможен конфликт слияния)' }
 }
 
 # --- 2. guard: дерево должно быть чистым ---
 Write-Host '[2/6] guard: проверка чистоты дерева...' -ForegroundColor Cyan
-$dirty = @(& git -C $repoRoot status --porcelain | Where-Object {
-    # Onboarding-инструкции и chrome-исходники в пакете не участвуют как
-    # незакоммиченные — пакет собирается из закоммиченного main
-    $_ -notmatch '(?i)^(?:\?\?|\sM)\s+(?:Onboarding/|Blade-Workstation)' })
-$uncommittedChrome = @(& git -C $repoRoot status --porcelain | Where-Object {
+$ErrorActionPreference = 'Continue'
+$allStatus = @(& git -C $repoRoot status --porcelain)
+$ErrorActionPreference = 'Stop'
+$uncommittedChrome = @($allStatus | Where-Object {
     $_ -match '(?i)(chrome/|user\.js|PROJECT_MAP|START-HERE)' })
 if ($uncommittedChrome.Count -gt 0) {
     throw ('ОТКАЗ: в пакете будут незакоммиченные правки кода: ' +
@@ -49,18 +52,25 @@ if ($uncommittedChrome.Count -gt 0) {
 }
 Write-Host '  дерево кода чистое (незакоммиченных правок chrome/user.js нет)' -ForegroundColor Green
 
-# --- 3. версия из main ---
-$version = (Get-Content (Join-Path $ProfileDir 'chrome\VERSION') -Raw).Trim()
+# --- 3. версия из main (UTF-8 без BOM читаем через .NET: PS 5.1
+#     Get-Content читает как ANSI и ломает кириллицу кодового имени) ---
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$version = [System.IO.File]::ReadAllText((Join-Path $ProfileDir 'chrome\VERSION'), $utf8).Trim()
 $codename = ''
 $cnFile = Join-Path $ProfileDir 'chrome\CODENAME'
-if (Test-Path $cnFile) { $codename = (Get-Content $cnFile -Raw).Trim() }
+if (Test-Path $cnFile) { $codename = [System.IO.File]::ReadAllText($cnFile, $utf8).Trim() }
 Write-Host "[3/6] версия: $version $(if ($codename) { $codename })" -ForegroundColor Cyan
 
 # --- 4. сборка Full (патч в комплекте — chrome из того же main) ---
+# ВАЖНО: -Codename НЕ передаём. Кириллица в аргументах дочернего
+# powershell.exe из PS 5.1 приходит как mojibake (двойное кодирование) и
+# CODENAME/хроника прошиваются кривыми байтами. Publish-Blade-Update сам
+# читает кодовое имя из chrome\CODENAME — тот же источник, без шанса
+# рассинхрона через командную строку.
 Write-Host '[4/6] сборка Full-пакета...' -ForegroundColor Cyan
 $pub = Join-Path $PatchesDir 'Publish-Blade-Update.ps1'
 & powershell -NoProfile -ExecutionPolicy Bypass -File $pub `
-    -Version $version -Codename $codename -Mode Full -SkipPublish
+    -Version $version -Mode Full -SkipPublish
 if ($LASTEXITCODE -ne 0) { throw 'Publish-Blade-Update.ps1 (Full, SkipPublish) упал' }
 $fullZip = Join-Path $PatchesDir "Blade-Full-v$version.zip"
 if (-not (Test-Path $fullZip)) { throw "Full-пакет не собран: $fullZip" }
@@ -92,8 +102,11 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $z = [System.IO.Compression.ZipFile]::OpenRead($fullZip)
 try { $entries = @($z.Entries | ForEach-Object { $_.FullName }) }
 finally { $z.Dispose() }
-$persRe = '(?i)(thumbnails|places\.sqlite|logins|key[34]?\.db|cookies\.sqlite|sessionstore|storage\.sqlite|prefs\.js|bookmarkbackups|minidumps|crashes|datareporting)'
-$personal = @($entries | Where-Object { $_ -match $persRe })
+# патру名单: prefs.js движка (channel-prefs/config-prefs) — не личное,
+# живут в App\Firefox64\defaults\pref\. Личный prefs.js — корень профиля.
+# Пути в архиве нормализуем к '/' (regex-класс с бэкслешем в PS ломается).
+$persRe = '(?i)(thumbnails|places\.sqlite|logins|key[34]?\.db|cookies\.sqlite|sessionstore|storage\.sqlite|bookmarkbackups|minidumps|crashes|datareporting|(^|/)prefs\.js($|/))'
+$personal = @($entries | ForEach-Object { ($_.Replace('\', '/')) } | Where-Object { $_ -match $persRe })
 if ($personal.Count -gt 0) {
     Remove-Item $wsDir -Recurse -Force
     throw ('ОТКАЗ: в пакете личные файлы: ' + ($personal -join ', '))

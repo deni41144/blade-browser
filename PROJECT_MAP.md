@@ -668,12 +668,22 @@ git status --porcelain ; git check-ignore -v Skeleton-Stage/firefox.exe Installe
 2. `git status` чистый — все правки, которые войдут в пакет, закоммичены
    (незакоммиченный код в пакет не уходит — это его и единственный способ
    протухнуть).
-3. Сборка Full: `Publish-Blade-Update.ps1 -Version <V> -Mode Full -SkipPublish`.
-4. Сборка пакета: копия `Blade-Full-v<V>.zip` + `.sha256` + свежие
-   `КАК-НАЧАТЬ.md` / `НЕЙРОНКЕ.md` (проверить, что версия в текстах актуальна)
-   в `Blade-Workstation-<V>/`, затем ZIP наружу.
-5. Аудит готового пакета: нет личных фото/скринов (sweep `*.png/*.jpg` вне
-   `chrome/img` + `img/themes`), нет `thumbnails`/кэша/`places`/`sessionstore`.
+3. **Сборка одной командой:**
+   `powershell -ExecutionPolicy Bypass -File Patches\Build-Blade-Workstation.ps1`
+   Скрипт делает всё сам: pull → guard чистого дерева (отказ, если есть
+   незакоммиченные `chrome/`/`user.js`/карта) → сборка Full → сборка пакета
+   → аудит на личные файлы. Версию и кодовое имя читает из `chrome\VERSION` /
+   `chrome\CODENAME`. Инструкции берёт из `Onboarding/` репозитория.
+4. Упаковать папку `Blade-Workstation-<V>/` в ZIP и передать сотруднику.
+
+**⚠️ Ловушка mojibake (инцидент 2026-09-27):** кириллица в аргументе
+`-Codename` дочернего `powershell.exe` из PS 5.1 приходит двойным
+кодированием — CODENAME прошивается кривыми байтами (`Р Р°СЃРїР°Рґ`), и
+только в пакете, не в GitHub (там `gh` ушёл корректным). Поэтому
+`Build-Blade-Workstation.ps1` **не передаёт `-Codename`** —
+`Publish-Blade-Update.ps1` читает имя из `chrome\CODENAME`. Любая кириллица
+через аргументы `powershell -File` — риск; для интерфейсных скриптов с
+кириллицей обязателен UTF-8 BOM.
 
 **⚠️ Главное правило:** пакет всегда собирается из закоммиченного main. Если
 сотрудник говорит «сделай пакет» — сначала `git pull`, потом сборка. Пакет из
