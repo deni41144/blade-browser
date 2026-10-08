@@ -11,10 +11,11 @@ export function validateLayout(value) {
   return out;
 }
 export function fitLayout(base, point, viewport) {
-  const scale = Math.min(point?.s || 1, Math.max(.1, (viewport.width - 16) / base.width), Math.max(.1, (viewport.height - 16) / base.height));
+  const padX = viewport.paddingX || 8, padY = viewport.paddingY || 8;
+  const scale = Math.min(point?.s || 1, Math.max(.1, (viewport.width - padX*2) / base.width), Math.max(.1, (viewport.height - padY*2) / base.height));
   const width = base.width * scale, height = base.height * scale;
-  const clamp = (value, extent, size) => Math.max(size / 2 + 8, Math.min(extent - size / 2 - 8, value));
-  const x = point ? clamp(point.x * viewport.width, viewport.width, width) : base.x;
-  const y = point ? clamp(point.y * viewport.height, viewport.height, height) : base.y;
+  const clamp = (value, extent, size, padding) => Math.max(size / 2 + padding, Math.min(extent - size / 2 - padding, value));
+  const x = point ? clamp(point.x * viewport.width, viewport.width, width, padX) : base.x;
+  const y = point ? clamp(point.y * viewport.height, viewport.height, height, padY) : base.y;
   return {x, y, width, height, s:scale};
 }

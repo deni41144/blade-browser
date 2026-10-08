@@ -46,7 +46,7 @@ export class BladeHomeLayout {
       target.style.setProperty('translate',`${result.x-base.x}px ${result.y-base.y}px`,'important');
       target.style.setProperty('scale',String(result.s),'important');
     }
-    const data = {bg:this.state.bg, base, rect:result};
+    const data = {bg:this.state.bg, base, rect:result, viewport};
     const signature = JSON.stringify(data);
     if (signature !== this.lastRect || this.state.editing) {
       this.lastRect = signature;

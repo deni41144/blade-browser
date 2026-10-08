@@ -10,7 +10,7 @@
   const {validateLayout, fitLayout} = ChromeUtils.importESModule('chrome://userscripts/content/BladeHomeLayoutModel.sys.mjs');
   const H = 'http://www.w3.org/1999/xhtml', PREF = 'blade.home.layouts';
   let editing = null, draft = null, editBg = '', overlay = null, gesture = null, frame = 0, clockOriginal = null;
-  let tileBase = null, tileRect = null, applying = false;
+  let tileBase = null, tileRect = null, applying = false, tileZoomX = 1, tileZoomY = 1;
   const isHome = browser => ['about:newtab','about:home'].includes(browser?.currentURI?.spec);
   const bg = () => window.BladeEngine?.activeBg() || 'acheron';
   const viewport = () => window.gBrowser.selectedBrowser.getBoundingClientRect();
@@ -66,7 +66,11 @@
     overlay.style.left=view.left+'px'; overlay.style.top=view.top+'px';
     overlay.style.width=view.width+'px'; overlay.style.height=view.height+'px';
     place('clock',clock);
-    place('tiles',tileBase ? (draft?.tiles ? fitLayout(tileBase,draft.tiles,view) : {...tileBase,s:1}) : tileRect);
+    place('tiles',tileGeometry(view));
+  }
+  function tileGeometry(view) {
+    if (!tileBase) return tileRect;
+    return draft?.tiles ? fitLayout(tileBase,draft.tiles,{width:view.width,height:view.height,paddingX:tileZoomX*8,paddingY:tileZoomY*8}) : {...tileBase,s:1};
   }
   function refresh() {
     render();
@@ -130,7 +134,7 @@
       if (event.button!==0 || event.target.closest('button')) return;
       const box=event.target.closest('.bhl-frame');if(!box)return;
       const key=box.dataset.part, view=viewport();
-      const rect=key==='clock'?clockGeometry():(tileBase ? (draft?.tiles?fitLayout(tileBase,draft.tiles,view):{...tileBase,s:1}) : tileRect);
+      const rect=key==='clock'?clockGeometry():tileGeometry(view);
       if(!rect)return;
       gesture={key,rect,view,startX:event.clientX,startY:event.clientY,resize:!!event.target.closest('.bhl-resize'),id:event.pointerId};
       box.setPointerCapture(event.pointerId);box.classList.add('bhl-moving');event.preventDefault();
@@ -188,7 +192,12 @@
     if(browser!==window.gBrowser.selectedBrowser || data?.bg!==bg())return;
     const valid=rect=>rect && ['x','y','width','height'].every(key=>Number.isFinite(rect[key])) && rect.width>0 && rect.height>0;
     if(!valid(data.base)||!valid(data.rect))return;
-    tileBase=data.base;tileRect=data.rect;render();
+    const view=viewport();
+    const sx=data.viewport?.width>0?view.width/data.viewport.width:1;
+    const sy=data.viewport?.height>0?view.height/data.viewport.height:1;
+    tileZoomX=sx;tileZoomY=sy;
+    const chromeRect=rect=>({...rect,x:rect.x*sx,y:rect.y*sy,width:rect.width*sx,height:rect.height*sy});
+    tileBase=chromeRect(data.base);tileRect=chromeRect(data.rect);render();
   }};
   window.setTimeout(refresh,0);
   window.addEventListener('unload',()=>{
