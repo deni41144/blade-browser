@@ -105,10 +105,16 @@
           if (!['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'].includes(ext)) return;
           const cleanBase = fp.file.leafName.replace(/[.][^.]+$/, '')
             .replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 20) || 'wallpaper';
-          const safeName = 'custom_' + cleanBase + '_' + Date.now().toString(36) + '.' + ext;
-          const imgDir = s.getImgDir();
-          const target = imgDir.clone(); target.append(safeName);
-          if (target.exists()) target.remove(false);
+          let safeName = 'custom_' + cleanBase + '_' + Date.now().toString(36) + '.' + ext;
+          const imgDir = window.BladeEngine.getCustomBgDir();
+          let target = imgDir.clone(); target.append(safeName);
+          // Never remove another import made in the same millisecond.
+          while (target.exists()) {
+            safeName = 'custom_' + cleanBase + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+            target = imgDir.clone(); target.append(safeName);
+          }
+          target.normalize();
+          if (!imgDir.contains(target, true)) throw new Error('Invalid wallpaper destination');
           fp.file.copyTo(imgDir, safeName);
           // новый файл = новый скан каталога и новый преф bobliks.bg.file_*
           s.invalidateBgCache();

@@ -5,7 +5,7 @@
 //                  Шаг 8 декомпозиции BobliksSettings
 // @author          Blade-Creations
 // @include         main
-// @version         1.4.0
+// @version         1.4.2
 // @loadOrder       11
 // ==/UserScript==
 // Вынесен из BobliksSettings.uc.js (шаг 8 декомпозиции, 2026-09-22): CSS панели,
@@ -32,7 +32,7 @@
     const mark = (m, e) => {
         try {
             if (!markPath) return;
-            const text = 'v1.4.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+            const text = 'v1.4.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
             IOUtils.writeUTF8(markPath, text).catch(() => {});
         } catch (e2) {}
     };
@@ -240,6 +240,7 @@
     ];
     function buildPopup(doc, popup) {
       closeWallpaperPreview(popup, false);
+      window.BladeTilePanel?.destroy();
       // Обновляем активную вкладку + тело панели под преф blade.menu.tab
       const tab = Services.prefs.getStringPref('blade.menu.tab', 'theme');
       popup.querySelectorAll('.bp-tab').forEach((el) => {
@@ -411,6 +412,7 @@
           { id: 'standart',  label: 'Standart' },
           { id: 'samurai',   label: 'Samurai' },
           { id: 'animation', label: 'Animation' },
+          { id: 'custom', label: 'Мои обои' },
         ];
         for (const g of GROUPS) {
           const items = all.filter((b) => b.group === g.id);
@@ -425,10 +427,14 @@
           sub('СВОИ ФАЙЛЫ');
           wallpaperGrid(rest);
         }
-        row('+ Выбрать свой файл обоев…', { bladePickBg: '1' }, { noDot: true });
+        row('+ Добавить свои обои…', { bladePickBg: '1' }, { noDot: true });
+        row('Открыть папку моих обоев', { bladeCustomBgFolder: '1' }, { noDot: true });
       } else if (tab === 'tiles') {
+        row('Настроить расположение главной', { bladeHomeLayout: '1' }, { noDot: true });
+        const tileHost = mk('bt-panel'); body.appendChild(tileHost);
+        window.BladeTilePanel?.mount(tileHost);
         const editOn = Services.prefs.getBoolPref('bobliks.dial.edit', false);
-        row('Режим правки (кнопка «...» на плитках)', { bobliksEdit: editOn ? 'off' : 'on' }, { on: editOn });
+        row('Показать меню на самих плитках', { bobliksEdit: editOn ? 'off' : 'on' }, { on: editOn });
       } else if (tab === 'system') {
         // «ЧТЕНИЕ / Принудительный тёмный» снесено 2026-09-13: тёмный режим
         // сайтов делает Dark Reader (ставится политикой), наш инверт удалён
@@ -468,7 +474,7 @@
         sub('БЭКАП');
         row('Сохранить профиль в zip', { bladeBackup: '1' }, { noDot: true });
         sub('WINDOWS');
-        row('Сделать браузером по умолчанию', { bladeDefault: '1' }, { noDot: true });
+        if (window.BladeUpdater?.canSetDefault()) row('Сделать браузером по умолчанию', { bladeDefault: '1' }, { noDot: true });
       } else if (tab === 'update') {
         let upd = null;
         try { upd = (typeof window.BladeUpdater === 'object' && window.BladeUpdater) ? window.BladeUpdater.state() : null; } catch (e) {}
@@ -717,6 +723,7 @@
       // всегда актуальны (Gemini раунд 10)
       popup.addEventListener('popupshowing', (ev) => {
         if (ev.target !== popup) return;
+        if (popup._bladeTileResume) { delete popup._bladeTileResume; return; }
         try { buildPopup(popup.ownerDocument, popup); } catch (e) { mark('ERR showing ' + e); }
       });
       popup.addEventListener('popupshown', (ev) => {
@@ -790,6 +797,7 @@
           else if (ds.bladeUpdate === 'check') { try { window.BladeUpdater.check(true); } catch (e) { mark('ERR updCheck ' + e); } }
           else if (ds.bladeUpdate === 'autoon') { Services.prefs.setBoolPref('blade.update.auto', true); }
           else if (ds.bladeUpdate === 'autooff') { Services.prefs.setBoolPref('blade.update.auto', false); }
+          else if (ds.bladeHomeLayout === '1') { close = true; window.setTimeout(() => window.BladeHomeLayout?.begin(), 100); }
           else if (ds.bladeDefault === '1') { try { window.BladeUpdater.setDefault(); } catch (e) { mark('ERR setDefault ' + e); } close = true; }
           else if (ds.bladeDns) {
             // смена DoH: uri + mode; «off» глушит TRR целиком (mode 0)
@@ -846,6 +854,7 @@
             const next = list[((cur < 0 ? 0 : cur) + 1) % list.length];
             if (next) Services.prefs.setStringPref(prefName, next.id);
           }
+          else if (ds.bladeCustomBgFolder) { window.BladeEngine.getCustomBgDir().launch(); close = true; }
           else if (ds.bladePickBg) { close = true; window.BladeVisages.chooseCustomWallpaper(); }
           else if (ds.bladeLab) { close = true; window.BladeThemeLab.open(); }
           else if (ds.bobliksFolder) {

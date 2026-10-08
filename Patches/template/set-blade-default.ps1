@@ -41,6 +41,14 @@ if (-not $EnginePath -or -not (Test-Path (Join-Path $EnginePath 'firefox.exe')))
     throw 'firefox.exe не найден. Укажи: -EnginePath <папка с firefox.exe>'
 }
 $exe = Join-Path $EnginePath 'firefox.exe'
+# Never register a development/portable executable under the installed Blade IDs.
+$allowedDefaultEngines = @('App\Blade','App\Firefox64') | ForEach-Object {
+    [System.IO.Path]::GetFullPath((Join-Path (Join-Path $env:LOCALAPPDATA 'Blade') $_))
+}
+$resolvedDefaultEngine = [System.IO.Path]::GetFullPath($EnginePath).TrimEnd('\','/')
+if ($allowedDefaultEngines -notcontains $resolvedDefaultEngine) {
+    throw 'Тестовая/портативная сборка не может регистрироваться браузером по умолчанию.'
+}
 # Профиль установки: <корень>\Data\profile. БЕЗ -profile в командах реестра
 # внешние ссылки (из Discord/Telegram и т.д.) открывались в ДЕФОЛТНОМ профиле —
 # «голый Firefox» вместо Blade. -osint с -profile совместим (проверено по

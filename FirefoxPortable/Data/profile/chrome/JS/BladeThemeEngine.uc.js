@@ -5,7 +5,7 @@
 //                  setTheme/setBg и стартовая раскраска. Шаг 7 декомпозиции
 // @author          Blade-Creations
 // @include         main
-// @version         1.2.2
+// @version         1.2.4
 // @loadOrder       8
 // ==/UserScript==
 // Вынесен из BobliksSettings.uc.js (шаг 7 декомпозиции, 2026-09-22): целиком
@@ -33,13 +33,14 @@
     const mark = (m, e) => {
         try {
             if (!markPath) return;
-            const text = 'v1.2.2 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+            const text = 'v1.2.4 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
             IOUtils.writeUTF8(markPath, text).catch(() => {});
         } catch (e2) {}
     };
 
     // Единственный источник каталогов — BladeCore (@loadOrder 5, грузится
     // раньше). BUILTIN_BGS объявлен ниже внутри перенесённого блока
+    const {themeState: sheets} = ChromeUtils.importESModule('chrome://userscripts/content/BladeThemeState.sys.mjs');
     const THEMES = window.Blade.themes;
     let fieldSelectionURI = null;
 
@@ -87,9 +88,11 @@
       }`;
       const uri = Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(css));
       if (!fieldSelectionURI || fieldSelectionURI.spec !== uri.spec) {
-        if (fieldSelectionURI && sss.sheetRegistered(fieldSelectionURI, sss.USER_SHEET)) sss.unregisterSheet(fieldSelectionURI, sss.USER_SHEET);
+        // 1.2.4: новый щит до снятия старого — без кадра без стилей.
         if (!sss.sheetRegistered(uri, sss.USER_SHEET)) sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+        const prevSel = fieldSelectionURI;
         fieldSelectionURI = uri;
+        if (prevSel && !prevSel.equals(uri) && sss.sheetRegistered(prevSel, sss.USER_SHEET)) sss.unregisterSheet(prevSel, sss.USER_SHEET);
       }
       try {
         // Gecko 155 paints native input selection with Highlight/Highlighttext;
@@ -107,54 +110,87 @@
       d.append('img');
       return d;
     }
-    // --- СВОИ ОБОИ (раунд 22): автоскан chrome/img/ — любой jpg/png/webp/gif/avif
-    // попадает в меню. Преф-имя файла санитизируется (file_<safe>) — правила
-    // генерит BobliksCovers в covers.css, контентный процесс их прочитает ---
-    function bgPrefId(fileName) {
-      // Реализация в BladeCore — единый хэш для Settings и Covers
-      return window.Blade.bgPrefId(fileName);
+    // Свои картинки лежат отдельно от ресурсов браузера. Имена id/pref
+    // сохраняются при переезде, поэтому выбор и сохранённые облики не слетают.
+    function getCustomBgDir() {
+      const root = getImgDir(); root.normalize();
+      const dir = root.clone(); dir.append('custom');
+      if (!dir.exists()) dir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+      dir.normalize();
+      if (!dir.isDirectory() || dir.isSymlink() || dir.leafName !== 'custom' || !dir.parent.equals(root) || !root.contains(dir, true)) throw new Error('Invalid custom wallpaper directory');
+      return dir;
     }
-    // Кэш на окно: скан chrome/img/ вызывается из getAllBgs() при каждом
-    // открытии меню и из applyThemeSheet. Инвалидация — через
-    // window.BladeSettings.invalidateBgCache() из BladeVisages после копирования
-    // нового файла
+    function bgPrefId(fileName) { return window.Blade.bgPrefId(fileName); }
+    const CUSTOM_IMAGE_EXT = /[.](jpg|jpeg|png|webp|avif|gif)$/i;
     let customBgsCache = null;
     function getCustomBgs() {
       if (customBgsCache) return customBgsCache;
       const customs = [];
       try {
-        const dir = getImgDir();
-        if (!dir.exists() || !dir.isDirectory()) return customs;
-        // Единый контракт зарезервированных имён с BobliksCovers (BladeCore):
-        // встроенные фоны + служебные файлы (кнопка, аватарки заставки)
-        const builtin = window.Blade.reservedImgFiles();
-        const iter = dir.directoryEntries;
+        const root = getImgDir(); root.normalize();
+        const dest = getCustomBgDir();
+        const reserved = window.Blade.reservedImgFiles();
+        const legacy = [];
+        const iter = root.directoryEntries;
         while (iter.hasMoreElements()) {
           const entry = iter.getNext().QueryInterface(Ci.nsIFile);
-          if (entry.isDirectory()) continue;
-          const name = entry.leafName;
-          if (!/[.](jpg|jpeg|png|webp|avif|gif)$/i.test(name)) continue;
-          if (builtin.has(name.toLowerCase())) continue;
-          const clean = name.replace(/[.][^.]+$/, '').replace(/^bg_/, '').replace(/[-_]+/g, ' ').trim();
-          const label = clean.length > 22 ? clean.slice(0, 20) + '…' : clean;
-          customs.push({
-            id: 'file:' + name,
-            label: '📁 ' + (label || name),
-            file: name,
-            isCustom: true,
-            prefId: bgPrefId(name)
-          });
+          if (!entry.isFile() || entry.isSymlink() || !CUSTOM_IMAGE_EXT.test(entry.leafName) || reserved.has(entry.leafName.toLowerCase())) continue;
+          legacy.push(entry);
         }
+        // Only direct image files. Never overwrite a collision or traverse
+        // a link out of img; keep legacy entries readable if a move fails.
+        for (const entry of legacy) {
+          const name = entry.leafName;
+          const target = dest.clone(); target.append(name);
+          try {
+            entry.normalize(); target.normalize();
+            if (!root.contains(entry, true) || !dest.contains(target, true)) continue;
+            if (!target.exists()) entry.moveTo(dest, name);
+          } catch (e) { mark('ERR customMove ' + e); }
+        }
+        const seen = new Set();
+        function collect(dir, prefix) {
+          const items = dir.directoryEntries;
+          while (items.hasMoreElements()) {
+            const entry = items.getNext().QueryInterface(Ci.nsIFile);
+            if (!entry.isFile() || entry.isSymlink() || !CUSTOM_IMAGE_EXT.test(entry.leafName)) continue;
+            const name = entry.leafName;
+            if (!prefix && reserved.has(name.toLowerCase())) continue;
+            entry.normalize();
+            if (!dir.contains(entry, true)) continue;
+            // Root wins a name collision so its pre-existing selected id
+            // still identifies the same image. Both files stay accessible.
+            const identity = seen.has(name.toLowerCase()) ? prefix + name : name;
+            seen.add(name.toLowerCase());
+            const clean = name.replace(/[.][^.]+$/, '').replace(/^bg_/, '').replace(/[-_]+/g, ' ').trim();
+            customs.push({ id:'file:' + identity,
+              label:'📁 ' + (clean.length > 22 ? clean.slice(0, 20) + '…' : clean || name),
+              file:prefix + name, isCustom:true, prefId:bgPrefId(identity), group:'custom' });
+          }
+        }
+        collect(root, '');
+        collect(dest, 'custom/');
+        customs.sort((a, b) => a.label.localeCompare(b.label));
       } catch (e) { mark('ERR getCustomBgs ' + e); }
       customBgsCache = customs;
       return customs;
     }
-    // Путь относительно chrome/img/ (поддерживает подпапку original/):
-    // append() умеет только одно звено за раз, режем по обоим разделителям
+    // Resolve only safe paths inside img. Catalog.file includes custom/;
+    // flat legacy callers prefer a still-existing root file on collisions.
     function resolveImgFile(rel) {
-      const f = getImgDir().clone();
-      for (const seg of String(rel || '').split(/[\\/]/)) if (seg) f.append(seg);
-      return f;
+      const parts = String(rel || '').split(/[\\/]/);
+      if (!parts.length || parts.some(p => !p || p === '.' || p === '..' || /[:\x00]/.test(p))) throw new Error('Invalid wallpaper path');
+      const root = getImgDir(); root.normalize();
+      const file = root.clone();
+      for (const part of parts) file.append(part);
+      file.normalize();
+      if (!root.contains(file, true)) throw new Error('Wallpaper path outside img');
+      if (parts.length === 1 && !file.exists() && !window.Blade.reservedImgFiles().has(parts[0].toLowerCase())) {
+        const custom = getCustomBgDir(); custom.append(parts[0]); custom.normalize();
+        if (!root.contains(custom, true)) throw new Error('Wallpaper path outside img');
+        return custom;
+      }
+      return file;
     }
     // --- ПАПКА ORIGINAL (v1.1.0): исходники владельца из V3-папки дизайнера
     // копируются в chrome/img/original/. Преф blade.bg.v3dir хранит
@@ -258,6 +294,10 @@
       return (sameExtension || items.find(x => x.id.toUpperCase().startsWith('ORIG:' + target + '.')))?.id || 'acheron';
     }
     function migrateSavedBg() {
+      let savedRaw = '';
+      try { savedRaw = Services.prefs.getStringPref('bobliks.bg.current', ''); } catch (e) {}
+      if (savedRaw === lastMigratedSaved) return savedRaw;
+      if (!/^orig:/i.test(savedRaw || '')) { lastMigratedSaved = savedRaw; return savedRaw; }
       getOriginalBgs();
       for (const prefId of retiredOriginalPrefIds) Services.prefs.clearUserPref('bobliks.bg.' + prefId);
       const saved = Services.prefs.getStringPref('bobliks.bg.current', '');
@@ -268,6 +308,7 @@
         const b = getAllBgs().find(x => x.id === next);
         if (b && next !== 'acheron') Services.prefs.setBoolPref('bobliks.bg.' + (b.prefId || next), true);
       }
+      lastMigratedSaved = next;
       return next;
     }
     function activeBg() {
@@ -451,57 +492,6 @@
       return result;
     }
 
-    // --- Фон newtab для ЛЮБОГО активного фона ---
-    function buildActiveBgCss(bgId) {
-      const b = getAllBgs().find(x => x.id === bgId);
-      if (!b) return '';
-      if (b.file) {
-        // Растр (встроенный/кастомный/original): абсолютный file:// URI —
-        // относительный url("img/...") в data:-листе не резолвится (причина 4)
-        const f = resolveImgFile(b.file);
-        if (!f.exists()) return '';
-        return NT_DOCS + ' :root body.activity-stream { background: ' + BG_GRAD +
-          ', #0a0a0a url("' + PathUtils.toFileURI(f.path) +
-          '") center bottom / cover no-repeat fixed !important; } }';
-      }
-      // CSS-анимация (file: null) — дубли правил из userContent.css
-      return buildAnimBgCss(bgId);
-    }
-
-    // --- Перезагрузка открытых about:newtab/home после применения щитов ---
-    // Свежий документ перевычисляет -moz-pref() блоки userContent.css и
-    // covers.css по ТЕКУЩИМ префам — иначе замерзшее состояние (например,
-    // ::before/::after старого анимационного фона) не снять ничем. Серию
-    // вызовов (applyVisage зовёт setTheme+setBg подряд) коалсим в одну
-    // перезагрузку: щиты уже применены мгновенно, перезагрузка — финализация
-    let reloadTimer = null;
-    function reloadNewtabTabs() {
-      if (reloadTimer) return;
-      reloadTimer = setTimeout(() => {
-        reloadTimer = null;
-        let reloaded = 0;
-        try {
-          const wins = Services.wm.getEnumerator('navigator:browser');
-          while (wins.hasMoreElements()) {
-            const w = wins.getNext();
-            if (!w.gBrowser) continue;
-            for (const tab of w.gBrowser.tabs) {
-              const b = tab.linkedBrowser;
-              if (!b) continue;
-              try {
-                const spec = b.currentURI ? b.currentURI.spec : '';
-                if (!/^about:(newtab|home)/.test(spec)) continue;
-                try { b.reload(); }
-                catch (e) { try { w.gBrowser.reloadTab(tab); } catch (e2) {} }
-                reloaded++;
-              } catch (e) {}
-            }
-          }
-        } catch (e) { mark('ERR reloadNewtab ' + e); }
-        if (reloaded) mark('OK reloadNewtab=' + reloaded);
-      }, 300);
-    }
-
     // Живое внедрение кастомного фона (если newtab в родительском процессе;
     // для удалённой вкладки красит USER_SHEET applyThemeSheet). url() —
     // АБСОЛЮТНЫЙ file:// URI: about:newtab резолвит относительные пути от
@@ -535,20 +525,53 @@
     // about:-страницы), до которого -moz-pref() в userContent.css не
     // доезжает без перезапуска. Снятие + повторная регистрация того же
     // листа и есть «перекрасить» (идемпотентно).
-    let currentThemeSheetUri = null;
-    // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: THEMES: ЩИТ И ЖИВОЕ ПЕРЕКЛЮЧЕНИЕ
-    // applyThemeSheet(USER_SHEET)/customVars/applyCustomToDoc/newtabDocs/applyLiveAttrs/setTheme. applyThemeSheet читает getAllBgs (риск 1); setTheme эмитит theme:changed в шину (BladeSounds шинг). openThemeLab → BladeThemeLab.uc.js v1.0.0 (шаг 5)
-    // ═══════════════════════════════════════════════════════════════════
+    // Wallpaper changes wait for decode; themes never replace the backdrop.
+    let disposed = false;
+    async function preloadRasterBg(bgId) {
+      const b = getAllBgs().find(x => x.id === bgId);
+      if (!b?.file) return Promise.resolve();
+      const f = resolveImgFile(b.file);
+      if (!f.exists()) return Promise.reject(new Error('Wallpaper file missing'));
+      const url = PathUtils.toFileURI(f.path);
+      const processes = new Map();
+      const windows = Services.wm.getEnumerator('navigator:browser');
+      while (windows.hasMoreElements()) {
+        for (const browser of windows.getNext().gBrowser?.browsers || []) {
+          if (!/^about:(newtab|home)(?:[?#]|$)/.test(browser.currentURI?.spec || '')) continue;
+          const global = browser.browsingContext.currentWindowGlobal;
+          if (!global || processes.has(global.osPid)) continue;
+          processes.set(global.osPid, global.getActor('BladeEffectsVisibility'));
+        }
+      }
+      // Chrome's Image cache is not the remote content Image cache. Decode
+      // once per content process, not once per tab, before replacing its CSS.
+      if (processes.size) {
+        const prepared = await Promise.all(Array.from(processes.values(),
+          actor => actor.sendQuery('Blade:PrepareWallpaper', {url})));
+        if (prepared.some(result => !result?.ready)) throw new Error('Content wallpaper decode failed: ' + JSON.stringify(prepared));
+        return;
+      }
+      return new Promise((resolve, reject) => {
+        const image = new window.Image();
+        const timer = window.setTimeout(() => finish(new Error('Wallpaper decode timed out')), 6000);
+        let settled = false;
+        function finish(error) {
+          if (settled) return;
+          settled = true; window.clearTimeout(timer);
+          if (error) { image.src = ''; reject(error); } else resolve(image);
+        }
+        image.src = url;
+        image.decode().then(() => finish(), finish);
+      });
+    }
     function applyThemeSheet(themeId) {
       try {
         const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
-        if (currentThemeSheetUri) {
-          if (SSS.sheetRegistered(currentThemeSheetUri, SSS.USER_SHEET)) {
-            SSS.unregisterSheet(currentThemeSheetUri, SSS.USER_SHEET);
-          }
-          currentThemeSheetUri = null;
-        }
+        // Повтор того же состояния — пропуск: нет пересборки CSS и рестайла.
+        const sig = themeId + '|' +
+          (themeId === 'custom' ? getCustomColor() : '');
+        if (sig === sheets.themeSignature && sheets.themeURI &&
+            SSS.sheetRegistered(sheets.themeURI, SSS.USER_SHEET)) return;
         const t = THEMES.find(x => x.id === themeId) || THEMES[0];
         let accent, page;
         if (themeId === 'custom') {
@@ -573,17 +596,16 @@
         // этом же щите (причины 1+2)
         const coversCss = buildActiveCoversCss(themeId);
         if (coversCss) cssText += ' ' + coversCss;
-        // Фон newtab в тот же щит — для ЛЮБОГО активного фона: растр —
-        // абсолютный file:// URI (относительный url() в data:-листе не
-        // разрешается), CSS-анимация — дубли правил из userContent.css
-        // (причины 3+4)
-        let bgNote = '';
-        const bgCss = buildActiveBgCss(activeBg());
-        if (bgCss) { cssText += ' ' + bgCss; bgNote = ' bg=' + activeBg(); }
         const uri = Services.io.newURI('data:text/css,' + encodeURIComponent(cssText), null, null);
         if (!SSS.sheetRegistered(uri, SSS.USER_SHEET)) SSS.loadAndRegisterSheet(uri, SSS.USER_SHEET);
-        currentThemeSheetUri = uri;
-        mark('OK themeSheet ' + themeId + bgNote + (coversCss ? ' covers=on' : ' covers=off'));
+        // 1.2.4: новый щит встаёт ДО снятия старого — нет кадра без стилей.
+        const prev = sheets.themeURI;
+        sheets.themeURI = uri;
+        sheets.themeSignature = sig;
+        if (prev && !prev.equals(uri) && SSS.sheetRegistered(prev, SSS.USER_SHEET)) {
+          SSS.unregisterSheet(prev, SSS.USER_SHEET);
+        }
+        mark('OK themeSheet ' + themeId + (coversCss ? ' covers=on' : ' covers=off'));
       } catch (e) { mark('ERR themeSheet ' + e); }
     }
     function getCustomColor() {
@@ -687,7 +709,8 @@
           while (wins.hasMoreElements()) {
             const w = wins.getNext();
             try {
-              w.document.documentElement.setAttribute('data-blade-theme', theme);
+              const root = w.document.documentElement;
+              if (root.getAttribute('data-blade-theme') !== theme) root.setAttribute('data-blade-theme', theme);
               applyCustomToDoc(w.document, customColor);
             } catch (e) {}
           }
@@ -709,84 +732,93 @@
     //     (customVars/hexToRgb/applyCustomToDoc/getCustomColor/applyLiveAttrs)
     //     осталась здесь и уйдёт в BladeThemeEngine (шаг 7) ---
     function setTheme(themeId) {
-      for (const t of THEMES) { if (t.pref) Services.prefs.clearUserPref(t.pref); }
       const t = THEMES.find(x => x.id === themeId);
-      if (t && t.pref) Services.prefs.setBoolPref(t.pref, true);
+      if (!t || disposed) return false;
+      const sig = themeId + '|' + (themeId === 'custom' ? getCustomColor() : '');
+      if (activeTheme() === themeId && sheets.themeSignature === sig) return true;
+      if (activeTheme() !== themeId) {
+        for (const x of THEMES) {
+          if (x.pref && Services.prefs.prefHasUserValue(x.pref)) Services.prefs.clearUserPref(x.pref);
+        }
+        if (t.pref) Services.prefs.setBoolPref(t.pref, true);
+      }
       syncSelectionPrefs(themeId);
-      applyLiveAttrs();
-      // Тематический щит — для ЛЮБОЙ темы, включая red: единственный живой
-      // канал до remote-контента (newtab, скроллбары сайтов, about:-страницы)
       applyThemeSheet(themeId);
-      // Перезагрузить открытые about:newtab/home: свежий документ
-      // перевычислит -moz-pref() блоки userContent.css/covers.css по новым
-      // префам — замерзшее состояние старой темы иначе не снять
-      reloadNewtabTabs();
-      // Звуковая волна 2.0: объявляем смену темы в шину — BladeSounds играет
-      // шинг тембра новой темы (data-blade-theme уже обновлён выше)
-      try {
-        if (window.Blade && window.Blade.bus) window.Blade.bus.emit('theme:changed', themeId);
-      } catch (e) {}
-    }
-    // Живой фон через nsIStyleSheetService USER_SHEET (раунд 23): новая
-    // вкладка удалённая, DOM не дотянуться — а юзер-щит доходит до контентного
-    // процесса и применяется МГНОВЕННО, без перезапуска
-    let currentCustomBgUri = null;
-    // ═══════════════════════════════════════════════════════════════════
-    // СЕКЦИЯ: BGS: ЩИТ ФОНА + SETBG
-    // applyCustomBgSheet/setBg. setBg зовёт applyThemeSheet (риск 1)
-    // ═══════════════════════════════════════════════════════════════════
-    function applyCustomBgSheet(fileLeafName) {
-      try {
-        const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
-        if (currentCustomBgUri) {
-          if (SSS.sheetRegistered(currentCustomBgUri, SSS.USER_SHEET)) {
-            SSS.unregisterSheet(currentCustomBgUri, SSS.USER_SHEET);
-          }
-          currentCustomBgUri = null;
-        }
-        if (!fileLeafName) return;
-        const file = resolveImgFile(fileLeafName);
-        if (!file.exists()) return;
-        const fileUri = PathUtils.toFileURI(file.path);
-        const cssText = '@-moz-document url("about:home"), url("about:newtab") { ' +
-          ':root body.activity-stream { ' +
-          'background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), ' +
-          '#0a0a0a url("' + fileUri + '") center bottom / cover no-repeat fixed !important; } }';
-        const sheetUri = Services.io.newURI('data:text/css,' + encodeURIComponent(cssText), null, null);
-        if (!SSS.sheetRegistered(sheetUri, SSS.USER_SHEET)) {
-          SSS.loadAndRegisterSheet(sheetUri, SSS.USER_SHEET);
-        }
-        currentCustomBgUri = sheetUri;
-        mark('OK customBgSheet ' + fileLeafName);
-      } catch (e) { mark('ERR customBgSheet ' + e); }
-    }
-    function setBg(bgId) {
-      bgId = normalizeBgId(bgId);
-      const b = getAllBgs().find(x => x.id === bgId);
-      if (!b) return;
-      // CSS-фоны (file: null) идут мимо файлов — им нужен только преф
-      if (b.file) {
-        const src = resolveImgFile(b.file);
-        if (!src.exists()) { mark('FAIL no file ' + b.file); return; }
-      }
-      // Префы — источник правды; правила кастомных генерит BobliksCovers
-      Services.prefs.setStringPref('bobliks.bg.current', bgId);
-      for (const x of BUILTIN_BGS) Services.prefs.clearUserPref('bobliks.bg.' + x.id);
-      for (const x of getCustomBgs()) Services.prefs.clearUserPref('bobliks.bg.' + x.prefId);
-      for (const x of getOriginalBgs()) Services.prefs.clearUserPref('bobliks.bg.' + x.prefId);
-      for (const prefId of retiredOriginalPrefIds) Services.prefs.clearUserPref('bobliks.bg.' + prefId);
-      if (bgId !== 'acheron') {
-        Services.prefs.setBoolPref('bobliks.bg.' + (b.isCustom ? b.prefId : bgId), true);
-      }
-      // Кастомный — мгновенно через юзер-щит; штатный — снять юзер-щит
-      applyCustomBgSheet(b.isCustom && b.file ? b.file : null);
       applyLiveAttrs();
-      // перегенерировать тематический щит: в нём же правило фона newtab
-      applyThemeSheet(activeTheme());
-      // Перезагрузить открытые about:newtab/home (см. комментарий в setTheme)
-      reloadNewtabTabs();
-      mark('OK setBg=' + bgId);
+      window.Blade?.bus.emit('theme:changed', themeId);
+      return true;
     }
+
+    // A high-specificity baseline overrides frozen -moz-pref pseudo-elements.
+    // The selected animation follows it in the same sheet. No document reload.
+    function applyBackdrop(bgId) {
+      const b = getAllBgs().find(x => x.id === bgId);
+      if (!b) return false;
+      let fileURL = '', stamp = bgId;
+      if (b.file) {
+        const file = resolveImgFile(b.file);
+        if (!file.exists()) return false;
+        fileURL = PathUtils.toFileURI(file.path);
+        stamp += ':' + file.lastModifiedTime + ':' + file.fileSize;
+      }
+      const SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
+      if (stamp === sheets.bgSignature && sheets.bgURI && SSS.sheetRegistered(sheets.bgURI, SSS.USER_SHEET)) return true;
+      const reset = NT_DOCS + `
+        :root:root body.activity-stream {scrollbar-width:none !important;}
+        :root:root body.activity-stream::before, :root:root body.activity-stream::after {
+          content:none; animation:none; background:none; opacity:1;
+          position:fixed; inset:0; z-index:-1; pointer-events:none;
+        } }`;
+      let backdrop;
+      if (fileURL) {
+        backdrop = NT_DOCS + ':root:root body.activity-stream {' +
+          'background-color:#0a0a0a !important;' +
+          'background-image:' + BG_GRAD + ', url("' + fileURL + '") !important;' +
+          'background-position:center bottom !important; background-size:cover !important;' +
+          'background-repeat:no-repeat !important; background-attachment:fixed !important;} }';
+      } else {
+        backdrop = buildAnimBgCss(bgId).replace(/body\.activity-stream/g, ':root:root body.activity-stream');
+        if (!backdrop) return false;
+      }
+      const uri = Services.io.newURI('data:text/css,' + encodeURIComponent(reset + backdrop));
+      if (!SSS.sheetRegistered(uri, SSS.USER_SHEET)) SSS.loadAndRegisterSheet(uri, SSS.USER_SHEET);
+      const previous = sheets.bgURI;
+      sheets.bgURI = uri; sheets.bgSignature = stamp;
+      if (previous && !previous.equals(uri) && SSS.sheetRegistered(previous, SSS.USER_SHEET)) SSS.unregisterSheet(previous, SSS.USER_SHEET);
+      return true;
+    }
+    // Compatibility for callers importing/replacing the current wallpaper.
+    function applyCustomBgSheet() { return applyBackdrop(activeBg()); }
+    async function setBg(rawBg) {
+      const bgId = normalizeBgId(rawBg);
+      const b = getAllBgs().find(x => x.id === bgId);
+      if (!b || disposed) return false;
+      const request = ++sheets.bgRequest;
+      if (bgId === activeBg() && sheets.bgSignature) return true;
+      let image;
+      try { image = await preloadRasterBg(bgId); }
+      catch (e) {
+        if (!disposed && request === sheets.bgRequest) mark('FAIL wallpaper decode', e);
+        return false;
+      }
+      if (disposed || request !== sheets.bgRequest) return false;
+      // Register the prepared backdrop before changing preference rules.
+      if (!applyBackdrop(bgId)) return false;
+      for (const x of [...BUILTIN_BGS, ...getCustomBgs(), ...getOriginalBgs()]) {
+        const pref = 'bobliks.bg.' + (x.prefId || x.id);
+        if (Services.prefs.prefHasUserValue(pref)) Services.prefs.clearUserPref(pref);
+      }
+      for (const id of retiredOriginalPrefIds) Services.prefs.clearUserPref('bobliks.bg.' + id);
+      Services.prefs.setStringPref('bobliks.bg.current', bgId);
+      if (bgId !== 'acheron') Services.prefs.setBoolPref('bobliks.bg.' + (b.prefId || bgId), true);
+      lastMigratedSaved = bgId;
+      applyLiveAttrs();
+      // Keep the decoded image alive through registration, without an unbounded cache.
+      image = null;
+      mark('OK background=' + bgId);
+      return true;
+    }
+    let lastMigratedSaved = null;
     // ═══════════════════════════════════════════════════════════════════
     // STARTUP — стартовая последовательность (ПОРЯДОК ВАЖЕН, риск 7).
     // Вызывается из INIT монолита (boot зовётся после загрузки этого
@@ -803,6 +835,7 @@
             const savedTheme = activeTheme();
             syncSelectionPrefs(savedTheme);
             applyThemeSheet(savedTheme);
+            applyBackdrop(activeBg());
         } catch (e) { mark('ERR sync', e); }
 
         try {
@@ -825,7 +858,7 @@
         themes: () => THEMES,
         getAllBgs, getCustomBgs, getOriginalBgs, bgPrefId,
         // текущее состояние
-        activeTheme, activeBg, getImgDir, normalizeBgId,
+        activeTheme, activeBg, getImgDir, getCustomBgDir, resolveImgFile, normalizeBgId,
         invalidateBgCache: () => {
           customBgsCache = null;
           originalBgsCache = null;
@@ -833,6 +866,7 @@
           userContentCache = null;
           userContentStamp = '';
           animBgCssCache.clear();
+          sheets.themeSignature = ''; sheets.bgSignature = '';
         },
         // запись
         setTheme, setBg, applyThemeSheet, applyCustomBgSheet,
@@ -842,5 +876,6 @@
         // живое внедрение в документы
         applyBgToDoc, newtabDocs,
     };
+    window.addEventListener('unload', () => { disposed = true; }, {once:true});
     mark('LOADED');
 })();

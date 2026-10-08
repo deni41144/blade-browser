@@ -158,6 +158,7 @@
         // пересев. Старый bool-преф при апдейте отсутствует → дефолт 0 < 3 →
         // пересевётся один раз, поставит 3 и успокоится.
         const SEED_VERSION = 5;
+        if (Services.prefs.getBoolPref('blade.tiles.customized', false)) return;
         if (Services.prefs.getIntPref('blade.tiles.seedVersion', 0) >= SEED_VERSION) return;
         // toolkit-модуль: resource://gre/, НЕ resource:/// (browser omni его не содержит)
         const { NewTabUtils } = ChromeUtils.importESModule('resource://gre/modules/NewTabUtils.sys.mjs');

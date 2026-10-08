@@ -3,7 +3,7 @@
 // @description     Автопроверка и установка обновлений Blade с GitHub (приватный репо, в один клик)
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.3.6
+// @version         1.3.7
 // ==/UserScript==
 (function () {
   if (window.BladeUpdater) return;
@@ -685,6 +685,7 @@
   // позволяет система; на укреплённых сборках Win11 сам откроет Settings
   // для одного клика. Преф-щит: гоняем один раз (после установки/обновления).
   function launchDefaultScript() {
+    if (!canSetDefault()) throw new Error('В тестовой сборке регистрация браузером по умолчанию отключена.');
     const script = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
     script.append('resources');
     script.append('set-blade-default.ps1');
@@ -711,20 +712,26 @@
     checkForUpdate(false);
   }, 10000);
 
-  // ---- Старт: однократная регистрация как браузер по умолчанию ----
-  // Один раз на установку: пользователь может сознательно выбрать другой
-  // браузер позже — Blade не будет отвоёвывать дефолт повторно.
-  setTimeout(() => {
+  // Association changes are explicit, and only the installed build may do them.
+  function canSetDefault() {
     try {
-      if (Services.prefs.getBoolPref(PREF.setdefaultDone, false)) return;
-      launchDefaultScript();
-      Services.prefs.setBoolPref(PREF.setdefaultDone, true);
-      mark('default-browser: скрипт запущен (однократно)');
-    } catch (e) { mark('default-browser: отложено до следующего старта — ' + e); }
-  }, 15000);
+      const expected = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
+      expected.initWithPath(Services.env.get('LOCALAPPDATA')); expected.append('Blade');
+      expected.append('Data'); expected.append('profile'); expected.normalize();
+      const actual = Services.dirsvc.get('ProfD',Ci.nsIFile).clone();actual.normalize();
+      if (!actual.equals(expected)) return false;
+      const exe = Services.dirsvc.get('XREExeF',Ci.nsIFile).clone();exe.normalize();
+      return ['Blade','Firefox64'].some(name=>{
+        const installed = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
+        installed.initWithPath(Services.env.get('LOCALAPPDATA'));installed.append('Blade');installed.append('App');installed.append(name);installed.append('firefox.exe');
+        return exe.equals(installed);
+      });
+    } catch (_) {return false;}
+  }
 
   // ---- API для меню B (BobliksSettings) ----
   window.BladeUpdater = {
+    canSetDefault,
     check: (manual) => checkForUpdate(!!manual),
     install: () => startInstall(),
     setDefault: () => {

@@ -109,32 +109,17 @@
       }
     }
 
-    // --- 3. КАСТОМНЫЕ ОБОИ (раунд 22): любой img/<файл> не из встроенных.
-    // Новая вкладка в FF155 — удалённый процесс, JS туда не дотягивается:
-    // правила в covers.css — единственный надёжный путь. Преф:
-    // bobliks.bg.file_<safe> (санитизированное имя), id: 'file:<имя>' ---
+    // Custom catalog owns migration and stable ids; Covers must use exactly
+    // the same paths/pref hashes as the live backdrop engine.
     let customs = 0;
     try {
-      // Встроенные/служебные файлы — из контракта BladeCore (Set в нижнем
-      // регистре, как и было)
-      const builtin = window.Blade.reservedImgFiles();
-      const iter = imgDir.directoryEntries;
-      let entry;
-      while (iter.hasMoreElements()) {
-        entry = iter.getNext().QueryInterface(Ci.nsIFile);
-        if (entry.isDirectory()) continue;
-        const name = entry.leafName;
-        if (!/[.](jpg|jpeg|png|webp|avif|gif)$/i.test(name)) continue;
-        if (builtin.has(name.toLowerCase())) continue;
-        // Хэш-преф из контракта BladeCore.bgPrefId ('file_<safe>_<hex>') —
-        // ровно тот, что ставит BobliksSettings; имя в url() — URI-экранировано
-        const safe = window.Blade.bgPrefId(name);
-        const encodedName = encodeURI(name);
-        const BGSTYLE = 'background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/' + encodedName + '") center bottom / cover no-repeat fixed !important;';
-        // :root body... специфичностью (0,2,1) бьёт дефолт bg_acheron (0,1,1)
-        // из userContent.css — раньше кастом проигрывал каскад (раунд 23)
+      for (const bg of window.BladeEngine.getCustomBgs()) {
+        const safe = bg.prefId;
+        const encodedPath = bg.file.split('/').map(x => encodeURIComponent(x)).join('/');
+        const BGSTYLE = 'background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/' + encodedPath + '") center bottom / cover no-repeat fixed !important;';
+        const escapedId = bg.id.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
         lines.push('@media -moz-pref("bobliks.bg.' + safe + '") { :root body.activity-stream { ' + BGSTYLE + ' } }');
-        lines.push(':root[data-blade-bg="file:' + name + '"] body.activity-stream { ' + BGSTYLE + ' }');
+        lines.push(':root[data-blade-bg="' + escapedId + '"] body.activity-stream { ' + BGSTYLE + ' }');
         customs++;
       }
     } catch (e) { mark('ERR customBgs ' + e); }

@@ -104,6 +104,15 @@ Get-ChildItem -LiteralPath $dstChrome -Recurse -Force -Directory |
     }
 
 # --- 2. VERSION: в патч и в живую папку (UTF-8 без BOM — иначе BOM уедет в меню) ---
+# Imported user artwork stays in each local profile, never in a shared release.
+# The updater preserves img, so this does not delete existing user pictures.
+foreach ($privateImages in @('img\custom', 'img\custom-tiles')) {
+    $privatePath = Join-Path $dstChrome $privateImages
+    if (Test-Path -LiteralPath $privatePath) {
+        Assert-SafeBuildPath $privatePath
+        Remove-Item -LiteralPath $privatePath -Recurse -Force
+    }
+}
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $dstChrome 'VERSION'), $Version, $utf8NoBom)
 [System.IO.File]::WriteAllText((Join-Path $srcChrome 'VERSION'), $Version, $utf8NoBom)

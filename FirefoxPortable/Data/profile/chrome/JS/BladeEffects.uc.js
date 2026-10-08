@@ -3,7 +3,7 @@
 // @description     Режимы эффектов и остановка анимаций неактивного окна
 // @author          Blade-Creations
 // @include         main
-// @version         1.1.0
+// @version         1.1.1
 // @loadOrder       6
 // ==/UserScript==
 (function () {
@@ -16,6 +16,7 @@
   let paused = false;
   let disposed = false;
   let syncTimer = 0;
+  let lastVisualState = '';
   const mode = () => {
     const value = Services.prefs.getStringPref(PREF, 'vivid');
     return MODES.includes(value) ? value : 'vivid';
@@ -95,12 +96,17 @@
     const activeWindow = Services.focus.activeWindow;
     paused = document.hidden || window.windowState === window.STATE_MINIMIZED ||
       (activeWindow ? activeWindow !== window : !document.hasFocus());
-    root.setAttribute('data-blade-fx-mode', mode());
-    root.setAttribute('data-blade-fx-paused', String(paused));
+    if (root.getAttribute('data-blade-fx-mode') !== mode()) root.setAttribute('data-blade-fx-mode', mode());
+    if (root.getAttribute('data-blade-fx-paused') !== String(paused)) root.setAttribute('data-blade-fx-paused', String(paused));
     const stopContent = mode() === 'eco' || battery();
     if (stopContent && !sheetRegistered(contentUri)) sss.loadAndRegisterSheet(contentUri, sss.USER_SHEET);
     if (!stopContent && sheetRegistered(contentUri)) sss.unregisterSheet(contentUri, sss.USER_SHEET);
     const visualState = contentState();
+    const signature = JSON.stringify(visualState);
+    // A new actor still gets its own reply from Parent. Repeated requests
+    // must not broadcast to all N tabs again (N requests -> N² messages).
+    if (signature === lastVisualState) return;
+    lastVisualState = signature;
     for (const browser of window.gBrowser?.browsers || []) {
       if (!/^about:(newtab|home)(?:[?#]|$)/.test(browser.currentURI?.spec || '')) continue;
       try { browser.browsingContext.currentWindowGlobal.getActor('BladeEffectsVisibility')
@@ -130,7 +136,7 @@
     canAnimate: () => !paused && mode() !== 'eco' && !battery(),
   };
   sync();
-  window.Blade?.mark('effects', 'v1.1.0 OK ' + mode());
+  window.Blade?.mark('effects', 'v1.1.1 OK ' + mode());
   window.addEventListener('unload', () => {
     for (const name of ['TabSelect', 'TabShow']) window.gBrowser?.tabContainer.removeEventListener(name, schedule);
     disposed = true;
