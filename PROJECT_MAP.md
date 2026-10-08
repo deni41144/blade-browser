@@ -1,3 +1,7 @@
+### Опубликованное обновление · Blade v2.3.0 · 8 октября 2026
+
+Release: https://github.com/deni41144/blade-browser/releases/tag/v2.3.0 (latest, опубликован; draft/prerelease=false). Main/tag source commit 4e82062feba3631270384a88d7fc4dc2e9a67d8f. Assets Blade-Patch-v2.3.0.zip (31,745,000 bytes; SHA256 c3bebcfd103937e3e942610a981cca1a1467a0f424f253f429558f5cc6523efb) и .sha256 загружены. Публикация завершена через Patches/Publish-Blade-Update.ps1; ZIP включил chrome и user.js, упаковщик сообщил442files и страховка профиля не обнаружила cookie/login/session данных. Остальные незакоммиченные пользовательские изменения проекта не вошли в релиз.
+
 ## Исправления аккаунтов, музыки, обоев и значка · 8 октября 2026
 
 Accounts/AccountPanel1.2.0: отдельная кнопка Google в каждой карточке B→Система, openSite открывает/переиспользует обычную вкладку нужного контейнера. Сессии основного аккаунта не копируются: первый вход Google нужен отдельно. Реальный Gecko OAuth window.open наследует userContextId, privateBrowsingId=0; persistent HttpOnly cookie того же контейнера дошла до popup и пережила полный restart, соседние контейнеры изолированы. Отчёт accounts-oauth-runtime-quality.json — PASS.
