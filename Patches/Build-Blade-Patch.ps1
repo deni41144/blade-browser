@@ -29,10 +29,39 @@ if (-not (Test-Path $srcChrome)) { throw "Нет папки chrome: $srcChrome" 
 $userJs = Join-Path $ProfileDir 'user.js'
 if (-not (Test-Path $userJs)) { throw "Нет user.js: $userJs" }
 
-$staging = Join-Path $PatchesDir "build\Blade-Patch-v$Version"
+$PatchesDir = (Resolve-Path -LiteralPath $PatchesDir).ProviderPath
+$buildDir = [System.IO.Path]::GetFullPath((Join-Path $PatchesDir 'build'))
+$staging = [System.IO.Path]::GetFullPath((Join-Path $buildDir "Blade-Patch-v$Version"))
+function Assert-SafeBuildPath([string]$Target) {
+    $absolute = [System.IO.Path]::GetFullPath($Target)
+    $patchesPrefix = $PatchesDir.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $absolute.StartsWith($patchesPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Путь сборки находится вне Patches: $absolute"
+    }
+    if ($absolute -ne $buildDir -and -not $absolute.StartsWith($buildDir + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Путь очистки находится вне build: $absolute"
+    }
+    # Junction/symlink в build не должен перенаправить очистку наружу.
+    foreach ($candidate in @($buildDir, $absolute)) {
+        if (Test-Path -LiteralPath $candidate) {
+            $item = Get-Item -LiteralPath $candidate -Force
+            if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+                throw "Очистка ссылки вместо каталога сборки запрещена: $candidate"
+            }
+        }
+    }
+    if (Test-Path -LiteralPath $absolute) {
+        $link = Get-ChildItem -LiteralPath $absolute -Recurse -Force |
+            Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReparsePoint } |
+            Select-Object -First 1
+        if ($link) { throw "Ссылка внутри каталога сборки: $($link.FullName)" }
+    }
+}
+Assert-SafeBuildPath $buildDir
+Assert-SafeBuildPath $staging
 $zipPath = Join-Path $PatchesDir "Blade-Patch-v$Version.zip"
-if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
-if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+if (Test-Path -LiteralPath $staging) { Assert-SafeBuildPath $staging; Remove-Item -LiteralPath $staging -Recurse -Force }
+if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
 New-Item -ItemType Directory -Path (Join-Path $staging 'files') -Force | Out-Null
 
 # --- 1. Копируем chrome целиком, потом вычищаем мусор из КОПИИ ---
@@ -52,21 +81,34 @@ $junk = @(
     'img\themes\gx-red_acheron.jpg', 'img\themes\README.txt', 'img\covers\README.txt',
     # диагностические uc.js дела часов (1.9.2) — друзьям не нужны
     'JS\BladeDiag.uc.js', 'JS\BladeDiag2.uc.js',
-    'JS\tiles_log.txt'
+    'JS\tiles_log.txt', 'JS\blade_health.txt', 'JS\perf_history.txt',
+    'JS\BladeShield_backup.txt'
 )
 foreach ($j in $junk) {
     $p = Join-Path $dstChrome $j
-    if (Test-Path $p) { Remove-Item $p -Force }
+    if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force }
 }
-Get-ChildItem $dstChrome -Recurse -Include 'Thumbs.db', 'desktop.ini', '*_mark.txt' -File |
-    Remove-Item -Force -ErrorAction SilentlyContinue
+Get-ChildItem -LiteralPath $dstChrome -Recurse -Force -File |
+    Where-Object { $_.Name -like '*_mark.txt' -or $_.Name -like '*_log.txt' -or
+        $_.Name -in @('Thumbs.db', 'desktop.ini', '.DS_Store') -or
+        $_.Extension -in @('.bak', '.tmp', '.log', '.pyc', '.pyo') -or
+        $_.Name -like '*.bak.*' -or $_.Name -like '*~' } |
+    ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force }
+# Only unmistakable tool/browser cache folders; runtime resources remain intact.
+Get-ChildItem -LiteralPath $dstChrome -Recurse -Force -Directory |
+    Where-Object { $_.Name -in @('__pycache__', '.cache', 'cache2', 'startupCache', '.pytest_cache') } |
+    Sort-Object { $_.FullName.Length } -Descending |
+    ForEach-Object {
+        Assert-SafeBuildPath $_.FullName
+        Remove-Item -LiteralPath $_.FullName -Recurse -Force
+    }
 
 # --- 2. VERSION: в патч и в живую папку (UTF-8 без BOM — иначе BOM уедет в меню) ---
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $dstChrome 'VERSION'), $Version, $utf8NoBom)
 [System.IO.File]::WriteAllText((Join-Path $srcChrome 'VERSION'), $Version, $utf8NoBom)
 
-# --- 2b. CODENAME: кодовое имя релиза — в патч и в живую папку (как VERSION) ---
+# --- 2b. CODENAME: кодовое имя релиза — в патч и живую папку ---
 if ($Codename) {
     [System.IO.File]::WriteAllText((Join-Path $dstChrome 'CODENAME'), $Codename, $utf8NoBom)
     [System.IO.File]::WriteAllText((Join-Path $srcChrome 'CODENAME'), $Codename, $utf8NoBom)
@@ -123,7 +165,13 @@ Compress-Archive -Path $staging -DestinationPath $zipPath -CompressionLevel Opti
 # --- 7. Отчёт ---
 $fileCount = (Get-ChildItem (Join-Path $staging 'files') -Recurse -File).Count
 $sizeMB = [Math]::Round((Get-Item $zipPath).Length / 1MB, 1)
-Remove-Item (Join-Path $PatchesDir 'build') -Recurse -Force
+Assert-SafeBuildPath $staging
+Remove-Item -LiteralPath $staging -Recurse -Force
+# Не удаляем staging других одновременно собираемых версий.
+Assert-SafeBuildPath $buildDir
+if (-not (Get-ChildItem -LiteralPath $buildDir -Force | Select-Object -First 1)) {
+    Remove-Item -LiteralPath $buildDir -Force
+}
 Write-Host ''
 Write-Host "Патч собран: $zipPath" -ForegroundColor Green
 Write-Host "Файлов в патче: $fileCount, размер: $sizeMB MB"

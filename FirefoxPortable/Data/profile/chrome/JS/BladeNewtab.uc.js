@@ -6,7 +6,7 @@
 //                  (BladeClock 2.6.0 сам прячется на главной: дублей нет).
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.9.0
+// @version         2.2.0
 // ==/UserScript==
 (function () {
   if (window.BladeNewtabHero) return;
@@ -21,7 +21,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.9.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v2.2.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -1085,6 +1085,11 @@
       70%  { opacity: 0.5; }
       100% { transform: translateY(-62vh) translateX(20px); opacity: 0; }
     }
+    :root[data-blade-fx-mode="eco"] #blade-atmosphere { display:none !important; }
+    :root[data-blade-fx-mode="balanced"] #blade-atmosphere { opacity:.7; }
+    :root[data-blade-fx-paused="true"] #blade-hero-wrap *,
+    :root[data-blade-fx-paused="true"] #blade-hero-wrap *::before,
+    :root[data-blade-fx-paused="true"] #blade-hero-wrap *::after { animation-play-state:paused !important; }
   `;
 
   try {
@@ -1211,7 +1216,8 @@
     let lastMinute = -1;
     function tick() {
       try {
-        if (!wrap.classList.contains('blade-on')) return;
+        if (!wrap.classList.contains('blade-on') || doc.hidden ||
+            doc.documentElement.getAttribute('data-blade-fx-paused') === 'true') return;
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
         const m = String(d.getMinutes()).padStart(2, '0');
@@ -1228,15 +1234,23 @@
         }
       } catch (e) {}
     }
-    tick();
-    // Тик через реестр BladeCore — снятие на unload автоматом (2.0)
-    if (window.Blade && window.Blade.every) Blade.every(tick, 1000);
-    else window.setInterval(tick, 1000);
+    let heroTimer = null;
+    function syncTicker() {
+      const root = doc.documentElement;
+      const running = wrap.classList.contains('blade-on') &&
+        root.getAttribute('data-blade-fx-paused') !== 'true' && !doc.hidden;
+      if (!running && heroTimer !== null) { window.clearInterval(heroTimer); heroTimer = null; }
+      if (running) {
+        tick();
+        if (heroTimer === null) heroTimer = window.setInterval(tick, 1000);
+      }
+    }
 
     function updateVisible() {
       try {
         const u = window.gBrowser.currentURI ? window.gBrowser.currentURI.spec : '';
         wrap.classList.toggle('blade-on', /^about:(newtab|home)/.test(u));
+        syncTicker();
         // hero только что показался — рисуем сразу, не ждём следующего тика
         if (wrap.classList.contains('blade-on')) {
           tick();
@@ -1244,6 +1258,12 @@
         }
       } catch (e) {}
     }
+    const fxHandler = () => syncTicker();
+    const visibilityHandler = () => syncTicker();
+    doc.addEventListener('visibilitychange', visibilityHandler);
+    const fxObserver = new MutationObserver(syncTicker);
+    fxObserver.observe(doc.documentElement, { attributes:true, attributeFilter:['data-blade-fx-paused'] });
+    try { if (window.Blade && window.Blade.bus) window.Blade.bus.on('fx:changed', fxHandler); } catch (e) {}
     const progListener = { onLocationChange() { updateVisible(); } };
     window.gBrowser.addTabsProgressListener(progListener);
     window.gBrowser.tabContainer.addEventListener('TabSelect', updateVisible);
@@ -1281,6 +1301,11 @@
     } catch (e) {}
 
     window.addEventListener('unload', () => {
+      if (heroTimer !== null) window.clearInterval(heroTimer);
+      fxObserver.disconnect();
+      doc.removeEventListener('visibilitychange', visibilityHandler);
+      window.gBrowser.tabContainer.removeEventListener('TabSelect', updateVisible);
+      try { if (window.Blade && window.Blade.bus) window.Blade.bus.off('fx:changed', fxHandler); } catch (e) {}
       try { window.gBrowser.removeTabsProgressListener(progListener); } catch (e) {}
       try {
         if (busHandler && window.Blade && window.Blade.bus)

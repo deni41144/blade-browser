@@ -1,6 +1,14 @@
 // Firefox Portable — включение userContent.css / userChrome.css
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 
+// BLADE: универсальные ручные контейнеры Firefox; без правил по доменам.
+user_pref("privacy.userContext.enabled", true);
+user_pref("privacy.userContext.ui.enabled", true);
+
+// FIX 2026-10-02 (голый запуск): SVG-иконки контекстных меню Blade (fill="context-fill").
+// Без этого префа иконки BladeContextMenu.uc.js рисуются прозрачными/невидимыми.
+user_pref("svg.context-properties.content.enabled", true);
+
 // Тёмная тема для всех сайтов (сайты со своей dark-версией включают её автоматически)
 user_pref("layout.css.prefers-color-scheme.content-override", 2);
 
@@ -275,8 +283,12 @@ user_pref("media.autoplay.default", 5);
    Количество закреплённых не ограничено (движковый slice по rows×perRow
    отключён патчем). Требует движковый патч Apply-Blade-Tiles.ps1
    (TopSitesFeed + insertPinned); без патча преф инертен, поведение стоковое.
-   Пиннинг наших 10 сайтов — одноразовый сид (blade.tiles.seeded в
-   BobliksSettings). Мёртвый преф default.sites снесён: движок ждёт URL
+   Пиннинг 8 сайтов по умолчанию (NEWULTRAMAX PLITKI V.2.0, WHITE/Minimal Grey)
+   — версионный сид (blade.tiles.seedVersion в BobliksSettings): при апдейте
+   SeedVersion пересевается, старые/битые записи сначала снимаются.
+   Дефолтные 8 = ютуб, ют-музыка, инста, олх, пин, розетка, фильмы (AnimeOn),
+   гмайл. Ещё 5 (спотик/саунд/эпл-музыка/киного/телега) лежат как обложки в
+   img/themes и ставятся в сетку вручную. Мёртвый преф default.sites снесён: движок ждёт URL
    через запятую и читает его только при useRemoteSetting=false (дефолт
    true) — наш JSON там игнорировался. Раскладку (5 колонок) делает CSS. */
 user_pref("browser.newtabpage.blade.pinnedOnly", true);

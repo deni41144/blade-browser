@@ -4,7 +4,7 @@
 //                  облики, обновления и быстрые действия браузера
 // @author          Blade-Creations
 // @include         main
-// @version         1.2.0
+// @version         1.3.0
 // ==/UserScript==
 (function () {
   if (window.BladePalette) return; // анти-дубль: uc.js исполняется в каждом окне
@@ -20,7 +20,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.2.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.3.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -159,6 +159,7 @@
             dyn: true,
             fn: () => {
               if (hasBS() && typeof window.BladeSettings.setTheme === 'function') {
+                Services.prefs.setBoolPref('blade.autotheme.on', false);
                 window.BladeSettings.setTheme(t.id);
               }
             },
@@ -222,6 +223,21 @@
   // ---- контракта проверяются в момент выполнения ----
   function registerStatic() {
     register({
+      id: 'blade-cmd-reopen-tab', label: 'Восстановить закрытую вкладку',
+      hint: 'вкладки', kw: 'вернуть закрытая reopen undo tab',
+      fn: () => {
+        const { SessionStore } = ChromeUtils.importESModule('resource:///modules/sessionstore/SessionStore.sys.mjs');
+        if (SessionStore.getClosedTabCountForWindow(window)) SessionStore.undoCloseTab(window, 0, window);
+      },
+    });
+    for (const [mode, label] of [['vivid', 'Яркие'], ['balanced', 'Сбалансированные'], ['eco', 'Экономия']]) {
+      register({
+        id: 'blade-fx-' + mode, label: 'Эффекты: ' + label,
+        hint: 'оформление', kw: 'эффекты анимации экономия effects ' + mode,
+        fn: () => { if (window.BladeEffects) window.BladeEffects.setMode(mode); },
+      });
+    }
+    register({
       id: 'blade-cmd-update-check',
       label: 'Обновления: проверить сейчас',
       hint: 'Blade',
@@ -277,7 +293,11 @@
       label: 'Новая вкладка',
       hint: 'вкладка',
       kw: 'вкладка tab новая new',
-      fn: () => { if (typeof window.BrowserOpenTab === 'function') window.BrowserOpenTab(); },
+      fn: () => {
+        window.gBrowser.selectedTab = window.gBrowser.addTab('about:newtab', {
+          triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+        });
+      },
     });
     register({
       id: 'blade-cmd-restart',
@@ -451,11 +471,11 @@
     const inp = doc.createElementNS(H, 'input');
     inp.id = 'blade-palette-input';
     inp.setAttribute('type', 'text');
-    inp.setAttribute('placeholder', 'Команда клинка…');
+    inp.setAttribute('placeholder', 'Поиск · > команды · @ вкладки');
     const list = mk('blp-list');
     list.id = 'blade-palette-list';
     const foot = mk('blp-foot');
-    foot.textContent = '↑↓ выбрать · Enter выполнить · Esc закрыть';
+    foot.textContent = '> команды · @ вкладки · ? поиск · Enter открыть';
     wrap.append(inp, list, foot);
     p.appendChild(wrap);
     panel = p;
@@ -501,10 +521,43 @@
   // Фильтр: case-insensitive вхождение в (label + ' ' + kw); пустой запрос =
   // все команды. Ранжирование: label начинается с запроса > просто содержит
   // (sort стабилен — исходный порядок внутри групп сохраняется).
+  async function searchWeb(query) {
+    const { SearchService: search } = ChromeUtils.importESModule('moz-src:///toolkit/components/search/SearchService.sys.mjs');
+    await search.init();
+    const { PrivateBrowsingUtils } = ChromeUtils.importESModule('resource://gre/modules/PrivateBrowsingUtils.sys.mjs');
+    const engine = PrivateBrowsingUtils.isWindowPrivate(window)
+      ? search.defaultPrivateEngine : search.defaultEngine;
+    const submission = engine && engine.getSubmission(query, null);
+    if (!submission) throw new Error('Поисковая система недоступна');
+    window.openTrustedLinkIn(submission.uri.spec, 'tab', { postData: submission.postData });
+  }
+
+  function tabCommands(q) {
+    const items = [];
+    // Только текущее окно: приватные/другие окна не перечисляем и не храним.
+    for (const tab of window.gBrowser.tabs) {
+      if (tab.closing || tab.hidden) continue;
+      const url = tab.linkedBrowser && tab.linkedBrowser.currentURI ? tab.linkedBrowser.currentURI.spec : '';
+      const label = String(tab.label || url || 'Вкладка');
+      if (q && !(label + ' ' + url).toLowerCase().includes(q)) continue;
+      items.push({ id: 'blade-tab-' + tab._tPos, label, hint: 'Вкладка · ' + url, fn: () => {
+        if (!tab.closing && Array.from(window.gBrowser.tabs).includes(tab)) window.gBrowser.selectedTab = tab;
+      } });
+    }
+    return items;
+  }
+
   function renderList(query) {
-    const q = String(query || '').trim().toLowerCase();
+    const raw = String(query || '').trim();
+    const prefix = /^[>@?]/.test(raw) ? raw[0] : '';
+    const text = (prefix ? raw.slice(1) : raw).trim();
+    const q = text.toLowerCase();
     let items;
-    if (!q) {
+    if (prefix === '@') {
+      items = tabCommands(q);
+    } else if (prefix === '?') {
+      items = [];
+    } else if (!q) {
       items = commands.slice();
     } else {
       items = [];
@@ -513,6 +566,12 @@
       }
       const rank = (c) => (c.label.toLowerCase().startsWith(q) ? 0 : 1);
       items.sort((a, b) => rank(a) - rank(b));
+    }
+    if (!prefix && q) items = tabCommands(q).concat(items);
+    // Интернет запрашиваем только при выполнении, никаких подсказок/утечек ввода.
+    if (text && prefix !== '>' && prefix !== '@') {
+      const search = { id: 'blade-search', label: 'Искать: ' + text, hint: 'Текущая поисковая система', fn: () => searchWeb(text) };
+      items = items.slice(0, MAX_ROWS - 1).concat(search);
     }
     filtered = items.slice(0, MAX_ROWS);
     selIdx = filtered.length ? 0 : -1;
@@ -537,7 +596,7 @@
     if (!filtered.length) {
       const empty = doc.createElementNS(H, 'div');
       empty.className = 'blp-empty';
-      empty.textContent = q ? '— нет таких команд —' : '— команд нет —';
+      empty.textContent = prefix === '@' ? '— вкладки не найдены —' : '— команды не найдены —';
       listEl.appendChild(empty);
       return;
     }
@@ -576,7 +635,9 @@
   function execIdx(i) {
     const c = filtered[i];
     if (!c) return;
-    try { c.fn(); }
+    try {
+      Promise.resolve(c.fn()).catch(e => { console.error('Blade palette [' + c.id + ']', e); mark('ERR cmd ' + c.id, e); });
+    }
     catch (e) {
       console.error('Blade palette [' + c.id + ']', e);
       mark('ERR cmd ' + c.id + ' ' + e);

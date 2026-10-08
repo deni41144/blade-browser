@@ -2337,10 +2337,7 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
 }
 
 /* --- A11. Карточка при драге вкладки (нативный селектор FF155: .tabbrowser-tab[dragtarget]) --- */
-.tabbrowser-tab[dragtarget] {
-  transform: rotate(2deg) translateY(-2px) !important;
-  transition: transform 0.12s ease !important;
-}
+/* Native drag-and-drop owns the tab transform and transition. */
 
 .tabbrowser-tab[dragtarget] .tab-background {
   border: 1px solid var(--accent, #ff2a2a) !important;

@@ -3,12 +3,13 @@
 // @description     Визуальные эффекты окна: лазерный луч загрузки, призрак закрытия вкладки, сплеш-заставка старта, заставка простоя
 // @author          Blade-Creations
 // @include         main
-// @version         1.0.0
+// @version         1.2.0
 // @loadOrder       12
 // ==/UserScript==
 (function () {
   if (window.BladeWindowFx) return;
   window.BladeWindowFx = true;
+  const canAnimate = () => !window.BladeEffects || window.BladeEffects.canAnimate();
 
   let markPath = '';
   try {
@@ -19,7 +20,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.0.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.2.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -35,146 +36,104 @@
     const doc = window.document;
     if (!doc.getElementById('blade-fx-style')) {
       const FX_CSS = `
+/* Transient accents are etched contours, not additive white flashes. */
 .blade-ghost {
-  position: absolute !important;
-  pointer-events: none !important;
-  z-index: 1000 !important;
-  border-radius: 8px 8px 0 0 !important;
-  background: color-mix(in srgb, var(--accent, #ff2a2a) 35%, #14141a) !important;
-  border: 1px solid var(--accent, #ff2a2a) !important;
-  border-bottom: none !important;
-  box-shadow: 0 0 16px var(--accent-glow, rgba(255, 42, 42, 0.45)), 0 -2px 8px var(--accent, #ff2a2a) !important;
-  animation: blade-ghost-fade 0.8s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
+  position: absolute !important; pointer-events: none !important; z-index: 1000 !important;
+  border-radius: 8px 8px 0 0 !important; background: transparent !important;
+  border: 1px solid color-mix(in srgb,var(--accent,#ff2a2a) 50%,transparent) !important;
+  border-bottom: none !important; box-shadow: none !important;
+  animation: blade-ghost-fade .52s cubic-bezier(.2,.8,.25,1) forwards !important;
 }
 @keyframes blade-ghost-fade {
-  0% { opacity: 0.95; transform: scale(1) translateY(0); }
-  30% { opacity: 0.8; transform: scale(0.97) translateY(-2px); }
-  100% { opacity: 0; transform: scale(0.85) translateY(-8px); }
+  0% { opacity:.62; transform:translateY(0) scaleX(1); }
+  100% { opacity:0; transform:translateY(-4px) scaleX(.94); }
 }
-.blade-ghost::before { content: none !important; }
+.blade-ghost::before,.blade-ghost::after { content:none !important; }
 .blade-spark {
-  position: absolute !important;
-  left: 50%;
-  top: 40% !important;
-  width: 3px !important;
-  height: 3px !important;
-  border-radius: 50% !important;
-  background: #ffffff !important;
-  box-shadow: 0 0 7px var(--accent, #ff2a2a), 0 0 3px #ffffff !important;
-  pointer-events: none !important;
-  animation: blade-spark-fly 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) forwards !important;
-}
-.blade-spark:nth-child(even) {
-  background: var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 7px #ffffff, 0 0 3px var(--accent, #ff2a2a) !important;
-}
-.blade-dust {
-  position: absolute !important;
-  top: 40% !important;
-  width: 2px !important;
-  height: 2px !important;
-  border-radius: 50% !important;
-  background: var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 4px var(--accent, #ff2a2a) !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-  animation: blade-dust-fall 0.95s cubic-bezier(0.3, 0.7, 0.35, 1) forwards !important;
-}
-.blade-dust:nth-child(odd) { width: 3px !important; height: 3px !important; }
-.blade-dust:nth-child(3n) { background: #ffffff !important; box-shadow: 0 0 4px #ffffff !important; }
-@keyframes blade-dust-fall {
-  0% { opacity: 0; transform: translate(0, 0) scale(1); }
-  15% { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, 80px)) scale(0.4); }
+  position:absolute !important; top:0 !important; width:14px !important; height:1px !important;
+  border-radius:0 !important; background:linear-gradient(90deg,transparent,var(--accent,#ff2a2a),transparent) !important;
+  box-shadow:none !important; pointer-events:none !important;
+  animation:blade-spark-fly .48s cubic-bezier(.2,.8,.3,1) forwards !important;
 }
 @keyframes blade-spark-fly {
-  0% { opacity: 1; transform: translate(0, 0) scale(1.2); }
-  25% { opacity: 1; transform: translate(calc(var(--dx, 0px) * 0.35), calc(var(--dy, -40px) * 0.35)) scale(1); }
-  100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, -40px)) scale(0.2); }
-}
-.blade-ghost::after {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  pointer-events: none !important;
-  border-radius: 8px 8px 0 0 !important;
-  background: radial-gradient(ellipse at center, #ffffff 0%, rgba(255, 255, 255, 0.85) 20%, color-mix(in srgb, var(--accent, #ff2a2a) 65%, transparent) 50%, transparent 75%) !important;
-  animation: blade-ghost-flash 0.65s cubic-bezier(0.2, 0.8, 0.25, 1) forwards !important;
-}
-@keyframes blade-ghost-flash {
-  0% { opacity: 1; transform: scale(0.5); }
-  100% { opacity: 0; transform: scale(1.4); }
+  0% { opacity:0; transform:translate(0,0) scaleX(.5); }
+  18% { opacity:.75; }
+  100% { opacity:0; transform:translate(var(--dx,12px),var(--dy,-6px)) scaleX(.7); }
 }
 .blade-shard {
-  position: absolute !important;
-  width: 26px !important;
-  height: 48% !important;
-  background: color-mix(in srgb, var(--accent, #ff2a2a) 35%, #14141a) !important;
-  border: 1px solid var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 6px var(--accent, #ff2a2a) !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-  animation: blade-shard-fly 0.95s cubic-bezier(0.25, 0.7, 0.3, 1) forwards !important;
+  position:absolute !important; width:18px !important; height:1px !important;
+  background:color-mix(in srgb,var(--accent,#ff2a2a) 65%,transparent) !important;
+  border:none !important; box-shadow:none !important; pointer-events:none !important;
+  animation:blade-shard-fly .55s ease-out forwards !important;
 }
 @keyframes blade-shard-fly {
-  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
-  25% { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rot, 0deg)) scale(0.45); }
+  0% { opacity:.6; transform:translate(0,0); }
+  100% { opacity:0; transform:translate(var(--dx,0px),var(--dy,-5px)); }
 }
 .blade-burst {
-  position: absolute !important;
-  width: 24px !important;
-  height: 24px !important;
-  margin: -12px 0 0 -12px !important;
-  border-radius: 50% !important;
-  border: 2px solid var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 14px var(--accent, #ff2a2a), inset 0 0 6px var(--accent, #ff2a2a) !important;
-  pointer-events: none !important;
-  z-index: 1001 !important;
-  opacity: 0 !important;
-  animation: blade-burst-ring 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards !important;
+  position:absolute !important; width:42px !important; height:1px !important;
+  margin:0 0 0 -21px !important; border:none !important; border-radius:0 !important;
+  background:linear-gradient(90deg,transparent,var(--accent,#ff2a2a),transparent) !important;
+  box-shadow:none !important; pointer-events:none !important; z-index:1001 !important;
+  animation:blade-burst-ring .45s ease-out forwards !important;
 }
 @keyframes blade-burst-ring {
-  0% { opacity: 0.95; transform: scale(0.3); }
-  100% { opacity: 0; transform: scale(3.4); }
+  0% { opacity:.5; transform:scaleX(.3); }
+  100% { opacity:0; transform:scaleX(1.4); }
 }
 .blade-theme-wave {
-  position: absolute !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  width: 160px !important;
-  left: 0 !important;
-  pointer-events: none !important;
-  z-index: 998 !important;
-  background: linear-gradient(90deg, transparent 0%, var(--accent, #ff2a2a) 60%, #ffffff 90%, transparent 100%) !important;
-  box-shadow: 0 0 18px var(--accent, #ff2a2a), 0 0 6px #ffffff !important;
-  mask-image: linear-gradient(180deg, transparent 0%, #000 24%, #000 76%, transparent 100%) !important;
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 24%, #000 76%, transparent 100%) !important;
-  opacity: 0 !important;
-  animation: blade-theme-wave-sweep 0.9s cubic-bezier(0.25, 0.6, 0.3, 1) forwards !important;
+  position:absolute !important; bottom:0 !important; top:auto !important;
+  width:220px !important; height:1px !important; left:0 !important;
+  pointer-events:none !important; z-index:998 !important;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent,#ff2a2a) 75%,transparent) 55%,transparent) !important;
+  box-shadow:none !important; opacity:0 !important;
+  animation:blade-theme-wave-sweep .75s cubic-bezier(.25,.6,.3,1) forwards !important;
 }
 @keyframes blade-theme-wave-sweep {
-  0% { opacity: 0; transform: translateX(-160px); }
-  12% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { opacity: 0; transform: translateX(calc(100vw)); }
+  0% { opacity:0; transform:translateX(-220px); }
+  20% { opacity:.85; }
+  75% { opacity:.65; }
+  100% { opacity:0; transform:translateX(100vw); }
 }
 .blade-tab-hit {
-  position: absolute !important;
-  height: 2px !important;
-  pointer-events: none !important;
-  z-index: 997 !important;
-  background: var(--accent, #ff2a2a) !important;
-  box-shadow: 0 0 10px var(--accent, #ff2a2a), 0 0 4px #ffffff !important;
-  opacity: 0 !important;
-  transform-origin: center !important;
-  animation: blade-tab-hit-flash 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) forwards !important;
+  position:absolute !important; pointer-events:none !important; z-index:997 !important;
+  border-radius:8px 8px 0 0 !important; overflow:hidden !important;
+  background:transparent !important; box-shadow:none !important;
+  animation:blade-tab-hit-flash .58s cubic-bezier(.2,.8,.3,1) forwards !important;
 }
 @keyframes blade-tab-hit-flash {
-  0% { opacity: 0; transform: scaleX(0.2); }
-  25% { opacity: 1; transform: scaleX(1); }
-  100% { opacity: 0; transform: scaleX(1); }
+  0% { opacity:0; transform:scaleX(.97); }
+  20% { opacity:.8; transform:scaleX(1); }
+  100% { opacity:0; transform:scaleX(1); }
 }
+.blade-tab-hit::before {
+  content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  border:1px solid color-mix(in srgb,var(--accent,#ff2a2a) 55%,transparent); border-bottom:0;
+  background:transparent; animation:blade-tab-crown .58s ease-out forwards;
+}
+@keyframes blade-tab-crown {
+  0% { opacity:0; transform:translateY(3px); }
+  25% { opacity:1; transform:translateY(0); }
+  100% { opacity:0; transform:translateY(0); }
+}
+.blade-tab-hit::after {
+  content:""; position:absolute; width:34px; height:1px; left:0; top:0;
+  background:linear-gradient(90deg,transparent,var(--accent,#ff2a2a),transparent);
+  box-shadow:none; animation:blade-hit-slice .58s ease-out forwards;
+}
+@keyframes blade-hit-slice {
+  0% { opacity:0; transform:translateX(-34px); }
+  24% { opacity:.9; }
+  100% { opacity:0; transform:translateX(var(--blade-tab-span,160px)); }
+}
+:root[data-blade-fx-mode="balanced"] .blade-tab-hit::after { display:none; }
+:root[data-blade-fx-paused="true"] :is(.blade-ghost,.blade-ghost *,.blade-burst,.blade-tab-hit,.blade-theme-wave),
+:root[data-blade-fx-paused="true"] .blade-tab-hit::before,
+:root[data-blade-fx-paused="true"] .blade-tab-hit::after { animation-play-state:paused !important; }
+:root[data-blade-fx-mode="eco"] .blade-ghost,
+:root[data-blade-fx-mode="eco"] .blade-burst,
+:root[data-blade-fx-mode="eco"] .blade-tab-hit,
+:root[data-blade-fx-mode="eco"] .blade-theme-wave { display:none !important; }
 `;
       const st = doc.createElementNS('http://www.w3.org/1999/xhtml', 'style');
       st.id = 'blade-fx-style';
@@ -201,6 +160,7 @@
       let prevWant = false;
       const syncLaser = () => {
         try {
+          if (window.BladeChromeMotion) return;
           if (!toolbox) toolbox = window.document.getElementById('navigator-toolbox');
           if (!toolbox) return;
           const tab = window.gBrowser.selectedTab;
@@ -227,10 +187,12 @@
       });
       window.gBrowser.tabContainer.addEventListener('TabSelect', (ev) => {
         syncLaser();
-        // A13 Удар клинка: под выбранной вкладкой вспыхивает акцентная линия.
+        // Контур выбранной вкладки раскрывается коротким точным штрихом.
         // Одноразовый, дедуп — при быстром переборе вкладок хвост снимается,
         // чтобы не копить слои
         try {
+          if (window.BladeChromeMotion) return;
+          if (!canAnimate()) return;
           const host = window.document.getElementById('navigator-toolbox');
           if (!host) return;
           const prev = host.querySelector('.blade-tab-hit');
@@ -243,9 +205,11 @@
           hit.className = 'blade-tab-hit';
           hit.style.left = (r.left - hr.left) + 'px';
           hit.style.width = r.width + 'px';
-          hit.style.top = (r.bottom - hr.top - 1) + 'px';
+          hit.style.top = (r.top - hr.top) + 'px';
+          hit.style.height = r.height + 'px';
+          hit.style.setProperty('--blade-tab-span', r.width + 'px');
           host.appendChild(hit);
-          setTimeout(() => { try { hit.remove(); } catch (e) {} }, 550);
+          setTimeout(() => { try { hit.remove(); } catch (e) {} }, 950);
         } catch (e) {}
       });
       syncLaser();
@@ -253,16 +217,21 @@
     } catch (e) { mark('ERR laser ' + e); }
 
     // A1 «Клинок Живёт»: карточка-призрак на месте закрываемой вкладки —
-    // CSS (.blade-ghost + ::before/::after) рисует угасание и искры.
+    // CSS рисует угасание тонкого контура и короткие следы.
     // rect вкладки — VIEWPORT-координаты, а призрак позиционируется внутри
     // тулбокса: вычитаем rect хоста, иначе призрак уезжает вниз на высоту шапки
     try {
       window.gBrowser.tabContainer.addEventListener('TabClose', (ev) => {
         try {
+          if (window.BladeTabDestruction) return;
+          if (!canAnimate()) return;
           const r = ev.target.getBoundingClientRect();
           if (!r.width) return;
           const host = window.document.getElementById('navigator-toolbox');
           if (!host) return;
+          // Closing many tabs cannot leave dozens of particle layers alive.
+          while (host.querySelectorAll('.blade-ghost').length >= 3) host.querySelector('.blade-ghost').remove();
+          while (host.querySelectorAll('.blade-burst').length >= 3) host.querySelector('.blade-burst').remove();
           const hr = host.getBoundingClientRect();
           const g = window.document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
           g.className = 'blade-ghost';
@@ -271,48 +240,31 @@
           g.style.width = r.width + 'px';
           g.style.height = r.height + 'px';
           const H = 'http://www.w3.org/1999/xhtml';
-          // РАСПЫЛЕНИЕ: 12 искр разлетаются радиально ВО ВСЕ стороны (старт
-          // разбросан по ширине вкладки, а не из центра), каждая со своим
-          // вектором в --dx/--dy — transform-only, композитор (конвенция 6)
-          const ang0 = Math.random() * Math.PI * 2;
-          for (let i = 0; i < 12; i++) {
+          // Короткие направленные штрихи вдоль верхнего контура. Никакого
+          // радиального взрыва, белой заливки или разлетающихся карточек.
+          const balanced = window.BladeEffects && window.BladeEffects.mode() === 'balanced';
+          const strokes = balanced ? 2 : 5;
+          for (let i = 0; i < strokes; i++) {
             const p = window.document.createElementNS(H, 'div');
             p.className = 'blade-spark';
-            p.style.left = (6 + Math.random() * Math.max(2, r.width - 12)) + 'px';
-            const ang = ang0 + (Math.PI * 2 * i) / 12 + (Math.random() - 0.5) * 0.5;
-            const dist = 22 + Math.random() * 48;
-            p.style.setProperty('--dx', Math.round(Math.cos(ang) * dist) + 'px');
-            p.style.setProperty('--dy', Math.round(Math.sin(ang) * dist * 0.75 - 14) + 'px');
-            p.style.animationDelay = (Math.random() * 70) + 'ms';
+            p.style.left = Math.round((i + .5) * r.width / strokes) + 'px';
+            p.style.setProperty('--dx', (i % 2 ? 14 : -14) + 'px');
+            p.style.setProperty('--dy', (-3 - i % 3 * 2) + 'px');
+            p.style.animationDelay = i * 18 + 'ms';
             g.appendChild(p);
           }
-          // ПЕПЕЛ: 8 пылинок осыпаются ВНИЗ с горизонтальным дрейфом —
-          // вкладка не гаснет, а рассыпается
-          for (let i = 0; i < 8; i++) {
-            const p = window.document.createElementNS(H, 'div');
-            p.className = 'blade-dust';
-            p.style.left = (8 + Math.random() * Math.max(2, r.width - 16)) + 'px';
-            p.style.setProperty('--dx', Math.round((Math.random() - 0.5) * 70) + 'px');
-            p.style.setProperty('--dy', Math.round(46 + Math.random() * 54) + 'px');
-            p.style.animationDelay = (Math.random() * 110) + 'ms';
-            g.appendChild(p);
+          if (!balanced) {
+            for (let i = 0; i < 2; i++) {
+              const p = window.document.createElementNS(H, 'div');
+              p.className = 'blade-shard';
+              p.style.left = (i ? Math.max(0, r.width - 18) : 0) + 'px';
+              p.style.top = Math.round(r.height * .45) + 'px';
+              p.style.setProperty('--dx', (i ? 6 : -6) + 'px');
+              p.style.setProperty('--dy', '-4px');
+              g.appendChild(p);
+            }
           }
-          // ОСКОЛКИ: 8 фрагментов самой вкладки разлетаются с вращением —
-          // карточка не затухает, а рассыпается на куски
-          for (let i = 0; i < 8; i++) {
-            const p = window.document.createElementNS(H, 'div');
-            p.className = 'blade-shard';
-            p.style.left = Math.round(i * (r.width / 8) + (Math.random() - 0.5) * 6) + 'px';
-            p.style.top = (i % 2 === 0 ? 0 : Math.round(r.height * 0.5)) + 'px';
-            p.style.setProperty('--dx', Math.round((Math.random() - 0.5) * r.width * 1.2) + 'px');
-            p.style.setProperty('--dy', (i % 2 === 0
-              ? Math.round(-30 - Math.random() * 50)
-              : Math.round(30 + Math.random() * 50)) + 'px');
-            p.style.setProperty('--rot', Math.round((Math.random() - 0.5) * 180) + 'deg');
-            p.style.animationDelay = (Math.random() * 60) + 'ms';
-            g.appendChild(p);
-          }
-          // УДАРНАЯ ВОЛНА: кольцо из центра вкладки — импульс распада
+          // Тонкий остаточный штрих вместо расширяющегося неонового кольца.
           const burst = window.document.createElementNS(H, 'div');
           burst.className = 'blade-burst';
           burst.style.left = Math.round(r.left - hr.left + r.width / 2) + 'px';
@@ -326,13 +278,15 @@
     } catch (e) {}
 
     // A12 Перезарядка темы: при смене темы (шина theme:changed) по тулбоксу
-    // слева направо пробегает акцентный разряд — тема не переключается
+    // слева направо пробегает тонкий штрих — тема не переключается
     // вслепую, виден момент «применения». Одноразовый, ~0.9с
     try {
       const H = 'http://www.w3.org/1999/xhtml';
       if (!window.Blade || !window.Blade.bus) throw new Error('no bus');
       window.Blade.bus.on('theme:changed', () => {
         try {
+          if (window.BladeChromeMotion) return;
+          if (!canAnimate()) return;
           const host = window.document.getElementById('navigator-toolbox');
           if (!host) return;
           // Снимаем хвост предыдущего разряда, если тема сменилась дважды
@@ -488,6 +442,7 @@
       const idleAllowed = () => {
         try {
           if (!Services.prefs.getBoolPref('blade.idle.on', true)) return false;
+          if (!canAnimate()) return false;
           if (window.fullScreen) return false;
           // экономия батареи (волна «Сок»): заставка не поднимается
           if (window.document.documentElement.hasAttribute('data-blade-battery')) return false;

@@ -3,7 +3,7 @@
 // @description     Кнопка настроек Bobliks-Creations: смена темы и фона в один клик
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.14.5
+// @version         1.15.0
 // ==/UserScript==
 // ═══════════════════════════════════════════════════════════════════════
 // КАРТА ФАЙЛА (Волна 2 «Blade Studio», разметка по карте Analyst):
@@ -33,7 +33,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.14.5 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.15.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -150,22 +150,43 @@
           IOUtils.writeUTF8(df.path, m).catch(()=>{});
         } catch (e) {}
       };
-      tileLog('START');
+      tileLog('=== START ' + new Date().toISOString() + ' ===');
       try {
-        if (Services.prefs.getBoolPref('blade.tiles.seeded', false)) return;
+        // v2.0.9 NEWULTRAMAX: версионный сид. v2.0.8 ставила bool blade.tiles.seeded
+        // и навсегда блокировала пересев — апдейт не менял плитки у живых юзеров
+        // (10 старых сидов так и висели). Теперь: seedVersion < SEED_VERSION →
+        // пересев. Старый bool-преф при апдейте отсутствует → дефолт 0 < 3 →
+        // пересевётся один раз, поставит 3 и успокоится.
+        const SEED_VERSION = 5;
+        if (Services.prefs.getIntPref('blade.tiles.seedVersion', 0) >= SEED_VERSION) return;
         // toolkit-модуль: resource://gre/, НЕ resource:/// (browser omni его не содержит)
         const { NewTabUtils } = ChromeUtils.importESModule('resource://gre/modules/NewTabUtils.sys.mjs');
+        // ОЧИСТКА: снимаем ВСЕ старые закрепления перед пересевом. pin(link, i)
+        // перебивает запись по индексу i только если unpin найдёт совпадение по
+        // URL — битая запись (чужой url + чужой label) и дубликаты переживут
+        // обычный пересев и будут торчать в сетке. Снимаем всё подчистую.
+        try {
+          const pl = NewTabUtils.pinnedLinks;
+          const old = Array.from(pl.links);
+          tileLog('CLEAR old=' + old.length);
+          for (const l of old) { if (l) pl.unpin(l); }
+          pl.resetCache();
+          tileLog('CLEAR after=' + Array.from(pl.links).filter(Boolean).length);
+        } catch (e) { tileLog('ERR clear ' + e + ' | ' + (e.stack || '').slice(0, 150)); }
+        // NEWULTRAMAX PLITKI V.2.0 (WHITE): дефолтный набор 8 плиток для темы
+        // Minimal Grey. Порядок = слово владельца: 1 ютуб, 2 ют-музыка, 3 инста,
+        // 4 олх, 5 пин, 6 розетка, 7 фильмы (AnimeOn), 8 гмайл. Остальные 5
+        // (спотик/саунд/эпл-музыка/киного/телега) уже лежат как обложки в
+        // img/themes/<домен> и красятся covers.css — в сетку ставятся вручную.
         const SITES = [
-          { url: 'https://youtube.com',       title: 'YouTube' },
-          { url: 'https://music.youtube.com', title: 'YouTube Music' },
-          { url: 'https://instagram.com',     title: 'Instagram' },
-          { url: 'https://www.olx.ua',        title: 'OLX' },
-          { url: 'https://pinterest.com',     title: 'Pinterest' },
-          { url: 'https://rozetka.com.ua',    title: 'Rozetka' },
-          { url: 'https://temu.com',          title: 'Temu' },
-          { url: 'https://aliexpress.com',    title: 'AliExpress' },
-          { url: 'https://mail.google.com',   title: 'Gmail' },
-          { url: 'https://classroom.google.com', title: 'Classroom' }
+          { url: 'https://youtube.com',         title: 'YouTube' },
+          { url: 'https://music.youtube.com',   title: 'YouTube Music' },
+          { url: 'https://instagram.com',       title: 'Instagram' },
+          { url: 'https://www.olx.ua',          title: 'OLX' },
+          { url: 'https://pinterest.com',       title: 'Pinterest' },
+          { url: 'https://rozetka.com.ua',      title: 'Rozetka' },
+          { url: 'https://animeon.cc/',         title: 'AnimeOn' },
+          { url: 'https://mail.google.com',     title: 'Gmail' }
         ];
         for (let i = 0; i < SITES.length; i++) {
           try {
@@ -173,8 +194,9 @@
             tileLog('PIN ' + i + ': ' + SITES[i].url);
           } catch (e) { tileLog('ERR pin ' + SITES[i].url + ' ' + e); }
         }
+        Services.prefs.setIntPref('blade.tiles.seedVersion', SEED_VERSION);
         Services.prefs.setBoolPref('blade.tiles.seeded', true);
-        tileLog('SEEDED OK');
+        tileLog('SEEDED OK v' + SEED_VERSION);
       } catch (e) { tileLog('ERR ' + e + ' | ' + (e.stack || '').slice(0, 200)); }
     })();
 
@@ -269,9 +291,37 @@
         dlBtn.addEventListener('command', (ev) => {
           try {
             const DP = window.DownloadsPanel;
+            if (!DP) return;
+            // Анти-клин кнопки загрузок (репорт владельца 2026-09-15: после
+            // завершения загрузки кнопка перестаёт открывать панель).
+            // Причина: XUL-панель закрывается «тихо» — без события popuphidden
+            // (фокус-буря вокруг авто-open'а загрузки, PanelMultiView.sys.mjs).
+            // Тогда PanelMultiView остаётся с открытыми view (openViews) при
+            // panel.state=='closed' — и каждый последующий openPopup видит
+            // «панель уже показана» (L728), выпускает искусственный popuphidden
+            // и возвращает false (промис резолвится, ошибки нет!). Состояние
+            // НЕ самолечится — кнопка мертва до перезапуска окна.
+            // Лекарство: слить застрявшие view штатным PanelMultiView.hidePopup
+            // — он гонит closeAllViews() даже на закрытой панели.
+            // DownloadsPanel.hidePanel не подходит: его гвард !isPanelShowing
+            // режет вызов до PanelMultiView (isPanelShowing ведь false).
+            const panel = window.document.getElementById('downloadsPanel');
+            try {
+              if (panel && panel.state === 'closed' && window.PanelMultiView) {
+                const mv = panel.querySelector('panelmultiview');
+                const inst = mv && window.PanelMultiView.forNode(mv);
+                if (inst && inst.openViews && inst.openViews.length) {
+                  window.PanelMultiView.hidePopup(panel);
+                  mark('OK dl desync recovered');
+                }
+              }
+            } catch (dsErr) {
+              // диагностика не должна глушить основной показ панели
+              mark('ERR dlDesync ' + dsErr);
+            }
             // isPanelShowing — геттер downloads.js:235 (включая состояние
             // закрытия); showPanel(openedManually) — открывает и грузит данные
-            if (DP && !DP.isPanelShowing) {
+            if (!DP.isPanelShowing) {
               DP.showPanel(true);
               mark('OK dl panel shown');
             }
@@ -316,7 +366,7 @@
     // ═══════════════════════════════════════════════════════════════════
     window.BladeSettings = {
       themes: () => window.BladeEngine.themes().map(t => ({ id: t.id, label: t.label })),
-      bgs: () => window.BladeEngine.getAllBgs().map(b => ({ id: b.id, label: b.label })),
+      bgs: () => window.BladeEngine.getAllBgs().map(b => ({ id: b.id, label: b.label, group: b.group || '' })),
       setTheme: (id) => window.BladeEngine.setTheme(id),
       setBg: (id) => window.BladeEngine.setBg(id),
       // Цветная математика конструктора темы (клиент — BladeThemeLab, шаг 5)

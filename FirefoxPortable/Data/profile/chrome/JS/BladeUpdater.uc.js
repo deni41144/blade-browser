@@ -545,7 +545,7 @@
   }
 
   // PS-вызов одним -EncodedCommand (base64 от UTF-16LE): nsIProcess НЕ
-  // квотит аргументы — пути с пробелами ("F:\firefox michael edition\...")
+  // квотит аргументы — пути с пробелами ("C:\Program Files\...")
   // рвутся на части и powershell умирает. Общий энкодер для обоих ps-скриптов.
   const PS_EXE = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
   const q = (s) => String(s).replace(/'/g, "''");

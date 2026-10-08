@@ -4,7 +4,7 @@
 //                  выбор своего файла обоев. Шаг 6 декомпозиции BobliksSettings
 // @author          Blade-Creations
 // @include         main
-// @version         1.0.0
+// @version         1.1.0
 // @loadOrder       12
 // ==/UserScript==
 (function () {
@@ -20,7 +20,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.0.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.1.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -51,20 +51,28 @@
       const raw = Services.prefs.getStringPref('blade.visage.mine', '');
       if (!raw) return null;
       const v = JSON.parse(raw);
-      if (v && typeof v.theme === 'string' && typeof v.bg === 'string') return v;
+      if (v && typeof v.theme === 'string' && typeof v.bg === 'string') {
+        const value = { theme: v.theme, bg: v.bg };
+        if (/^#[0-9a-f]{6}$/i.test(v.customColor || '')) value.customColor = v.customColor;
+        if (['vivid', 'balanced', 'eco'].includes(v.mode)) value.mode = v.mode;
+        return value;
+      }
       return null;
     } catch (e) { return null; }
   }
   function allVisages() {
     const list = BLADE_VISAGES.slice();
     const mine = userVisage();
-    if (mine) list.push({ id: 'mine', label: 'Мой Облик', theme: mine.theme, bg: mine.bg });
+    if (mine) list.push({ ...mine, id: 'mine', label: 'Мой Облик' });
     return list;
   }
   function applyVisage(id) {
     const s = api(); if (!s) return;
     const v = allVisages().find(x => x.id === id);
     if (!v) { mark('FAIL visage ' + id); return; }
+    Services.prefs.setBoolPref('blade.autotheme.on', false);
+    if (v.theme === 'custom' && v.customColor) Services.prefs.setStringPref('blade.theme.customColor', v.customColor);
+    if (v.mode && window.BladeEffects) window.BladeEffects.setMode(v.mode);
     s.setTheme(v.theme);
     s.setBg(v.bg);
     mark('OK visage ' + id);
@@ -73,8 +81,11 @@
     const s = api(); if (!s) return;
     // Пользовательский слот независим: совпадение с builtin-обликом не
     // мешает — сохраняем текущее сочетание как есть
-    Services.prefs.setStringPref('blade.visage.mine',
-      JSON.stringify({ theme: s.activeTheme(), bg: s.activeBg() }));
+    const value = { theme: s.activeTheme(), bg: s.activeBg() };
+    const color = Services.prefs.getStringPref('blade.theme.customColor', '#ff2a2a');
+    if (value.theme === 'custom' && /^#[0-9a-f]{6}$/i.test(color)) value.customColor = color;
+    if (window.BladeEffects) value.mode = window.BladeEffects.mode();
+    Services.prefs.setStringPref('blade.visage.mine', JSON.stringify(value));
     mark('OK visage saved');
   }
   // Проводник: init требует BrowsingContext (window больше не конвертится —

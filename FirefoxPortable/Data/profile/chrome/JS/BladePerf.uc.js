@@ -5,7 +5,7 @@
 //                  бенчмарки «до/после» волн 2.0 «Переплавка»).
 // @author          Blade-Creations
 // @include         main
-// @version         2.0.0
+// @version         2.0.1
 // ==/UserScript==
 (function () {
   if (window.__bladePerf) return;
@@ -18,6 +18,7 @@
   if (winCount > 1) return;
   const t = { dcl: performance.now() };
   let written = false;
+  let fallbackTimer = null;
   const mark = (text) => {
     try {
       const d = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
@@ -41,18 +42,21 @@
       });
     } catch (e) {}
   };
-  const write = () => {
+  const write = async () => {
     if (written) return;
     written = true;
+    if (fallbackTimer !== null) clearTimeout(fallbackTimer);
+    const timestamp = new Date().toISOString();
+    const phases = { ...t };
     let ver = 'v?';
     try {
       const f = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
       f.append('VERSION');
-      ver = 'v' + IOUtils.readUTF8(f.path).trim();
+      ver = 'v' + (await IOUtils.readUTF8(f.path)).replace(/^\uFEFF/, '').trim();
     } catch (e) {}
-    let s = ver + ' ' + new Date().toISOString();
+    let s = ver + ' ' + timestamp;
     for (const p of ['dcl', 'load', 'paint', 'ssr']) {
-      if (typeof t[p] === 'number') s += ' ' + p + '=' + Math.round(t[p]) + 'ms';
+      if (typeof phases[p] === 'number') s += ' ' + p + '=' + Math.round(phases[p]) + 'ms';
     }
     mark(s);
     appendHistory(s);
@@ -68,5 +72,5 @@
     }, { once: true });
   } catch (e) {}
   // Страховка: ssr не пришёл за 10 сек — пишем то, что успели зафиксировать
-  setTimeout(write, 10000);
+  fallbackTimer = setTimeout(write, 10000);
 })();

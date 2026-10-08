@@ -5,7 +5,7 @@
 //                  и слушателей с авто-очисткой на unload (2.0 «Переплавка»)
 // @author          Blade-Creations
 // @include         main
-// @version         1.1.0
+// @version         1.2.0
 // @loadOrder       5
 // ==/UserScript==
 // ОТКЛЮЧАТЬ НЕЛЬЗЯ: THEMES/builtinBgs/bgPrefId отсюда потребляют
@@ -33,41 +33,43 @@
   ];
 
   const BUILTIN_BGS = [
-    { id: 'infernobg', label: 'Inferno (Red)',      file: 'bg_inferno.jpg' },
-    { id: 'cherrybg',  label: 'Cherry',             file: 'bg_cherry.jpg' },
-    { id: 'bloodmoon', label: 'Blood Moon',         file: 'bg_bloodmoon.jpg' },
-    { id: 'midnight',  label: 'Midnight Blue',      file: 'bg_midnight.jpg' },
-    { id: 'violet',    label: 'Violet',             file: 'bg_violet.jpg' },
-    { id: 'toxic',     label: 'Toxic Green',        file: 'bg_toxic.jpg' },
-    { id: 'ashen',     label: 'Ashen Grey',         file: 'bg_ashen.jpg' },
-    { id: 'emberbg',   label: 'Ember Orange',       file: 'bg_ember.jpg' },
-    { id: 'voltbg',    label: 'Volt Yellow',        file: 'bg_volt.jpg' },
-    { id: 'blade',   label: 'Blade',         file: 'bg_blade.jpg' },
-    { id: 'acheron', label: 'Acheron',       file: 'bg_acheron.jpg' },
-    // серия V2.0 (2026-09-15, обои владельца «BLADE WALLPAPER V2.0»): 2560x1440,
+    // Поколение «Standart» (2026-08): растровые обои под каждую тему
+    { id: 'infernobg', label: 'Inferno (Red)',      file: 'bg_inferno.jpg', group: 'standart' },
+    { id: 'cherrybg',  label: 'Cherry',             file: 'bg_cherry.jpg',  group: 'standart' },
+    { id: 'bloodmoon', label: 'Blood Moon',         file: 'bg_bloodmoon.jpg', group: 'standart' },
+    { id: 'midnight',  label: 'Midnight Blue',      file: 'bg_midnight.jpg', group: 'standart' },
+    { id: 'violet',    label: 'Violet',             file: 'bg_violet.jpg',  group: 'standart' },
+    { id: 'toxic',     label: 'Toxic Green',        file: 'bg_toxic.jpg',   group: 'standart' },
+    { id: 'ashen',     label: 'Ashen Grey',         file: 'bg_ashen.jpg',   group: 'standart' },
+    { id: 'emberbg',   label: 'Ember Orange',       file: 'bg_ember.jpg',   group: 'standart' },
+    { id: 'voltbg',    label: 'Volt Yellow',        file: 'bg_volt.jpg',    group: 'standart' },
+    { id: 'blade',   label: 'Blade',         file: 'bg_blade.jpg', group: 'standart' },
+    { id: 'acheron', label: 'Acheron',       file: 'bg_acheron.jpg', group: 'standart' },
+    // серия V2.0 (2026-09-15, обои из серии BLADE WALLPAPER V2.0): 2560x1440,
     // палитра каждой подобрана под соотв. тему (red/blood/cherry/midnight/
-    // violet/toxic/ashen/ember/volt)
-    { id: 'v2red',     label: 'V2 Red',     file: 'bg_v2_red.jpg' },
-    { id: 'v2blood',   label: 'V2 Blood',   file: 'bg_v2_blood.jpg' },
-    { id: 'v2cherry',  label: 'V2 Cherry',  file: 'bg_v2_cherry.jpg' },
-    { id: 'v2midnight',label: 'V2 Midnight',file: 'bg_v2_midnight.jpg' },
-    { id: 'v2violet',  label: 'V2 Violet',  file: 'bg_v2_violet.jpg' },
-    { id: 'v2toxic',   label: 'V2 Toxic',   file: 'bg_v2_toxic.jpg' },
-    { id: 'v2ashen',   label: 'V2 Ashen',   file: 'bg_v2_ashen.jpg' },
-    { id: 'v2ember',   label: 'V2 Ember',   file: 'bg_v2_ember.jpg' },
-    { id: 'v2volt',    label: 'V2 Volt',    file: 'bg_v2_volt.jpg' },
-    // живые фоны: WebP-анимация (файл) и CSS-анимация (file: null — только преф)
-    { id: 'pulse',     label: 'Pulse (CSS-анимация)',       file: null },
-    { id: 'flow',      label: 'Blood Flow (CSS-анимация)',  file: null },
+    // violet/toxic/ashen/ember/volt). Поколение «Samurai».
+    { id: 'v2red',     label: 'V2 Red',     file: 'bg_v2_red.jpg', group: 'samurai' },
+    { id: 'v2blood',   label: 'V2 Blood',   file: 'bg_v2_blood.jpg', group: 'samurai' },
+    { id: 'v2cherry',  label: 'V2 Cherry',  file: 'bg_v2_cherry.jpg', group: 'samurai' },
+    { id: 'v2midnight',label: 'V2 Midnight',file: 'bg_v2_midnight.jpg', group: 'samurai' },
+    { id: 'v2violet',  label: 'V2 Violet',  file: 'bg_v2_violet.jpg', group: 'samurai' },
+    { id: 'v2toxic',   label: 'V2 Toxic',   file: 'bg_v2_toxic.jpg', group: 'samurai' },
+    { id: 'v2ashen',   label: 'V2 Ashen',   file: 'bg_v2_ashen.jpg', group: 'samurai' },
+    { id: 'v2ember',   label: 'V2 Ember',   file: 'bg_v2_ember.jpg', group: 'samurai' },
+    { id: 'v2volt',    label: 'V2 Volt',    file: 'bg_v2_volt.jpg', group: 'samurai' },
+    // живые фоны: WebP-анимация (файл) и CSS-анимация (file: null — только преф).
+    // Поколение «Animation».
+    { id: 'pulse',     label: 'Pulse (CSS-анимация)',       file: null, group: 'animation' },
+    { id: 'flow',      label: 'Blood Flow (CSS-анимация)',  file: null, group: 'animation' },
     // Волна 2 (2026-09-22): 8 живых полотен для всех тем (чистый CSS, 0 файлов)
-    { id: 'aurora',    label: 'Aurora (CSS-анимация)',      file: null },
-    { id: 'matrix',    label: 'Matrix (CSS-анимация)',      file: null },
-    { id: 'ember',     label: 'Ember (CSS-анимация)',       file: null },
-    { id: 'plasma',    label: 'Plasma (CSS-анимация)',      file: null },
-    { id: 'synthwave', label: 'Synthwave (CSS-анимация)',   file: null },
-    { id: 'mist',      label: 'Mist (CSS-анимация)',        file: null },
-    { id: 'sakura',    label: 'Sakura (CSS-анимация)',      file: null },
-    { id: 'inferno',   label: 'Inferno (CSS-анимация)',     file: null },
+    { id: 'aurora',    label: 'Aurora (CSS-анимация)',      file: null, group: 'animation' },
+    { id: 'matrix',    label: 'Matrix (CSS-анимация)',      file: null, group: 'animation' },
+    { id: 'ember',     label: 'Ember (CSS-анимация)',       file: null, group: 'animation' },
+    { id: 'plasma',    label: 'Plasma (CSS-анимация)',      file: null, group: 'animation' },
+    { id: 'synthwave', label: 'Synthwave (CSS-анимация)',   file: null, group: 'animation' },
+    { id: 'mist',      label: 'Mist (CSS-анимация)',        file: null, group: 'animation' },
+    { id: 'sakura',    label: 'Sakura (CSS-анимация)',      file: null, group: 'animation' },
+    { id: 'inferno',   label: 'Inferno (CSS-анимация)',     file: null, group: 'animation' },
   ];
 
   const Blade = {
@@ -81,6 +83,8 @@
       const reserved = new Set();
       for (const b of BUILTIN_BGS) { if (b.file) reserved.add(b.file.toLowerCase()); }
       reserved.add('btn_blade.png');
+      reserved.add('ava-logo.png');
+      reserved.add('ava-sq.png');
       reserved.add('current_bg.jpg');
       return reserved;
     },
@@ -114,8 +118,8 @@
     },
     bus: null, // назначается ниже (нужна Map из замыкания)
     // Запуск PowerShell одним -EncodedCommand (приём из BladeUpdater):
-    // nsIProcess НЕ квотит аргументы — пути с пробелами ("F:\firefox michael
-    // edition\...") рвутся на части и powershell умирает. Поэтому весь вызов
+    // nsIProcess НЕ квотит аргументы — пути с пробелами ("C:\Program
+    // Files\...") рвутся на части и powershell умирает. Поэтому весь вызов
     // уезжает base64 от UTF-16LE, без пробелов вообще.
     runPsEncoded(psLine) {
       const ps = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
@@ -191,5 +195,5 @@
   }, { once: true });
 
   window.Blade = Blade;
-  Blade.mark('blade_core', 'v1.1.0 START');
+  Blade.mark('blade_core', 'v1.2.0 START');
 })();

@@ -5,7 +5,7 @@
 // @author          Blade-Creations
 // @include         main
 // @onlyonce
-// @version         2.1.0
+// @version         2.2.0
 // ==/UserScript==
 (function () {
   const mark = (text) => {
@@ -54,9 +54,15 @@
         const domain = item.domain;
         const dirEntry = item.entry;
         domains++;
+        // Базовая red.jpg необязательна: набор «Minimal Grey» (NEWULTRAMAX
+        // PLITKI V.2.0) принесён только в серой теме — домены без red.jpg
+        // раньше выпадали из обложек ЦЕЛИКОМ (continue). Теперь базу
+        // пропускаем, если её нет, а тематические правила строим для тех
+        // файлов, что реально есть.
         const redFile = dirEntry.clone(); redFile.append('red.jpg');
-        if (!redFile.exists()) continue;
-        lines.push(SEL(domain) + ' background-image: url("img/themes/' + domain + '/red.jpg") !important;' + RULE_PROPS);
+        if (redFile.exists()) {
+          lines.push(SEL(domain) + ' background-image: url("img/themes/' + domain + '/red.jpg") !important;' + RULE_PROPS);
+        }
         for (const t of themes) {
           const tf = dirEntry.clone(); tf.append(t + '.jpg');
           if (!tf.exists()) continue;
@@ -132,6 +138,31 @@
         customs++;
       }
     } catch (e) { mark('ERR customBgs ' + e); }
+
+    // --- 3a. ПАПКА ORIGINAL (v2.2.0): обои дизайнера из V3-папки
+    // (BladeThemeEngine копирует их в img/original/). Тот же хэш-контракт
+    // bgPrefId('original/<имя>'), id: 'orig:<имя>'. Корень img/ сканится
+    // выше, а папки там пропускаются — двойного правила не будет ---
+    let origs = 0;
+    try {
+      const origDir = imgDir.clone(); origDir.append('original');
+      if (origDir.exists() && origDir.isDirectory()) {
+        const oIter = origDir.directoryEntries;
+        let oEntry;
+        while (oIter.hasMoreElements()) {
+          oEntry = oIter.getNext().QueryInterface(Ci.nsIFile);
+          if (oEntry.isDirectory()) continue;
+          const name = oEntry.leafName;
+          if (!/[.](jpg|jpeg|png|webp|avif|gif)$/i.test(name)) continue;
+          const rel = 'original/' + name;
+          const safe = window.Blade.bgPrefId(rel);
+          const BGSTYLE = 'background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/' + encodeURI(rel) + '") center bottom / cover no-repeat fixed !important;';
+          lines.push('@media -moz-pref("bobliks.bg.' + safe + '") { :root body.activity-stream { ' + BGSTYLE + ' } }');
+          lines.push(':root[data-blade-bg="orig:' + name + '"] body.activity-stream { ' + BGSTYLE + ' }');
+          origs++;
+        }
+      }
+    } catch (e) { mark('ERR origBgs ' + e); }
 
     // --- 3b. ТЕМАТИЗАЦИЯ САЙТОВ (v1.6 REFORGE): всё через var(--bob-accent),
     // который темы обновляют живо на ЛЮБОМ сайте (userContent.css задают его
@@ -222,15 +253,15 @@
 
     const outFile = chromeDir.clone(); outFile.append('covers.css');
     IOUtils.writeUTF8(outFile.path, css).then(
-      () => mark('v2.1.0 OK domains=' + domains + ' themeBlocks=' + blocks + ' flat=' + flat + ' customBgs=' + customs),
-      (e) => mark('v2.1.0 ERR write ' + e)
+      () => mark('v2.2.0 OK domains=' + domains + ' themeBlocks=' + blocks + ' flat=' + flat + ' customBgs=' + customs + ' origBgs=' + origs),
+      (e) => mark('v2.2.0 ERR write ' + e)
     );
-  } catch (e) { mark('v2.1.0 ERR ' + e + ' | ' + (e.stack || '').slice(0, 200)); }
+  } catch (e) { mark('v2.2.0 ERR ' + e + ' | ' + (e.stack || '').slice(0, 200)); }
   }
   regenerate();
   // Тумблер перегенерации: nsIPrefBranch зовёт наблюдателя синхронно при
   // смене префа, файл к этому моменту уже скопирован/цвет уже записан
   try {
     Services.prefs.addObserver('bobliks.covers.dirty', () => regenerate());
-  } catch (e) { mark('v2.1.0 ERR observer ' + e); }
+  } catch (e) { mark('v2.2.0 ERR observer ' + e); }
 })();

@@ -1,0 +1,770 @@
+{
+  "version": "3.1.0",
+  "sampleRate": 44100,
+  "themes": {
+    "red": {
+      "name": "Red · мягкий упругий клик",
+      "centre": 1480,
+      "width": 700,
+      "attack": 0.0028,
+      "decay": 0.007
+    },
+    "blood": {
+      "name": "Blood · округлый мягкий клик",
+      "centre": 980,
+      "width": 400,
+      "attack": 0.003,
+      "decay": 0.007
+    },
+    "volt": {
+      "name": "Volt · лёгкий ясный клик",
+      "centre": 2000,
+      "width": 650,
+      "attack": 0.0025,
+      "decay": 0.0045
+    },
+    "cherry": {
+      "name": "Cherry · сухой тёплый клик",
+      "centre": 1350,
+      "width": 580,
+      "attack": 0.0025,
+      "decay": 0.006
+    },
+    "grey": {
+      "name": "Grey · компактный сухой клик",
+      "centre": 1650,
+      "width": 1050,
+      "attack": 0.0025,
+      "decay": 0.0045
+    },
+    "orange": {
+      "name": "Orange · тёплый округлый клик",
+      "centre": 1250,
+      "width": 650,
+      "attack": 0.003,
+      "decay": 0.007
+    },
+    "midnight": {
+      "name": "Midnight · мягкий воздушный клик",
+      "centre": 1100,
+      "width": 550,
+      "attack": 0.004,
+      "decay": 0.008
+    },
+    "green": {
+      "name": "Green · лёгкий точный клик",
+      "centre": 1450,
+      "width": 500,
+      "attack": 0.0025,
+      "decay": 0.0055
+    },
+    "purple": {
+      "name": "Purple · шелковистый клик",
+      "centre": 1800,
+      "width": 700,
+      "attack": 0.0035,
+      "decay": 0.008
+    },
+    "custom": {
+      "name": "Своя · нейтральный мягкий клик",
+      "centre": 1500,
+      "width": 650,
+      "attack": 0.003,
+      "decay": 0.0065
+    }
+  },
+  "events": {
+    "select": [
+      0.045,
+      0.85,
+      1.03
+    ],
+    "open": [
+      0.06,
+      1,
+      1
+    ],
+    "close": [
+      0.055,
+      0.9,
+      0.94
+    ],
+    "theme": [
+      0.07,
+      1.1,
+      1
+    ],
+    "download": [
+      0.075,
+      1.1,
+      1.06
+    ],
+    "update": [
+      0.08,
+      1.15,
+      1.04
+    ]
+  },
+  "files": [
+    {
+      "theme": "red",
+      "event": "select",
+      "file": "red-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.08287085640521705,
+      "low500": 4.682719912704684e-06,
+      "high4k": 2.407412727964382e-08,
+      "sha256": "9edfaba12a98f8af9a7ed60b9cfb37edc678bf31165377251e8da7ca66e1deb9"
+    },
+    {
+      "theme": "red",
+      "event": "open",
+      "file": "red-open.wav",
+      "duration": 0.06,
+      "peak": 0.45000000000000007,
+      "rms": 0.07329494193299627,
+      "low500": 5.365647907462444e-06,
+      "high4k": 1.0384413115000951e-07,
+      "sha256": "873531958474d4dbd8449906315fef4b35f391b4c73c411f2bb462d21e162cd6"
+    },
+    {
+      "theme": "red",
+      "event": "close",
+      "file": "red-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45,
+      "rms": 0.067542377360791,
+      "low500": 5.098589550011066e-05,
+      "high4k": 1.5610024434760133e-06,
+      "sha256": "fd5ae39191ae741c8a6dda13235afdaa2f07e38421a48023989cd7a4e6a2e41b"
+    },
+    {
+      "theme": "red",
+      "event": "theme",
+      "file": "red-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45000000000000007,
+      "rms": 0.07335160460098136,
+      "low500": 3.0271319021514547e-05,
+      "high4k": 1.9689561186195724e-08,
+      "sha256": "4a98b92a16e04f4f29da94232d30266bfd4ac83fb37a119027f89811e8dc5233"
+    },
+    {
+      "theme": "red",
+      "event": "download",
+      "file": "red-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45000000000000007,
+      "rms": 0.06735950188824659,
+      "low500": 2.890210305931811e-06,
+      "high4k": 5.714145767552457e-08,
+      "sha256": "38a73be8b3c73224d3db687c9b2fd5f6569242a85fc22a74f8bbb2bb525febcc"
+    },
+    {
+      "theme": "red",
+      "event": "update",
+      "file": "red-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.06793271434497557,
+      "low500": 2.978158139529829e-06,
+      "high4k": 1.1094749309176998e-07,
+      "sha256": "87d64ee0b917cc9ad6af3ce21e853ed89c722970368900d6e8a7ff7b748ed990"
+    },
+    {
+      "theme": "blood",
+      "event": "select",
+      "file": "blood-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.44733531599977233,
+      "rms": 0.09000000000000001,
+      "low500": 3.09662661676596e-05,
+      "high4k": 2.2097117846093864e-07,
+      "sha256": "306b538ad793b445ed25dfd8bcd9a46ccd548314db030a76cb17e9ee6a59f16c"
+    },
+    {
+      "theme": "blood",
+      "event": "open",
+      "file": "blood-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.07813417807668115,
+      "low500": 4.0018228528923965e-06,
+      "high4k": 4.648283907983385e-08,
+      "sha256": "dba1d524489e4de74e3284686a9fd29cc209be25faa21c1ae5b42ac5149c9fe8"
+    },
+    {
+      "theme": "blood",
+      "event": "close",
+      "file": "blood-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45,
+      "rms": 0.0779399414118161,
+      "low500": 5.033670139279365e-05,
+      "high4k": 1.5429873816498322e-08,
+      "sha256": "6f0499beb46cb41fba97b045dee5dcf263eb071a609c6bafef0d64f661a1a6a0"
+    },
+    {
+      "theme": "blood",
+      "event": "theme",
+      "file": "blood-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45,
+      "rms": 0.056698204243225594,
+      "low500": 2.157158568772013e-05,
+      "high4k": 1.4205925030924895e-07,
+      "sha256": "3576ed47e11cc5da6c344812e51ab376977066bbf629d0b8a0f455d281be5f27"
+    },
+    {
+      "theme": "blood",
+      "event": "download",
+      "file": "blood-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45,
+      "rms": 0.08388801724825948,
+      "low500": 1.1812136539545147e-05,
+      "high4k": 1.97306326904835e-07,
+      "sha256": "1bae6451f404219fee7e8ea3609293f1bf2005cfab10d579ce15f9c9db9676aa"
+    },
+    {
+      "theme": "blood",
+      "event": "update",
+      "file": "blood-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.0652251858169529,
+      "low500": 1.0168157465572599e-05,
+      "high4k": 1.3295794765619757e-07,
+      "sha256": "caa2baf7860b6aa7faa8ed95672ef06982a530092d4bf937638386a6af7ac5bc"
+    },
+    {
+      "theme": "volt",
+      "event": "select",
+      "file": "volt-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.06619011467929628,
+      "low500": 7.89400231522587e-07,
+      "high4k": 2.0960312025064044e-06,
+      "sha256": "fe8006c90d22d1c8031cfd5286a441be649f54d6634c70ae2af1f9b22b64fdb2"
+    },
+    {
+      "theme": "volt",
+      "event": "open",
+      "file": "volt-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.06139306540291585,
+      "low500": 3.5131914045013053e-06,
+      "high4k": 7.89847087236909e-07,
+      "sha256": "e8229cc6d2f621b63210c1ae64d4f79edeb15bf31b01a70126f97c9d1f436818"
+    },
+    {
+      "theme": "volt",
+      "event": "close",
+      "file": "volt-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45,
+      "rms": 0.06897366111906739,
+      "low500": 1.54338441537571e-05,
+      "high4k": 1.963914098026776e-06,
+      "sha256": "bd435aee0446b528b1b66f8e90cb895012765f1542eea68775bd230f5415df49"
+    },
+    {
+      "theme": "volt",
+      "event": "theme",
+      "file": "volt-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45000000000000007,
+      "rms": 0.05063825436010812,
+      "low500": 1.4375544951075825e-06,
+      "high4k": 2.2540320564538312e-07,
+      "sha256": "7b6c74f20c0e88643a0b5285fc7ce695151a82505e8c24f222cef2625c4cdc5f"
+    },
+    {
+      "theme": "volt",
+      "event": "download",
+      "file": "volt-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45000000000000007,
+      "rms": 0.04977219166149566,
+      "low500": 1.941720329335316e-06,
+      "high4k": 1.4589660761502678e-06,
+      "sha256": "07de5e205e6f0cbda8ac4a3f4014ef44b590888e1d192af6238575d157948680"
+    },
+    {
+      "theme": "volt",
+      "event": "update",
+      "file": "volt-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.05171576327170562,
+      "low500": 2.7642468997674445e-07,
+      "high4k": 7.718787559976607e-08,
+      "sha256": "9753c35c8854ebb576d3899a4e7addb6e68178ee4742364d38aee84f494e8b17"
+    },
+    {
+      "theme": "cherry",
+      "event": "select",
+      "file": "cherry-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.07817065881641046,
+      "low500": 1.4154159548331307e-06,
+      "high4k": 6.430116202381415e-08,
+      "sha256": "59658c664bf9dec1fee41ee4766b6b33e121657d794ca02640f52f3cb7ce9186"
+    },
+    {
+      "theme": "cherry",
+      "event": "open",
+      "file": "cherry-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.08331453259352693,
+      "low500": 3.124798134753307e-05,
+      "high4k": 1.3088000382865096e-07,
+      "sha256": "80cd769f4773d5d7455e868b57aa40eb52dfd620d867c2d45de74b1b7ebde3fe"
+    },
+    {
+      "theme": "cherry",
+      "event": "close",
+      "file": "cherry-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45,
+      "rms": 0.07104856848208087,
+      "low500": 7.240976458769165e-05,
+      "high4k": 1.998255130670883e-06,
+      "sha256": "ce2a9ba44a558fe3a34e86e8710ae12fe9e9cb4439c1aa5e86095b56c4791ecd"
+    },
+    {
+      "theme": "cherry",
+      "event": "theme",
+      "file": "cherry-theme.wav",
+      "duration": 0.07,
+      "peak": 0.44999999999999996,
+      "rms": 0.06874154628066013,
+      "low500": 2.0640946673117703e-05,
+      "high4k": 7.919377507579596e-07,
+      "sha256": "eeb5dd7d4de847ee968842add8dd3c32a56f8e24eed5915b86540ecd4c1cd931"
+    },
+    {
+      "theme": "cherry",
+      "event": "download",
+      "file": "cherry-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45,
+      "rms": 0.06697290955929477,
+      "low500": 4.589141101228718e-06,
+      "high4k": 4.2089991495668626e-07,
+      "sha256": "697e2ef04d40b315e9dbb46a4892803af4c4cb90b06508173b0298036672dc3f"
+    },
+    {
+      "theme": "cherry",
+      "event": "update",
+      "file": "cherry-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.04034707944911174,
+      "low500": 1.4860347566800014e-06,
+      "high4k": 1.3693026364675445e-08,
+      "sha256": "b56c2e4bb70fa768324d8f2c8f1664f909cee033efb8d39f628a0c48bf8edd78"
+    },
+    {
+      "theme": "grey",
+      "event": "select",
+      "file": "grey-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.05776025725782157,
+      "low500": 2.797309177099099e-05,
+      "high4k": 1.5363784884719514e-06,
+      "sha256": "29e870e46ce50a4a9432f9886e3c616ae8efbe4c3306e17ad56bb14e4d68c911"
+    },
+    {
+      "theme": "grey",
+      "event": "open",
+      "file": "grey-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.05871680429222652,
+      "low500": 5.409581997004232e-05,
+      "high4k": 3.629705163252417e-07,
+      "sha256": "6fd5326d767bf3110f985fbe11a6ad0ea1b1f2d2037f992b72e22f2de8efff0c"
+    },
+    {
+      "theme": "grey",
+      "event": "close",
+      "file": "grey-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45,
+      "rms": 0.0579367476334023,
+      "low500": 1.2586149662566351e-05,
+      "high4k": 6.249748664546098e-07,
+      "sha256": "5c50aa88f10104212a99bb5dcedb89f213a2a0c25bf5063f579ef1de8a77d37d"
+    },
+    {
+      "theme": "grey",
+      "event": "theme",
+      "file": "grey-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45,
+      "rms": 0.03977789320844389,
+      "low500": 1.5110702367581077e-05,
+      "high4k": 1.4137077725459063e-06,
+      "sha256": "651214f901393f79de3deb9aded384e2d6f09f1aa72e1b964a5aab8c58af85d5"
+    },
+    {
+      "theme": "grey",
+      "event": "download",
+      "file": "grey-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45,
+      "rms": 0.06298731742572213,
+      "low500": 3.956387150317088e-06,
+      "high4k": 7.54601763343389e-07,
+      "sha256": "337fefa4b5034b843febb88e5ddc1d8d9e8f064c34eacdcff7c5c4579d35957b"
+    },
+    {
+      "theme": "grey",
+      "event": "update",
+      "file": "grey-update.wav",
+      "duration": 0.08,
+      "peak": 0.45000000000000007,
+      "rms": 0.04839074875898957,
+      "low500": 3.51539716272146e-06,
+      "high4k": 4.5533255199451994e-07,
+      "sha256": "38b098e6e7bbe9fa6dd0758e333b1c4d7da814db0c16582259ac4a159a8a40eb"
+    },
+    {
+      "theme": "orange",
+      "event": "select",
+      "file": "orange-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.07291729076647852,
+      "low500": 1.256828005033187e-05,
+      "high4k": 1.9302137139831587e-08,
+      "sha256": "46fa3f3fd82a40765ba896e3e52eee8e9c72634d6e98f6f52a4a1e706e0ef762"
+    },
+    {
+      "theme": "orange",
+      "event": "open",
+      "file": "orange-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.08163770799793385,
+      "low500": 2.8490261425595144e-05,
+      "high4k": 2.920954013552915e-07,
+      "sha256": "61f2eee0d085b72a1f5fbd86efa2d2679bc914b373aef75c3aa999a93e76fdaf"
+    },
+    {
+      "theme": "orange",
+      "event": "close",
+      "file": "orange-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45000000000000007,
+      "rms": 0.07407167713737663,
+      "low500": 1.3007983721868205e-05,
+      "high4k": 5.326465392006003e-08,
+      "sha256": "69f3cacd65d833104cf8880546989b6f5fb3a2d490f8887e18c1e61c3053f269"
+    },
+    {
+      "theme": "orange",
+      "event": "theme",
+      "file": "orange-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45,
+      "rms": 0.08393235260962349,
+      "low500": 1.1906467811935797e-05,
+      "high4k": 9.966523391239983e-08,
+      "sha256": "7980a68127b818f864d6c86cf74c4a0732865fc75537c94c80e3421f3ca8ad37"
+    },
+    {
+      "theme": "orange",
+      "event": "download",
+      "file": "orange-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45000000000000007,
+      "rms": 0.057270886458390714,
+      "low500": 2.6149310778301812e-05,
+      "high4k": 3.66145609969593e-07,
+      "sha256": "15283ab88bf2d8c0c5d8230d036e0e5adf6ee93052b600d7819d6e9204b813de"
+    },
+    {
+      "theme": "orange",
+      "event": "update",
+      "file": "orange-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.057172802726926465,
+      "low500": 3.0388084724240427e-06,
+      "high4k": 1.1530258540787808e-07,
+      "sha256": "7a7995bb5ef0f521cc91825735a4e9eea9f6018c35a0da6e09b46cced4bf0b38"
+    },
+    {
+      "theme": "midnight",
+      "event": "select",
+      "file": "midnight-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.07299015957068178,
+      "low500": 5.636426809849834e-06,
+      "high4k": 1.1490176596709865e-07,
+      "sha256": "d654f63eeba7338f86132f2e1788cd788dcdbbdba57a89c4d28f0c6ce1f82c60"
+    },
+    {
+      "theme": "midnight",
+      "event": "open",
+      "file": "midnight-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.07882980402180356,
+      "low500": 6.835527782161286e-06,
+      "high4k": 1.9736514437278804e-08,
+      "sha256": "0e8f56bef519705b34c1f1d0b899374833df077bf590badcdad48f177654d542"
+    },
+    {
+      "theme": "midnight",
+      "event": "close",
+      "file": "midnight-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45,
+      "rms": 0.07998302597236075,
+      "low500": 1.4521860176776989e-05,
+      "high4k": 6.883337403929971e-08,
+      "sha256": "9f5a5e0de76b91b71eb7ad0f7c4107a60f15a4f99146b7882b9717abfda4ff37"
+    },
+    {
+      "theme": "midnight",
+      "event": "theme",
+      "file": "midnight-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45000000000000007,
+      "rms": 0.057054404834220036,
+      "low500": 5.678071419167891e-06,
+      "high4k": 1.4554401087209825e-09,
+      "sha256": "924e452cddd2c37566606feffa4e3896f9b4b07c69a19f6dbaa76fe0a2b72c03"
+    },
+    {
+      "theme": "midnight",
+      "event": "download",
+      "file": "midnight-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45,
+      "rms": 0.08011349333316897,
+      "low500": 2.194356688692266e-05,
+      "high4k": 2.0057893076349178e-07,
+      "sha256": "37529f86eab93cd1f2087e09f0b765140b8b56f97bf619c429156d3bbffd6643"
+    },
+    {
+      "theme": "midnight",
+      "event": "update",
+      "file": "midnight-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.05096550795426375,
+      "low500": 1.51875235530065e-06,
+      "high4k": 3.751732841603703e-09,
+      "sha256": "8528eda1d5b979d7c8313bac6ed5c9e3774b486dd52cf52a38eee67c04080757"
+    },
+    {
+      "theme": "green",
+      "event": "select",
+      "file": "green-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.07194184693510958,
+      "low500": 1.8919929700914025e-05,
+      "high4k": 5.407576917037042e-07,
+      "sha256": "d0fa6c5db44f2e7a8384de7dc506defb71ade0acdafab2977d363b3dfdead49a"
+    },
+    {
+      "theme": "green",
+      "event": "open",
+      "file": "green-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.06977145089619674,
+      "low500": 1.2595830546132464e-05,
+      "high4k": 1.2844079181096018e-07,
+      "sha256": "cd97133ff203f42b4979a0609489e40f42b1e331bdde33e78ea109259adb87b9"
+    },
+    {
+      "theme": "green",
+      "event": "close",
+      "file": "green-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45,
+      "rms": 0.0639530554109157,
+      "low500": 8.017936193629562e-06,
+      "high4k": 1.9448008476731107e-07,
+      "sha256": "3500a9079af929c1b870273c6a9cb1be3e7c5e57467e6ec3d2338ca7a5aa058e"
+    },
+    {
+      "theme": "green",
+      "event": "theme",
+      "file": "green-theme.wav",
+      "duration": 0.07,
+      "peak": 0.44999999999999996,
+      "rms": 0.06940540117933149,
+      "low500": 6.307019133133454e-06,
+      "high4k": 2.1636775637881615e-07,
+      "sha256": "a36c661269c6ff6ae906954a424f589c676fa95f3bbaf563db39499d1a67f8ca"
+    },
+    {
+      "theme": "green",
+      "event": "download",
+      "file": "green-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45,
+      "rms": 0.05492740202256763,
+      "low500": 2.784774868139364e-07,
+      "high4k": 6.990900194916439e-08,
+      "sha256": "91c72f9bf815dd46d4ae0589c2979744d6e0f8a4853a6c9b895838e18fdb434d"
+    },
+    {
+      "theme": "green",
+      "event": "update",
+      "file": "green-update.wav",
+      "duration": 0.08,
+      "peak": 0.44999999999999996,
+      "rms": 0.05665141236762484,
+      "low500": 9.379155926539873e-06,
+      "high4k": 2.995102758120101e-07,
+      "sha256": "a87eed02429c1b4a950de584728d274aa5f396fd558b92e4037b12d5770cc0d1"
+    },
+    {
+      "theme": "purple",
+      "event": "select",
+      "file": "purple-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.06732852232245606,
+      "low500": 5.80602511479884e-07,
+      "high4k": 4.967886615508856e-07,
+      "sha256": "128d8c3d799c7456a73d8bc399ab8a0c4b5f485773345764db35eb9d81e810d4"
+    },
+    {
+      "theme": "purple",
+      "event": "open",
+      "file": "purple-open.wav",
+      "duration": 0.06,
+      "peak": 0.45000000000000007,
+      "rms": 0.06284460189003892,
+      "low500": 3.0309295745289806e-07,
+      "high4k": 8.623542316258358e-08,
+      "sha256": "08907b7ad97b8c3cd6229dded76a7083be6cd4aa6ea5cc083e2de84c7770c2be"
+    },
+    {
+      "theme": "purple",
+      "event": "close",
+      "file": "purple-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45000000000000007,
+      "rms": 0.0877542167932124,
+      "low500": 2.5243679209360248e-06,
+      "high4k": 4.16344812625383e-08,
+      "sha256": "451b4e064344fc150216b4ca32473cadcc47d2a2834fc814398264bed6b2aa6e"
+    },
+    {
+      "theme": "purple",
+      "event": "theme",
+      "file": "purple-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45,
+      "rms": 0.06371929834816001,
+      "low500": 1.6671545091373055e-06,
+      "high4k": 9.059292759490199e-07,
+      "sha256": "4e78b5635e0b354a386a790729ce3c9d6335af7ed0d6f1a3c565b29ccba4036e"
+    },
+    {
+      "theme": "purple",
+      "event": "download",
+      "file": "purple-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45000000000000007,
+      "rms": 0.06855452907816158,
+      "low500": 2.4542320238021562e-06,
+      "high4k": 1.2486015700970386e-07,
+      "sha256": "0ff4965c230503dec636e6b83ea6d842255c3474041deeafb3223bcd9bb962e9"
+    },
+    {
+      "theme": "purple",
+      "event": "update",
+      "file": "purple-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.060647616968528426,
+      "low500": 9.715230577068675e-08,
+      "high4k": 1.644439542448153e-07,
+      "sha256": "b08e62a87082600da8c54cbc8f82cba84f5a8327e4dcc138d057fdbb32912b92"
+    },
+    {
+      "theme": "custom",
+      "event": "select",
+      "file": "custom-select.wav",
+      "duration": 0.04498866213151927,
+      "peak": 0.45,
+      "rms": 0.0657362800851767,
+      "low500": 9.38204281311209e-06,
+      "high4k": 1.2513450781869392e-07,
+      "sha256": "ab5dff95f41deaa84d98aa6a16b20f4476ec7cc6d826d7cf2aa5da563684274f"
+    },
+    {
+      "theme": "custom",
+      "event": "open",
+      "file": "custom-open.wav",
+      "duration": 0.06,
+      "peak": 0.45,
+      "rms": 0.07562766100983723,
+      "low500": 6.403365459810417e-06,
+      "high4k": 5.5951846385944e-08,
+      "sha256": "1ff5a0e65851ef1b960f9d9e185838ac05709cafa2359c4e5e077b7ec05006dc"
+    },
+    {
+      "theme": "custom",
+      "event": "close",
+      "file": "custom-close.wav",
+      "duration": 0.055011337868480725,
+      "peak": 0.45000000000000007,
+      "rms": 0.06593695303489384,
+      "low500": 3.328241518982625e-06,
+      "high4k": 1.0110269356644825e-07,
+      "sha256": "99f3eb4213d0d915d497e14c45bfbe43f61646604f782b5f2d283733531a791c"
+    },
+    {
+      "theme": "custom",
+      "event": "theme",
+      "file": "custom-theme.wav",
+      "duration": 0.07,
+      "peak": 0.45,
+      "rms": 0.06358709290988197,
+      "low500": 8.030757099304622e-06,
+      "high4k": 3.0305854041590145e-08,
+      "sha256": "ed736611be1d5562e18eb923b10cde995c0444d0594a54be8d36565fedeca998"
+    },
+    {
+      "theme": "custom",
+      "event": "download",
+      "file": "custom-download.wav",
+      "duration": 0.07501133786848073,
+      "peak": 0.45,
+      "rms": 0.06321076200917984,
+      "low500": 1.5033573764219457e-05,
+      "high4k": 2.488983093379424e-07,
+      "sha256": "e79eaaab1f4f07993bbd108a63204369a7b2d4a16194fa20af4f7025383b746e"
+    },
+    {
+      "theme": "custom",
+      "event": "update",
+      "file": "custom-update.wav",
+      "duration": 0.08,
+      "peak": 0.45,
+      "rms": 0.08027669093860795,
+      "low500": 1.5176911781516658e-06,
+      "high4k": 2.4463845582551435e-07,
+      "sha256": "34cc669fc9b80f3d0d375249819d94a0da6b0bf6d40901b47dd1ef6473f8be0c"
+    }
+  ]
+}
