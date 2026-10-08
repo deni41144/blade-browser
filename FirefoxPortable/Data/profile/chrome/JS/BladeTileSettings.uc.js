@@ -3,7 +3,7 @@
 // @description     Native pinned tiles, persistent order and local custom covers
 // @include         main
 // @loadOrder       10
-// @version         1.0.0
+// @version         1.0.1
 // ==/UserScript==
 (function () {
   'use strict';
@@ -100,9 +100,9 @@
       // Existing fallback contains many :not([href*=domain]) selectors.
       // One inert ID branch raises specificity without changing the DOM.
       const selector = ':is(#blade-custom-tile-covers,.top-sites-list) .top-site-outer .top-site-button[href=' + cssString(item.url) + '][href]';
-      const native = NewTabUtils.pinnedLinks.links[item.index];
-      // Firefox's drag path keeps label but strips unknown object keys.
-      if (native?.label || native?.bladeCustomTitle || item.cover) {
+      // Themed covers already contain the site name. Native labels are also
+      // retained after edits/drags, so they must not enable a second caption.
+      if (item.cover) {
         rules.push(selector + '{position:relative!important;}' + selector + ' .title{display:flex!important;position:absolute!important;inset:auto 6px 6px!important;margin:0!important;padding:5px 8px!important;width:auto!important;max-width:calc(100% - 12px)!important;border-radius:5px!important;background:rgba(8,8,12,.82)!important;color:#f5f3f6!important;font:600 11px/1.4 "Segoe UI",sans-serif!important;letter-spacing:.025em!important;text-align:left!important;z-index:4!important;}' + selector + ' .title .title-label{overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;}' + selector + ' .title::before{display:none!important;}');
       }
       const file = coverFile(covers[canonical(item.url)]);
