@@ -2,7 +2,7 @@
 // @name            Blade Account Panel
 // @description     Account switching and management inside menu B
 // @include         main
-// @version         1.1.0
+// @version         1.2.0
 // @loadOrder       119
 // ==/UserScript==
 (function () {
@@ -28,6 +28,7 @@
     .ba-dot {width:9px;height:9px;flex:none;border-radius:50%;background:var(--account-color,#aaa);box-shadow:0 0 0 3px #ffffff07;}
     .ba-copy {min-width:0;flex:1;} .ba-title {display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
     .ba-meta {display:block;color:#a89dac;font-size:10px;margin-top:3px;} .ba-edit {flex:none;}
+    .ba-panel .ba-google {flex:none;font-size:10px;padding:5px 7px;}
     .ba-form {display:grid;gap:8px;padding:11px;border:1px solid #ffffff18;background:#00000028;border-radius:9px;margin:10px 0;}
     .ba-form-actions {display:flex;gap:6px;} .ba-panel .ba-save {background:color-mix(in srgb,var(--ba-accent) 15%,#151018);border-color:var(--ba-accent);}
     .ba-message {font-size:11px;line-height:1.5;color:#f2baac;margin:8px 0;} .ba-footer {display:flex;justify-content:space-between;margin-top:12px;}
@@ -56,6 +57,7 @@
       const count=n=>`${n} ${n%100>=11&&n%100<=14?'вкладок':n%10===1?'вкладка':n%10>=2&&n%10<=4?'вкладки':'вкладок'}`;
       const copy=make('span','ba-copy');copy.append(make('span','ba-title',a.name),make('span','ba-meta',[a.current?'Текущий':null,count(a.tabs),a.siteTabs?`${a.siteTabs} на этом сайте`:null].filter(Boolean).join(' · ')));open.append(dot,copy);row.append(open);
       const fresh=button('ba-new','+',()=>{try {window.BladeAccounts.open(a.userContextId,false);document.getElementById('bobliks-settings-popup')?.hidePopup();}catch(e){error(host,e.message);}});fresh.title=`Новая вкладка: ${a.name}`;fresh.setAttribute('aria-label',fresh.title);row.append(fresh);
+      const google=button('ba-google','Google',()=>{try {window.BladeAccounts.openSite(a.userContextId,'https://accounts.google.com/');document.getElementById('bobliks-settings-popup')?.hidePopup();}catch(e){error(host,e.message);}});google.title=`Войти в Google: ${a.name}`;google.setAttribute('aria-label',google.title);row.append(google);
       if(a.userContextId){const edit=button('ba-edit','✎',()=>form(host,a));edit.title='Имя и цвет';edit.setAttribute('aria-label',`Изменить: ${a.name}`);row.append(edit);}listNode.append(row);
     }
     if(!accounts.length)listNode.append(make('p','ba-hint','Аккаунты не найдены.'));
@@ -65,6 +67,7 @@
     const api=window.BladeAccounts;if(!api?.available()){host.append(make('p','ba-hint','Аккаунты недоступны в этом окне.'));return;}
     const head=make('div','ba-head');head.append(make('strong','','Аккаунты'),button('ba-add','+ Добавить',()=>form(host)));host.append(head);
     host.append(make('p','ba-hint',site()?`Переключение для ${site()}. Каждый аккаунт сохраняет отдельный вход.`:'Выбери аккаунт для вкладок. Входы на сайты хранятся отдельно.'));
+    host.append(make('p','ba-hint','Для входа через Google сначала войди в Google внутри нужного аккаунта кнопкой справа. Этот вход сохраняется отдельно.'));
     const search=make('input','ba-search');search.placeholder='Найти аккаунт';search.value=state.term;search.setAttribute('aria-label','Поиск аккаунтов');search.addEventListener('input',()=>{state.term=search.value.slice(0,64);list(host);});host.append(search,make('div','ba-list'));
     const footer=make('div','ba-footer');footer.append(button('','Настройки контейнеров',()=>{try{api.manage();document.getElementById('bobliks-settings-popup')?.hidePopup();}catch(e){error(host,e.message);}}));host.append(footer);list(host);
   }
@@ -82,5 +85,5 @@
   const hidden=e=>{if(['open','showing'].includes(e.target.state))return;if(e.target.id==='bobliks-settings-popup'){for(const host of hosts)if(e.target.contains(host)){hosts.delete(host);states.delete(host);}}};
   window.addEventListener('blade-accounts-changed',refresh);
   function destroy(){if(disposed)return;disposed=true;window.removeEventListener('blade-accounts-changed',refresh);for(const panel of watchedPanels)panel.removeEventListener('popuphidden',hidden);watchedPanels.clear();window.removeEventListener('unload',destroy);for(const host of hosts)host.replaceChildren();hosts.clear();style.remove();}
-  window.BladeAccountPanel={mount,open,refresh,destroy,status:()=>({disposed,hosts:hosts.size,open:document.getElementById('bobliks-settings-popup')?.state==='open'})};window.addEventListener('unload',destroy,{once:true});window.Blade?.mark('account_panel','v1.1.0 OK');
+  window.BladeAccountPanel={mount,open,refresh,destroy,status:()=>({disposed,hosts:hosts.size,open:document.getElementById('bobliks-settings-popup')?.state==='open'})};window.addEventListener('unload',destroy,{once:true});window.Blade?.mark('account_panel','v1.2.0 OK');
 })();

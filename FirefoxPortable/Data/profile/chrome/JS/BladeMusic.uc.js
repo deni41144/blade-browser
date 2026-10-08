@@ -2,7 +2,7 @@
 // @name            Blade Music
 // @description     YouTube Music controls in menu B through the native tab media session
 // @include         main
-// @version         1.1.0
+// @version         1.2.0
 // @loadOrder       116
 // ==/UserScript==
 (function () {
@@ -14,6 +14,18 @@
   const hotkeyPref='blade.music.hotkeys';
   const hotkeyLabels={previous:'Предыдущий трек',next:'Следующий трек',backward:'Назад на 10 с',forward:'Вперёд на 10 с'};
   const actionKeys={previous:'previoustrack',next:'nexttrack',backward:'seekbackward',forward:'seekforward'};
+  try {
+    ChromeUtils.registerWindowActor('BladeMusicContent', {
+      parent:{esModuleURI:'chrome://userscripts/content/BladeMusicContent/BladeMusicContentParent.sys.mjs'},
+      child:{esModuleURI:'chrome://userscripts/content/BladeMusicContent/BladeMusicContentChild.sys.mjs'},
+      matches:['https://music.youtube.com/*'], remoteTypes:['web','webIsolated'],
+      safeForUntrustedWebProcess:true, allFrames:false,
+    });
+  } catch(e) { if(e.name!=='NotSupportedError')window.Blade?.mark('music_actor',String(e)); }
+  function contentActor(tab) {
+    if(!tab || tab.hasAttribute('pending') || !ytTab(tab))return null;
+    try { return tab.linkedBrowser.browsingContext.currentWindowGlobal.getActor('BladeMusicContent'); } catch(_) {return null;}
+  }
   let bindings={}, recording=null, handledPrintable=null;
   const keyset=document.createXULElement('keyset');keyset.id='blade-music-keyset';
   document.documentElement.append(keyset);
@@ -96,7 +108,8 @@
     rebuildKeys();renderHotkeys();return {ok:true};
   }
   function enabled(action) {
-    const c=controller(selectTarget());return !!c?.isActive && new Set(c.supportedKeys||[]).has(actionKeys[action]);
+    const tab=selectTarget(),c=controller(tab);
+    return !!contentActor(tab) || !!c?.isActive && new Set(c.supportedKeys||[]).has(actionKeys[action]);
   }
   function refreshKeys() {
     for(const key of keyset.children) {
@@ -193,7 +206,7 @@
     const state=target?.hasAttribute('pending') ? 'Вкладка спит' : c?.isActive ? (c.isPlaying ? 'Играет' : 'На паузе') : target ? 'Выбери трек на сайте' : 'Открыть музыку';
     status.textContent=[meta.artist,state].filter(Boolean).join(' · '); status.title=status.textContent;
     const supported=new Set(c?.supportedKeys || []);
-    for(const [action,key] of [['previous','previoustrack'],['next','nexttrack']]) card.querySelector(`[data-music-action=${action}]`).disabled=!c?.isActive || !supported.has(key);
+    for(const action of ['previous','next']) card.querySelector(`[data-music-action=${action}]`).disabled=!enabled(action);
     const toggle=card.querySelector('[data-music-action=toggle]');
     const key=c?.isPlaying ? 'pause' : 'play';
     toggle.disabled=!c?.isActive || !(supported.has(key)||supported.has('playpause'));
@@ -209,6 +222,20 @@
       else window.openTrustedLinkIn('https://music.youtube.com/','tab');
       return true;
     }
+    const actor=Object.hasOwn(actionKeys,action)&&contentActor(tab);
+    if(actor) {
+      // YouTube Music does not consistently advertise all four MediaSession actions.
+      // Its own player controls and media element remain usable without those flags.
+      actor.sendQuery('BladeMusic:Action',{action}).then(handled=>{
+        if(!handled&&!disposed&&!tab.closing&&ytTab(tab))nativeAct(tab,action);
+        schedule();
+      }).catch(()=>{if(!disposed&&!tab.closing&&ytTab(tab))nativeAct(tab,action);});
+      return true;
+    }
+    return nativeAct(tab,action);
+  }
+  function nativeAct(tab,action) {
+    const c=controller(tab);
     if(!c?.isActive) return false;
     const supported=new Set(c.supportedKeys);
     let handled=false;
@@ -277,5 +304,5 @@
   for(const event of tabEvents)gBrowser.tabContainer.addEventListener(event,tabEvent);
   window.addEventListener('unload',destroy,{once:true});
   mount(document.getElementById('bobliks-settings-popup'));
-  window.Blade?.mark('music','v1.1.0 OK');
+  window.Blade?.mark('music','v1.2.0 OK');
 })();

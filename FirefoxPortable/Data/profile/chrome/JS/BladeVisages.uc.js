@@ -52,7 +52,7 @@
       if (!raw) return null;
       const v = JSON.parse(raw);
       if (v && typeof v.theme === 'string' && typeof v.bg === 'string') {
-        const value = { theme: v.theme, bg: v.bg };
+        const value = { theme: v.theme, bg: window.BladeEngine?.normalizeBgId(v.bg) || v.bg };
         if (/^#[0-9a-f]{6}$/i.test(v.customColor || '')) value.customColor = v.customColor;
         if (['vivid', 'balanced', 'eco'].includes(v.mode)) value.mode = v.mode;
         return value;

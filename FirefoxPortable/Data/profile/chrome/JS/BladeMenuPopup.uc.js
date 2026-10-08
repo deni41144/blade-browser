@@ -342,10 +342,9 @@
         // YELLOW/RED/BLOOD. Цвет берём у соответствующей темы — квадратик всегда
         // совпадает с тем, что владелец видит у темы. WHITE/YELLOW — алиасы на
         // grey/volt (таких тем-идентификаторов нет, это имена из тайл-набора).
-        // RED и BLOOD совпадают с темами red/blood по имени — квадратики #ff2a2a
-        // и #a80f0f (31.09: на RED попросили именно красный, не кровавый).
+        // Original RED теперь называется BLOOD и использует кровавый акцент.
         // Любое другое имя файла → без квадратика, как раньше.
-        const CHIP_ALIASES = { WHITE: 'grey', YELLOW: 'volt', BLUE: 'midnight' };
+        const CHIP_ALIASES = { WHITE: 'grey', YELLOW: 'volt', BLUE: 'midnight', RED: 'blood' };
         const bgChip = (b) => {
           try {
             const base = String(b.file || '').split(/[\\/]/).pop().replace(/[.][^.]+$/, '').toUpperCase();

@@ -166,6 +166,7 @@
     // своя папка задаётся префом blade.bg.v3dir (about:config). Фабричный
     // набор Original (9 PNG в img/original/) работает независимо от синка.
     let originalBgsCache = null;
+    const retiredOriginalPrefIds = new Set([bgPrefId('original/BLOOD.png')]);
     function v3SourceDir() {
       try {
         const p = Services.prefs.getStringPref(V3DIR_PREF, DEFAULT_V3DIR);
@@ -198,6 +199,7 @@
             if (e.isDirectory()) continue;
             const name = e.leafName;
             if (!/[.](jpg|jpeg|png|webp|avif|gif)$/i.test(name)) continue;
+            if (Object.hasOwn(window.Blade.originalWallpaperAliases, name.replace(/[.][^.]+$/, '').toUpperCase())) continue;
             const target = dest.clone(); target.append(name);
             try {
               if (!target.exists()) { e.copyTo(dest, name); copiedNew = true; }
@@ -217,10 +219,15 @@
           if (entry.isDirectory()) continue;
           const name = entry.leafName;
           if (!/[.](jpg|jpeg|png|webp|avif|gif)$/i.test(name)) continue;
+          const stem = name.replace(/[.][^.]+$/, '').toUpperCase();
+          if (Object.hasOwn(window.Blade.originalWallpaperAliases, stem)) {
+            retiredOriginalPrefIds.add(bgPrefId('original/' + name));
+            continue;
+          }
           const rel = 'original/' + name;
           out.push({
             id: 'orig:' + name,
-            label: niceOrigLabel(name),
+            label: window.Blade.originalWallpaperLabels[stem] || niceOrigLabel(name),
             file: rel,
             isCustom: true,
             prefId: bgPrefId(rel),
@@ -241,8 +248,30 @@
       for (const t of THEMES) { if (t.pref && Services.prefs.getBoolPref(t.pref, false)) id = t.id; }
       return id;
     }
-    function activeBg() {
+    function normalizeBgId(bgId) {
+      const original = /^orig:(.+)[.]([^.]+)$/i.exec(String(bgId || ''));
+      if (!original) return bgId;
+      const target = window.Blade.originalWallpaperAliases[original[1].toUpperCase()];
+      if (!target) return bgId;
+      const items = getOriginalBgs();
+      const sameExtension = items.find(x => x.id.toUpperCase() === ('orig:' + target + '.' + original[2]).toUpperCase());
+      return (sameExtension || items.find(x => x.id.toUpperCase().startsWith('ORIG:' + target + '.')))?.id || 'acheron';
+    }
+    function migrateSavedBg() {
+      getOriginalBgs();
+      for (const prefId of retiredOriginalPrefIds) Services.prefs.clearUserPref('bobliks.bg.' + prefId);
       const saved = Services.prefs.getStringPref('bobliks.bg.current', '');
+      const next = normalizeBgId(saved);
+      if (next !== saved) {
+        Services.prefs.clearUserPref('bobliks.bg.' + bgPrefId('original/' + saved.slice(5)));
+        Services.prefs.setStringPref('bobliks.bg.current', next);
+        const b = getAllBgs().find(x => x.id === next);
+        if (b && next !== 'acheron') Services.prefs.setBoolPref('bobliks.bg.' + (b.prefId || next), true);
+      }
+      return next;
+    }
+    function activeBg() {
+      const saved = migrateSavedBg();
       if (getAllBgs().some(x => x.id === saved)) return saved;
       return 'acheron';
     }
@@ -732,6 +761,7 @@
       } catch (e) { mark('ERR customBgSheet ' + e); }
     }
     function setBg(bgId) {
+      bgId = normalizeBgId(bgId);
       const b = getAllBgs().find(x => x.id === bgId);
       if (!b) return;
       // CSS-фоны (file: null) идут мимо файлов — им нужен только преф
@@ -744,6 +774,7 @@
       for (const x of BUILTIN_BGS) Services.prefs.clearUserPref('bobliks.bg.' + x.id);
       for (const x of getCustomBgs()) Services.prefs.clearUserPref('bobliks.bg.' + x.prefId);
       for (const x of getOriginalBgs()) Services.prefs.clearUserPref('bobliks.bg.' + x.prefId);
+      for (const prefId of retiredOriginalPrefIds) Services.prefs.clearUserPref('bobliks.bg.' + prefId);
       if (bgId !== 'acheron') {
         Services.prefs.setBoolPref('bobliks.bg.' + (b.isCustom ? b.prefId : bgId), true);
       }
@@ -794,7 +825,7 @@
         themes: () => THEMES,
         getAllBgs, getCustomBgs, getOriginalBgs, bgPrefId,
         // текущее состояние
-        activeTheme, activeBg, getImgDir,
+        activeTheme, activeBg, getImgDir, normalizeBgId,
         invalidateBgCache: () => {
           customBgsCache = null;
           originalBgsCache = null;

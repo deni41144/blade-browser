@@ -90,7 +90,11 @@
   }
   function sync() {
     if (disposed) return;
-    paused = document.hidden || window.windowState === window.STATE_MINIMIZED || !document.hasFocus();
+    // Focus may be inside a remote document or the address bar. The active
+    // top-level window is authoritative; chrome document focus alone is not.
+    const activeWindow = Services.focus.activeWindow;
+    paused = document.hidden || window.windowState === window.STATE_MINIMIZED ||
+      (activeWindow ? activeWindow !== window : !document.hasFocus());
     root.setAttribute('data-blade-fx-mode', mode());
     root.setAttribute('data-blade-fx-paused', String(paused));
     const stopContent = mode() === 'eco' || battery();
@@ -105,7 +109,6 @@
     window.Blade?.bus.emit('fx:changed', state());
   }
   function schedule(event) {
-    if (event && (event.type === 'focus' || event.type === 'blur') && event.target !== window) return;
     clearTimeout(syncTimer);
     syncTimer = setTimeout(sync, 0);
   }
@@ -114,9 +117,10 @@
   Services.prefs.addObserver(PREF, prefObserver);
   reducedMotion.addEventListener('change', sync);
   batteryObserver.observe(root, {attributes:true, attributeFilter:['data-blade-battery','data-blade-theme','style']});
-  for (const name of ['focus', 'blur', 'sizemodechange', 'visibilitychange']) window.addEventListener(name, schedule);
+  for (const name of ['focus', 'blur', 'sizemodechange', 'visibilitychange']) window.addEventListener(name, schedule, true);
+  for (const name of ['TabSelect', 'TabShow']) window.gBrowser?.tabContainer.addEventListener(name, schedule);
   window.BladeEffects = {
-    mode, state, contentState,
+    mode, state, contentState, refresh: sync,
     setMode(value) {
       if (!MODES.includes(value)) return false;
       Services.prefs.setStringPref(PREF, value);
@@ -128,12 +132,13 @@
   sync();
   window.Blade?.mark('effects', 'v1.1.0 OK ' + mode());
   window.addEventListener('unload', () => {
+    for (const name of ['TabSelect', 'TabShow']) window.gBrowser?.tabContainer.removeEventListener(name, schedule);
     disposed = true;
     clearTimeout(syncTimer);
     batteryObserver.disconnect();
     Services.prefs.removeObserver(PREF, prefObserver);
     reducedMotion.removeEventListener('change', sync);
-    for (const name of ['focus', 'blur', 'sizemodechange', 'visibilitychange']) window.removeEventListener(name, schedule);
+    for (const name of ['focus', 'blur', 'sizemodechange', 'visibilitychange']) window.removeEventListener(name, schedule, true);
     // Process-wide sheets remain registered for other browser windows.
   }, {once:true});
 })();

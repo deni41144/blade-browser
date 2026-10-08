@@ -21,7 +21,9 @@ export class BladeEffectsVisibilityChild extends JSWindowActorChild {
   }
   handleEvent(event) {
     this.update();
-    if (event.type === 'pageshow') this.sendAsyncMessage('Blade:RequestEffects');
+    if (event.type === 'pageshow' || (event.type === 'visibilitychange' && !this.document.hidden)) {
+      this.sendAsyncMessage('Blade:RequestEffects');
+    }
   }
   receiveMessage(message) {
     if (message.name !== 'Blade:PauseEffects') return;

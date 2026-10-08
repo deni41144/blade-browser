@@ -75,6 +75,9 @@
   const Blade = {
     themes: THEMES,
     builtinBgs: BUILTIN_BGS,
+    // Original RED is the Blood artwork; the previous BLOOD artwork is retired.
+    originalWallpaperAliases: Object.freeze({ BLOOD: 'RED' }),
+    originalWallpaperLabels: Object.freeze({ RED: 'BLOOD' }),
     // Имена файлов в chrome/img, которые НЕ являются кастомными обоями:
     // встроенные фоны + btn_blade.png (кнопка) + current_bg.jpg (мёртвый
     // артефакт старого механизма). Set в нижнем регистре — сравнение с
@@ -138,6 +141,7 @@
       const encoded = btoa(bin);
       const proc = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
       proc.init(ps);
+      proc.startHidden = true;
       const args = ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encoded];
       proc.run(false, args, args.length); // detached: живёт после выхода браузера
     },

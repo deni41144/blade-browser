@@ -2,7 +2,7 @@
 // @name            Blade Hero Clock
 // @description     Readable sculpted clock materials and ten precision motifs
 // @include         main
-// @version         1.4.1
+// @version         1.4.6
 // @loadOrder       96
 // ==/UserScript==
 (function () {
@@ -51,6 +51,53 @@
   const style = document.createElementNS(NS, 'style');
   style.id = 'blade-hero-clock-style';
   style.textContent = `
+    /* Screenshot reference: v2.0.5 monolithic Unbounded dial, GX Red accent. */
+    #blade-hero .bh-clock[data-hc-theme='red'] {
+      font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;
+      font-size:88px !important;font-weight:700 !important;letter-spacing:6px !important;
+    }
+    #blade-hero .bh-clock[data-hc-theme='red'] .bh-hm {
+      background:linear-gradient(115deg,#ffffff 0%,#ffffff 38%,color-mix(in srgb,var(--accent,#ff2a2a) 70%,#fff) 46%,#ffffff 50%,color-mix(in srgb,var(--accent,#ff2a2a) 70%,#fff) 54%,#ffffff 62%,#ffffff 100%) !important;
+      background-size:260% 100% !important;background-clip:text !important;
+      color:transparent !important;-webkit-text-fill-color:transparent !important;
+      filter:drop-shadow(0 0 2px #ffffff)
+        drop-shadow(0 0 12px color-mix(in srgb,var(--accent,#ff2a2a) 85%,#ff4d4d))
+        drop-shadow(0 0 32px color-mix(in srgb,var(--accent,#ff2a2a) 65%,transparent))
+        drop-shadow(0 0 72px color-mix(in srgb,var(--accent,#ff2a2a) 35%,transparent))
+        drop-shadow(0 4px 22px rgba(0,0,0,.98))
+        drop-shadow(0 2px 4px rgba(0,0,0,.9)) !important;
+      animation:hc-classic-red-glint 7.5s cubic-bezier(.22,1,.36,1) infinite !important;
+    }
+    @keyframes hc-classic-red-glint {
+      0% {background-position:-60% 0;}
+      22%,100% {background-position:160% 0;}
+    }
+    /* Minimal Grey: platinum Unbounded dial from v2.0.5. */
+    #blade-hero .bh-clock[data-hc-theme='grey'] {
+      font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;
+      font-size:88px !important;font-weight:800 !important;letter-spacing:6px !important;
+    }
+    #blade-hero .bh-clock[data-hc-theme='grey'] .bh-hm {
+      background:linear-gradient(115deg,#ffffff 0%,#ffffff 38%,#c5d5ea 46%,#ffffff 50%,#c5d5ea 54%,#ffffff 62%,#ffffff 100%) !important;
+      background-size:260% 100% !important;background-clip:text !important;
+      color:transparent !important;-webkit-text-fill-color:transparent !important;
+      filter:drop-shadow(0 0 1px #ffffff)
+        drop-shadow(0 0 10px rgba(255,255,255,.85))
+        drop-shadow(0 0 24px rgba(216,225,238,.65))
+        drop-shadow(0 0 55px rgba(170,185,205,.45))
+        drop-shadow(0 4px 24px rgba(0,0,0,.98))
+        drop-shadow(0 2px 4px rgba(0,0,0,.95)) !important;
+      animation:hc-classic-red-glint 7.5s cubic-bezier(.22,1,.36,1) infinite !important;
+    }
+    #blade-hero .bh-clock[data-hc-theme='grey'] .bh-sec {
+      font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;
+      font-size:26px !important;font-weight:800 !important;letter-spacing:2px !important;
+      color:#e4e8f0 !important;
+      text-shadow:0 0 2px #ffffff,0 0 8px rgba(220,230,245,.7),0 2px 8px rgba(0,0,0,.95) !important;
+    }
+    #blade-hero .bh-clock:is([data-hc-theme='red'],[data-hc-theme='grey'])[data-hc-live='false'] .bh-hm {
+      animation-play-state:paused !important;
+    }
     #blade-hero[data-hc-ready="true"]::before,#blade-hero[data-hc-ready="true"]::after {display:none !important;}
     #blade-hero[data-hc-ready="true"] .bh-accent-line {visibility:hidden !important;box-shadow:none !important;}
     #blade-hero[data-hc-ready="true"] .bh-clock:is([data-hc-theme='volt'],[data-hc-theme='orange']) {font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;font-weight:700 !important;letter-spacing:5px !important;}
@@ -146,7 +193,7 @@
     motif.setAttribute('preserveAspectRatio','none'); motif.setAttribute('aria-hidden','true');
     clock.prepend(motif);
     document.getElementById('blade-hero').setAttribute('data-hc-ready','true');
-    window.Blade?.mark('hero_clock','v1.4.1 OK mounted');
+    window.Blade?.mark('hero_clock','v1.4.6 OK mounted');
     minuteObserver = new MutationObserver(() => {
       const time = hm.textContent;
       if (time === lastTime) return;
@@ -161,8 +208,8 @@
     const candidate = root.getAttribute('data-blade-theme') || 'red';
     const theme = Object.hasOwn(faces,candidate) ? candidate : 'red';
     const hero=document.getElementById('blade-hero');
-    // Volt uses the original Newtab clock in full, as requested by the owner.
-    if(theme==='volt')hero.removeAttribute('data-hc-ready');else hero.setAttribute('data-hc-ready','true');
+    // Red/Grey are v2.0.5; Purple is 2.1.0; Volt stays original.
+    if(['volt','red','grey','purple'].includes(theme))hero.removeAttribute('data-hc-ready');else hero.setAttribute('data-hc-ready','true');
     const accent=getComputedStyle(root).getPropertyValue('--accent').trim()||'#ff2a2a';
     const changed = theme !== lastTheme || (theme === 'custom' && accent !== lastAccent);
     lastAccent=accent;
@@ -172,11 +219,11 @@
       clock.style.setProperty('--hc-coat',coats[theme]);
       ['face','edge','depth'].forEach((name,i) => clock.style.setProperty('--hc-'+name,palette[i]));
       motif.replaceChildren();
-      motif.style.display=motifs[theme].length ? '' : 'none';
+      motif.style.display=motifs[theme].length && !['red','grey'].includes(theme) ? '' : 'none';
       bloodEdge?.remove(); bloodEdge=null;
       if (theme==='blood') buildBlood();
 
-      if (motifs[theme].length) {
+      if (motifs[theme].length && !['red','grey'].includes(theme)) {
       const defs=document.createElementNS(svgNS,'defs');
       const gradient=document.createElementNS(svgNS,'linearGradient');
       gradient.id='blade-hc-material';gradient.setAttribute('x1','0%');gradient.setAttribute('y1','0%');gradient.setAttribute('x2','100%');gradient.setAttribute('y2','90%');

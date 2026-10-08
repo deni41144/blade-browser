@@ -3,7 +3,7 @@
 // @description     Раздельные аккаунты сайта и переключение без выхода
 // @author          Blade-Creations
 // @include         main
-// @version         1.1.0
+// @version         1.2.0
 // @loadOrder       10
 // ==/UserScript==
 (function () {
@@ -115,6 +115,20 @@
     if (existing) { gBrowser.selectedTab = existing; return existing; }
     return addTab(id, origin ? origin + '/' : 'about:newtab');
   }
+  function openSite(id, address) {
+    validIdentity(id);
+    let url;
+    try { url = new URL(address); } catch (_) { throw new Error('Не удалось определить адрес сайта'); }
+    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) {
+      throw new Error('Для входа нужен HTTP(S) сайт без данных пользователя в адресе');
+    }
+    const candidates = liveTabs().filter(tab => tabId(tab) === id && originOf(tab) === url.origin);
+    const existing = candidates.includes(gBrowser.selectedTab) ? gBrowser.selectedTab :
+      candidates.sort((a, b) => Number(b.lastAccessed || 0) - Number(a.lastAccessed || 0))[0];
+    if (existing) { gBrowser.selectedTab = existing; return existing; }
+    // Создаётся обычная постоянная вкладка того же контейнера, без переноса Google-сессии из id0.
+    return addTab(id, url.origin + '/');
+  }
   function manage() { requireAvailable(); window.openTrustedLinkIn('about:preferences#containers', 'tab'); }
   function decorate(tab) {
     const identity = tabId(tab) && identities.getPublicIdentityFromId(tabId(tab));
@@ -161,12 +175,12 @@
     window.removeEventListener('unload', destroy);
     for (const tab of gBrowser.tabs) tab.querySelector('.blade-account-label')?.remove();
   }
-  window.BladeAccounts = { available, list, current, colors, create, update, rename, open, switchTo, manage, destroy };
+  window.BladeAccounts = { available, list, current, colors, create, update, rename, open, switchTo, openSite, manage, destroy };
   for (const event of tabEvents) gBrowser.tabContainer.addEventListener(event, onTabEvent);
   gBrowser.addTabsProgressListener(progress);
   for (const topic of topics) Services.obs.addObserver(observer, topic);
   Services.prefs.addObserver('privacy.userContext.enabled', prefObserver);
   window.addEventListener('unload', destroy, { once: true });
   refresh();
-  window.Blade.mark('BladeAccounts', 'v1.1.0 OK init');
+  window.Blade.mark('BladeAccounts', 'v1.2.0 OK init');
 })();
