@@ -341,30 +341,6 @@
           grid.appendChild(card);
         }
         row('Конструктор темы…', { bladeLab: '1' }, { noDot: true });
-        sub('ОБЛИКИ · ORIGINAL');
-        {
-          const vRow = mk('bp-visage-row');
-          const curBg = window.BladeEngine.activeBg();
-          const ORIG_VISAGES = [
-            { id: 'orig-blood', nm: 'BLOOD', sq: '#a80f0f' },
-            { id: 'orig-midnight', nm: 'COSMOS', sq: '#2f6bff' },
-            { id: 'orig-cherry', nm: 'CHERRY', sq: '#d02d4e' },
-            { id: 'orig-green', nm: 'MATRIX', sq: '#00ff88' },
-            { id: 'orig-orange', nm: 'COPPER', sq: '#ff6a1f' },
-            { id: 'orig-purple', nm: 'GRAFFITI', sq: '#b44bff' },
-            { id: 'orig-grey', nm: 'GRAPHITE', sq: '#8a8f98' },
-            { id: 'orig-volt', nm: 'SURGE', sq: '#fff820' },
-          ];
-          for (const v of ORIG_VISAGES) {
-            const b = button('bp-row bp-visage' + (window.BladeVisages && window.BladeVisages.allVisages().find(x => x.id === v.id && x.bg === curBg) ? ' on' : ''));
-            b.dataset.bladeVisage = v.id;
-            b.title = v.nm;
-            const sq = mk('bp-visage-sq'); sq.style.background = v.sq;
-            const nm = mk('bp-visage-nm'); nm.textContent = v.nm;
-            b.append(sq, nm); vRow.appendChild(b);
-          }
-          body.appendChild(vRow);
-        }
         // АВТО-ТЕМА: смена день/ночь по часам (8:00 / 20:00). Темы для слотов
         // циклятся кликом по строке; ручной выбор темы при включённой авто
         // её глушит — иначе циклер через минуту молча вернёт свою
