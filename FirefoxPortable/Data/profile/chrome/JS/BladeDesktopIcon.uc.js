@@ -2,7 +2,8 @@
 // @name            Blade Desktop Icon
 // @description     Значок ярлыка Blade в цвет выбранной темы
 // @include         main
-// @version         1.0.0
+// @version         1.0.1
+// @ignorecache
 // @loadOrder       124
 // ==/UserScript==
 (function () {
@@ -13,14 +14,18 @@
   function update() {
     timer = 0;
     if (stopped || Services.prefs.getBoolPref('marionette.enabled', false)) return;
+    let manualIcon = '';
+    try { manualIcon = Services.prefs.getStringPref('blade.icon.manual', ''); } catch (e) {}
     const theme = document.documentElement.getAttribute('data-blade-theme') || 'red';
-    if (previous === theme) return;
+    // manualIcon хранит ИМЯ иконки (8BLUE), theme — id темы (midnight).
+    const iconName = manualIcon || icons[theme] || icons.red;
+    if (previous === iconName) return;
     try {
       const chrome = Services.dirsvc.get('UChrm', Ci.nsIFile).path;
       const executable = Services.dirsvc.get('XREExeF', Ci.nsIFile).path;
       const helper = chrome + '\\resources\\sync-desktop-icon.ps1';
-      window.Blade.runPsEncoded('& ' + quote(helper) + ' -ChromePath ' + quote(chrome) + ' -ExecutablePath ' + quote(executable) + ' -IconName ' + quote(icons[theme] || icons.red) + ' -RequestStamp ' + Date.now());
-      previous = theme;
+      window.Blade.runPsEncoded('& ' + quote(helper) + ' -ChromePath ' + quote(chrome) + ' -ExecutablePath ' + quote(executable) + ' -IconName ' + quote(iconName) + ' -RequestStamp ' + Date.now());
+      previous = iconName;
     } catch (error) { window.Blade?.mark('desktop_icon', 'ERR ' + error); }
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(update, 400); }
@@ -28,6 +33,7 @@
   observer.observe(document.documentElement, {attributes:true,attributeFilter:['data-blade-theme']});
   function destroy() { stopped = true; clearTimeout(timer); observer.disconnect(); delete window.BladeDesktopIcon; }
   window.addEventListener('unload', destroy, {once:true});
+  try { Services.prefs.addObserver('blade.icon.manual', { observe: () => { previous = ''; schedule(); } }); } catch (e) {}
   window.BladeDesktopIcon = {update, destroy};
   schedule();
 })();

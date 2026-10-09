@@ -5,7 +5,8 @@
 //                  Шаг 8 декомпозиции BobliksSettings
 // @author          Blade-Creations
 // @include         main
-// @version         1.4.0
+// @version         1.4.3
+// @ignorecache
 // @loadOrder       11
 // ==/UserScript==
 // Вынесен из BobliksSettings.uc.js (шаг 8 декомпозиции, 2026-09-22): CSS панели,
@@ -32,7 +33,7 @@
     const mark = (m, e) => {
         try {
             if (!markPath) return;
-            const text = 'v1.4.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+            const text = 'v1.4.1 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
             IOUtils.writeUTF8(markPath, text).catch(() => {});
         } catch (e2) {}
     };
@@ -143,7 +144,7 @@
       .bp-head-theme { display:flex; align-items:center; gap:6px; max-width:112px; padding:5px 7px; border-radius:6px; background:#0003; color:#b7b4bf; font-size:9px; }
       .bp-head-theme::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--bp-accent); flex:none; }
       .bp-head-theme span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .bp-tabs { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:3px; padding:0 11px 11px; flex:none; border-bottom:1px solid #ffffff0e; }
+      .bp-tabs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:3px; padding:0 11px 11px; flex:none; border-bottom:1px solid #ffffff0e; }
       .bp-tab { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:48px; padding:6px 1px; color:#9693a0; background:transparent; border:1px solid transparent; border-radius:8px; transition:color .12s,border-color .12s; }
       .bp-tab svg { width:17px; height:17px; flex:none; }
       .bp-tlbl { font-size:9px; font-weight:500; }
@@ -181,6 +182,12 @@
       .bp-theme-name { display:block; font-size:11px; font-weight:500; color:#e4e1ea; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:12px; }
       .bp-theme-detail { display:block; color:#8c8795; font-size:8.5px; margin-top:2px; }
       .bp-wall-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin:5px 0 12px; }
+      .bp-visage-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin:0 0 10px; }
+      .bp-visage { display:flex; flex-direction:column; align-items:center; gap:5px; padding:7px 2px 6px; border:1px solid #ffffff12; border-radius:8px; background:#ffffff05; }
+      .bp-visage.on { border-color:var(--bp-accent); box-shadow:inset 0 -2px var(--bp-accent); }
+      .bp-visage-sq { width:26px; height:26px; border-radius:6px; border:1px solid #ffffff25; box-shadow:inset 0 1px #ffffff22; }
+      .bp-visage.on .bp-visage-sq { border-color:#fff; box-shadow:0 0 8px var(--bp-accent); }
+      .bp-visage-nm { font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif); font-size:8px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:#e8e4ee; text-align:center; line-height:1.2; text-shadow:0 0 5px rgba(255,255,255,.28); }
       .bp-wall-entry { position:relative; min-width:0; }
       .bp-wall-zoom { position:absolute; top:6px; right:6px; display:grid; place-items:center; width:25px; height:25px; padding:0; color:#e1dbe8; border:1px solid #ffffff2e; border-radius:6px; background:#100e16bd; font-size:17px !important; }
       .bp-wall-zoom:hover { color:var(--bp-accent); border-color:var(--bp-accent); }
@@ -225,6 +232,14 @@
       .bp-perf-val { padding:8px; border:1px solid #ffffff10; border-radius:7px; background:#0002; font-family:var(--blade-mono,'JetBrains Mono',monospace); }
       .bp-perf-val .bp-lbl { font-size:11px; padding:3px 0; color:#c6bfce; }
       .bp-perf-hint { font-size:11px; line-height:1.5; color:#a6a0ae; padding:2px 3px 6px; }
+      .bp-icon-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .bp-icon-card { display:flex; flex-direction:column; align-items:center; gap:0; padding:0; overflow:hidden; }
+      .bp-icon-card .bp-icon-preview { position:relative; display:grid; place-items:center; width:100%; height:64px; background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--sample-accent) 22%,transparent),transparent 70%),linear-gradient(135deg,#25212e,#121219); }
+      .bp-icon-card .bp-icon-preview img { width:44px; height:44px; filter:drop-shadow(0 3px 8px #000a); transition:transform .15s; }
+      .bp-icon-card:is(:hover,:focus-visible) .bp-icon-preview img { transform:scale(1.12); }
+      .bp-icon-card.on .bp-icon-preview { box-shadow:inset 0 -2px var(--sample-accent); }
+      .bp-icon-card .bp-theme-copy { width:100%; text-align:center; padding:5px 4px 6px; }
+      .bp-icon-card .bp-theme-name { font-size:9px; padding:0; }
       .bp-wrap :is(button,input):focus-visible { outline:2px solid var(--bp-accent); outline-offset:2px; }
       .bp-wrap button:active { transform:translateY(1px); }
       :root[data-blade-material-motion=off] .bp-wrap *, :root[data-blade-fx-mode=eco] .bp-wrap * { animation:none !important; transition:none !important; }
@@ -240,6 +255,7 @@
     ];
     function buildPopup(doc, popup) {
       closeWallpaperPreview(popup, false);
+      window.BladeTilePanel?.destroy();
       // Обновляем активную вкладку + тело панели под преф blade.menu.tab
       const tab = Services.prefs.getStringPref('blade.menu.tab', 'theme');
       popup.querySelectorAll('.bp-tab').forEach((el) => {
@@ -325,6 +341,30 @@
           grid.appendChild(card);
         }
         row('Конструктор темы…', { bladeLab: '1' }, { noDot: true });
+        sub('ОБЛИКИ · ORIGINAL');
+        {
+          const vRow = mk('bp-visage-row');
+          const curBg = window.BladeEngine.activeBg();
+          const ORIG_VISAGES = [
+            { id: 'orig-blood', nm: 'BLOOD', sq: '#a80f0f' },
+            { id: 'orig-midnight', nm: 'COSMOS', sq: '#2f6bff' },
+            { id: 'orig-cherry', nm: 'CHERRY', sq: '#d02d4e' },
+            { id: 'orig-green', nm: 'MATRIX', sq: '#00ff88' },
+            { id: 'orig-orange', nm: 'COPPER', sq: '#ff6a1f' },
+            { id: 'orig-purple', nm: 'GRAFFITI', sq: '#b44bff' },
+            { id: 'orig-grey', nm: 'GRAPHITE', sq: '#8a8f98' },
+            { id: 'orig-volt', nm: 'SURGE', sq: '#fff820' },
+          ];
+          for (const v of ORIG_VISAGES) {
+            const b = button('bp-row bp-visage' + (window.BladeVisages && window.BladeVisages.allVisages().find(x => x.id === v.id && x.bg === curBg) ? ' on' : ''));
+            b.dataset.bladeVisage = v.id;
+            b.title = v.nm;
+            const sq = mk('bp-visage-sq'); sq.style.background = v.sq;
+            const nm = mk('bp-visage-nm'); nm.textContent = v.nm;
+            b.append(sq, nm); vRow.appendChild(b);
+          }
+          body.appendChild(vRow);
+        }
         // АВТО-ТЕМА: смена день/ночь по часам (8:00 / 20:00). Темы для слотов
         // циклятся кликом по строке; ручной выбор темы при включённой авто
         // её глушит — иначе циклер через минуту молча вернёт свою
@@ -334,6 +374,50 @@
         const autoLbl = (id) => { const t = THEMES.find(x => x.id === id); return t ? t.label : id; };
         row('Тема дня: ' + autoLbl(Services.prefs.getStringPref('blade.autotheme.day', 'grey')), { bladeAutoDay: '1' });
         row('Тема ночи: ' + autoLbl(Services.prefs.getStringPref('blade.autotheme.night', 'blood')), { bladeAutoNight: '1' });
+        // ЗНАЧОК: сетка 3x3 живых превью PNG из chrome/img/ico.
+        // Пустой преф = авто от темы (BladeDesktopIcon.uc.js).
+        sub('ЗНАЧОК БРАУЗЕРА');
+        const ICONS = [
+          {id:'1RED',label:'Красный',accent:'#ff2a2a'},
+          {id:'2BLOOD',label:'Кровь',accent:'#a3121f'},
+          {id:'3PURPLE',label:'Фиолет',accent:'#b06dff'},
+          {id:'4GREEN',label:'Зелёный',accent:'#2ecc71'},
+          {id:'5WHITE',label:'Белый',accent:'#c7d0df'},
+          {id:'6ORANGE',label:'Оранжевый',accent:'#ff8c1a'},
+          {id:'7CHERRY',label:'Вишня',accent:'#ff4d6d'},
+          {id:'8BLUE',label:'Синий',accent:'#2f6bff'},
+          {id:'9YELLOW',label:'Жёлтый',accent:'#ffd21a'},
+        ];
+        let manualIcon = '';
+        try { manualIcon = Services.prefs.getStringPref('blade.icon.manual', ''); } catch (e) {}
+        const iconGrid = mk('bp-theme-grid bp-icon-grid');
+        body.appendChild(iconGrid);
+        for (const ic of ICONS) {
+          const card = button('bp-row bp-theme-card bp-icon-card' + (manualIcon === ic.id ? ' on' : ''));
+          card.dataset.bladeIconPick = ic.id;
+          card.setAttribute('aria-pressed', String(manualIcon === ic.id));
+          card.title = ic.label;
+          card.style.setProperty('--sample-accent', ic.accent);
+          const preview = mk('bp-preview bp-icon-preview');
+          preview.setAttribute('aria-hidden', 'true');
+          const image = doc.createElementNS(H, 'img');
+          image.setAttribute('width', '48'); image.setAttribute('height', '48');
+          image.setAttribute('alt', ''); image.setAttribute('decoding', 'async');
+          try {
+            const dir = window.BladeEngine.getImgDir().clone();
+            for (const part of ['ico', ic.id + '.png']) if (part) dir.append(part);
+            image.src = PathUtils.toFileURI(dir.path);
+          } catch (e) {}
+          preview.appendChild(image);
+          const copy = mk('bp-theme-copy');
+          const name = mk('bp-theme-name'); name.textContent = ic.label;
+          copy.appendChild(name); card.append(preview, copy);
+          if (manualIcon === ic.id) {
+            const check = mk('bp-current'); check.textContent = '✓'; check.setAttribute('aria-hidden', 'true'); card.appendChild(check);
+          }
+          iconGrid.appendChild(card);
+        }
+        row(manualIcon ? 'Значок → Авто (от темы)' : 'Значок: Авто (от темы) ✓', { bladeIconAuto: '1' }, { noDot: true, on: !manualIcon });
       } else if (tab === 'bg') {
         const curBg = window.BladeEngine.activeBg();
         const all = window.BladeEngine.getAllBgs();
@@ -411,6 +495,7 @@
           { id: 'standart',  label: 'Standart' },
           { id: 'samurai',   label: 'Samurai' },
           { id: 'animation', label: 'Animation' },
+          { id: 'custom', label: 'Мои обои' },
         ];
         for (const g of GROUPS) {
           const items = all.filter((b) => b.group === g.id);
@@ -425,10 +510,14 @@
           sub('СВОИ ФАЙЛЫ');
           wallpaperGrid(rest);
         }
-        row('+ Выбрать свой файл обоев…', { bladePickBg: '1' }, { noDot: true });
+        row('+ Добавить свои обои…', { bladePickBg: '1' }, { noDot: true });
+        row('Открыть папку моих обоев', { bladeCustomBgFolder: '1' }, { noDot: true });
       } else if (tab === 'tiles') {
+        row('Настроить расположение главной', { bladeHomeLayout: '1' }, { noDot: true });
+        const tileHost = mk('bt-panel'); body.appendChild(tileHost);
+        window.BladeTilePanel?.mount(tileHost);
         const editOn = Services.prefs.getBoolPref('bobliks.dial.edit', false);
-        row('Режим правки (кнопка «...» на плитках)', { bobliksEdit: editOn ? 'off' : 'on' }, { on: editOn });
+        row('Показать меню на самих плитках', { bobliksEdit: editOn ? 'off' : 'on' }, { on: editOn });
       } else if (tab === 'system') {
         // «ЧТЕНИЕ / Принудительный тёмный» снесено 2026-09-13: тёмный режим
         // сайтов делает Dark Reader (ставится политикой), наш инверт удалён
@@ -468,7 +557,7 @@
         sub('БЭКАП');
         row('Сохранить профиль в zip', { bladeBackup: '1' }, { noDot: true });
         sub('WINDOWS');
-        row('Сделать браузером по умолчанию', { bladeDefault: '1' }, { noDot: true });
+        if (window.BladeUpdater?.canSetDefault()) row('Сделать браузером по умолчанию', { bladeDefault: '1' }, { noDot: true });
       } else if (tab === 'update') {
         let upd = null;
         try { upd = (typeof window.BladeUpdater === 'object' && window.BladeUpdater) ? window.BladeUpdater.state() : null; } catch (e) {}
@@ -717,6 +806,7 @@
       // всегда актуальны (Gemini раунд 10)
       popup.addEventListener('popupshowing', (ev) => {
         if (ev.target !== popup) return;
+        if (popup._bladeTileResume) { delete popup._bladeTileResume; return; }
         try { buildPopup(popup.ownerDocument, popup); } catch (e) { mark('ERR showing ' + e); }
       });
       popup.addEventListener('popupshown', (ev) => {
@@ -781,7 +871,7 @@
             window.BladeEngine.setTheme(ds.bobliksTheme);
           }
           else if (ds.bobliksBg) { await window.BladeEngine.setBg(ds.bobliksBg); }
-          else if (ds.bladeVisage) { try { window.BladeVisages.applyVisage(ds.bladeVisage); } catch (e) { mark('ERR visage ' + e); } }
+          else if (ds.bladeVisage) { try { window.BladeVisages.applyVisage(ds.bladeVisage); close = true; } catch (e) { mark('ERR visage ' + e); } }
           else if (ds.bladeVisageSave === '1') { try { window.BladeVisages.saveVisage(); } catch (e) { mark('ERR visageSave ' + e); } }
           else if (ds.bobliksEdit === 'on') { Services.prefs.setBoolPref('bobliks.dial.edit', true); }
           else if (ds.bobliksEdit === 'off') { Services.prefs.clearUserPref('bobliks.dial.edit'); }
@@ -790,6 +880,7 @@
           else if (ds.bladeUpdate === 'check') { try { window.BladeUpdater.check(true); } catch (e) { mark('ERR updCheck ' + e); } }
           else if (ds.bladeUpdate === 'autoon') { Services.prefs.setBoolPref('blade.update.auto', true); }
           else if (ds.bladeUpdate === 'autooff') { Services.prefs.setBoolPref('blade.update.auto', false); }
+          else if (ds.bladeHomeLayout === '1') { close = true; window.setTimeout(() => window.BladeHomeLayout?.begin(), 100); }
           else if (ds.bladeDefault === '1') { try { window.BladeUpdater.setDefault(); } catch (e) { mark('ERR setDefault ' + e); } close = true; }
           else if (ds.bladeDns) {
             // смена DoH: uri + mode; «off» глушит TRR целиком (mode 0)
@@ -835,9 +926,8 @@
           else if (ds.bladeBackup === '1') { close = true; window.BladeSystemTools.launchBackup(); }
           else if (ds.bladeAutoTheme === 'on') { Services.prefs.setBoolPref('blade.autotheme.on', true); }
           else if (ds.bladeAutoTheme === 'off') { Services.prefs.setBoolPref('blade.autotheme.on', false); }
+          else if (ds.bladeIconPick) { try { Services.prefs.setStringPref('blade.icon.manual', ds.bladeIconPick); } catch (e) {} }
           else if (ds.bladeAutoDay === '1' || ds.bladeAutoNight === '1') {
-            // Цикл темы слота: следующий id из THEMES без 'custom' — конструктор
-            // не может быть автослотом (у него нет фиксированного вида)
             const isDay = (ds.bladeAutoDay === '1');
             const prefName = isDay ? 'blade.autotheme.day' : 'blade.autotheme.night';
             const curId = Services.prefs.getStringPref(prefName, isDay ? 'grey' : 'blood');
@@ -846,6 +936,10 @@
             const next = list[((cur < 0 ? 0 : cur) + 1) % list.length];
             if (next) Services.prefs.setStringPref(prefName, next.id);
           }
+          else if (ds.bladeIconAuto === '1') {
+            try { Services.prefs.setStringPref('blade.icon.manual', ''); } catch (e) {}
+          }
+          else if (ds.bladeCustomBgFolder) { window.BladeEngine.getCustomBgDir().launch(); close = true; }
           else if (ds.bladePickBg) { close = true; window.BladeVisages.chooseCustomWallpaper(); }
           else if (ds.bladeLab) { close = true; window.BladeThemeLab.open(); }
           else if (ds.bobliksFolder) {

@@ -4,7 +4,7 @@
 //                  выбор своего файла обоев. Шаг 6 декомпозиции BobliksSettings
 // @author          Blade-Creations
 // @include         main
-// @version         1.1.0
+// @version         1.3.0
 // @loadOrder       12
 // ==/UserScript==
 (function () {
@@ -20,7 +20,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.1.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v1.2.0 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -29,11 +29,20 @@
   // Вынесены из монолита (BLADE_VISAGES + userVisage/allVisages/applyVisage/
   // saveVisage/chooseCustomWallpaper). Применение и чтение текущей темы/фона
   // идут через window.BladeSettings — шагом 7 это уедет в BladeThemeEngine.
+  // Облики «тема + её обои»: V2-полотна подобраны под палитру темы.
   const BLADE_VISAGES = [
     { id: 'hunter', label: 'Кровавый Охотник', theme: 'blood',    bg: 'bloodmoon' },
     { id: 'coder',  label: 'Полуночный Кодер', theme: 'midnight', bg: 'midnight' },
     { id: 'neon',   label: 'Неоновый Город',   theme: 'purple',   bg: 'v2violet' },
     { id: 'volt',   label: 'Высокое Напряжение', theme: 'volt',   bg: 'voltbg' },
+    { id: 'orig-blood', label: 'Изначальная Кровь', theme: 'blood', bg: 'orig:RED.png' },
+    { id: 'orig-midnight', label: 'Изначальный Космос', theme: 'midnight', bg: 'orig:BLUE.png' },
+    { id: 'orig-cherry', label: 'Изначальная Вишня', theme: 'cherry', bg: 'orig:CHERRY.png' },
+    { id: 'orig-green', label: 'Изначальная Матрица', theme: 'green', bg: 'orig:GREEN.png' },
+    { id: 'orig-orange', label: 'Изначальная Медь', theme: 'orange', bg: 'orig:ORANGE.png' },
+    { id: 'orig-purple', label: 'Изначальное Граффити', theme: 'purple', bg: 'orig:PURPLE.png' },
+    { id: 'orig-grey', label: 'Изначальный Графит', theme: 'grey', bg: 'orig:WHITE.png' },
+    { id: 'orig-volt', label: 'Изначальный Разряд', theme: 'volt', bg: 'orig:YELLOW.png' },
     { id: 'cherry', label: 'Вишнёвый Сад',     theme: 'cherry',   bg: 'cherrybg' },
   ];
 
@@ -66,7 +75,7 @@
     if (mine) list.push({ ...mine, id: 'mine', label: 'Мой Облик' });
     return list;
   }
-  function applyVisage(id) {
+  async function applyVisage(id) {
     const s = api(); if (!s) return;
     const v = allVisages().find(x => x.id === id);
     if (!v) { mark('FAIL visage ' + id); return; }
@@ -74,7 +83,8 @@
     if (v.theme === 'custom' && v.customColor) Services.prefs.setStringPref('blade.theme.customColor', v.customColor);
     if (v.mode && window.BladeEffects) window.BladeEffects.setMode(v.mode);
     s.setTheme(v.theme);
-    s.setBg(v.bg);
+    try { await s.setBg(v.bg); } catch (e) { mark('ERR visage bg ' + e); }
+    window.Blade?.bus.emit('theme:changed', v.theme);
     mark('OK visage ' + id);
   }
   function saveVisage() {
@@ -105,10 +115,16 @@
           if (!['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'].includes(ext)) return;
           const cleanBase = fp.file.leafName.replace(/[.][^.]+$/, '')
             .replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 20) || 'wallpaper';
-          const safeName = 'custom_' + cleanBase + '_' + Date.now().toString(36) + '.' + ext;
-          const imgDir = s.getImgDir();
-          const target = imgDir.clone(); target.append(safeName);
-          if (target.exists()) target.remove(false);
+          let safeName = 'custom_' + cleanBase + '_' + Date.now().toString(36) + '.' + ext;
+          const imgDir = window.BladeEngine.getCustomBgDir();
+          let target = imgDir.clone(); target.append(safeName);
+          // Never remove another import made in the same millisecond.
+          while (target.exists()) {
+            safeName = 'custom_' + cleanBase + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+            target = imgDir.clone(); target.append(safeName);
+          }
+          target.normalize();
+          if (!imgDir.contains(target, true)) throw new Error('Invalid wallpaper destination');
           fp.file.copyTo(imgDir, safeName);
           // новый файл = новый скан каталога и новый преф bobliks.bg.file_*
           s.invalidateBgCache();

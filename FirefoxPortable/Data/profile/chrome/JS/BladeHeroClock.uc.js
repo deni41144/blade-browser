@@ -13,8 +13,8 @@
   // Every value is opaque: a passing light never replaces the readable face.
   const faces = {
     red: ['#ffe0d8', '#c63b3b', '#511a22'],
-    blood: ['#ff1717', '#d70000', '#650000'],
-    volt: ['#f2ffc9', '#a2c543', '#364319'],
+    blood: ['#c11111', '#8f0a14', '#44060f'],
+    volt: ['#fff820', '#fff820', '#4a3c00'],
     cherry: ['#ffe0ee', '#ce82a2', '#623048'],
     orange: ['#ffe5bf', '#dc8b38', '#68331b'],
     midnight: ['#d6eaff', '#588fb8', '#172b50'],
@@ -26,7 +26,7 @@
   const coats = {
     red: 'linear-gradient(166deg,transparent 39%,#fff8 40%,#fff1 41%,transparent 43%),linear-gradient(180deg,#fff4 0%,transparent 21%,transparent 74%,#ad263b35 100%)',
     blood: 'radial-gradient(ellipse at 23% 12%,#ff302040 0%,#ff10001a 8%,transparent 12%),linear-gradient(110deg,transparent 57%,#ff321530 58%,transparent 60%),linear-gradient(180deg,transparent 57%,#a3000030 100%)',
-    volt: 'repeating-linear-gradient(90deg,transparent 0px,transparent 27px,#fff3 27px,#fff3 28px),linear-gradient(180deg,#fff5 0%,transparent 22%,#fff1 58%,transparent 62%)',
+    volt: 'repeating-linear-gradient(90deg,transparent 0px,transparent 27px,#ffe95e2e 27px,#ffe95e2e 28px),linear-gradient(180deg,#fff8 0%,transparent 22%,#ffb80033 58%,transparent 62%)',
     cherry: 'radial-gradient(ellipse at 35% 5%,#fff7,transparent 45%),linear-gradient(126deg,transparent 25%,#fff3 45%,transparent 65%)',
     orange: 'linear-gradient(180deg,#fff5 0%,transparent 18%,#93431420 67%,#fff3 68%,transparent 71%),repeating-linear-gradient(90deg,transparent 0px,transparent 9px,#ffe3b11a 10px)',
     midnight: 'radial-gradient(circle at 18% 26%,#fff9 0px,#fff9 .7px,transparent 1.3px),radial-gradient(circle at 72% 43%,#fff8 0px,#fff8 .6px,transparent 1.2px),linear-gradient(180deg,#fff4,transparent 35%,#38638e22)',
@@ -100,7 +100,7 @@
     }
     #blade-hero[data-hc-ready="true"]::before,#blade-hero[data-hc-ready="true"]::after {display:none !important;}
     #blade-hero[data-hc-ready="true"] .bh-accent-line {visibility:hidden !important;box-shadow:none !important;}
-    #blade-hero[data-hc-ready="true"] .bh-clock:is([data-hc-theme='volt'],[data-hc-theme='orange']) {font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;font-weight:700 !important;letter-spacing:5px !important;}
+    #blade-hero[data-hc-ready="true"] .bh-clock:is([data-hc-theme='orange']) {font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;font-weight:700 !important;letter-spacing:5px !important;}
 
     #blade-hero[data-hc-ready="true"] .bh-clock { isolation:isolate; animation:none !important; opacity:1 !important; transform:none !important; }
     #blade-hero[data-hc-ready="true"] .bh-hm {
@@ -113,7 +113,23 @@
     }
     #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='blood'] .bh-hm {
       -webkit-text-stroke:.45px #e00000 !important;
-      text-shadow:0 1px 0 #ff3020,0 2px 0 #c80000,0 3px 0 #c80000,0 4px 0 #650000,0 5px 0 #650000,0 7px 3px #000c,0 12px 15px #000a !important;
+      text-shadow:0 1px 0 #8f0a14,0 2px 0 #6e0918,0 3px 0 #44060f,0 5px 2px #000a,0 9px 10px #0008 !important;
+    }
+    /* Blade glow-only: accent halo, fonts/sizes untouched. */
+    #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='blood'] .bh-hm {
+      filter:drop-shadow(0 0 5px #c80000) drop-shadow(0 0 18px #a80f0f) drop-shadow(0 0 46px #6e0918cc) !important;
+    }
+    #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='green'] .bh-hm {
+      filter:drop-shadow(0 0 6px #00ff88) drop-shadow(0 0 20px #00ff88cc) drop-shadow(0 0 48px #00ff8866) !important;
+    }
+    #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='orange'] .bh-hm {
+      filter:drop-shadow(0 0 6px #ff6a1f) drop-shadow(0 0 20px #ff6a1fcc) drop-shadow(0 0 48px #ff6a1f66) !important;
+    }
+    #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='cherry'] .bh-hm {
+      filter:drop-shadow(0 0 6px #d02d4e) drop-shadow(0 0 20px #d02d4ecc) drop-shadow(0 0 48px #d02d4e66) !important;
+    }
+    #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='midnight'] .bh-hm {
+      filter:drop-shadow(0 0 6px #2f6bff) drop-shadow(0 0 20px #2f6bffcc) drop-shadow(0 0 48px #2f6bff66) !important;
     }
     #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='blood'] .hc-sheen {stroke:#ff3822;stroke-width:.4;}
 

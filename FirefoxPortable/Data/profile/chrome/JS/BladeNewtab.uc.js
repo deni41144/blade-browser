@@ -150,19 +150,16 @@
     }
 
     @keyframes blade-katana-glint-volt {
-      0%   { background-position: -60% 0, 0 0; transform: translate(0, 0); }
-      7%   { background-position: 10% 0, 0 0; transform: translate(-2px, 1px); }
-      8%   { transform: translate(2px, -1px); }
-      9%   { transform: translate(0, 0); }
-      18%  { transform: translate(1px, 1px); }
-      19%  { transform: translate(-1px, 0); }
-      20%  { transform: translate(0, 0); }
-      22%  { background-position: 160% 0, 0 0; transform: translate(0, 0); }
-      55%  { transform: translate(0, 0); }
-      56%  { transform: translate(-2px, 0); }
-      57%  { transform: translate(2px, 0); }
-      58%  { transform: translate(0, 0); }
-      100% { background-position: 160% 0, 0 0; transform: translate(0, 0); }
+      0%, 22%, 92% { transform: translate(0, 0); filter: drop-shadow(0 0 2px #fff820) drop-shadow(0 0 6px rgba(255, 248, 32, 0.55)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); }
+      92.8% { transform: translate(-2px, 1px); filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 16px #ffffff) drop-shadow(0 0 48px #ffffff) drop-shadow(0 0 95px rgba(255, 255, 255, 0.9)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      93.6% { transform: translate(2px, -1px); filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 30px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 70px rgba(255, 255, 255, 0.7)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      94.4% { transform: translate(-2px, -1px); filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 16px #ffffff) drop-shadow(0 0 48px #ffffff) drop-shadow(0 0 95px rgba(255, 255, 255, 0.9)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      95.2% { transform: translate(2px, 1px); filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 30px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 70px rgba(255, 255, 255, 0.7)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      96%   { transform: translate(-1px, 1px); filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 16px #ffffff) drop-shadow(0 0 48px #ffffff) drop-shadow(0 0 95px rgba(255, 255, 255, 0.9)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      96.8% { transform: translate(1px, -1px); filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 30px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 70px rgba(255, 255, 255, 0.7)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      97.6% { transform: translate(-1px, 0); filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 16px #ffffff) drop-shadow(0 0 48px #ffffff) drop-shadow(0 0 95px rgba(255, 255, 255, 0.9)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      98.4% { transform: translate(1px, 0); filter: drop-shadow(0 0 3px #ffffff) drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 30px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 70px rgba(255, 255, 255, 0.7)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)); }
+      100%  { transform: translate(0, 0); filter: drop-shadow(0 0 2px #fff820) drop-shadow(0 0 6px rgba(255, 248, 32, 0.55)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); }
     }
 
     @keyframes blade-katana-glint-custom {
@@ -449,31 +446,22 @@
     }
 
 
-    /* --- volt — электрический глитч Rubik Glitch: плазма, glitch-сдвиги и разрядные вспышки --- */
+    /* --- volt — электрический глитч Rubik Glitch: плазма и разрядные вспышки --- */
     [data-blade-theme="volt"] #blade-hero .bh-clock {
-      font-family: 'blade-volt', 'Segoe UI', sans-serif;
+      font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif);
       font-size: 86px;
       letter-spacing: 7px;
     }
     [data-blade-theme="volt"] #blade-hero .bh-hm {
-      /* двухслойный объём: верхний высоковольтный импульс с плазменным глитчем, нижний разрядный градиент */
-      background:
-        linear-gradient(115deg, transparent 0%, transparent 38%, rgba(255, 255, 102, 0.45) 44%, #ffffff 50%, rgba(255, 255, 102, 0.45) 56%, transparent 62%, transparent 100%),
-        linear-gradient(180deg, #ffffff 0%, #ffffd6 45%, #fff820 75%, #cca800 100%);
-      background-size: 260% 100%, 100% 100%;
-      background-position: -60% 0, 0 0;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      background: none;
+      color: #fff820;
+      -webkit-text-fill-color: #fff820;
       filter:
-        drop-shadow(0 0 3px #ffffff)
-        drop-shadow(0 0 10px #ffff4d)
-        drop-shadow(0 0 24px #fff820)
-        drop-shadow(0 0 55px rgba(255, 248, 32, 0.7))
-        drop-shadow(0 0 90px rgba(255, 248, 32, 0.35))
+        drop-shadow(0 0 2px #fff820)
+        drop-shadow(0 0 6px rgba(255, 248, 32, 0.55))
         drop-shadow(0 4px 20px rgba(0, 0, 0, 0.98))
         drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-      animation: blade-katana-glint-volt 6.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      animation: blade-katana-glint-volt 3.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
 
@@ -683,19 +671,19 @@
 
     /* --- volt: Бьющая молния в небе + электрический разряд --- */
     .ba-lightning {
-      position: absolute; right: 14%; top: 25px; width: 110px; height: 250px; z-index: 3;
+      position: absolute; left: calc(50% + 30px); top: 0; width: 110px; height: 250px; z-index: 3;
       filter: drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 14px #fff820) drop-shadow(0 0 32px rgba(255, 248, 32, 0.95)) drop-shadow(0 0 65px rgba(255, 230, 0, 0.6));
       opacity: 0; pointer-events: none;
-      animation: ba-volt-strike 6.5s linear infinite;
+      animation: ba-volt-strike 3.6s linear infinite;
     }
     .ba-lightning path {
       stroke: #ffffff; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round;
     }
     .ba-lightning-flash {
       position: absolute; inset: 0; z-index: 1;
-      background: radial-gradient(circle at 82% 22%, rgba(255, 248, 32, 0.16) 0%, transparent 60%);
+      background: radial-gradient(circle at 50% 28%, rgba(255, 248, 32, 0.22) 0%, transparent 60%);
       opacity: 0; pointer-events: none;
-      animation: ba-volt-sky-flash 6.5s linear infinite;
+      animation: ba-volt-sky-flash 3.6s linear infinite;
     }
     @keyframes ba-volt-strike {
       0%, 93%    { opacity: 0; }
