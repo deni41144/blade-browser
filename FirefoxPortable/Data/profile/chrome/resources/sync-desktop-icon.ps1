@@ -7,7 +7,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $sourcePath = Join-Path $ChromePath ('img\ico\' + $IconName + '.png')
-$iconDirectory = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Blade\ThemeIcons'
+$iconDirectory = Join-Path (Split-Path -Parent $ChromePath) 'ThemeIcons'
 [void][IO.Directory]::CreateDirectory($iconDirectory)
 $mutex = New-Object Threading.Mutex($false, ('Local\BladeDesktopIcon-' + [Environment]::UserName))
 $locked = $false
@@ -47,16 +47,21 @@ if (!(Test-Path -LiteralPath $iconPath) -or (Get-Item -LiteralPath $sourcePath).
 $shell = New-Object -ComObject WScript.Shell
 $installedExe = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Blade\App\Blade\firefox.exe'
 $changed = 0
-foreach ($file in Get-ChildItem -LiteralPath $DesktopPath -Filter '*.lnk' -File) {
+$iconDirs = @($DesktopPath)
+$iconDirs += Join-Path ([Environment]::GetFolderPath('StartMenu')) 'Programs'
+$iconDirs += Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
+foreach ($iconDir in ($iconDirs | Where-Object { Test-Path -LiteralPath $_ })) {
+foreach ($file in Get-ChildItem -LiteralPath $iconDir -Filter '*.lnk' -File) {
     $shortcut = $shell.CreateShortcut($file.FullName)
     $sameExecutable = [string]::Equals($shortcut.TargetPath,$ExecutablePath,[StringComparison]::OrdinalIgnoreCase)
-    $installedBlade = $file.BaseName -eq 'Blade' -and [string]::Equals($shortcut.TargetPath,$installedExe,[StringComparison]::OrdinalIgnoreCase)
+    $installedBlade = $false
     if (!($sameExecutable -or $installedBlade)) { continue }
     if ($shortcut.IconLocation -ne "$iconPath,0") {
         $shortcut.IconLocation = "$iconPath,0"
         $shortcut.Save()
         $changed++
     }
+}
 }
 if ($changed) {
     Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices; public static class BladeIconNotify { [DllImport("shell32.dll")] public static extern void SHChangeNotify(uint e,uint f,IntPtr a,IntPtr b); }'
