@@ -1,3 +1,6 @@
+## Выпуск 2.3.5 опубликован - 10 октября 2026, 13:59 MSK
+
+GitHub latest: v2.3.5, draft=false, prerelease=false. Release https://github.com/deni41144/blade-browser/releases/tag/v2.3.5; source/tag f9883285c5612c05a193b88148784622c779a5f2. ZIP31856144байт, SHA256240bf165aab69ad3942f11c9708ab23bd0977eb46c23927147b14f3c1c6a28a9; digest GitHub совпадает.17/17 isolated Windows registry tests +24/24 updater VM tests прошли; user registry fingerprint unchanged. В actual Windows Settings UI после установки патч ещё не проверен, не утверждать визуальное исправление без проверки. Текущий installed процесс13800 не закрывался и локально патч не применялся: обновление выполняется обычным механизмом B после публикации. Validation: TestReports/release-2.3.5/VALIDATION.json. Публикация разрешена запросом пользователя на глобальный апдейт.
 ## Исправление Windows Default Apps 2.3.5 - 10 октября 2026
 
 База выпуска: опубликованный 2.3.4, commit 2e333295c17cb42171c618832e2c93351eb49c70. Старая рабочая ветка 2.3.2 и её незакоммиченные правки не используются для сборки. Архив 2.3.4 сверяется побайтово: никаких удалённых файлов, unrelated modules/assets сохраняются. Ранее не отслеживаемый covers.css добавлен из самого опубликованного архива для воспроизводимой сборки; Build-Blade-Patch отказывает, если его нет.
