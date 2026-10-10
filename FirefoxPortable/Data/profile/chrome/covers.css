@@ -1,0 +1,777 @@
+@charset "UTF-8";
+/* Сгенерировано BladeCovers.uc.js v2 — не редактируй.
+   Тематические обложки: img/themes/<домен>/<тема>.jpg (red|blood|cherry|midnight|purple|green|grey|orange|volt).
+   Фолбэк: img/covers/<домен>.png */
+.top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="olx.ua"] .tile { background-image: url("img/themes/olx.ua/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="uakino"] .tile { background-image: url("img/themes/uakino/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="cs.money"] .tile { background-image: url("img/themes/cs.money/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="temu.com"] .tile { background-image: url("img/themes/temu.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="animeon.cc"] .tile { background-image: url("img/themes/animeon.cc/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="faceit.com"] .tile { background-image: url("img/themes/faceit.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="csfloat.com"] .tile { background-image: url("img/themes/csfloat.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="dmarket.com"] .tile { background-image: url("img/themes/dmarket.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="spotify.com"] .tile { background-image: url("img/themes/spotify.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="uakinogo.io"] .tile { background-image: url("img/themes/uakinogo.io/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="youtube.com"] .tile { background-image: url("img/themes/youtube.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="lisskins.com"] .tile { background-image: url("img/themes/lisskins.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="instagram.com"] .tile { background-image: url("img/themes/instagram.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="pinterest.com"] .tile { background-image: url("img/themes/pinterest.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="aliexpress.com"] .tile { background-image: url("img/themes/aliexpress.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="rozetka.com.ua"] .tile { background-image: url("img/themes/rozetka.com.ua/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="soundcloud.com"] .tile { background-image: url("img/themes/soundcloud.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="mail.google.com"] .tile { background-image: url("img/themes/mail.google.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="music.apple.com"] .tile { background-image: url("img/themes/music.apple.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="web.telegram.org"] .tile { background-image: url("img/themes/web.telegram.org/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="music.youtube.com"] .tile { background-image: url("img/themes/music.youtube.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/red.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.blood") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/blood.jpg") !important; }
+}
+:root[data-blade-theme="blood"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/blood.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.cherry") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/cherry.jpg") !important; }
+}
+:root[data-blade-theme="cherry"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/cherry.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.midnight") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/midnight.jpg") !important; }
+}
+:root[data-blade-theme="midnight"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/midnight.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.purple") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/purple.jpg") !important; }
+}
+:root[data-blade-theme="purple"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/purple.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.green") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/green.jpg") !important; }
+}
+:root[data-blade-theme="green"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/green.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.grey") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/grey.jpg") !important; }
+}
+:root[data-blade-theme="grey"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/grey.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.orange") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/orange.jpg") !important; }
+}
+:root[data-blade-theme="orange"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/orange.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+@media -moz-pref("bobliks.theme.volt") {
+  .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/volt.jpg") !important; }
+}
+:root[data-blade-theme="volt"] .top-site-outer .top-site-button[href*="classroom.google.com"] .tile { background-image: url("img/themes/classroom.google.com/volt.jpg") !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+.top-site-button:not([href*="olx.ua"]):not([href*="uakino"]):not([href*="cs.money"]):not([href*="temu.com"]):not([href*="animeon.cc"]):not([href*="faceit.com"]):not([href*="csfloat.com"]):not([href*="dmarket.com"]):not([href*="spotify.com"]):not([href*="uakinogo.io"]):not([href*="youtube.com"]):not([href*="lisskins.com"]):not([href*="instagram.com"]):not([href*="pinterest.com"]):not([href*="aliexpress.com"]):not([href*="rozetka.com.ua"]):not([href*="soundcloud.com"]):not([href*="mail.google.com"]):not([href*="music.apple.com"]):not([href*="web.telegram.org"]):not([href*="music.youtube.com"]):not([href*="classroom.google.com"]) .tile { background: radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--bob-accent, #ff2a2a) 22%, transparent), #101016 72%) !important; border: 1px solid color-mix(in srgb, var(--bob-accent, #ff2a2a) 30%, rgba(255,255,255,0.1)) !important; }
+.top-site-button:not([href*="olx.ua"]):not([href*="uakino"]):not([href*="cs.money"]):not([href*="temu.com"]):not([href*="animeon.cc"]):not([href*="faceit.com"]):not([href*="csfloat.com"]):not([href*="dmarket.com"]):not([href*="spotify.com"]):not([href*="uakinogo.io"]):not([href*="youtube.com"]):not([href*="lisskins.com"]):not([href*="instagram.com"]):not([href*="pinterest.com"]):not([href*="aliexpress.com"]):not([href*="rozetka.com.ua"]):not([href*="soundcloud.com"]):not([href*="mail.google.com"]):not([href*="music.apple.com"]):not([href*="web.telegram.org"]):not([href*="music.youtube.com"]):not([href*="classroom.google.com"]) { position: relative !important; }
+.top-site-button:not([href*="olx.ua"]):not([href*="uakino"]):not([href*="cs.money"]):not([href*="temu.com"]):not([href*="animeon.cc"]):not([href*="faceit.com"]):not([href*="csfloat.com"]):not([href*="dmarket.com"]):not([href*="spotify.com"]):not([href*="uakinogo.io"]):not([href*="youtube.com"]):not([href*="lisskins.com"]):not([href*="instagram.com"]):not([href*="pinterest.com"]):not([href*="aliexpress.com"]):not([href*="rozetka.com.ua"]):not([href*="soundcloud.com"]):not([href*="mail.google.com"]):not([href*="music.apple.com"]):not([href*="web.telegram.org"]):not([href*="music.youtube.com"]):not([href*="classroom.google.com"]) .title { display: flex !important; align-items: center !important; justify-content: center !important; position: absolute !important; inset: 0 !important; color: #f0f0f5 !important; font-size: 17px !important; font-weight: 800 !important; letter-spacing: 1.5px !important; text-transform: uppercase !important; text-align: center !important; text-shadow: 0 0 14px color-mix(in srgb, var(--bob-accent, #ff2a2a) 60%, transparent), 0 2px 8px rgba(0, 0, 0, 0.95) !important; pointer-events: none !important; padding: 10px !important; z-index: 3 !important; overflow: hidden !important; }
+@media -moz-pref("bobliks.bg.file_custom_7Fi_b4f05d6b") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_7Fie_murxogzc.gif") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="file:custom_7Fie_murxogzc.gif"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_7Fie_murxogzc.gif") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_custom_ani_4132e703") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_aniyuki-kaneki-tokyo_murxqtjj.webp") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="file:custom_aniyuki-kaneki-tokyo_murxqtjj.webp"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_aniyuki-kaneki-tokyo_murxqtjj.webp") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_custom_____1a0bf20a") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom______________________mv039p6q.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="file:custom______________________mv039p6q.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom______________________mv039p6q.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_custom_ope_c7714b6b") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_opera-gx-1-55790_muzq2ray.jpg") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="file:custom_opera-gx-1-55790_muzq2ray.jpg"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_opera-gx-1-55790_muzq2ray.jpg") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_custom_PUR_4c9d02f4") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_PURPLE_muro1dxd.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="file:custom_PURPLE_muro1dxd.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/custom/custom_PURPLE_muro1dxd.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_B_75bae957") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/BLOOD.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:BLOOD.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/BLOOD.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_B_d735913") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/BLUE.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:BLUE.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/BLUE.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_C_8ee4bb52") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/CHERRY.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:CHERRY.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/CHERRY.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_G_a8d645e0") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/GREEN.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:GREEN.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/GREEN.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_O_46059967") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/ORANGE.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:ORANGE.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/ORANGE.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_P_4f6503f5") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/PURPLE.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:PURPLE.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/PURPLE.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_R_29219cee") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/RED.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:RED.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/RED.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_W_cb044006") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/WHITE.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:WHITE.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/WHITE.png") center bottom / cover no-repeat fixed !important; }
+@media -moz-pref("bobliks.bg.file_original_Y_64ef44ad") { :root body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/YELLOW.png") center bottom / cover no-repeat fixed !important; } }
+:root[data-blade-bg="orig:YELLOW.png"] body.activity-stream { background: linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.10) 45%, rgba(10,10,12,0.25) 100%), #0a0a0a url("img/original/YELLOW.png") center bottom / cover no-repeat fixed !important; }
+@-moz-document domain("web.telegram.org") {   :root { --primary-color: var(--bob-accent, #ff2a2a) !important; --primary-color-rgb: var(--bob-accent-rgb, 255, 42, 42) !important; }  * { --message-out-background-color: color-mix(in srgb, var(--bob-accent, #ff2a2a) 42%, #101014) !important;    --message-out-primary-color: #ffffff !important;    --message-out-link-color: rgba(255, 255, 255, 0.85) !important;    --message-out-status-color: rgba(255, 255, 255, 0.55) !important;    --message-out-time-color: rgba(255, 255, 255, 0.6) !important;    --message-out-icon-text-color: #ffffff !important; } }
+@-moz-document domain("instagram.com"), domain("chatgpt.com"), domain("chat.openai.com"), domain("gemini.google.com"), domain("web.telegram.org") {   ::selection { background: var(--bob-accent, #ff2a2a) !important; color: var(--bob-accent-contrast, #fff) !important; } html { scrollbar-color: var(--bob-accent, #ff2a2a) transparent !important; } }
+@-moz-document domain("youtube.com") {   :root, ytd-app, ytmusic-app { --yt-spec-brand-button-background: var(--bob-accent, #ff2a2a) !important; --yt-spec-static-brand-red: var(--bob-accent, #ff2a2a) !important; --yt-spec-call-to-action: var(--bob-accent, #ff2a2a) !important; --yt-spec-icon-active-button: var(--bob-accent, #ff2a2a) !important; --yt-spec-wordmark-text: var(--bob-accent, #ff2a2a) !important; }  ytd-masthead { background: linear-gradient(180deg, color-mix(in srgb, var(--bob-accent, #ff2a2a) 55%, #0f0f0f) 0%, #0f0f0f 90%) !important; border-bottom: 2px solid var(--bob-accent, #ff2a2a) !important; box-shadow: 0 4px 16px color-mix(in srgb, var(--bob-accent, #ff2a2a) 30%, transparent) !important; }  .ytp-swatch-background-color, .ytp-played-progress { background: var(--bob-accent, #ff2a2a) !important; background-color: var(--bob-accent, #ff2a2a) !important; }  ytd-guide-entry-renderer[active] { background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 16%, transparent) !important; }  yt-chip-cloud-chip-renderer[selected] { background: var(--bob-accent, #ff2a2a) !important; color: var(--bob-accent-contrast, #fff) !important; }  a.yt-core-link, #description a { color: var(--bob-accent, #ff2a2a) !important; } }
+@-moz-document domain("music.youtube.com") {   :root, ytmusic-app { --ytmusic-static-brand-red: var(--bob-accent, #ff2a2a) !important; --ytmusic-brand-color: var(--bob-accent, #ff2a2a) !important; }  ytmusic-nav-bar { background: linear-gradient(180deg, color-mix(in srgb, var(--bob-accent, #ff2a2a) 55%, #030303) 0%, #030303 90%) !important; border-bottom: 2px solid var(--bob-accent, #ff2a2a) !important; box-shadow: 0 4px 16px color-mix(in srgb, var(--bob-accent, #ff2a2a) 30%, transparent) !important; }  ytmusic-guide-entry-renderer[active] { background: color-mix(in srgb, var(--bob-accent, #ff2a2a) 16%, transparent) !important; } }
+@-moz-document url("about:newtab"), url("about:home") {
+  .outer-wrapper::after {
+    content: "BLADE // v2.3.3";
+    position: fixed; right: 14px; bottom: 10px;
+    font-family: monospace; font-size: 11px; letter-spacing: 1px;
+    color: var(--bob-accent, #ff2a2a);
+    opacity: 0.42;
+    pointer-events: none;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--bob-accent, #ff2a2a) 50%, transparent);
+    z-index: 5;
+  }
+}

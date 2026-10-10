@@ -564,6 +564,72 @@ public static class InstallerLogic
     }
 
     /// <summary>
+    /// Repairs installed-browser registration without changing the user's defaults.
+    /// Returns a warning on failure; custom/portable targets are skipped.
+    /// </summary>
+    public static async Task<string?> RegisterInstalledBrowserAsync(
+        string targetDir, CancellationToken cancellationToken)
+    {
+        using var process = new Process();
+        try
+        {
+            string root = Path.GetFullPath(targetDir).TrimEnd('\\', '/');
+            string installedRoot = Path.GetFullPath(DefaultInstallPath).TrimEnd('\\', '/');
+            if (!root.Equals(installedRoot, StringComparison.OrdinalIgnoreCase)) return null;
+
+            string engineDir = Path.Combine(root, "App", "Blade");
+            string profileDir = Path.Combine(root, "Data", "profile");
+            string registrar = Path.Combine(profileDir, "chrome", "resources", "set-blade-default.ps1");
+            if (!File.Exists(Path.Combine(engineDir, "firefox.exe")) ||
+                !Directory.Exists(profileDir) || !File.Exists(registrar))
+                return "Регистрация Blade пропущена: движок, профиль или общий registrar отсутствует.";
+
+            process.StartInfo = new ProcessStartInfo
+            {
+                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),
+                    "WindowsPowerShell", "v1.0", "powershell.exe"),
+                WorkingDirectory = root,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+            foreach (string arg in new[] { "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+                registrar, "-EnginePath", engineDir, "-RegisterOnly" })
+                process.StartInfo.ArgumentList.Add(arg);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!process.Start()) return "Не удалось запустить общий registrar Blade.";
+
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(TimeSpan.FromSeconds(30));
+            // Drain both pipes concurrently, including scripts with verbose diagnostics.
+            Task<string> stdout = process.StandardOutput.ReadToEndAsync(timeout.Token);
+            Task<string> stderr = process.StandardError.ReadToEndAsync(timeout.Token);
+            await process.WaitForExitAsync(timeout.Token).ConfigureAwait(false);
+            await Task.WhenAll(stdout, stderr).ConfigureAwait(false);
+            if (process.ExitCode == 0) return null;
+
+            string detail = (string.IsNullOrWhiteSpace(stderr.Result) ? stdout.Result : stderr.Result).Trim();
+            if (detail.Length > 400) detail = detail.Substring(0, 400);
+            return $"Регистрация Blade не завершена (код {process.ExitCode}). {detail}".TrimEnd();
+        }
+        catch (OperationCanceledException)
+        {
+            try { if (!process.HasExited) { process.Kill(entireProcessTree: true); process.WaitForExit(2000); } }
+            catch { }
+            cancellationToken.ThrowIfCancellationRequested();
+            return "Регистрация Blade прервана: общий registrar не завершился за 30 секунд.";
+        }
+        catch (Exception ex)
+        {
+            try { if (!process.HasExited) { process.Kill(entireProcessTree: true); process.WaitForExit(2000); } }
+            catch { }
+            return $"Регистрация Blade не завершена: {ex.Message}";
+        }
+    }
+
+    /// <summary>
     /// Launches Blade with the portable profile.
     /// </summary>
     public static void LaunchBlade(string targetDir)

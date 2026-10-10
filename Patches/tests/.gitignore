@@ -1,0 +1,2 @@
+# Generated fixtures/reports never belong in source control.
+artifacts/

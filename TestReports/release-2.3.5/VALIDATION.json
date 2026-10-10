@@ -1,0 +1,103 @@
+{
+  "BaseVersion": "2.3.4",
+  "BaseCommit": "2e333295c17cb42171c618832e2c93351eb49c70",
+  "Version": "2.3.5",
+  "RegistryTestsPassed": 17,
+  "RegistryTestsFailed": 0,
+  "RealUserRegistrationsUnchanged": true,
+  "UpdaterVmTestsPassed": 24,
+  "JavaScriptParserFiles": 61,
+  "SetupBuildErrors": 0,
+  "SetupBuildWarnings": 0,
+  "ArchiveSHA256": "240bf165aab69ad3942f11c9708ab23bd0977eb46c23927147b14f3c1c6a28a9",
+  "UnrelatedReleaseFilesUnchanged": true,
+  "RemovedArchiveEntries": [],
+  "AddedArchiveEntries": [
+    "files/chrome/resources/BladeBrowser.exe"
+  ],
+  "ChangedArchiveEntries": [
+    "CHANGES.txt",
+    "blade-update.ps1",
+    "files/chrome/JS/BladeUpdater.uc.js",
+    "files/chrome/JS/update_chronicle.txt",
+    "files/chrome/VERSION",
+    "files/chrome/resources/blade-apply-update.ps1",
+    "files/chrome/resources/set-blade-default.ps1"
+  ],
+  "PrivateProfileFilesIncluded": false,
+  "Limitations": [
+    "Windows Settings dialog availability not directly automated by isolated registry suite; native Shell enumeration is checked.",
+    "Shell-change broadcasts suppressed in test fixture; real shortcut COM property store exercised.",
+    "Windows retains control of default choice; user confirms Set default."
+  ],
+  "Cases": [
+    {
+      "Name": "isolation-self-test",
+      "Passed": true
+    },
+    {
+      "Name": "register-root-blade",
+      "Passed": true
+    },
+    {
+      "Name": "register-engine-firefox64",
+      "Passed": true
+    },
+    {
+      "Name": "register-autodetect",
+      "Passed": true
+    },
+    {
+      "Name": "repeat-idempotent",
+      "Passed": true
+    },
+    {
+      "Name": "default-settings",
+      "Passed": true
+    },
+    {
+      "Name": "validate-only",
+      "Passed": true
+    },
+    {
+      "Name": "validate-after-register",
+      "Passed": true
+    },
+    {
+      "Name": "reject-test-engine",
+      "Passed": true
+    },
+    {
+      "Name": "reject-profile-mismatch",
+      "Passed": true
+    },
+    {
+      "Name": "reject-noninstalled-caller",
+      "Passed": true
+    },
+    {
+      "Name": "reject-missing-profile",
+      "Passed": true
+    },
+    {
+      "Name": "reject-missing-launcher",
+      "Passed": true
+    },
+    {
+      "Name": "launcher-pure-input",
+      "Passed": true
+    },
+    {
+      "Name": "launcher-live-blade",
+      "Passed": true
+    },
+    {
+      "Name": "launcher-live-firefox64",
+      "Passed": true
+    },
+    {
+      "Name": "launcher-prefers-blade",
+      "Passed": true
+    }
+  ]
+}

@@ -207,6 +207,32 @@ try {
     exit 1
 }
 
+$ProfileDir = $profileDir
+$registrationProcess = $null
+# Repair browser visibility only for the canonical installed root/profile.
+try {
+    $installedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'Blade')).TrimEnd('\')
+    $installedProfile = Join-Path $installedRoot 'Data\profile'
+    if ([IO.Path]::GetFullPath($BladeRoot).TrimEnd('\') -eq $installedRoot -and
+        [IO.Path]::GetFullPath($ProfileDir).TrimEnd('\') -eq $installedProfile) {
+        $registrationScript = Join-Path $installedProfile 'chrome\resources\set-blade-default.ps1'
+        if (-not (Test-Path -LiteralPath $registrationScript)) { throw 'Browser registration resource is missing.' }
+        $registrationCommand = "& '" + $registrationScript.Replace("'", "''") + "' -EnginePath '" + $installedRoot.Replace("'", "''") + "' -RegisterOnly"
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($registrationCommand))
+        $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+        $registrationProcess = Start-Process -FilePath $powershell -ArgumentList @('-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',$encoded) -WindowStyle Hidden -PassThru
+        if (-not $registrationProcess.WaitForExit(30000)) {
+            try { Stop-Process -Id $registrationProcess.Id -ErrorAction SilentlyContinue } catch {}
+            throw 'Browser registration timed out; startup will retry.'
+        }
+        if ($registrationProcess.ExitCode -ne 0) { throw ('Browser registration exit code: ' + $registrationProcess.ExitCode) }
+        Write-Host 'Blade Browser registration repaired; current default choices preserved.' -ForegroundColor DarkGray
+    }
+} catch {
+    Write-Warning ('Browser registration will be retried on startup: ' + $_.Exception.Message)
+} finally {
+    if ($registrationProcess) { $registrationProcess.Dispose() }
+}
 # --- Отчёт ---
 $fileCount = (Get-ChildItem (Join-Path $patchRoot 'files') -Recurse -File).Count
 $changes = Join-Path $patchRoot 'CHANGES.txt'

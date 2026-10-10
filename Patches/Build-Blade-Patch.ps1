@@ -24,7 +24,11 @@ if (-not $ProfileDir) { $ProfileDir = Join-Path (Split-Path -Parent $PSScriptRoo
 if ($Version -notmatch '^\d+(\.\d+){0,3}$') {
     throw "Версия должна быть вида 1.0.1 (числа через точку), получено: '$Version'"
 }
+# A fresh checkout must retain the stylesheet already shipped in 2.3.4.
 $srcChrome = Join-Path $ProfileDir 'chrome'
+if (-not (Test-Path -LiteralPath (Join-Path $srcChrome 'covers.css') -PathType Leaf)) {
+    throw 'Released covers.css is missing; refusing a patch that removes existing covers.'
+}
 if (-not (Test-Path $srcChrome)) { throw "Нет папки chrome: $srcChrome" }
 $userJs = Join-Path $ProfileDir 'user.js'
 if (-not (Test-Path $userJs)) { throw "Нет user.js: $userJs" }
@@ -132,10 +136,24 @@ $applierSrc = Get-Content (Join-Path $PatchesDir 'template\blade-apply-update.ps
 
 # --- 4c. Регистрация браузера по умолчанию: set-blade-default.ps1 едет тем же
 # маршрутом (chrome\resources) — его запускает BladeUpdater.uc.js однократно
-# после установки/обновления и по кнопке в меню B (СИСТЕМА) ---
+# для восстановления регистрации и по явной кнопке меню B ---
 $defaultSrc = Get-Content (Join-Path $PatchesDir 'template\set-blade-default.ps1') -Raw -Encoding UTF8
 [System.IO.File]::WriteAllText((Join-Path $resDir 'set-blade-default.ps1'), $defaultSrc, $utf8Bom)
 
+# A unique link handler avoids Windows conflating installed Blade with firefox.exe.
+$launcherSource = Join-Path $PatchesDir 'template\BladeBrowserLauncher.cs'
+$compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
+if (-not (Test-Path -LiteralPath $compiler)) {
+    $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe'
+}
+if (-not (Test-Path -LiteralPath $compiler)) { throw 'Windows .NET Framework C# compiler is missing.' }
+$launcherIcon = Join-Path (Split-Path -Parent $PatchesDir) 'BladeSetup\Blade.ico'
+if (-not (Test-Path -LiteralPath $launcherSource) -or -not (Test-Path -LiteralPath $launcherIcon)) {
+    throw 'Browser launcher source/icon is missing.'
+}
+$launcherOutput = Join-Path $resDir 'BladeBrowser.exe'
+& $compiler /nologo /target:winexe /optimize+ ("/out:$launcherOutput") ("/win32icon:$launcherIcon") /reference:System.Windows.Forms.dll $launcherSource
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $launcherOutput)) { throw 'Browser launcher build failed.' }
 # --- 5. CHANGES.txt ---
 $changesTitle = "Blade Patch v$Version"
 if ($Codename) { $changesTitle = "Blade v$Version — $Codename" }

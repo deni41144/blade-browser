@@ -3,10 +3,14 @@
 // @description     Автопроверка и установка обновлений Blade с GitHub (приватный репо, в один клик)
 // @author          Bobliks-Creations
 // @include         main
-// @version         1.3.7
+// @version         1.3.8
+// @ignorecache
 // ==/UserScript==
 (function () {
   if (window.BladeUpdater) return;
+  const MODULE_VERSION = '1.3.8';
+  const REGISTRATION_SCHEMA = 2;
+  const REGISTRATION_SESSION = '__bladeUpdaterRegistrationSchema2';
 
   // ---- Конфиг по умолчанию; префы blade.update.* переопределяют без правки
   // ---- скрипта.
@@ -23,7 +27,7 @@
     auto:      'blade.update.auto',
     lastCheck: 'blade.update.lastCheck',
     avail:     'blade.update.availableVersion',
-    setdefaultDone: 'blade.setdefault.done',
+    registrationSchema: 'blade.registration.schema',
   };
 
   // Лог по конвенции проекта (как у остальных uc.js)
@@ -36,7 +40,7 @@
   const mark = (m, e) => {
     try {
       if (!markPath) return;
-      const text = 'v1.3.6 ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
+      const text = 'v' + MODULE_VERSION + ' ' + m + (e ? '\n' + String(e) + '\n' + (e && e.stack || '') : '');
       IOUtils.writeUTF8(markPath, text).catch(() => {});
     } catch (e2) {}
   };
@@ -550,17 +554,21 @@
   const PS_EXE = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
   const q = (s) => String(s).replace(/'/g, "''");
 
-  function runPsEncoded(psLine) {
+  function encodePsCommand(psLine) {
     const u16 = [];
-    for (const ch of psLine) {
-      const c = ch.charCodeAt(0);
+    for (let i = 0; i < psLine.length; i++) {
+      const c = psLine.charCodeAt(i);
       u16.push(c & 0xff, (c >> 8) & 0xff);
     }
     let bin = '';
     for (let i = 0; i < u16.length; i += 0x8000) {
       bin += String.fromCharCode.apply(null, u16.slice(i, i + 0x8000));
     }
-    const encoded = btoa(bin);
+    return btoa(bin);
+  }
+
+  function runPsEncoded(psLine) {
+    const encoded = encodePsCommand(psLine);
     const ps = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
     ps.initWithPath(PS_EXE);
     const proc = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
@@ -679,26 +687,88 @@
     } catch (e) { /* файла нет — норма */ }
   }
 
-  // ---- Регистрация Blade браузером по умолчанию (set-blade-default.ps1) ----
-  // Скрипт едет в патче (chrome\resources\): HKCU-регистрация в Windows,
-  // ассоциации .html/.htm с валидным UserChoice-хешем, http/https где
-  // позволяет система; на укреплённых сборках Win11 сам откроет Settings
-  // для одного клика. Преф-щит: гоняем один раз (после установки/обновления).
-  function launchDefaultScript() {
+  // Shared across browser windows; failed repair retries only on next startup.
+  function registrationSession() {
+    return Services.ppmm.sharedData.get(REGISTRATION_SESSION) ||
+      { attempted: false, pending: null, nextTask: 0 };
+  }
+
+  // RegisterOnly never changes UserChoice or opens UI; explicit action asks Windows.
+  function launchDefaultScript(registerOnly = false) {
     if (!canSetDefault()) throw new Error('В тестовой сборке регистрация браузером по умолчанию отключена.');
+    const session = registrationSession();
+    if (session.pending) throw new Error('Регистрация уже выполняется. Повтори после завершения.');
     const script = Services.dirsvc.get('UChrm', Ci.nsIFile).clone();
     script.append('resources');
     script.append('set-blade-default.ps1');
-    if (!script.exists()) throw new Error('нет chrome\\resources\\set-blade-default.ps1');
-    const root = findBladeRoot();
-    if (!root) throw new Error('не смог определить папку установки Blade');
+    if (!script.exists()) throw new Error('нет chrome/resources/set-blade-default.ps1');
+    const root = PathUtils.join(Services.env.get('LOCALAPPDATA'), 'Blade');
     const ps = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
     ps.initWithPath(PS_EXE);
     if (!ps.exists()) throw new Error('powershell.exe не найден');
-    // -EncodedCommand через общий runPsEncoded (см. комментарий там)
-    const psLine = "& '" + q(script.path) + "' -EnginePath '" + q(root) + "'";
-    runPsEncoded(psLine);
-    mark('default-browser script launched root=' + root);
+    const psLine = "& '" + q(script.path) + "' -EnginePath '" + q(root) + "'" +
+      (registerOnly ? ' -RegisterOnly' : '');
+    const args = ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden',
+      '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encodePsCommand(psLine)];
+    const proc = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
+    proc.init(ps);
+    proc.startHidden = true;
+    proc.noShell = true;
+    const task = { id: session.nextTask + 1, observer: null };
+    task.observer = {
+      observe(subject, topic) {
+        const current = registrationSession();
+        if (current.pending !== task.id || !['process-finished', 'process-failed'].includes(topic)) return;
+        let exit = -1;
+        if (topic === 'process-finished') {
+          try { exit = subject.QueryInterface(Ci.nsIProcess).exitValue; } catch (e) {}
+        }
+        current.pending = null;
+        Services.ppmm.sharedData.set(REGISTRATION_SESSION, current);
+        if (registerOnly && exit === 0) {
+          try {
+            Services.prefs.setIntPref(PREF.registrationSchema, REGISTRATION_SCHEMA);
+            mark('registration repair schema=' + REGISTRATION_SCHEMA + ' complete');
+          } catch (e) { mark('ERR registration schema preference', e); }
+        } else if (!registerOnly && exit === 2) {
+          notify('Открыты настройки Windows. Выбери Blade Browser и нажми «Set default».');
+          mark('default-browser Windows UI opened');
+        } else if (!registerOnly && exit === 0) {
+          notify('Регистрация Blade обновлена. Браузер по умолчанию выбирается в настройках Windows.');
+        } else {
+          mark('ERR registration ' + topic + ' exit=' + exit);
+          if (!registerOnly) notifyError('регистрация не завершена (код ' + exit + '). Повтори попытку.');
+        }
+      },
+    };
+    session.nextTask = task.id;
+    session.pending = task.id;
+    Services.ppmm.sharedData.set(REGISTRATION_SESSION, session);
+    try {
+      proc.runwAsync(args, args.length, task.observer, false);
+    } catch (e) {
+      const current = registrationSession();
+      if (current.pending === task.id) {
+        current.pending = null;
+        Services.ppmm.sharedData.set(REGISTRATION_SESSION, current);
+      }
+      throw e;
+    }
+    mark('registration launched mode=' + (registerOnly ? 'repair' : 'Windows UI') + ' root=' + root);
+  }
+
+  function repairRegistrationOnStartup() {
+    try {
+      if (!canSetDefault()) return;
+      let schema = 0;
+      try { schema = Services.prefs.getIntPref(PREF.registrationSchema, 0); } catch (e) {}
+      if (schema >= REGISTRATION_SCHEMA) return;
+      const session = registrationSession();
+      if (session.attempted) return;
+      session.attempted = true;
+      Services.ppmm.sharedData.set(REGISTRATION_SESSION, session);
+      launchDefaultScript(true);
+    } catch (e) { mark('ERR startup registration repair', e); }
   }
 
   // ---- Старт: результат прошлого обновления + автопроверка раз в сутки ----
@@ -724,6 +794,7 @@
       return ['Blade','Firefox64'].some(name=>{
         const installed = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
         installed.initWithPath(Services.env.get('LOCALAPPDATA'));installed.append('Blade');installed.append('App');installed.append(name);installed.append('firefox.exe');
+        installed.normalize();
         return exe.equals(installed);
       });
     } catch (_) {return false;}
@@ -731,13 +802,14 @@
 
   // ---- API для меню B (BobliksSettings) ----
   window.BladeUpdater = {
+    moduleVersion: MODULE_VERSION,
     canSetDefault,
     check: (manual) => checkForUpdate(!!manual),
     install: () => startInstall(),
     setDefault: () => {
       try {
         launchDefaultScript();
-        notify('⚡ Регистрирую Blade как браузер по умолчанию — если Windows открыл настройки, выбери Blade и нажми «Set default».');
+        notify('Подготавливаю регистрацию Blade и страницу выбора браузера в Windows.');
         return true;
       } catch (e) {
         notifyError('не удалось запустить регистрацию: ' + (e.message || e));
@@ -751,4 +823,5 @@
     }),
   };
   mark('START');
+  repairRegistrationOnStartup();
 })();

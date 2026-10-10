@@ -274,13 +274,26 @@ public partial class MainWindow : Window
                 InstallerLogic.SeedLangpackPolicy(_currentTargetDir);
             }, token);
 
-            UpdateProgress(100, "Завершено!", "Blade готов к запуску.");
+            UpdateProgress(99, "Проверка регистрации браузера...", "Без изменения приложений по умолчанию.");
+            string? registrationWarning = await InstallerLogic.RegisterInstalledBrowserAsync(_currentTargetDir, token);
+            UpdateProgress(100,
+                registrationWarning == null ? "Завершено!" : "Установлено с предупреждением",
+                registrationWarning ?? "Blade готов к запуску.");
             await Task.Delay(350, token);
 
             _isInstalling = false;
             DoneTargetDirectoryTextBlock.Text = $"Папка: {_currentTargetDir}";
             DoneDesktopShortcutCheckBox.IsChecked = CreateDesktopShortcutCheckBox.IsChecked;
             ShowScreen(ScreenDone);
+            if (registrationWarning != null)
+            {
+                ShowModalDialog(
+                    title: "Предупреждение регистрации",
+                    message: $"Blade установлен. Приложения по умолчанию не изменены.\n\n{registrationWarning}",
+                    primaryText: "Понятно",
+                    onPrimary: () => { }
+                );
+            }
         }
         catch (OperationCanceledException)
         {
