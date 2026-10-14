@@ -18,6 +18,7 @@ public partial class MainWindow : Window
     private CancellationTokenSource? _cancellationTokenSource;
     private double _currentPercent = 0;
     private string _currentTargetDir = string.Empty;
+    private bool _isUpdate = false;
     private bool _isInstalling = false;
     private bool _isCommitting = false;
 
@@ -70,8 +71,10 @@ public partial class MainWindow : Window
         if (_isInstalling)
         {
             ShowModalDialog(
-                title: "Отмена установки",
-                message: "Установка ещё не завершена. Отменить её и дождаться безопасной очистки временных файлов?",
+                title: _isUpdate ? "Отмена обновления" : "Отмена установки",
+                message: _isUpdate
+                    ? "Обновление ещё не завершено. Отменить его и дождаться безопасной очистки временных файлов?"
+                    : "Установка ещё не завершена. Отменить её и дождаться безопасной очистки временных файлов?",
                 primaryText: "Да, отменить",
                 onPrimary: () => _cancellationTokenSource?.Cancel(),
                 secondaryText: "Продолжить",
@@ -88,8 +91,7 @@ public partial class MainWindow : Window
     // ================================================================
     private void ShowScreen(FrameworkElement targetScreen)
     {
-        // AVA GX: все переключения экранов идут через кинематографичный
-        // переход (fade + слайд + режимы частиц/вспышка — см. регион эффектов)
+        // Все переключения экранов идут через короткий переход Blade.
         AnimateScreenTransition(targetScreen);
     }
 
@@ -130,7 +132,7 @@ public partial class MainWindow : Window
 
         try
         {
-            // System.IO.Path — квалифицировано: using Shapes (AVA-эффекты) делает Path неоднозначным
+            // System.IO.Path — квалифицировано, чтобы отличать его от геометрических типов WPF.
             System.IO.Path.GetFullPath(targetDir);
         }
         catch
@@ -151,6 +153,14 @@ public partial class MainWindow : Window
         TargetFolderTextBox.Text = targetDir;
 
         _currentTargetDir = targetDir;
+        _isUpdate = InstallerLogic.IsExistingInstallation(targetDir);
+        SetupActionTitleTextBlock.Text = _isUpdate ? "Обновить Blade?" : "Куда установить Blade?";
+        SetupActionDescriptionTextBlock.Text = _isUpdate
+            ? "Обновим браузер и сохраним твой профиль, закладки и пароли."
+            : "Выбери папку для файлов браузера.";
+        InstallFromLicenseButton.Content = _isUpdate ? "Обновить Blade" : "Установить Blade";
+        InstallFromLicenseButton.SetValue(System.Windows.Automation.AutomationProperties.NameProperty,
+            _isUpdate ? "Обновить Blade" : "Начать установку Blade");
         ShowScreen(ScreenLicense);
     }
 
@@ -207,6 +217,7 @@ public partial class MainWindow : Window
 
         // Check 3: Detect update
         bool isUpdate = InstallerLogic.IsExistingInstallation(_currentTargetDir);
+        _isUpdate = isUpdate;
         if (isUpdate)
         {
             ShowModalDialog(
@@ -244,12 +255,15 @@ public partial class MainWindow : Window
     // ================================================================
     private async void ExecuteInstallation(string? dataZipPath, bool isUpdate)
     {
+        _isUpdate = isUpdate;
         _isInstalling = true;
         _cancellationTokenSource = new CancellationTokenSource();
         var token = _cancellationTokenSource.Token;
 
         ShowScreen(ScreenInstalling);
-        UpdateProgress(0, "Подготовка к установке...", "Инициализация...");
+        UpdateProgress(0,
+            isUpdate ? "Подготовка к обновлению..." : "Подготовка к установке...",
+            isUpdate ? "Текущая версия останется доступной до проверки пакета." : "Инициализация...");
 
         var progress = new Progress<InstallProgressReport>(report =>
         {
@@ -284,6 +298,10 @@ public partial class MainWindow : Window
             await Task.Delay(350, token);
 
             _isInstalling = false;
+            DoneTitleTextBlock.Text = isUpdate ? "Blade обновлён" : "Blade установлен";
+            DoneSummaryTextBlock.Text = isUpdate
+                ? $"Установлена версия v{InstallerLogic.DetectedVersion}."
+                : $"Версия v{InstallerLogic.DetectedVersion} готова к запуску.";
             DoneTargetDirectoryTextBlock.Text = $"Папка: {_currentTargetDir}";
             DoneDesktopShortcutCheckBox.IsChecked = CreateDesktopShortcutCheckBox.IsChecked;
             ShowScreen(ScreenDone);
@@ -291,7 +309,7 @@ public partial class MainWindow : Window
             {
                 ShowModalDialog(
                     title: "Предупреждение регистрации",
-                    message: $"Blade установлен. Приложения по умолчанию не изменены.\n\n{registrationWarning}",
+                    message: $"Blade {(isUpdate ? "обновлён" : "установлен")}. Приложения по умолчанию не изменены.\n\n{registrationWarning}",
                     primaryText: "Понятно",
                     onPrimary: () => { }
                 );
@@ -303,8 +321,10 @@ public partial class MainWindow : Window
             _isCommitting = false;
             ShowScreen(ScreenSplash);
             ShowModalDialog(
-                title: "Установка отменена",
-                message: "Процесс установки был прерван пользователем.",
+                title: _isUpdate ? "Обновление отменено" : "Установка отменена",
+                message: _isUpdate
+                    ? "Обновление прервано пользователем. Текущая версия браузера сохранена."
+                    : "Процесс установки был прерван пользователем.",
                 primaryText: "Понятно",
                 onPrimary: () => { }
             );
@@ -325,24 +345,26 @@ public partial class MainWindow : Window
 
     private void UpdateProgress(double percent, string stage, string item)
     {
-        _currentPercent = percent;
+        _currentPercent = Math.Clamp(percent, 0, 100);
         InstallStageTextBlock.Text = stage;
         InstallDetailsTextBlock.Text = item;
-        ProgressPercentTextBlock.Text = $"{Math.Round(percent)}%";
+        ProgressPercentTextBlock.Text = $"{Math.Round(_currentPercent)}%";
+        ProgressBarTrack.SetValue(System.Windows.Automation.AutomationProperties.HelpTextProperty,
+            $"{Math.Round(_currentPercent)} процентов. {stage} {item}");
 
-        double trackWidth = ProgressBarTrack.ActualWidth;
-        if (trackWidth > 0)
+        double scale = _currentPercent / 100.0;
+        if (SystemParameters.ClientAreaAnimation)
         {
-            ProgressBarFill.Width = Math.Max(0, Math.Min(trackWidth, trackWidth * (percent / 100.0)));
+            ProgressBarScale.BeginAnimation(ScaleTransform.ScaleXProperty,
+                new DoubleAnimation(scale, TimeSpan.FromMilliseconds(110))
+                {
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                });
         }
-    }
-
-    private void ProgressBarTrack_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        double trackWidth = ProgressBarTrack.ActualWidth;
-        if (trackWidth > 0)
+        else
         {
-            ProgressBarFill.Width = Math.Max(0, Math.Min(trackWidth, trackWidth * (_currentPercent / 100.0)));
+            ProgressBarScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            ProgressBarScale.ScaleX = scale;
         }
     }
 
@@ -421,32 +443,35 @@ public partial class MainWindow : Window
         }
 
         ModalDialogOverlay.Visibility = Visibility.Visible;
+        UpdateDecorativeEffects();
     }
 
     private void ModalPrimaryButton_Click(object sender, RoutedEventArgs e)
     {
         ModalDialogOverlay.Visibility = Visibility.Collapsed;
         _onModalPrimary?.Invoke();
+        UpdateDecorativeEffects();
     }
 
     private void ModalSecondaryButton_Click(object sender, RoutedEventArgs e)
     {
         ModalDialogOverlay.Visibility = Visibility.Collapsed;
         _onModalSecondary?.Invoke();
+        UpdateDecorativeEffects();
     }
 
     // ================================================================
-    // ===== AVA EFFECTS (FrontendDesigner - Opera GX Level) ==========
+    // ===== Короткие фоновые эффекты установщика =====================
     // ================================================================
 
-    public enum AvaParticleMode
+    public enum ParticleMode
     {
         Normal,
         Quiet,
         Victory
     }
 
-    private sealed class AvaParticle
+    private sealed class AmbientParticle
     {
         public Ellipse Element { get; }
         public double X;
@@ -459,50 +484,56 @@ public partial class MainWindow : Window
         public double WobbleSpeed;
         public double WobbleAngle;
 
-        public AvaParticle(Ellipse element)
+        public AmbientParticle(Ellipse element)
         {
             Element = element;
         }
     }
 
-    private readonly List<AvaParticle> _particles = new();
+    private readonly List<AmbientParticle> _particles = new();
     private DispatcherTimer? _particleTimer;
     private readonly Random _random = new();
     private int _activeParticleLimit = 14;
-    private bool _isEffectsInitialized = false;
+    private bool _effectsInitialized = false;
 
     protected override void OnContentRendered(EventArgs e)
     {
         base.OnContentRendered(e);
-        InitAvaEffects();
+        InitializeAmbientEffects();
+        UpdateDecorativeEffects();
     }
 
     protected override void OnClosed(EventArgs e)
     {
-        StopAvaEffects();
+        StopAmbientEffects();
         base.OnClosed(e);
     }
 
     protected override void OnStateChanged(EventArgs e)
     {
         base.OnStateChanged(e);
-        if (WindowState == WindowState.Minimized)
-        {
-            _particleTimer?.Stop();
-        }
-        else
-        {
-            _particleTimer?.Start();
-        }
+        UpdateDecorativeEffects();
+    }
+
+    protected override void OnActivated(EventArgs e)
+    {
+        base.OnActivated(e);
+        UpdateDecorativeEffects();
+    }
+
+    protected override void OnDeactivated(EventArgs e)
+    {
+        UpdateDecorativeEffects();
+        base.OnDeactivated(e);
     }
 
     /// <summary>
-    /// Инициализация пула частиц на Canvas без DropShadow для максимальной производительности (60 FPS).
+    /// Создаёт небольшой переиспользуемый пул фоновых частиц.
     /// </summary>
-    private void InitAvaEffects()
+    private void InitializeAmbientEffects()
     {
-        if (_isEffectsInitialized || ParticlesCanvas == null) return;
-        _isEffectsInitialized = true;
+        if (_effectsInitialized || ParticlesCanvas == null) return;
+        _effectsInitialized = true;
 
         const int maxPoolSize = 22;
         _particles.Clear();
@@ -537,7 +568,7 @@ public partial class MainWindow : Window
             };
 
             ParticlesCanvas.Children.Add(ellipse);
-            var particle = new AvaParticle(ellipse);
+            var particle = new AmbientParticle(ellipse);
             RespawnParticle(particle, isBurst: false, initialScatter: true);
             _particles.Add(particle);
         }
@@ -547,13 +578,52 @@ public partial class MainWindow : Window
             Interval = TimeSpan.FromMilliseconds(50)
         };
         _particleTimer.Tick += ParticleTimer_Tick;
-        _particleTimer.Start();
+        UpdateDecorativeEffects();
     }
 
-    private void StopAvaEffects()
+    private void StopAmbientEffects()
     {
         _particleTimer?.Stop();
         _particleTimer = null;
+        StopInstallLogoPulse();
+    }
+
+    private void UpdateDecorativeEffects()
+    {
+        bool active = IsActive && WindowState != WindowState.Minimized &&
+            SystemParameters.ClientAreaAnimation && ModalDialogOverlay?.Visibility != Visibility.Visible;
+        if (!active)
+        {
+            _particleTimer?.Stop();
+            StopInstallLogoPulse();
+            return;
+        }
+
+        _particleTimer?.Start();
+        if (ScreenInstalling?.Visibility == Visibility.Visible) StartInstallLogoPulse();
+        else StopInstallLogoPulse();
+    }
+
+    private void StartInstallLogoPulse()
+    {
+        if (InstallLogoScale == null || !SystemParameters.ClientAreaAnimation) return;
+        var pulse = new DoubleAnimation(0.985, 1.015, TimeSpan.FromSeconds(2.2))
+        {
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+        };
+        InstallLogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
+        InstallLogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
+    }
+
+    private void StopInstallLogoPulse()
+    {
+        if (InstallLogoScale == null) return;
+        InstallLogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        InstallLogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        InstallLogoScale.ScaleX = 1;
+        InstallLogoScale.ScaleY = 1;
     }
 
     private void ParticleTimer_Tick(object? sender, EventArgs e)
@@ -562,15 +632,9 @@ public partial class MainWindow : Window
         double canvasHeight = ParticlesCanvas.ActualHeight > 0 ? ParticlesCanvas.ActualHeight : 420;
 
         int count = Math.Min(_particles.Count, _activeParticleLimit);
-        for (int i = 0; i < _particles.Count; i++)
+        for (int i = 0; i < count; i++)
         {
             var p = _particles[i];
-            if (i >= count)
-            {
-                p.Element.Opacity = 0.0;
-                continue;
-            }
-
             p.Life -= 1.0;
             p.WobbleAngle += p.WobbleSpeed;
             p.X += p.Vx + Math.Sin(p.WobbleAngle) * 0.4;
@@ -590,7 +654,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void RespawnParticle(AvaParticle p, bool isBurst, bool initialScatter)
+    private void RespawnParticle(AmbientParticle p, bool isBurst, bool initialScatter)
     {
         double width = ParticlesCanvas.ActualWidth > 0 ? ParticlesCanvas.ActualWidth : 580;
         double height = ParticlesCanvas.ActualHeight > 0 ? ParticlesCanvas.ActualHeight : 420;
@@ -625,14 +689,16 @@ public partial class MainWindow : Window
     /// <summary>
     /// Переключение плотности частиц под текущий экран (тихий на лицензии, густой на победном).
     /// </summary>
-    public void SetParticleMode(AvaParticleMode mode)
+    public void SetParticleMode(ParticleMode mode)
     {
         _activeParticleLimit = mode switch
         {
-            AvaParticleMode.Quiet => 8,
-            AvaParticleMode.Victory => 18,
+            ParticleMode.Quiet => 8,
+            ParticleMode.Victory => 18,
             _ => 14
         };
+        for (int i = Math.Min(_activeParticleLimit, _particles.Count); i < _particles.Count; i++)
+            _particles[i].Element.Opacity = 0;
     }
 
     /// <summary>
@@ -640,7 +706,7 @@ public partial class MainWindow : Window
     /// </summary>
     public void TriggerParticleBurst()
     {
-        int burstCount = Math.Min(30, _particles.Count);
+        int burstCount = Math.Min(_activeParticleLimit, _particles.Count);
         for (int i = 0; i < burstCount; i++)
         {
             RespawnParticle(_particles[i], isBurst: true, initialScatter: false);
@@ -652,7 +718,7 @@ public partial class MainWindow : Window
     /// </summary>
     public void TriggerWindowFlash()
     {
-        if (FlashOverlay == null) return;
+        if (FlashOverlay == null || !IsActive || !SystemParameters.ClientAreaAnimation) return;
 
         var anim = new DoubleAnimationUsingKeyFrames();
         anim.KeyFrames.Add(new LinearDoubleKeyFrame(0.0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
@@ -677,7 +743,25 @@ public partial class MainWindow : Window
 
         if (currentScreen == targetScreen) return;
 
-        if (currentScreen != null)
+        bool animate = SystemParameters.ClientAreaAnimation && IsActive && WindowState != WindowState.Minimized;
+        if (!animate)
+        {
+            if (currentScreen != null)
+            {
+                currentScreen.BeginAnimation(UIElement.OpacityProperty, null);
+                currentScreen.Visibility = Visibility.Collapsed;
+                currentScreen.Opacity = 1;
+            }
+            targetScreen.Visibility = Visibility.Visible;
+            targetScreen.BeginAnimation(UIElement.OpacityProperty, null);
+            targetScreen.Opacity = 1;
+            if (targetScreen.RenderTransform is TranslateTransform reducedMotionTransform)
+            {
+                reducedMotionTransform.BeginAnimation(TranslateTransform.XProperty, null);
+                reducedMotionTransform.X = 0;
+            }
+        }
+        else if (currentScreen != null)
         {
             var fadeOut = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(160));
             fadeOut.Completed += (_, _) =>
@@ -687,36 +771,40 @@ public partial class MainWindow : Window
             currentScreen.BeginAnimation(UIElement.OpacityProperty, fadeOut);
         }
 
-        targetScreen.Visibility = Visibility.Visible;
-        targetScreen.Opacity = 0.0;
-
-        var fadeIn = new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(320))
+        if (animate)
         {
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-        };
-        targetScreen.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+            targetScreen.Visibility = Visibility.Visible;
+            targetScreen.Opacity = 0.0;
 
-        if (targetScreen.RenderTransform is TranslateTransform tt)
-        {
-            var slideIn = new DoubleAnimation(24.0, 0.0, TimeSpan.FromMilliseconds(340))
+            var fadeIn = new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(320))
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
-            tt.BeginAnimation(TranslateTransform.XProperty, slideIn);
+            targetScreen.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+
+            if (targetScreen.RenderTransform is TranslateTransform tt)
+            {
+                var slideIn = new DoubleAnimation(24.0, 0.0, TimeSpan.FromMilliseconds(340))
+                {
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                tt.BeginAnimation(TranslateTransform.XProperty, slideIn);
+            }
         }
 
         if (targetScreen == ScreenLicense)
         {
-            SetParticleMode(AvaParticleMode.Quiet);
+            SetParticleMode(ParticleMode.Quiet);
         }
         else if (targetScreen == ScreenDone)
         {
-            SetParticleMode(AvaParticleMode.Victory);
+            SetParticleMode(ParticleMode.Victory);
             TriggerWindowFlash();
         }
         else
         {
-            SetParticleMode(AvaParticleMode.Normal);
+            SetParticleMode(ParticleMode.Normal);
         }
+        UpdateDecorativeEffects();
     }
 }

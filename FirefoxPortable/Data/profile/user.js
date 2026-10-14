@@ -148,6 +148,9 @@ user_pref("browser.urlbar.scotchBonnet.enableOverride", false);
 user_pref("dom.ipc.processCount", 4);                     /* умеренное число контентных процессов */
 user_pref("browser.sessionhistory.max_total_viewers", 2); /* ограничиваем BFCache ради памяти */
 user_pref("browser.tabs.unloadOnLowMemory", true);        /* фоновые вкладки выгружаются при нехватке RAM */
+user_pref("blade.performance.autoUnloadInactiveTabs", true); /* свой таймер выгрузки фоновых вкладок */
+user_pref("blade.performance.autoUnloadInactiveTabs.minutes", 30); /* после 30 минут без выбора */
+user_pref("browser.tabs.fadeOutExplicitlyUnloadedTabs", false); /* не менять вид иконок вкладок после выгрузки */
 user_pref("browser.shell.checkDefaultBrowser", false);    /* не проверять дефолтность при старте */
 /* Диета памяти 2.0 (webIsolated 2, медиа/имидж-лимиты) — ОТКАЧЕНА владельцем
    2026-09-13: −20-25 МБ не стоят потенциальных цен (пере-декод картинок,

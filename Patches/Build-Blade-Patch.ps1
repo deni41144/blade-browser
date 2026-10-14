@@ -35,7 +35,8 @@ if (-not (Test-Path $userJs)) { throw "Нет user.js: $userJs" }
 
 $PatchesDir = (Resolve-Path -LiteralPath $PatchesDir).ProviderPath
 $buildDir = [System.IO.Path]::GetFullPath((Join-Path $PatchesDir 'build'))
-$staging = [System.IO.Path]::GetFullPath((Join-Path $buildDir "Blade-Patch-v$Version"))
+$buildId = "$PID-$([Guid]::NewGuid().ToString('N'))"
+$staging = [System.IO.Path]::GetFullPath((Join-Path $buildDir "Blade-Patch-v$Version-$buildId"))
 function Assert-SafeBuildPath([string]$Target) {
     $absolute = [System.IO.Path]::GetFullPath($Target)
     $patchesPrefix = $PatchesDir.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
@@ -64,8 +65,9 @@ function Assert-SafeBuildPath([string]$Target) {
 Assert-SafeBuildPath $buildDir
 Assert-SafeBuildPath $staging
 $zipPath = Join-Path $PatchesDir "Blade-Patch-v$Version.zip"
-if (Test-Path -LiteralPath $staging) { Assert-SafeBuildPath $staging; Remove-Item -LiteralPath $staging -Recurse -Force }
-if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
+$zipCandidate = Join-Path $buildDir "Blade-Patch-v$Version-$buildId.tmp.zip"
+$hashCandidate = "$zipCandidate.sha256"
+Assert-SafeBuildPath $zipCandidate
 New-Item -ItemType Directory -Path (Join-Path $staging 'files') -Force | Out-Null
 
 # --- 1. Копируем chrome целиком, потом вычищаем мусор из КОПИИ ---
@@ -110,12 +112,10 @@ Get-ChildItem -LiteralPath $dstChrome -Recurse -Force -Directory |
 # --- 2. VERSION: в патч и в живую папку (UTF-8 без BOM — иначе BOM уедет в меню) ---
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $dstChrome 'VERSION'), $Version, $utf8NoBom)
-[System.IO.File]::WriteAllText((Join-Path $srcChrome 'VERSION'), $Version, $utf8NoBom)
 
 # --- 2b. CODENAME: кодовое имя релиза — в патч и живую папку ---
 if ($Codename) {
     [System.IO.File]::WriteAllText((Join-Path $dstChrome 'CODENAME'), $Codename, $utf8NoBom)
-    [System.IO.File]::WriteAllText((Join-Path $srcChrome 'CODENAME'), $Codename, $utf8NoBom)
 }
 
 # --- 3. user.js ---
@@ -155,8 +155,8 @@ $launcherOutput = Join-Path $resDir 'BladeBrowser.exe'
 & $compiler /nologo /target:winexe /optimize+ ("/out:$launcherOutput") ("/win32icon:$launcherIcon") /reference:System.Windows.Forms.dll $launcherSource
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $launcherOutput)) { throw 'Browser launcher build failed.' }
 # --- 5. CHANGES.txt ---
-$changesTitle = "Blade Patch v$Version"
-if ($Codename) { $changesTitle = "Blade v$Version — $Codename" }
+$changesTitle = "Blade — обновление"
+if ($Codename) { $changesTitle = "Blade — $Codename" }
 $changesText = "$changesTitle`r`nДата: $(Get-Date -Format 'yyyy-MM-dd')`r`n"
 if ($Notes) { $changesText += "`r`n$Notes`r`n" }
 [System.IO.File]::WriteAllText((Join-Path $staging 'CHANGES.txt'), $changesText, $utf8Bom)
@@ -170,21 +170,58 @@ $chronicleDir = Join-Path $dstChrome 'JS'
 if (-not (Test-Path $chronicleDir)) { New-Item -ItemType Directory -Path $chronicleDir -Force | Out-Null }
 $chronicleFile = Join-Path $chronicleDir 'update_chronicle.txt'
 if ($Notes) {
-    $chronicleHeader = "Blade v$Version"
-    if ($Codename) { $chronicleHeader = "Blade v$Version — $Codename" }
+    $chronicleHeader = 'Blade — обновление'
+    if ($Codename) { $chronicleHeader = "Blade — $Codename" }
     [System.IO.File]::WriteAllText($chronicleFile, "$chronicleHeader`r`n`r`n$Notes", $utf8Bom)
 } elseif (Test-Path $chronicleFile) {
     Remove-Item $chronicleFile -Force
 }
 
 # --- 6. ZIP ---
-Compress-Archive -Path $staging -DestinationPath $zipPath -CompressionLevel Optimal
+Compress-Archive -Path $staging -DestinationPath $zipCandidate -CompressionLevel Optimal
+if (-not (Test-Path -LiteralPath $zipCandidate -PathType Leaf) -or (Get-Item -LiteralPath $zipCandidate).Length -le 0) {
+    throw 'ZIP патча не создан или пуст.'
+}
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$archiveCheck = [System.IO.Compression.ZipFile]::OpenRead($zipCandidate)
+try {
+    # Compress-Archive writes Windows-style backslashes in this PowerShell build.
+    $hasVersion = $archiveCheck.Entries | Where-Object { $_.FullName -match 'files[/\\]chrome[/\\]VERSION$' } | Select-Object -First 1
+    if (-not $hasVersion -or $archiveCheck.Entries.Count -lt 5) { throw 'В ZIP не хватает обязательных файлов патча.' }
+} finally { $archiveCheck.Dispose() }
+$candidateHash = (Get-FileHash -LiteralPath $zipCandidate -Algorithm SHA256).Hash
+[System.IO.File]::WriteAllText($hashCandidate, "$candidateHash  $(Split-Path -Leaf $zipPath)`n", [System.Text.Encoding]::ASCII)
+
+# Готовый ZIP и его SHA заменяются одной транзакцией; предыдущий релиз
+# сохраняется, а при любой ошибке замены восстанавливается на прежнее место.
+$stamp = Get-Date -Format 'yyyyMMdd-HHmmss-fff'
+$backupZip = "$zipPath.previous-$stamp"
+$backupHash = "$zipPath.sha256.previous-$stamp"
+$hadZip = Test-Path -LiteralPath $zipPath -PathType Leaf
+$hadHash = Test-Path -LiteralPath "$zipPath.sha256" -PathType Leaf
+try {
+    if ($hadZip) { Move-Item -LiteralPath $zipPath -Destination $backupZip }
+    if ($hadHash) { Move-Item -LiteralPath "$zipPath.sha256" -Destination $backupHash }
+    Move-Item -LiteralPath $zipCandidate -Destination $zipPath
+    Move-Item -LiteralPath $hashCandidate -Destination "$zipPath.sha256"
+} catch {
+    if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
+    if (Test-Path -LiteralPath "$zipPath.sha256") { Remove-Item -LiteralPath "$zipPath.sha256" -Force }
+    if ($hadZip -and (Test-Path -LiteralPath $backupZip)) { Move-Item -LiteralPath $backupZip -Destination $zipPath }
+    if ($hadHash -and (Test-Path -LiteralPath $backupHash)) { Move-Item -LiteralPath $backupHash -Destination "$zipPath.sha256" }
+    throw
+}
+
+# Профиль получает номер только после полной проверки нового архива.
+[System.IO.File]::WriteAllText((Join-Path $srcChrome 'VERSION'), $Version, $utf8NoBom)
+if ($Codename) { [System.IO.File]::WriteAllText((Join-Path $srcChrome 'CODENAME'), $Codename, $utf8NoBom) }
 
 # --- 7. Отчёт ---
 $fileCount = (Get-ChildItem (Join-Path $staging 'files') -Recurse -File).Count
 $sizeMB = [Math]::Round((Get-Item $zipPath).Length / 1MB, 1)
 Assert-SafeBuildPath $staging
 Remove-Item -LiteralPath $staging -Recurse -Force
+Remove-Item -LiteralPath $zipCandidate, $hashCandidate -Force -ErrorAction SilentlyContinue
 # Не удаляем staging других одновременно собираемых версий.
 Assert-SafeBuildPath $buildDir
 if (-not (Get-ChildItem -LiteralPath $buildDir -Force | Select-Object -First 1)) {

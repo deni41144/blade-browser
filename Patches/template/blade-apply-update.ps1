@@ -85,16 +85,39 @@ function Remove-Staging {
     try { if ($staging -and (Test-Path $staging)) { Remove-Item $staging -Recurse -Force } } catch {}
 }
 
+function Test-PathWithinDirectory([string]$Candidate, [string]$Parent) {
+    $candidateFull = [System.IO.Path]::GetFullPath($Candidate)
+    $parentFull = [System.IO.Path]::GetFullPath($Parent).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+    return $candidateFull.StartsWith($parentFull, [System.StringComparison]::OrdinalIgnoreCase)
+}
+
 function Finish([string]$kind, [string]$msg, [int]$code) {
     Write-Host ''
     if ($kind -eq 'OK') { Write-Host "ГОТОВО: $msg" -ForegroundColor Green }
     else { Write-Host "ОШИБКА: $msg" -ForegroundColor Red }
     Write-Result $kind $msg
     Remove-Staging
-    # Скачанный архив чистим только в авто-режиме и только из profile\updates
+    # Скачанные файлы чистим только в авто-режиме и только внутри profile\updates.
+    # Граница каталога важна: StartsWith без разделителя захватывает соседние папки.
     $updDir = Join-Path $ProfileDir 'updates'
-    if ($Auto -and $ZipPath.StartsWith($updDir, [System.StringComparison]::OrdinalIgnoreCase) -and (Test-Path -LiteralPath $ZipPath)) {
-        try { Remove-Item -LiteralPath $ZipPath -Force } catch {}
+    $safeUpdateDirectory = $false
+    try {
+        $updItem = Get-Item -LiteralPath $updDir -Force -ErrorAction Stop
+        $safeUpdateDirectory = -not ($updItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)
+    } catch {}
+    if ($Auto -and $safeUpdateDirectory -and [System.IO.Path]::GetExtension($ZipPath) -eq '.zip' -and
+        (Test-PathWithinDirectory $ZipPath $updDir) -and (Test-Path -LiteralPath $ZipPath -PathType Leaf)) {
+        try {
+            $zipItem = Get-Item -LiteralPath $ZipPath -Force -ErrorAction Stop
+            if (-not ($zipItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+                Remove-Item -LiteralPath $ZipPath -Force
+                $hashPath = "$ZipPath.sha256"
+                $hashItem = Get-Item -LiteralPath $hashPath -Force -ErrorAction SilentlyContinue
+                if ($hashItem -and -not ($hashItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+                    Remove-Item -LiteralPath $hashPath -Force
+                }
+            }
+        } catch {}
     }
     if ($Auto) {
         Write-Host 'Перезапускаю Blade...' -ForegroundColor DarkGray

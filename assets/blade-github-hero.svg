@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="460" viewBox="0 0 1440 460" role="img" aria-labelledby="title desc">
+  <title id="title">Blade — Blood Moon</title>
+  <desc id="desc">Blade browser, a dark Firefox build with the Blood Moon release.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#120d12"/>
+      <stop offset=".58" stop-color="#1d1118"/>
+      <stop offset="1" stop-color="#08080b"/>
+    </linearGradient>
+    <radialGradient id="moon" cx=".48" cy=".45" r=".58">
+      <stop offset="0" stop-color="#f1dfe3" stop-opacity=".92"/>
+      <stop offset=".68" stop-color="#9b7b83" stop-opacity=".68"/>
+      <stop offset="1" stop-color="#6b1b2a" stop-opacity=".05"/>
+    </radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff4f4"/>
+      <stop offset=".42" stop-color="#e43c50"/>
+      <stop offset="1" stop-color="#67101e"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5c6d" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#db2038" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-.5" y="-.5" width="2" height="2">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+    <pattern id="grain" width="72" height="72" patternUnits="userSpaceOnUse">
+      <circle cx="7" cy="12" r="1" fill="#fff" opacity=".12"/>
+      <circle cx="43" cy="55" r="1" fill="#fff" opacity=".08"/>
+      <circle cx="62" cy="24" r=".8" fill="#df3046" opacity=".22"/>
+    </pattern>
+  </defs>
+  <rect width="1440" height="460" rx="24" fill="url(#bg)"/>
+  <rect width="1440" height="460" rx="24" fill="url(#grain)"/>
+  <path d="M0 356C230 304 402 423 666 368s455-84 774-14v106H0z" fill="#08080b" opacity=".78"/>
+  <path d="M0 357C256 309 421 419 668 365s477-81 772-15" fill="none" stroke="#74202c" stroke-opacity=".5"/>
+  <circle cx="1120" cy="224" r="177" fill="#d71831" opacity=".24" filter="url(#glow)"/>
+  <circle cx="1120" cy="224" r="160" fill="url(#moon)" stroke="#e8cdd2" stroke-opacity=".2"/>
+  <path d="M1120 75 1148 237l-28 49-28-49z" fill="url(#blade)" stroke="#fff1f2" stroke-opacity=".7" stroke-width="2"/>
+  <path d="M1120 84v178" stroke="url(#edge)" stroke-width="3"/>
+  <path d="M1056 281h128l-33 14h-62z" fill="#160e14" stroke="#dc394b" stroke-opacity=".78" stroke-width="2"/>
+  <path d="M1112 294h16v37l-8 20-8-20z" fill="#9b1426" stroke="#ed5967" stroke-opacity=".7"/>
+  <path d="M1082 301h76" stroke="#f4d9dd" stroke-opacity=".76" stroke-width="3"/>
+  <path d="M1033 176c19-13 33-20 50-24m119 98c18 2 30 7 45 16" fill="none" stroke="#fff" stroke-opacity=".12"/>
+  <g fill="#f9dfe2" opacity=".75">
+    <circle cx="962" cy="112" r="1.7"/><circle cx="1265" cy="122" r="1.2"/>
+    <circle cx="1297" cy="295" r="1.6"/><circle cx="945" cy="286" r="1.1"/>
+    <circle cx="1233" cy="354" r="1.2"/><circle cx="1000" cy="345" r="1.4"/>
+  </g>
+  <path d="M78 78h62M78 78v62M1362 382h-62M1362 382v-62" fill="none" stroke="#d32a40" stroke-opacity=".6" stroke-width="2"/>
+  <text x="112" y="158" fill="#e74255" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="5">BROWSER // FIREFOX BUILD</text>
+  <text x="106" y="235" fill="#fff4f5" font-family="Segoe UI,Arial,sans-serif" font-size="62" font-weight="800" letter-spacing="3">BLADE</text>
+  <text x="112" y="280" fill="#e9dfe2" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" letter-spacing="1">ТВОЙ БРАУЗЕР. ТВОИ ПРАВИЛА.</text>
+  <rect x="112" y="318" width="335" height="42" rx="8" fill="#32131b" stroke="#a72b3c" stroke-opacity=".75"/>
+  <circle cx="132" cy="339" r="4" fill="#f13c52"/>
+  <text x="148" y="345" fill="#ffdfe3" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="2">КРОВАВАЯ ЛУНА · BLOOD MOON</text>
+  <text x="112" y="405" fill="#c4b6bb" font-family="Segoe UI,Arial,sans-serif" font-size="13" letter-spacing="2.5">WINDOWS X64 · DARK FANTASY · GECKO</text>
+  <rect x="1" y="1" width="1438" height="458" rx="23" fill="none" stroke="#5d2831" stroke-opacity=".7"/>
+</svg>

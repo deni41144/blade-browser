@@ -31,11 +31,21 @@ try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 if ($Version -notmatch '^\d+(\.\d+){0,3}$') {
     throw "Версия должна быть вида 2.0.1 (числа через точку), получено: '$Version'"
 }
+if ($Publish -and [string]::IsNullOrWhiteSpace($Codename)) {
+    throw 'Для публичного релиза укажи -Codename: в заголовке обновления будет имя главы, а не номер версии.'
+}
 
 $root = $PSScriptRoot   # скрипт лежит в корне проекта
 if ($PSScriptRoot -eq '') { $root = (Get-Location).Path }
 # скрипт лежит в корне проекта — конвейеры в Patches\
 $patches = Join-Path $root 'Patches'
+$releaseNotesFile = Join-Path $patches "ReleaseNotes-v$Version.md"
+if ([string]::IsNullOrWhiteSpace($Notes) -and (Test-Path -LiteralPath $releaseNotesFile -PathType Leaf)) {
+    # Keep the in-browser chronicle concise and localized; GitHub receives the
+    # complete bilingual file below.
+    $releaseNotesRaw = [System.IO.File]::ReadAllText($releaseNotesFile)
+    $Notes = [regex]::Split($releaseNotesRaw, '(?m)^---\s*$', 2)[0].Trim()
+}
 if (-not $EngineDir) {
     $engineVersionFile = Join-Path $patches 'firefox-engine-version.txt'
     if (-not (Test-Path -LiteralPath $engineVersionFile -PathType Leaf)) {
@@ -49,13 +59,13 @@ if (-not $BootstrapDir) {
     # пути в сборку не копируют и не изменяют.
     $BootstrapDir = Join-Path $env:LOCALAPPDATA 'Blade\App\Blade'
 }
-$publish = Join-Path $patches 'Publish-Blade-Update.ps1'
-if (-not (Test-Path $publish)) { throw "Не найден конвейер: $publish" }
+$publishScript = Join-Path $patches 'Publish-Blade-Update.ps1'
+if (-not (Test-Path $publishScript)) { throw "Не найден конвейер: $publishScript" }
 
 Write-Host "═══ BLADE RELEASE $Version $(if ($Codename) { "«$Codename»" }) ═══" -ForegroundColor Cyan
 
 # 1. Патч + Full одним вызовом (без публикации — жёсткое правило)
-& $publish -Version $Version -Codename $Codename -Notes $Notes -Mode Full -EngineDir $EngineDir -BootstrapDir $BootstrapDir -SkipPublish
+& $publishScript -Version $Version -Codename $Codename -Notes $Notes -Mode Full -EngineDir $EngineDir -BootstrapDir $BootstrapDir -SkipPublish
 if ($LASTEXITCODE -eq $null -and $? -eq $false) { throw 'Publish-Blade-Update упал' }
 
 # 2. Однофайловый офлайн-установщик со встроенным Full-пакетом и его хешем
@@ -72,19 +82,46 @@ $setupProject = Join-Path $root 'BladeSetup\BladeSetup.csproj'
 $setupOutput = Join-Path $root 'BladeSetup\Output'
 $setupExe = Join-Path $setupOutput 'Blade-Setup.exe'
 New-Item -ItemType Directory -Path $setupOutput -Force | Out-Null
+$setupStage = Join-Path $setupOutput ".staging-v$Version-$PID-$([Guid]::NewGuid().ToString('N'))"
 $publishArgs = @(
     'publish', $setupProject, '-c', 'Release', '-r', 'win-x64', '--self-contained', 'true',
     '-p:PublishSingleFile=true', '-p:IncludeNativeLibrariesForSelfExtract=true',
     '-p:EnableCompressionInSingleFile=true', "-p:BladePayloadPath=$fullZip",
-    "-p:BladePayloadHashPath=$fullHash", '-o', $setupOutput
+    "-p:BladePayloadHashPath=$fullHash", '-o', $setupStage
 )
 & dotnet @publishArgs
-if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $setupExe)) {
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $setupStage 'Blade-Setup.exe') -PathType Leaf)) {
+    if (Test-Path -LiteralPath $setupStage) { Remove-Item -LiteralPath $setupStage -Recurse -Force }
     throw 'Сборка однофайлового Blade-Setup завершилась с ошибкой.'
 }
-$setupHash = (Get-FileHash -LiteralPath $setupExe -Algorithm SHA256).Hash
+$stageExe = Join-Path $setupStage 'Blade-Setup.exe'
+$setupHash = (Get-FileHash -LiteralPath $stageExe -Algorithm SHA256).Hash
 $setupHashPath = "$setupExe.sha256"
-[System.IO.File]::WriteAllText($setupHashPath, "$setupHash  Blade-Setup.exe`n", [System.Text.Encoding]::ASCII)
+[System.IO.File]::WriteAllText((Join-Path $setupStage 'Blade-Setup.exe.sha256'), "$setupHash  Blade-Setup.exe`n", [System.Text.Encoding]::ASCII)
+
+# Публикуем локально только проверенный результат. Предыдущий установщик
+# остаётся доступен для отката; при неудачном переключении восстанавливается.
+$setupBackup = "$setupOutput\Blade-Setup-v$Version-previous-$(Get-Date -Format 'yyyyMMdd-HHmmss-fff').exe"
+$hashBackup = "$setupBackup.sha256"
+$hadSetup = Test-Path -LiteralPath $setupExe -PathType Leaf
+$hadSetupHash = Test-Path -LiteralPath $setupHashPath -PathType Leaf
+try {
+    if ($hadSetup) { Move-Item -LiteralPath $setupExe -Destination $setupBackup }
+    if ($hadSetupHash) { Move-Item -LiteralPath $setupHashPath -Destination $hashBackup }
+    Move-Item -LiteralPath $stageExe -Destination $setupExe
+    Move-Item -LiteralPath (Join-Path $setupStage 'Blade-Setup.exe.sha256') -Destination $setupHashPath
+    if ((Get-FileHash -LiteralPath $setupExe -Algorithm SHA256).Hash -ne $setupHash) {
+        throw 'Контрольная сумма опубликованного локально Setup изменилась при переносе.'
+    }
+} catch {
+    if (Test-Path -LiteralPath $setupExe) { Remove-Item -LiteralPath $setupExe -Force }
+    if (Test-Path -LiteralPath $setupHashPath) { Remove-Item -LiteralPath $setupHashPath -Force }
+    if ($hadSetup -and (Test-Path -LiteralPath $setupBackup)) { Move-Item -LiteralPath $setupBackup -Destination $setupExe }
+    if ($hadSetupHash -and (Test-Path -LiteralPath $hashBackup)) { Move-Item -LiteralPath $hashBackup -Destination $setupHashPath }
+    if (Test-Path -LiteralPath $setupStage) { Remove-Item -LiteralPath $setupStage -Recurse -Force }
+    throw
+}
+Remove-Item -LiteralPath $setupStage -Recurse -Force
 Write-Host "Офлайн-установщик собран: $setupExe" -ForegroundColor Green
 
 $patchZip = Join-Path $patches "Blade-Patch-v$Version.zip"
@@ -123,9 +160,7 @@ if ($Publish) {
     if ($LASTEXITCODE -ne 0) { throw 'Не удалось проверить теги origin перед публикацией.' }
     if ($remoteTag) { throw "Тег v$Version уже существует в origin; автоматическая замена запрещена." }
 
-    $releaseNotesFile = Join-Path $patches "ReleaseNotes-v$Version.md"
-    $releaseTitle = "Blade v$Version"
-    if ($Codename) { $releaseTitle += " — $Codename" }
+    $releaseTitle = if ($Codename) { "Blade — $Codename" } else { "Blade — обновление" }
     $releaseArgs = @('release', 'create', "v$Version") + $releaseAssets + @(
         '--repo', $Repo, '--title', $releaseTitle, '--target', $targetCommit, '--latest'
     )

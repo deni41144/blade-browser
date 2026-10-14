@@ -437,6 +437,9 @@ public static class InstallerLogic
             long totalBytes = entries.Sum(e => e.Entry.Length);
             long processedBytes = 0;
             long processedEntries = 0;
+            long lastProgressTimestamp = Stopwatch.GetTimestamp();
+            double lastReportedPercent = -1;
+            string lastReportedStage = string.Empty;
             const int bufferSize = 64 * 1024;
             byte[] buffer = new byte[bufferSize];
             string root = Path.GetFullPath(targetDir);
@@ -471,20 +474,36 @@ public static class InstallerLogic
                         double percent = totalBytes > 0
                             ? Math.Min(97.5, (double)processedBytes / totalBytes * 97.5)
                             : Math.Min(97.5, (double)processedEntries / Math.Max(1, entries.Count) * 97.5);
-                        progress.Report(new InstallProgressReport
+                        long now = Stopwatch.GetTimestamp();
+                        double elapsedMs = (now - lastProgressTimestamp) * 1000.0 / Stopwatch.Frequency;
+                        if (stage != lastReportedStage || percent - lastReportedPercent >= 0.25 || elapsedMs >= 100)
                         {
-                            Percent = percent,
-                            Stage = stage,
-                            CurrentItem = Path.GetFileName(destPath),
-                            ProcessedBytes = processedBytes,
-                            TotalBytes = totalBytes
-                        });
+                            progress.Report(new InstallProgressReport
+                            {
+                                Percent = percent,
+                                Stage = stage,
+                                CurrentItem = Path.GetFileName(destPath),
+                                ProcessedBytes = processedBytes,
+                                TotalBytes = totalBytes
+                            });
+                            lastProgressTimestamp = now;
+                            lastReportedPercent = percent;
+                            lastReportedStage = stage;
+                        }
                     }
                 }
                 if (entryBytes != planned.Entry.Length)
                     throw new InvalidDataException($"Файл в архиве неполный: {planned.ArchivePath}");
                 processedEntries++;
             }
+            progress.Report(new InstallProgressReport
+            {
+                Percent = 97.5,
+                Stage = "Проверка пакета завершена...",
+                CurrentItem = "Файлы подготовлены",
+                ProcessedBytes = processedBytes,
+                TotalBytes = totalBytes
+            });
         }, cancellationToken);
     }
 

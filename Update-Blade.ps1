@@ -24,6 +24,17 @@ $Backups = Join-Path $Ro 'Backups'
 
 function Write-Step($m) { Write-Host "==> $m" -ForegroundColor Cyan }
 function Write-Ok($m)   { Write-Host "    $m" -ForegroundColor Green }
+function Test-PathWithin([string]$Candidate, [string]$Parent) {
+  $candidateFull = [System.IO.Path]::GetFullPath($Candidate)
+  $parentFull = [System.IO.Path]::GetFullPath($Parent)
+  $directorySeparator = [string][System.IO.Path]::DirectorySeparatorChar
+  $alternateSeparator = [string][System.IO.Path]::AltDirectorySeparatorChar
+  if (-not $parentFull.EndsWith($directorySeparator, [StringComparison]::Ordinal) -and
+      -not $parentFull.EndsWith($alternateSeparator, [StringComparison]::Ordinal)) {
+    $parentFull += [System.IO.Path]::DirectorySeparatorChar
+  }
+  return $candidateFull.StartsWith($parentFull, [StringComparison]::OrdinalIgnoreCase)
+}
 
 # --- 0. Проверки (№1) ---------------------------------------------------------
 Write-Step "Проверки"
@@ -36,10 +47,10 @@ if (-not (Test-Path (Join-Path $NewFirefox 'browser\omni.ja'))) {
 $srcFull = (Resolve-Path $NewFirefox).Path
 $appFull = (Resolve-Path $App).Path
 if ($srcFull -eq $appFull) { throw "Источник совпадает с целевой папкой — само-зеркало, отказываюсь" }
-if ($srcFull.StartsWith($appFull, [StringComparison]::OrdinalIgnoreCase)) {
+if (Test-PathWithin $srcFull $appFull) {
   throw "Источник '$srcFull' лежит ВНУТРИ целевой '$appFull' — robocopy /MIR уничтожил бы установку. Распакуй новый Firefox в отдельное место."
 }
-if ($appFull.StartsWith($srcFull, [StringComparison]::OrdinalIgnoreCase)) {
+if (Test-PathWithin $appFull $srcFull) {
   throw "Целевая папка лежит внутри источника — отказано (защита от самоуничтожения)"
 }
 foreach ($f in @('brand.ftl','brand.properties','icon.ico','master_icon.png','rcedit.exe')) {
@@ -50,7 +61,7 @@ Write-Ok "пути валидны"
 # --- 1. Килл только процессов Blade (№2) ---------------------------------------
 Write-Step "Остановка Blade (и только Blade)"
 $mine = Get-CimInstance Win32_Process -Filter "Name='firefox.exe'" |
-        Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($appFull, [StringComparison]::OrdinalIgnoreCase) }
+        Where-Object { $_.ExecutablePath -and (Test-PathWithin $_.ExecutablePath $appFull) }
 if ($mine) {
   $mine | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
   Start-Sleep -Seconds 3
@@ -83,15 +94,27 @@ try {
 
   # 5. Возврат наших файлов из сохранённой версии
   Write-Step "Возврат config.js / config-prefs.js / blade-defaults.js / policies.json"
-  Copy-Item (Join-Path $appBackup 'config.js') $App -ErrorAction SilentlyContinue
-  $prefDir = Join-Path $App 'defaults\pref'
-  New-Item -ItemType Directory -Force -Path $prefDir | Out-Null
-  Copy-Item (Join-Path $appBackup 'defaults\pref\config-prefs.js') $prefDir -ErrorAction SilentlyContinue
-  Copy-Item (Join-Path $appBackup 'defaults\pref\blade-defaults.js') $prefDir -ErrorAction SilentlyContinue
-  $distDir = Join-Path $App 'distribution'
-  New-Item -ItemType Directory -Force -Path $distDir | Out-Null
-  Copy-Item (Join-Path $appBackup 'distribution\policies.json') $distDir -ErrorAction SilentlyContinue
-  Write-Ok "autoconfig, движковые дефолты и политики на месте"
+  $preservedFiles = @(
+    @{ RelativePath = 'config.js'; Destination = $App },
+    @{ RelativePath = 'defaults\pref\config-prefs.js'; Destination = (Join-Path $App 'defaults\pref') },
+    @{ RelativePath = 'defaults\pref\blade-defaults.js'; Destination = (Join-Path $App 'defaults\pref') },
+    @{ RelativePath = 'distribution\policies.json'; Destination = (Join-Path $App 'distribution') }
+  )
+  foreach ($entry in $preservedFiles) {
+    $savedFile = Join-Path $appBackup $entry.RelativePath
+    if (-not (Test-Path -LiteralPath $savedFile -PathType Leaf)) {
+      throw "В резервной копии отсутствует обязательный файл Blade: $($entry.RelativePath)"
+    }
+    New-Item -ItemType Directory -Force -Path $entry.Destination | Out-Null
+    $restoredFile = Join-Path $entry.Destination (Split-Path -Leaf $entry.RelativePath)
+    Copy-Item -LiteralPath $savedFile -Destination $restoredFile -Force -ErrorAction Stop
+    if (-not (Test-Path -LiteralPath $restoredFile -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $savedFile -Algorithm SHA256).Hash -ne
+        (Get-FileHash -LiteralPath $restoredFile -Algorithm SHA256).Hash) {
+      throw "Не удалось проверить восстановленный файл Blade: $($entry.RelativePath)"
+    }
+  }
+  Write-Ok "4 файла конфигурации восстановлены и сверены по SHA-256"
   # crashreporter возвращается с новым движком — снова в утиль
   $cr = Join-Path $App 'crashreporter.exe'
   if (Test-Path $cr) { Remove-Item $cr -Force; Write-Ok "crashreporter.exe удалён" }
@@ -262,10 +285,25 @@ try {
   $junk = @('default-browser-agent.exe','pingsender.exe','maintenanceservice.exe',
             'maintenanceservice_installer.exe','updater.exe','updater.ini','update-settings.ini',
             'firefox.VisualElementsManifest.xml','private_browsing.VisualElementsManifest.xml')
-  foreach ($j in $junk) { Remove-Item (Join-Path $App $j) -Force -ErrorAction SilentlyContinue }
-  Remove-Item "$App\*.sig" -Force -ErrorAction SilentlyContinue
-  Remove-Item (Join-Path $App 'browser\VisualElements') -Recurse -Force -ErrorAction SilentlyContinue
-  Write-Ok "мусор удалён"
+  $removedJunk = 0
+  $cleanupWarnings = 0
+  foreach ($j in $junk) {
+    $path = Join-Path $App $j
+    if (-not (Test-Path -LiteralPath $path)) { continue }
+    try { Remove-Item -LiteralPath $path -Force -ErrorAction Stop; $removedJunk++ }
+    catch { $cleanupWarnings++; Write-Warning "Не удалось удалить $path : $($_.Exception.Message)" }
+  }
+  foreach ($signature in @(Get-ChildItem -LiteralPath $App -Filter '*.sig' -File -ErrorAction SilentlyContinue)) {
+    try { Remove-Item -LiteralPath $signature.FullName -Force -ErrorAction Stop; $removedJunk++ }
+    catch { $cleanupWarnings++; Write-Warning "Не удалось удалить $($signature.FullName): $($_.Exception.Message)" }
+  }
+  $visualElements = Join-Path $App 'browser\VisualElements'
+  if (Test-Path -LiteralPath $visualElements) {
+    try { Remove-Item -LiteralPath $visualElements -Recurse -Force -ErrorAction Stop; $removedJunk++ }
+    catch { $cleanupWarnings++; Write-Warning "Не удалось удалить $visualElements : $($_.Exception.Message)" }
+  }
+  if ($cleanupWarnings -eq 0) { Write-Ok "удалено элементов: $removedJunk" }
+  else { Write-Warning "Удалено элементов: $removedJunk; не удалено: $cleanupWarnings" }
 
   Write-Host ""
   Write-Host "Blade обновлён: $stamp" -ForegroundColor Magenta

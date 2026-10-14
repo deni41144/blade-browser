@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 >nul
-title Сборка Blade Setup v2.0
+title Сборка Blade Setup 1.4.4 — предпросмотр интерфейса
 cd /d "%~dp0"
 echo ========================================================
-echo       СБОРКА BLADE SETUP v2.0 (C# WPF / .NET 9)
+echo       BLADE SETUP 1.4.4 — ПРЕДПРОСМОТР ИНТЕРФЕЙСА
 echo ========================================================
 echo.
 
@@ -18,8 +18,8 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [1/2] Компиляция и публикация Blade-Setup.exe (Single-File, win-x64)...
-dotnet publish BladeSetup.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o "Output"
+echo [1/2] Компиляция UI-preview (без встроенного движка Firefox)...
+dotnet publish BladeSetup.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o "Output-Preview"
 
 if %ERRORLEVEL% neq 0 (
     echo.
@@ -30,9 +30,9 @@ if %ERRORLEVEL% neq 0 (
 
 echo.
 echo [2/2] Сборка успешно завершена!
-echo Файл: %~dp0Output\Blade-Setup.exe
+echo Файл: %~dp0Output-Preview\Blade-Setup.exe
 echo.
-echo Для выпуска офлайн-установщика с уже встроенным Firefox запустите:
-echo powershell -ExecutionPolicy Bypass -File "..\New-Blade-Release.ps1" -Version 2.3.6
+echo Это окно не содержит браузер. Для полного релиза со встроенным движком запустите:
+echo powershell -ExecutionPolicy Bypass -File "..\New-Blade-Release.ps1" -Version ^<версия^>
 echo.
 pause

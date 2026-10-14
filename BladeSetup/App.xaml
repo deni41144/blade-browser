@@ -54,10 +54,10 @@
                           ShadowDepth="0" />
 
         <!-- ======================================================== -->
-        <!-- BUTTON STYLES: OPERA GX TACTILE SCALE & NEON GLOW        -->
+        <!-- BUTTON STYLES: одинаковые клавиатурные состояния и акцент Blade -->
         <!-- ======================================================== -->
 
-        <!-- Стандартная кнопка (AVA Secondary/Utility) -->
+        <!-- Стандартная кнопка для вторичных действий -->
         <Style x:Key="BladeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource BrushCardBg}" />
             <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
@@ -120,6 +120,10 @@
                                 <Setter TargetName="border" Property="Background" Value="#120E11" />
                                 <Setter TargetName="border" Property="BorderBrush" Value="#67434A" />
                             </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#F28B95" />
+                                <Setter TargetName="border" Property="BorderThickness" Value="2" />
+                            </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
                                 <Setter Property="Cursor" Value="Arrow" />
@@ -130,7 +134,7 @@
             </Setter>
         </Style>
 
-        <!-- Акцентная кнопка AVA 3.0 / Opera GX (Scale 1.03 + MegaGlow при Hover) -->
+        <!-- Главная кнопка -->
         <Style x:Key="BladeAccentButtonStyle" TargetType="Button">
             <Setter Property="Foreground" Value="#FFFFFF" />
             <Setter Property="BorderBrush" Value="#C84B57" />
@@ -211,6 +215,10 @@
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FFFFFF" />
+                                <Setter TargetName="border" Property="BorderThickness" Value="2" />
+                            </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
                                 <Setter Property="Cursor" Value="Arrow" />
@@ -221,7 +229,7 @@
             </Setter>
         </Style>
 
-        <!-- Ghost-кнопка AVA (Назад / Отмена / Выйти со scale и мягким свечением) -->
+        <!-- Нейтральная кнопка -->
         <Style x:Key="BladeGhostButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}" />
@@ -284,6 +292,10 @@
                                 <Setter TargetName="border" Property="Background" Value="#171216" />
                                 <Setter TargetName="border" Property="BorderBrush" Value="#67434A" />
                             </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#F28B95" />
+                                <Setter TargetName="border" Property="BorderThickness" Value="2" />
+                            </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
                                 <Setter Property="Cursor" Value="Arrow" />
@@ -329,7 +341,7 @@
         </Style>
 
         <!-- ======================================================== -->
-        <!-- TEXTBOX STYLE: AVA 3.0 (4 состояния ввода)               -->
+        <!-- Поле пути с заметным состоянием фокуса                    -->
         <!-- ======================================================== -->
         <Style x:Key="BladeTextBoxStyle" TargetType="TextBox">
             <Setter Property="Background" Value="#171317" />
@@ -371,7 +383,7 @@
         </Style>
 
         <!-- ======================================================== -->
-        <!-- CHECKBOX STYLE: AVA 3.0                                  -->
+        <!-- Флажок с клавиатурным фокусом и состоянием выбора         -->
         <!-- ======================================================== -->
         <Style x:Key="BladeCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
@@ -408,6 +420,10 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="boxBorder" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
                             </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="boxBorder" Property="BorderBrush" Value="#F28B95" />
+                                <Setter TargetName="boxBorder" Property="BorderThickness" Value="2" />
+                            </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
                             </Trigger>
@@ -418,7 +434,7 @@
         </Style>
 
         <!-- ======================================================== -->
-        <!-- SCROLLBAR: AVA 3.0 MINIMAL RED ACCENT                    -->
+        <!-- Тонкая полоса прокрутки с акцентом Blade                  -->
         <!-- ======================================================== -->
         <Style x:Key="BladeScrollBarThumb" TargetType="Thumb">
             <Setter Property="Template">

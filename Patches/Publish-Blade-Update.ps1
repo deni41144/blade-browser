@@ -152,14 +152,8 @@ if ($InitRepo -and -not $SkipPublish) {
 $buildScript = Join-Path $PatchesDir 'Build-Blade-Patch.ps1'
 $patchZip = Join-Path $PatchesDir "Blade-Patch-v$Version.zip"
 $buildStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-if (Test-Path -LiteralPath $patchZip) {
-    $savedPatch = Join-Path $PatchesDir "Blade-Patch-v$Version.previous-$buildStamp.zip"
-    Copy-Item -LiteralPath $patchZip -Destination $savedPatch
-    if (Test-Path -LiteralPath "$patchZip.sha256") {
-        Copy-Item -LiteralPath "$patchZip.sha256" -Destination "$savedPatch.sha256"
-    }
-    Write-Host "Предыдущий патч сохранён: $savedPatch" -ForegroundColor DarkGray
-}
+# Build-Blade-Patch itself stages, verifies and atomically replaces the ZIP +
+# checksum sidecar, preserving one rollback copy without duplicating the archive.
 # PS 5.1 выкидывает пустые строки из аргументов powershell -File: -Notes ''
 # съедал следующий параметр и валил сборку. Передаём -Notes только непустым.
 $buildArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $buildScript,
@@ -185,6 +179,8 @@ if ($Mode -eq 'Full') {
     Write-Host 'Сборка полного пакета (движок + кастомизация)...' -ForegroundColor Cyan
     $releaseStage = Join-Path $PatchesDir ("build\release-v{0}-{1}" -f $Version, [guid]::NewGuid().ToString('N'))
     $fullStaging = Join-Path $releaseStage 'full'
+    $fullCandidate = ''
+    try {
     New-Item -ItemType Directory -Path $releaseStage -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $fullStaging 'App\Firefox64') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $fullStaging 'profile') -Force | Out-Null
@@ -352,6 +348,27 @@ if ($Mode -eq 'Full') {
     $sizeMB = [Math]::Round((Get-Item $fullZip).Length / 1MB, 1)
     Write-Host "Полный пакет собран: $fullZip ($sizeMB МБ)" -ForegroundColor Green
     $assetPath = $fullZip
+    } finally {
+        # Ошибка на любом этапе не должна оставлять сотни мегабайт временной копии движка.
+        $buildRoot = [System.IO.Path]::GetFullPath((Join-Path $PatchesDir 'build')).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+        $stageFullPath = [System.IO.Path]::GetFullPath($releaseStage)
+        if ($stageFullPath.StartsWith($buildRoot, [System.StringComparison]::OrdinalIgnoreCase) -and
+            (Test-Path -LiteralPath $stageFullPath -PathType Container)) {
+            $stageItem = Get-Item -LiteralPath $stageFullPath -Force
+            $stageLink = Get-ChildItem -LiteralPath $stageFullPath -Recurse -Force -ErrorAction SilentlyContinue |
+                Where-Object { $_.Attributes -band [System.IO.FileAttributes]::ReparsePoint } | Select-Object -First 1
+            if (-not ($stageItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -and -not $stageLink) {
+                try { Remove-Item -LiteralPath $stageFullPath -Recurse -Force -ErrorAction Stop }
+                catch { Write-Warning "Не удалось убрать временную папку сборки: $stageFullPath ($($_.Exception.Message))" }
+            } else {
+                Write-Warning "Временная папка содержит ссылку; оставляю её для ручной проверки: $stageFullPath"
+            }
+        }
+        if ($fullCandidate -and (Test-Path -LiteralPath $fullCandidate -PathType Leaf)) {
+            try { Remove-Item -LiteralPath $fullCandidate -Force -ErrorAction Stop }
+            catch { Write-Warning "Не удалось убрать временный архив: $fullCandidate ($($_.Exception.Message))" }
+        }
+    }
 }
 
 # --- 2b. Хеш-файл для проверки целостности у друзей (формат sha256sum: "<hash>  <имя>") ---
@@ -386,10 +403,9 @@ if ($SkipPublish) {
     exit 0
 }
 
-$releaseNotes = "Blade v$Version`n$(Get-Date -Format 'yyyy-MM-dd')`n"
+$releaseNotes = "Blade — обновление`n$(Get-Date -Format 'yyyy-MM-dd')`n"
 if ($Notes) { $releaseNotes += "`n$Notes" }
-$releaseTitle = "Blade v$Version"
-if ($Codename) { $releaseTitle = "Blade v$Version — $Codename" }
+$releaseTitle = if ($Codename) { "Blade — $Codename" } else { 'Blade — обновление' }
 $releaseArgs = @('release', 'create', "v$Version", $assetPath, $hashFile,
     '--repo', $Repo, '--title', $releaseTitle, '--notes', $releaseNotes)
 if ($Draft) { $releaseArgs += '--draft' }

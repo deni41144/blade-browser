@@ -1,25 +1,17 @@
 <p align="center">
-  <img src="assets/AVA3.0.png" width="132" alt="Фирменная эмблема Blade">
-</p>
-
-<h1 align="center">BLADE</h1>
-
-<p align="center">
-  <strong>Твой браузер. Твои правила.</strong><br>
-  Кастомный Firefox для Windows с авторским интерфейсом в тёмно-фэнтезийном стиле.
+  <img src="assets/blade-github-hero.svg" alt="Blade — Кровавая Луна / Blood Moon" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe"><img src="https://img.shields.io/badge/Скачать-установщик-C8102E?style=for-the-badge&logo=windows&logoColor=white" alt="Скачать установщик Blade"></a>
-  <a href="https://github.com/deni41144/blade-browser/releases/download/v2.3.6/Blade-Patch-v2.3.6.zip"><img src="https://img.shields.io/badge/Обновить-2.3.6-252329?style=for-the-badge&logo=firefoxbrowser&logoColor=white" alt="Скачать патч Blade 2.3.6"></a>
-  <a href="https://github.com/deni41144/blade-browser/releases"><img src="https://img.shields.io/badge/Все-релизы-252329?style=for-the-badge&logo=github&logoColor=white" alt="Все релизы Blade"></a>
+  <a href="https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe"><img src="https://img.shields.io/badge/Скачать%20Blade-Windows%20x64-C8102E?style=for-the-badge&logo=windows&logoColor=white" alt="Скачать Blade для Windows x64"></a>
+  <a href="https://github.com/deni41144/blade-browser/releases/latest"><img src="https://img.shields.io/badge/Текущая%20глава-Кровавая%20Луна-292329?style=for-the-badge" alt="Текущий релиз — Кровавая Луна"></a>
+  <a href="https://github.com/deni41144/blade-browser/releases"><img src="https://img.shields.io/badge/Архив-всех%20релизов-292329?style=for-the-badge&logo=github&logoColor=white" alt="Все релизы Blade"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/deni41144/blade-browser/releases/latest"><img src="https://img.shields.io/github/v/release/deni41144/blade-browser?label=версия&color=C8102E" alt="Последняя версия"></a>
-  <a href="https://github.com/deni41144/blade-browser/releases"><img src="https://img.shields.io/github/downloads/deni41144/blade-browser/total?label=загрузки&color=29252B" alt="Загрузки релизов"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%2F%2011-55515A" alt="Windows 10 и 11">
-  <img src="https://img.shields.io/badge/Firefox-Gecko-FF7139" alt="Движок Firefox Gecko">
+  <img src="https://img.shields.io/badge/Engine-Firefox%20Gecko-FF7139" alt="Движок Firefox Gecko">
+  <img src="https://img.shields.io/badge/Release-Blood%20Moon-C8102E" alt="Релиз Blood Moon">
 </p>
 
 <p align="center"><a href="#ru">Русский</a> · <a href="#en">English</a></p>
@@ -28,67 +20,85 @@
 
 <a id="ru"></a>
 
-## Что такое Blade
+## Blade — браузер с характером
 
-**Blade** — браузер для Windows на движке Firefox. Внутри остаётся Gecko; Blade добавляет собственный интерфейс, темы, оформление сайтов и настройки энергосбережения. Это не новый браузерный движок и не форк, который переписывает Firefox.
+Blade — браузер для Windows на движке Firefox. Gecko остаётся под капотом; Blade добавляет свой интерфейс, тёмные темы, оформление сайтов и инструменты управления фоновыми вкладками.
 
-### Скачать и установить
+**Текущая глава — «Кровавая Луна» / Blood Moon.** У релизов есть имена, а технические номера сохранены только в тегах и файлах: они нужны для безопасного поиска обновлений и отката.
 
-| Что нужно | Файл | Как использовать |
-|---|---|---|
-| Установить Blade впервые | [Blade-Setup.exe · около 241 МиБ](https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe) | Автономный установщик со встроенным полным пакетом браузера. |
-| Обновить уже установленный Blade | [Патч 2.3.6 · около 31 МиБ](https://github.com/deni41144/blade-browser/releases/download/v2.3.6/Blade-Patch-v2.3.6.zip) | Откройте **B → Обновы → Проверить сейчас** или примените патч вручную. |
-| Посмотреть другие версии | [Все релизы](https://github.com/deni41144/blade-browser/releases) | В релизах лежат установщик, патч, полный архив и SHA-256. |
+### Скачать и начать
 
-Установщик предназначен для Windows x64 и работает без отдельной загрузки Firefox. Сам установщик пока **не подписан сертификатом издателя**: Windows может показать предупреждение SmartScreen. Для проверки целостности скачайте `Blade-Setup.exe.sha256` рядом с EXE и сравните хеш командой:
+- **Установить впервые:** [скачать автономный установщик](https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe). Браузер уже внутри — отдельный Firefox не нужен.
+- **Обновить Blade:** откройте **B → Обновы → Проверить сейчас** или скачайте патч со [страницы текущего релиза](https://github.com/deni41144/blade-browser/releases/latest).
+- **Найти предыдущий выпуск:** откройте [архив релизов](https://github.com/deni41144/blade-browser/releases). Доступные файлы и SHA-256 указаны на странице каждого выпуска.
+
+Установщик рассчитан на Windows x64. Он пока **не подписан сертификатом издателя**, поэтому Windows может показать предупреждение SmartScreen. Чтобы проверить загруженный файл, сравните вывод `Get-FileHash` с `.sha256` из того же релиза:
 
 ```powershell
 Get-FileHash .\Blade-Setup.exe -Algorithm SHA256
 ```
 
-### Что внутри
+### Что меняет Blade
 
-- **Интерфейс Blade:** 10 тёмных тем, конструктор своей темы, панель B, тематические плитки и обложки сайтов.
-- **Полноценная страница новой вкладки:** фон, часы с секундной точностью, погода и ярлыки. Часы браузерной панели обновляются раз в минуту.
-- **Настройки памяти:** умеренный лимит контентных процессов, ограниченная история BFCache и выгрузка фоновых вкладок при давлении на память.
-- **Сдержанные фоновые эффекты:** декоративные анимации окна ставятся на паузу, когда оно свёрнуто или неактивно; активный визуал сохраняется. Режим Eco и энергосбережение останавливают атмосферу новой вкладки.
-- **Защита Firefox:** строгая защита от отслеживания и uBlock Origin; DNS-over-HTTPS остаётся на выбор пользователя.
-- **Обновления Blade:** проверка через панель B, резервная копия перед установкой патча и восстановление при неудачном обновлении.
+**Интерфейс и визуал**
 
-Версия **2.3.6** основана на Firefox **158.0**. Интерфейс и страницы сведений оформлены в Blade; `firefox.exe` остаётся официальным файлом с действительной подписью Mozilla Corporation. Изменения перечислены в [заметках выпуска](Patches/ReleaseNotes-v2.3.6.md).
+- 10 тёмных тем и конструктор своей темы, панель B, плитки и обложки сайтов.
+- Новая вкладка с авторскими фонами, часами, погодой и ярлыками.
+- Темы и анимации Blade остаются включены в активном окне.
 
-### Проверка файлов релиза
+**Работа в фоне**
 
-У каждого архива и установщика есть `.sha256` sidecar. Скачайте файл и соответствующий SHA-256 из одного релиза, затем сравните результат `Get-FileHash` с первой строкой sidecar. Не используйте хеш из другой версии.
+- Неиспользуемые веб-вкладки выгружаются после 30 минут бездействия; закреплённые вкладки, звук, PiP и демонстрация экрана защищены.
+- Эффекты приостанавливаются у свёрнутого или неактивного окна и возвращаются вместе с фокусом.
+- Расход памяти зависит от сайтов, расширений и открытых страниц; фиксированный объём RAM не обещается.
+
+### Приватность и устройство
+
+- Blade основан на Firefox и использует движок Gecko; это кастомная сборка, а не новый движок браузера.
+- Защиту от отслеживания обеспечивает Firefox ETP и uBlock Origin.
+- DNS-over-HTTPS настраивается пользователем; Blade не обещает скрыть посещённые сайты от всех сетевых сторон.
+- Обновлятор Blade загружает патч потоком на диск, проверяет SHA-256, делает резервную копию и умеет откатывать неудачное применение.
+- В сборке используется Firefox `158.0`; исходный `firefox.exe` сохраняет действительную подпись Mozilla Corporation.
+
+### Имена релизов
+
+Начиная с **Кровавой Луны / Blood Moon**, у каждого обновления будет собственное имя-глава. Номер останется в технической метке и именах файлов, чтобы updater мог безопасно сравнивать сборки и выполнять откат. Старые выпуски сохраняют свои исходные заголовки.
 
 ---
 
 <a id="en"></a>
 
-## English
+## Blade — a browser with a point of view
 
-**Blade** is a Windows browser built on Firefox. It keeps Gecko and adds the Blade interface, dark themes, website artwork and power-saving controls. It is a custom Firefox build, not a new browser engine.
+Blade is a Windows browser built on Firefox. Gecko stays under the hood; Blade adds its own interface, dark themes, website artwork and background-tab controls.
 
-### Download
+**The current chapter is “Blood Moon.”** Releases have names; technical numbers remain in tags and filenames so the updater can compare builds and roll back safely.
 
-| Purpose | File | Notes |
-|---|---|---|
-| First installation | [Blade-Setup.exe · about 241 MiB](https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe) | Offline installer with the complete browser package embedded. |
-| Update Blade 2.3.6 | [Patch · about 31 MiB](https://github.com/deni41144/blade-browser/releases/download/v2.3.6/Blade-Patch-v2.3.6.zip) | Use **B → Обновы → Проверить сейчас** or apply the patch manually. |
-| Other versions | [All releases](https://github.com/deni41144/blade-browser/releases) | Installer, patch, full package and SHA-256 files. |
+### Download and get started
 
-The installer targets Windows x64. It is **not yet signed with a publisher certificate**, so Windows SmartScreen may show a warning. Verify downloads with the `.sha256` file included in the same release.
+| You need | Go here |
+|---|---|
+| Install Blade | [Download the standalone installer](https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe). The browser is embedded; no separate Firefox download is needed. |
+| Update Blade | Open **B → Обновы → Проверить сейчас**, or choose the patch on the [latest release page](https://github.com/deni41144/blade-browser/releases/latest). |
+| Browse previous releases | [All releases](https://github.com/deni41144/blade-browser/releases). Available downloads and SHA-256 files are listed on each release page. |
 
-### Features
+The installer targets Windows x64. It is **not signed with a publisher certificate**, so Windows SmartScreen may show a warning. Compare `Get-FileHash` with the `.sha256` file from the same release to verify a download.
 
-- 10 dark themes, a custom theme builder, Blade's B panel and themed website tiles.
-- A new-tab page with animated artwork, a second-accurate clock, weather and shortcuts.
-- Memory-conscious profile settings and background-tab unloading under memory pressure.
-- Decorative browser effects pause in minimized or unfocused windows; active-window visuals remain enabled.
-- Firefox Enhanced Tracking Protection, uBlock Origin and user-selectable DNS-over-HTTPS.
-- In-browser update checks, a backup before patch installation and recovery after a failed update.
+### What Blade adds
 
-Blade 2.3.6 is based on Firefox 158.0. Browser pages and visible branding use Blade; the original `firefox.exe` remains signed by Mozilla Corporation. See the [release notes](Patches/ReleaseNotes-v2.3.6.md).
+- Ten dark themes, a custom theme builder, the B panel, themed tiles and website artwork.
+- An authored new-tab page with backgrounds, a clock, weather and shortcuts.
+- Unused web tabs unload after 30 minutes. Pinned tabs, audio, Picture-in-Picture and screen sharing are protected.
+- Browser effects pause while the window is minimized or unfocused and return with focus; the active window keeps its full Blade look.
+- Memory use depends on websites, extensions and open pages; Blade does not promise a fixed RAM number.
+- Firefox Enhanced Tracking Protection and uBlock Origin. DNS-over-HTTPS stays user-configurable.
+- One-click updates with streamed downloads, SHA-256 verification, backup and rollback.
+
+Blade uses Firefox `158.0`; the original `firefox.exe` keeps its valid Mozilla Corporation signature. Blade is a custom Firefox build, not a separate browser engine.
+
+### Release names
+
+Starting with **Blood Moon**, each update gets its own chapter name. The technical tag and filenames stay in place so the updater can compare builds and recover safely. Older releases keep their original titles.
 
 ---
 
@@ -96,6 +106,6 @@ Blade 2.3.6 is based on Firefox 158.0. Browser pages and visible branding use Bl
 
 - Browser, code, interface and themes — **Denis Bobliksov**.
 - Widget and cover artwork — **zxvolfik**, used with permission and attribution.
-- Mozilla Public License 2.0 applies to the Firefox engine. See [LICENSE.md](LICENSE.md) for Blade and artwork terms.
+- Firefox is distributed under the Mozilla Public License 2.0. See [LICENSE.md](LICENSE.md) for the engine, Blade code and artwork terms.
 
-*Blade is an independent Firefox-based project. It is not affiliated with or endorsed by Mozilla. Firefox is a trademark of the Mozilla Foundation.*
+*Blade is an independent project based on Mozilla Firefox. It is not affiliated with or endorsed by Mozilla. Firefox is a trademark of the Mozilla Foundation.*

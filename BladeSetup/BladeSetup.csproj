@@ -11,9 +11,9 @@
     <RootNamespace>BladeSetup</RootNamespace>
     <AssemblyTitle>Blade Setup</AssemblyTitle>
     <Product>Blade Browser</Product>
-    <Version>1.4.3</Version>
-    <FileVersion>1.4.3.0</FileVersion>
-    <AssemblyVersion>1.4.3.0</AssemblyVersion>
+    <Version>1.4.4</Version>
+    <FileVersion>1.4.4.0</FileVersion>
+    <AssemblyVersion>1.4.4.0</AssemblyVersion>
     <Company>Blade-Creations</Company>
     <Copyright>Copyright © 2026 Denis Bobliksov</Copyright>
     
@@ -26,17 +26,10 @@
 
   <ItemGroup>
     <Resource Include="Blade.ico" />
-    <Resource Include="blade-logo.png" />
     <Resource Include="blade-logo-78.png" />
     <Resource Include="blade-logo-56.png" />
     <Resource Include="blade-logo-72.png" />
     <Resource Include="blade-logo-14.png" />
-    <Resource Include="ava-logo-14.png" />
-    <Resource Include="ava-logo-32.png" />
-    <Resource Include="ava-logo-56.png" />
-    <Resource Include="ava-logo-72.png" />
-    <Resource Include="ava-logo-78.png" />
-    <Resource Include="ava-logo-256.png" />
     <Resource Include="license.txt" />
   </ItemGroup>
 
