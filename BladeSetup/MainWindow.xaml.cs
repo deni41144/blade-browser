@@ -201,12 +201,12 @@ public partial class MainWindow : Window
 
     private void CheckAndProceedInstallation(string? dataZipPath)
     {
-        // Check 2: Firefox running from target
+        // Check 2: Blade or its taskbar-icon watcher running from target
         if (InstallerLogic.IsFirefoxRunningFromTarget(_currentTargetDir))
         {
             ShowModalDialog(
                 title: "Blade запущен",
-                message: "Обнаружен работающий процесс Firefox из папки установки.\n\nПожалуйста, закройте браузер перед продолжением.",
+                message: "Blade ещё работает из выбранной папки. Закройте все его окна и повторите установку.",
                 primaryText: "Повторить",
                 onPrimary: () => CheckAndProceedInstallation(dataZipPath),
                 secondaryText: "Отмена",
@@ -278,11 +278,12 @@ public partial class MainWindow : Window
             await InstallerLogic.InstallDataZipAsync(dataZipPath, _currentTargetDir, isUpdate, progress, token);
             _isCommitting = false;
 
-            // Deploy icon & create shortcuts
-            UpdateProgress(98, "Настройка ярлыков и системы...", "Копирование Blade.ico...");
+            // Deploy the Blade icon and launcher before creating shortcuts.
+            UpdateProgress(98, "Настройка ярлыков и системы...", "Установка значка и запуска Blade...");
             await Task.Run(() =>
             {
                 InstallerLogic.DeployIcon(_currentTargetDir);
+                InstallerLogic.DeployLauncher(_currentTargetDir);
                 bool createDesktop = Dispatcher.Invoke(() => CreateDesktopShortcutCheckBox.IsChecked == true);
                 InstallerLogic.CreateShortcuts(_currentTargetDir, createDesktop);
                 InstallerLogic.CreateUninstaller(_currentTargetDir);

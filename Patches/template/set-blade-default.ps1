@@ -91,6 +91,67 @@ function Resolve-BladeRegistration {
     }
 }
 
+function Repair-BladeShortcuts($Registration) {
+    $shell = $null
+    try { $shell = New-Object -ComObject WScript.Shell } catch { return }
+    $programs = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
+    $desktop = [Environment]::GetFolderPath('DesktopDirectory')
+    $pinned = Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
+    $legacyStartMenu = Join-Path $programs 'Blade.lnk'
+    $candidates = @((Join-Path $desktop 'Blade.lnk'))
+    foreach ($directory in @($pinned)) {
+        if (-not (Test-Path -LiteralPath $directory -PathType Container)) { continue }
+        try {
+            if ((Get-Item -LiteralPath $directory -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
+            $candidates += @(Get-ChildItem -LiteralPath $directory -Filter '*.lnk' -File -ErrorAction Stop |
+                Where-Object { -not ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) } |
+                ForEach-Object { $_.FullName })
+        } catch { }
+    }
+
+    # The old setup used Programs\Blade.lnk -> firefox.exe, creating a duplicate
+    # beside the canonical launcher-backed "Blade Browser.lnk". Remove only our link.
+    foreach ($path in @($legacyStartMenu) + $candidates) {
+        try {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or
+                (Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
+            $shortcut = $shell.CreateShortcut($path)
+            $target = if ($shortcut.TargetPath) { [IO.Path]::GetFullPath($shortcut.TargetPath) } else { '' }
+            $arguments = [string]$shortcut.Arguments
+            $isEngineLink = $target.Equals($Registration.Engine + '\firefox.exe', [StringComparison]::OrdinalIgnoreCase) -and
+                $arguments.IndexOf($Registration.Profile, [StringComparison]::OrdinalIgnoreCase) -ge 0
+            $isLauncherLink = $target.Equals($Registration.Launcher, [StringComparison]::OrdinalIgnoreCase)
+            if (-not $isEngineLink -and -not $isLauncherLink) { continue }
+            if ($path.Equals($legacyStartMenu, [StringComparison]::OrdinalIgnoreCase)) {
+                $canonicalStart = Join-Path $programs 'Blade Browser.lnk'
+                if (Test-Path -LiteralPath $canonicalStart -PathType Leaf) {
+                    $canonical = $shell.CreateShortcut($canonicalStart)
+                    $canonicalTarget = if ($canonical.TargetPath) { [IO.Path]::GetFullPath($canonical.TargetPath) } else { '' }
+                    $canonicalOwned = $canonicalTarget.Equals($Registration.Launcher, [StringComparison]::OrdinalIgnoreCase) -or
+                        ($canonicalTarget.Equals($Registration.Engine + '\firefox.exe', [StringComparison]::OrdinalIgnoreCase) -and
+                            ([string]$canonical.Arguments).IndexOf($Registration.Profile, [StringComparison]::OrdinalIgnoreCase) -ge 0)
+                    if ($canonicalOwned) {
+                        Remove-Item -LiteralPath $path -Force
+                        continue
+                    }
+                }
+            }
+            $shortcut.TargetPath = $Registration.Launcher
+            $shortcut.Arguments = ''
+            $shortcut.WorkingDirectory = $Registration.Root
+            $shortcut.Description = 'Blade Browser'
+            $shortcut.IconLocation = $Registration.Icon
+            $shortcut.Save()
+            [BladeBrowserRegistrationShellV2]::SetShortcutIdentity($path, 'BladeBrowser.Desktop')
+        } catch {
+            Write-Warning ('Не удалось обновить ярлык Blade ' + $path + ': ' + $_.Exception.Message)
+        }
+    }
+    if ($null -ne $shell -and [Runtime.InteropServices.Marshal]::IsComObject($shell)) {
+        [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell)
+    }
+}
+
 function Get-RegistryTree([Microsoft.Win32.RegistryKey]$Key) {
     $values = @{}
     foreach ($name in $Key.GetValueNames()) {
@@ -531,6 +592,7 @@ try {
     Set-BladeTaskbarIdentity $registration
     Set-RegistrationValue 'Software\Microsoft\Windows\CurrentVersion\App Paths\BladeBrowser.exe' '' $registration.Launcher
     Initialize-RegistrationShell
+    Repair-BladeShortcuts $registration
     $programs = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
     [IO.Directory]::CreateDirectory($programs) | Out-Null
     $shortcutPath = Join-Path $programs 'Blade Browser.lnk'

@@ -2,7 +2,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Blade Browser")]
@@ -14,6 +18,230 @@ using System.Windows.Forms;
 
 internal static class BladeBrowserLauncher
 {
+    private const uint WM_GETICON = 0x007F;
+    private const uint WM_SETICON = 0x0080;
+    private const uint IMAGE_ICON = 1;
+    private const uint LR_LOADFROMFILE = 0x0010;
+    private const uint EVENT_OBJECT_SHOW = 0x8002;
+    private const int ICON_SMALL = 0;
+    private const int ICON_BIG = 1;
+    private const int ICON_SMALL2 = 2;
+    private const uint WINEVENT_OUTOFCONTEXT = 0;
+    private const string IconWatcherMutexPrefix = "Local\\BladeBrowser.TaskbarIconWatcher.";
+
+    private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
+    private delegate void WinEventProc(IntPtr hook, uint eventType, IntPtr hwnd, int idObject,
+        int idChild, uint eventThread, uint eventTime);
+
+    private static HashSet<uint> BrowserProcessIds = new HashSet<uint>();
+    private static string BrowserEnginePath;
+    private static IntPtr BladeIconHandle = IntPtr.Zero;
+    private static IntPtr WindowEventHook = IntPtr.Zero;
+    private static WinEventProc WindowEventCallback;
+    private static ApplicationContext IconWatcherContext;
+    private static System.Windows.Forms.Timer IconWatcherTimer;
+    private static DateTime FirstWindowDeadline;
+    private static DateTime LastBrowserWindowSeen = DateTime.MinValue;
+    private static bool SawBrowserWindow;
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+    private static extern IntPtr LoadImageW(IntPtr hInst, string name, uint type, int cx, int cy, uint flags);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SendMessageTimeoutW(IntPtr hwnd, uint message, IntPtr wParam, IntPtr lParam,
+        uint flags, uint timeout, out IntPtr result);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr eventHookProcess,
+        WinEventProc callback, uint processId, uint threadId, uint flags);
+
+    [DllImport("user32.dll")]
+    private static extern bool UnhookWinEvent(IntPtr hook);
+
+    [DllImport("user32.dll")]
+    private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern bool IsWindowVisible(IntPtr hwnd);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint processId);
+
+    private static void RefreshBrowserProcessIds()
+    {
+        HashSet<uint> processIds = new HashSet<uint>();
+        foreach (Process process in Process.GetProcessesByName("firefox"))
+        {
+            try
+            {
+                string imagePath = process.MainModule.FileName;
+                if (String.Equals(Path.GetFullPath(imagePath), BrowserEnginePath, StringComparison.OrdinalIgnoreCase))
+                    processIds.Add((uint)process.Id);
+            }
+            catch
+            {
+                // Чужой или недоступный процесс не должен получить значок Blade.
+            }
+            finally
+            {
+                process.Dispose();
+            }
+        }
+
+        BrowserProcessIds = processIds;
+    }
+
+    private static bool ApplyBladeIconToWindow(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero || !IsWindowVisible(hwnd)) return false;
+        uint ownerProcessId;
+        GetWindowThreadProcessId(hwnd, out ownerProcessId);
+        if (!BrowserProcessIds.Contains(ownerProcessId)) return false;
+
+        IntPtr currentIcon = IntPtr.Zero;
+        bool gotIcon = SendMessageTimeoutW(hwnd, WM_GETICON, (IntPtr)ICON_BIG, IntPtr.Zero,
+            0x0002, 1000, out currentIcon);
+        if (!gotIcon || currentIcon != BladeIconHandle)
+        {
+            SendMessageTimeoutW(hwnd, WM_SETICON, (IntPtr)ICON_BIG, BladeIconHandle, 0x0002, 1000, out currentIcon);
+            SendMessageTimeoutW(hwnd, WM_SETICON, (IntPtr)ICON_SMALL, BladeIconHandle, 0x0002, 1000, out currentIcon);
+            SendMessageTimeoutW(hwnd, WM_SETICON, (IntPtr)ICON_SMALL2, BladeIconHandle, 0x0002, 1000, out currentIcon);
+        }
+        return true;
+    }
+
+    private static int ApplyToExistingWindows()
+    {
+        int count = 0;
+        EnumWindowsProc callback = delegate(IntPtr hwnd, IntPtr unused)
+        {
+            if (ApplyBladeIconToWindow(hwnd)) count++;
+            return true;
+        };
+        EnumWindows(callback, IntPtr.Zero);
+        return count;
+    }
+
+    private static int CountVisibleBrowserWindows()
+    {
+        int count = 0;
+        EnumWindowsProc callback = delegate(IntPtr hwnd, IntPtr unused)
+        {
+            if (!IsWindowVisible(hwnd)) return true;
+            uint ownerProcessId;
+            GetWindowThreadProcessId(hwnd, out ownerProcessId);
+            if (BrowserProcessIds.Contains(ownerProcessId)) count++;
+            return true;
+        };
+        EnumWindows(callback, IntPtr.Zero);
+        return count;
+    }
+
+    private static void OnBrowserWindowEvent(IntPtr hook, uint eventType, IntPtr hwnd, int idObject,
+        int idChild, uint eventThread, uint eventTime)
+    {
+        if (eventType != EVENT_OBJECT_SHOW || idObject != 0 || idChild != 0 || hwnd == IntPtr.Zero) return;
+        if (BrowserProcessIds.Count == 0) RefreshBrowserProcessIds();
+        if (ApplyBladeIconToWindow(hwnd))
+        {
+            SawBrowserWindow = true;
+            LastBrowserWindowSeen = DateTime.UtcNow;
+        }
+    }
+
+    private static string GetIconWatcherMutexName(string engineExe)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] digest = sha256.ComputeHash(Encoding.UTF8.GetBytes(Path.GetFullPath(engineExe).ToUpperInvariant()));
+            StringBuilder name = new StringBuilder(IconWatcherMutexPrefix);
+            foreach (byte value in digest) name.Append(value.ToString("x2"));
+            return name.ToString();
+        }
+    }
+
+    private static void OnIconWatcherTimerTick(object sender, EventArgs args)
+    {
+        RefreshBrowserProcessIds();
+        int visibleWindows = WindowEventHook == IntPtr.Zero
+            ? ApplyToExistingWindows()
+            : CountVisibleBrowserWindows();
+        if (visibleWindows > 0)
+        {
+            SawBrowserWindow = true;
+            LastBrowserWindowSeen = DateTime.UtcNow;
+            return;
+        }
+
+        DateTime now = DateTime.UtcNow;
+        if (!SawBrowserWindow && now < FirstWindowDeadline) return;
+        // Не держим launcher после закрытия окна дольше необходимого: setup и updater
+        // должны быстро получить возможность заменить этот исполняемый файл.
+        if (SawBrowserWindow && now - LastBrowserWindowSeen < TimeSpan.FromSeconds(5)) return;
+
+        IconWatcherTimer.Stop();
+        IconWatcherContext.ExitThread();
+    }
+
+    // У Firefox свой значок в firefox.exe. Слушаем появление его окон и задаём
+    // HICON Blade на уровне HWND; подписанный Mozilla бинарник не меняется.
+    private static bool ApplyBladeWindowIcon(string engineExe, string iconPath)
+    {
+        if (!File.Exists(iconPath) || !File.Exists(engineExe)) return false;
+
+        bool createdNew;
+        using (Mutex watcherMutex = new Mutex(true, GetIconWatcherMutexName(engineExe), out createdNew))
+        {
+            if (!createdNew) return false;
+
+            BladeIconHandle = LoadImageW(IntPtr.Zero, iconPath, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+            if (BladeIconHandle == IntPtr.Zero) return false;
+
+            BrowserEnginePath = Path.GetFullPath(engineExe);
+            FirstWindowDeadline = DateTime.UtcNow.AddSeconds(15);
+            RefreshBrowserProcessIds();
+            WindowEventCallback = new WinEventProc(OnBrowserWindowEvent);
+            WindowEventHook = SetWinEventHook(EVENT_OBJECT_SHOW, EVENT_OBJECT_SHOW, IntPtr.Zero,
+                WindowEventCallback, 0, 0, WINEVENT_OUTOFCONTEXT);
+            int existingWindows = ApplyToExistingWindows();
+            if (existingWindows > 0)
+            {
+                SawBrowserWindow = true;
+                LastBrowserWindowSeen = DateTime.UtcNow;
+            }
+
+            IconWatcherContext = new ApplicationContext();
+            IconWatcherTimer = new System.Windows.Forms.Timer();
+            IconWatcherTimer.Interval = WindowEventHook == IntPtr.Zero ? 500 : 1000;
+            IconWatcherTimer.Tick += OnIconWatcherTimerTick;
+            IconWatcherTimer.Start();
+            try
+            {
+                Application.Run(IconWatcherContext);
+            }
+            catch
+            {
+                // Значок не должен мешать запуску браузера.
+            }
+            finally
+            {
+                if (IconWatcherTimer != null)
+                {
+                    IconWatcherTimer.Dispose();
+                    IconWatcherTimer = null;
+                }
+                if (WindowEventHook != IntPtr.Zero)
+                {
+                    UnhookWinEvent(WindowEventHook);
+                    WindowEventHook = IntPtr.Zero;
+                }
+                try { watcherMutex.ReleaseMutex(); } catch { }
+            }
+        }
+        return true;
+    }
+
     // Windows quoting doubles backslashes before quotes and the closing quote.
     internal static string Quote(string value)
     {
@@ -175,6 +403,7 @@ internal static class BladeBrowserLauncher
             using (Process process = Process.Start(start)) { }
             if (!String.IsNullOrEmpty(tileRepairWarning))
                 MessageBox.Show(tileRepairWarning, "Blade Browser", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            ApplyBladeWindowIcon(exe, Path.Combine(root, "Blade.ico"));
             return 0;
         }
         catch (Exception ex)

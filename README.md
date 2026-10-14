@@ -4,21 +4,21 @@
       <img src="Branding/master_icon.png" alt="Оригинальная эмблема Blade" width="150">
     </td>
     <td width="82%" valign="middle">
-      <img src="assets/blade-github-hero.svg" alt="Blade — Возврат / Return" width="100%">
+      <img src="assets/blade-github-hero.svg" alt="Blade — Свой знак / Our Mark" width="100%">
     </td>
   </tr>
 </table>
 
 <p align="center">
   <a href="https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe"><img src="https://img.shields.io/badge/Скачать%20Blade-Windows%20x64-C8102E?style=for-the-badge&logo=windows&logoColor=white" alt="Скачать Blade для Windows x64"></a>
-  <a href="https://github.com/deni41144/blade-browser/releases/latest"><img src="https://img.shields.io/badge/Текущая%20глава-Возврат-292329?style=for-the-badge" alt="Текущий релиз — Возврат"></a>
+  <a href="https://github.com/deni41144/blade-browser/releases/latest"><img src="https://img.shields.io/badge/Текущая%20глава-Свой%20знак-292329?style=for-the-badge" alt="Текущий релиз — Свой знак"></a>
   <a href="https://github.com/deni41144/blade-browser/releases"><img src="https://img.shields.io/badge/Архив-всех%20релизов-292329?style=for-the-badge&logo=github&logoColor=white" alt="Все релизы Blade"></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Windows-10%20%2F%2011-55515A" alt="Windows 10 и 11">
   <img src="https://img.shields.io/badge/Engine-Firefox%20Gecko-FF7139" alt="Движок Firefox Gecko">
-  <img src="https://img.shields.io/badge/Release-Return-C8102E" alt="Релиз Return">
+  <img src="https://img.shields.io/badge/Release-Our%20Mark-C8102E" alt="Release Our Mark">
 </p>
 
 <p align="center"><a href="#ru">Русский</a> · <a href="#en">English</a></p>
@@ -31,7 +31,7 @@
 
 Blade — браузер для Windows на движке Firefox. Gecko остаётся под капотом; Blade добавляет свой интерфейс, тёмные темы, оформление сайтов и инструменты управления фоновыми вкладками.
 
-**Текущая глава — «Возврат» / Return.** У релизов есть имена, а технические номера сохранены только в тегах и файлах: они нужны для безопасного поиска обновлений и отката.
+**Текущая глава — «Свой знак» / Our Mark.** У релизов есть имена, а технические номера сохранены только в тегах и файлах: они нужны для безопасного поиска обновлений и отката.
 
 ### Скачать и начать
 
@@ -65,6 +65,7 @@ Get-FileHash .\Blade-Setup.exe -Algorithm SHA256
 - Защиту от отслеживания обеспечивает Firefox ETP и uBlock Origin.
 - DNS-over-HTTPS настраивается пользователем; Blade не обещает скрыть посещённые сайты от всех сетевых сторон.
 - Обновлятор Blade загружает патч потоком на диск, проверяет SHA-256, делает резервную копию и умеет откатывать неудачное применение.
+- Фирменный значок назначается самим окнам Blade; обновление также переводит старые ярлыки и закреплённые ссылки с `firefox.exe` на Blade launcher.
 - В сборке используется Firefox `158.0`; исходный `firefox.exe` сохраняет действительную подпись Mozilla Corporation.
 
 ### Имена релизов
@@ -79,7 +80,7 @@ Get-FileHash .\Blade-Setup.exe -Algorithm SHA256
 
 Blade is a Windows browser built on Firefox. Gecko stays under the hood; Blade adds its own interface, dark themes, website artwork and background-tab controls.
 
-**The current chapter is “Return.”** Releases have names; technical numbers remain in tags and filenames so the updater can compare builds and roll back safely.
+**The current chapter is “Our Mark.”** Releases have names; technical numbers remain in tags and filenames so the updater can compare builds and roll back safely.
 
 ### Download and get started
 
@@ -100,6 +101,7 @@ The installer targets Windows x64. It is **not signed with a publisher certifica
 - Memory use depends on websites, extensions and open pages; Blade does not promise a fixed RAM number.
 - Firefox Enhanced Tracking Protection and uBlock Origin. DNS-over-HTTPS stays user-configurable.
 - One-click updates with streamed downloads, SHA-256 verification, backup and rollback.
+- The Blade taskbar icon is applied to browser windows; updates also repair old shortcuts that launched `firefox.exe` directly.
 
 Blade uses Firefox `158.0`; the original `firefox.exe` keeps its valid Mozilla Corporation signature. Blade is a custom Firefox build, not a separate browser engine.
 

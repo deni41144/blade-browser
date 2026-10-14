@@ -113,6 +113,15 @@ function Remove-Staging {
     try { if ($staging -and (Test-Path $staging)) { Remove-Item $staging -Recurse -Force } } catch {}
 }
 
+function Get-OwnedBladeProcesses {
+    if (-not $engineDir) { return @() }
+    $expectedExe = [IO.Path]::GetFullPath((Join-Path $engineDir 'firefox.exe'))
+    return @(Get-Process -Name 'firefox' -ErrorAction SilentlyContinue | Where-Object {
+        try { $_.Path -and [IO.Path]::GetFullPath($_.Path).Equals($expectedExe, [StringComparison]::OrdinalIgnoreCase) }
+        catch { $false }
+    })
+}
+
 function Test-PathWithinDirectory([string]$Candidate, [string]$Parent) {
     $candidateFull = [System.IO.Path]::GetFullPath($Candidate)
     $parentFull = [System.IO.Path]::GetFullPath($Parent).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
@@ -283,20 +292,94 @@ if ($newVersion -ne 'неизвестно' -and $oldVersion -ne 'неизвес�
 # опоздавшим на выход процессом — теперь закрытие повторяется между попытками
 # move (см. цикл ниже).
 function Close-BladeProcesses {
-    $running = Get-Process firefox -ErrorAction SilentlyContinue |
-        Where-Object { $_.Path -and $_.Path.StartsWith($BladeRoot, [System.StringComparison]::OrdinalIgnoreCase) }
+    $running = Get-OwnedBladeProcesses
     if (-not $running) { return }
     Write-Host 'Blade запущен — закрываю...' -ForegroundColor Yellow
     $deadline = (Get-Date).AddSeconds(20)
     do {
         $running | ForEach-Object { try { $_.CloseMainWindow() | Out-Null } catch {} }
         Start-Sleep -Milliseconds 500
-        $running = Get-Process firefox -ErrorAction SilentlyContinue |
-            Where-Object { $_.Path -and $_.Path.StartsWith($BladeRoot, [System.StringComparison]::OrdinalIgnoreCase) }
+        $running = Get-OwnedBladeProcesses
     } while ($running -and (Get-Date) -lt $deadline)
     if ($running) { $running | Stop-Process -Force; Start-Sleep -Seconds 1 }
 }
+
+function Wait-BladeLauncherExit {
+    $expectedLauncher = [IO.Path]::GetFullPath((Join-Path $BladeRoot 'BladeBrowser.exe'))
+    $deadline = (Get-Date).AddSeconds(15)
+    do {
+        $running = @(Get-CimInstance Win32_Process -Filter "Name = 'BladeBrowser.exe'" -ErrorAction SilentlyContinue |
+            Where-Object { $_.ExecutablePath -and [IO.Path]::GetFullPath($_.ExecutablePath).Equals($expectedLauncher, [StringComparison]::OrdinalIgnoreCase) })
+        if ($running.Count -eq 0) { return }
+        Start-Sleep -Milliseconds 300
+    } while ((Get-Date) -lt $deadline)
+    throw 'Значок Blade ещё закрывается; подожди несколько секунд и повтори обновление.'
+}
+
+function Repair-BladeLaunchShortcuts {
+    if (-not $engineDir -or -not (Test-Path -LiteralPath (Join-Path $BladeRoot 'BladeBrowser.exe') -PathType Leaf)) { return }
+    $engineExe = [IO.Path]::GetFullPath((Join-Path $engineDir 'firefox.exe'))
+    $profilePath = [IO.Path]::GetFullPath($ProfileDir)
+    $launcherPath = [IO.Path]::GetFullPath((Join-Path $BladeRoot 'BladeBrowser.exe'))
+    $iconPath = Join-Path $BladeRoot 'Blade.ico'
+    if (-not (Test-Path -LiteralPath $iconPath -PathType Leaf)) { $iconPath = $launcherPath }
+    $programs = [Environment]::GetFolderPath([Environment+SpecialFolder]::Programs)
+    $desktop = [Environment]::GetFolderPath([Environment+SpecialFolder]::DesktopDirectory)
+    $pinned = Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
+    $legacyStart = Join-Path $programs 'Blade.lnk'
+    $canonicalStart = Join-Path $programs 'Blade Browser.lnk'
+    $candidates = @((Join-Path $desktop 'Blade.lnk'), $legacyStart, $canonicalStart)
+    if (Test-Path -LiteralPath $pinned -PathType Container) {
+        try {
+            if (-not ((Get-Item -LiteralPath $pinned -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+                $candidates += @(Get-ChildItem -LiteralPath $pinned -Filter '*.lnk' -File -ErrorAction Stop |
+                    Where-Object { -not ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) } |
+                    ForEach-Object { $_.FullName })
+            }
+        } catch { Write-Warning ('Не удалось перечислить закреплённые ярлыки Blade: ' + $_.Exception.Message) }
+    }
+
+    $shell = $null
+    try { $shell = New-Object -ComObject WScript.Shell } catch { Write-Warning 'Не удалось открыть Shell для обновления старых ярлыков Blade.'; return }
+    try {
+        foreach ($path in @($candidates | Select-Object -Unique)) {
+            try {
+                if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or
+                    (Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
+                $shortcut = $shell.CreateShortcut($path)
+                $target = if ($shortcut.TargetPath) { [IO.Path]::GetFullPath([string]$shortcut.TargetPath) } else { '' }
+                $isLauncher = $target.Equals($launcherPath, [StringComparison]::OrdinalIgnoreCase)
+                $arguments = [string]$shortcut.Arguments
+                $isOwnedEngine = $target.Equals($engineExe, [StringComparison]::OrdinalIgnoreCase) -and
+                    $arguments.IndexOf($profilePath, [StringComparison]::OrdinalIgnoreCase) -ge 0
+                if (-not $isLauncher -and -not $isOwnedEngine) { continue }
+
+                if ($path.Equals($legacyStart, [StringComparison]::OrdinalIgnoreCase) -and
+                    (Test-Path -LiteralPath $canonicalStart -PathType Leaf)) {
+                    $canonical = $shell.CreateShortcut($canonicalStart)
+                    $canonicalTarget = if ($canonical.TargetPath) { [IO.Path]::GetFullPath([string]$canonical.TargetPath) } else { '' }
+                    $canonicalOwned = $canonicalTarget.Equals($launcherPath, [StringComparison]::OrdinalIgnoreCase) -or
+                        ($canonicalTarget.Equals($engineExe, [StringComparison]::OrdinalIgnoreCase) -and
+                            ([string]$canonical.Arguments).IndexOf($profilePath, [StringComparison]::OrdinalIgnoreCase) -ge 0)
+                    if ($canonicalOwned) { Remove-Item -LiteralPath $path -Force; continue }
+                }
+
+                $shortcut.TargetPath = $launcherPath
+                if ($isOwnedEngine) { $shortcut.Arguments = '' }
+                $shortcut.WorkingDirectory = $BladeRoot
+                $shortcut.Description = 'Blade Browser'
+                $shortcut.IconLocation = "$iconPath,0"
+                $shortcut.Save()
+            } catch { Write-Warning ('Не удалось обновить ярлык Blade ' + $path + ': ' + $_.Exception.Message) }
+        }
+    } finally {
+        if ([Runtime.InteropServices.Marshal]::IsComObject($shell)) {
+            [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell)
+        }
+    }
+}
 Close-BladeProcesses
+Wait-BladeLauncherExit
 
 # --- Бэкап профиля (chrome + user.js) — ничего не теряем ---
 $backupDir = Join-Path $BladeRoot ("Backups\profile-chrome-v{0}-{1}" -f $oldVersion, $stamp)
@@ -390,6 +473,34 @@ try {
     Get-ChildItem $chromeDir -Exclude 'img' | Remove-Item -Recurse -Force
     Copy-Item (Join-Path $chromeSrc '*') $chromeDir -Recurse -Force
     if (Test-Path $userSrc) { Copy-Item $userSrc $ProfileDir -Force }
+
+    # Every installation route, including custom/portable paths, must use the
+    # HICON watcher. The default-browser registrar is intentionally canonical-only.
+    $launcherSource = Join-Path $chromeDir 'resources\BladeBrowser.exe'
+    $launcherDestination = Join-Path $BladeRoot 'BladeBrowser.exe'
+    if (-not (Test-Path -LiteralPath $launcherSource -PathType Leaf)) {
+        throw 'В патче отсутствует фирменный запускатель Blade.'
+    }
+    if ((Get-Item -LiteralPath $launcherSource -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        throw 'Запускатель Blade в профиле является ссылкой.'
+    }
+    if (Test-Path -LiteralPath $launcherDestination) {
+        if ((Get-Item -LiteralPath $launcherDestination -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+            throw 'Файл BladeBrowser.exe в корне установки является ссылкой.'
+        }
+    }
+    $launcherTemp = Join-Path $BladeRoot ('.BladeBrowser-' + [guid]::NewGuid().ToString('N') + '.tmp')
+    try {
+        Copy-Item -LiteralPath $launcherSource -Destination $launcherTemp
+        Move-Item -LiteralPath $launcherTemp -Destination $launcherDestination -Force
+    } finally {
+        if (Test-Path -LiteralPath $launcherTemp) { Remove-Item -LiteralPath $launcherTemp -Force -ErrorAction SilentlyContinue }
+    }
+    if ((Get-FileHash -LiteralPath $launcherSource -Algorithm SHA256).Hash -ne
+        (Get-FileHash -LiteralPath $launcherDestination -Algorithm SHA256).Hash) {
+        throw 'Проверка установленного запускателя Blade завершилась ошибкой.'
+    }
+    Repair-BladeLaunchShortcuts
 
     # Мёртвые файлы старых версий (точные имена, свои файлы не задеваем)
     $deadFiles = @(

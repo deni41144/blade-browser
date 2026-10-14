@@ -175,38 +175,41 @@ public static class InstallerLogic
     }
 
     /// <summary>
-    /// Checks if any Firefox instance is running from target directory.
+    /// Checks if the Firefox engine or Blade's launcher is running from target directory.
     /// </summary>
     public static bool IsFirefoxRunningFromTarget(string targetDir)
     {
-        string expectedExe = Path.GetFullPath(Path.Combine(targetDir, "App", "Blade", "firefox.exe"));
-        try
+        string root = Path.GetFullPath(targetDir).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string expectedFirefox = Path.GetFullPath(Path.Combine(root, "App", "Blade", "firefox.exe"));
+        string expectedLauncher = Path.GetFullPath(Path.Combine(root, "BladeBrowser.exe"));
+        foreach (string processName in new[] { "firefox", "BladeBrowser" })
         {
-            var processes = Process.GetProcessesByName("firefox");
-            foreach (var proc in processes)
+            try
             {
-                try
+                foreach (var proc in Process.GetProcessesByName(processName))
                 {
-                    string? exePath = proc.MainModule?.FileName;
-                    if (!string.IsNullOrEmpty(exePath) &&
-                        Path.GetFullPath(exePath).Equals(expectedExe, StringComparison.OrdinalIgnoreCase))
+                    using (proc)
                     {
-                        return true;
+                        try
+                        {
+                            string? exePath = proc.MainModule?.FileName;
+                            if (!string.IsNullOrEmpty(exePath))
+                            {
+                                string fullPath = Path.GetFullPath(exePath);
+                                if (fullPath.Equals(expectedFirefox, StringComparison.OrdinalIgnoreCase) ||
+                                    fullPath.Equals(expectedLauncher, StringComparison.OrdinalIgnoreCase))
+                                    return true;
+                            }
+                        }
+                        catch
+                        {
+                            // Чужой недоступный процесс не должен блокировать установку Blade.
+                        }
                     }
                 }
-                catch
-                {
-                    // MainModule недоступен (права/битность) — не наш процесс, пропускаем:
-                    // чужой Firefox не должен блокировать установку Blade
-                    continue;
-                }
             }
+            catch { }
         }
-        catch
-        {
-            // Fallback
-        }
-
         return false;
     }
 
@@ -263,8 +266,9 @@ public static class InstallerLogic
         if (!File.Exists(Path.Combine(stagedApp, "Blade", "firefox.exe")) ||
             !File.Exists(Path.Combine(stagedChrome, "userChrome.css")) ||
             !File.Exists(Path.Combine(stagedChrome, "utils", "boot.sys.mjs")) ||
+            !File.Exists(Path.Combine(stagedChrome, "resources", "BladeBrowser.exe")) ||
             !File.Exists(stagedUserJs))
-            throw new InvalidDataException("В пакете не хватает обязательных файлов Firefox или Blade.");
+            throw new InvalidDataException("В пакете не хватает обязательных файлов Firefox, Blade или фирменного launcher.");
 
         if (!isUpdate)
         {
@@ -644,61 +648,103 @@ public static class InstallerLogic
     }
 
     /// <summary>
-    /// Creates Start Menu and Desktop shortcuts via COM WScript.Shell.
-    /// Target: {target}\FirefoxPortable\App\Firefox64\firefox.exe
-    /// Args: -profile "{target}\FirefoxPortable\Data\profile"
-    /// WorkDir: {target}\FirefoxPortable\App\Firefox64
-    /// Icon: {target}\Blade.ico
+    /// Copies the launcher from the hash-verified payload to the installation root.
+    /// </summary>
+    public static void DeployLauncher(string targetDir)
+    {
+        string root = Path.GetFullPath(targetDir);
+        string source = Path.Combine(root, "Data", "profile", "chrome", "resources", "BladeBrowser.exe");
+        string destination = Path.Combine(root, "BladeBrowser.exe");
+        if (!File.Exists(source))
+            throw new FileNotFoundException("В пакете установки отсутствует launcher Blade.", source);
+        if ((File.GetAttributes(source) & FileAttributes.ReparsePoint) != 0)
+            throw new InvalidDataException("Launcher Blade в пакете не должен быть ссылкой.");
+        if ((File.Exists(destination) || Directory.Exists(destination)) &&
+            (File.GetAttributes(destination) & FileAttributes.ReparsePoint) != 0)
+            throw new InvalidDataException("BladeBrowser.exe в папке установки является ссылкой.");
+
+        string temporary = Path.Combine(root, $".BladeBrowser-{Guid.NewGuid():N}.tmp");
+        try
+        {
+            File.Copy(source, temporary, overwrite: false);
+            File.Move(temporary, destination, overwrite: true);
+        }
+        finally
+        {
+            try { if (File.Exists(temporary)) File.Delete(temporary); } catch { }
+        }
+    }
+
+    private static bool IsShortcutForInstallation(dynamic shortcut, string targetDir)
+    {
+        try
+        {
+            string target = Convert.ToString(shortcut.TargetPath) ?? string.Empty;
+            string launcher = Path.GetFullPath(Path.Combine(targetDir, "BladeBrowser.exe"));
+            string firefox = Path.GetFullPath(Path.Combine(targetDir, "App", "Blade", "firefox.exe"));
+            if (!Path.IsPathRooted(target)) return false;
+            string fullTarget = Path.GetFullPath(target);
+            if (fullTarget.Equals(launcher, StringComparison.OrdinalIgnoreCase)) return true;
+            if (!fullTarget.Equals(firefox, StringComparison.OrdinalIgnoreCase)) return false;
+
+            string profile = Path.GetFullPath(Path.Combine(targetDir, "Data", "profile"));
+            string arguments = Convert.ToString(shortcut.Arguments) ?? string.Empty;
+            return arguments.IndexOf(profile, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+        catch { return false; }
+    }
+
+    private static void DeleteOwnedShortcut(dynamic shell, string shortcutPath, string targetDir)
+    {
+        try
+        {
+            if (!File.Exists(shortcutPath)) return;
+            dynamic shortcut = shell.CreateShortcut(shortcutPath);
+            if (IsShortcutForInstallation(shortcut, targetDir)) File.Delete(shortcutPath);
+        }
+        catch { }
+    }
+
+    private static void SaveBladeShortcut(dynamic shell, string shortcutPath, string root, string iconPath)
+    {
+        dynamic shortcut = shell.CreateShortcut(shortcutPath);
+        shortcut.TargetPath = Path.Combine(root, "BladeBrowser.exe");
+        shortcut.Arguments = string.Empty;
+        shortcut.WorkingDirectory = root;
+        shortcut.Description = "Blade Browser";
+        if (File.Exists(iconPath)) shortcut.IconLocation = $"{iconPath},0";
+        shortcut.Save();
+    }
+
+    /// <summary>
+    /// Creates launcher-backed Start Menu and Desktop shortcuts.
     /// </summary>
     public static void CreateShortcuts(string targetDir, bool createDesktopShortcut)
     {
-        string firefoxExe = Path.Combine(targetDir, "App", "Blade", "firefox.exe");
-        string profileDir = Path.Combine(targetDir, "Data", "profile");
-        string workDir = Path.Combine(targetDir, "App", "Blade");
-        string iconPath = Path.Combine(targetDir, "Blade.ico");
-        string arguments = $"-profile \"{profileDir}\"";
+        string root = Path.GetFullPath(targetDir);
+        string launcher = Path.Combine(root, "BladeBrowser.exe");
+        string iconPath = Path.Combine(root, "Blade.ico");
+        if (!File.Exists(launcher))
+            throw new FileNotFoundException("Перед созданием ярлыков не найден launcher Blade.", launcher);
 
         Type? shellType = Type.GetTypeFromProgID("WScript.Shell");
-        if (shellType == null) return;
-
+        if (shellType == null)
+            throw new InvalidOperationException("Не удалось создать ярлыки Blade: WScript.Shell недоступен.");
         dynamic shell = Activator.CreateInstance(shellType)!;
 
-        // 1. Start Menu Shortcut
-        try
-        {
-            string startMenuDir = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-            string startMenuLnk = Path.Combine(startMenuDir, "Blade.lnk");
-            dynamic smShortcut = shell.CreateShortcut(startMenuLnk);
-            smShortcut.TargetPath = firefoxExe;
-            smShortcut.Arguments = arguments;
-            smShortcut.WorkingDirectory = workDir;
-            if (File.Exists(iconPath))
-            {
-                smShortcut.IconLocation = $"{iconPath},0";
-            }
-            smShortcut.Save();
-        }
-        catch { }
+        string programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
+        string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        string canonicalStartMenu = Path.Combine(programs, "Blade Browser.lnk");
+        string legacyStartMenu = Path.Combine(programs, "Blade.lnk");
+        string desktopShortcut = Path.Combine(desktop, "Blade.lnk");
 
-        // 2. Desktop Shortcut
+        // The registrar creates the same canonical Start Menu entry for default installs.
+        DeleteOwnedShortcut(shell, legacyStartMenu, root);
+        SaveBladeShortcut(shell, canonicalStartMenu, root, iconPath);
         if (createDesktopShortcut)
-        {
-            try
-            {
-                string desktopDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                string desktopLnk = Path.Combine(desktopDir, "Blade.lnk");
-                dynamic dtShortcut = shell.CreateShortcut(desktopLnk);
-                dtShortcut.TargetPath = firefoxExe;
-                dtShortcut.Arguments = arguments;
-                dtShortcut.WorkingDirectory = workDir;
-                if (File.Exists(iconPath))
-                {
-                    dtShortcut.IconLocation = $"{iconPath},0";
-                }
-                dtShortcut.Save();
-            }
-            catch { }
-        }
+            SaveBladeShortcut(shell, desktopShortcut, root, iconPath);
+        else
+            DeleteOwnedShortcut(shell, desktopShortcut, root);
     }
 
     /// <summary>Creates a profile-aware uninstaller that only stops/removes this Blade installation.</summary>
@@ -711,6 +757,7 @@ public static class InstallerLogic
             Add-Type -AssemblyName PresentationFramework
             $root = [IO.Path]::GetFullPath($PSScriptRoot).TrimEnd('\')
             $browser = [IO.Path]::GetFullPath((Join-Path $root 'App\Blade\firefox.exe'))
+            $launcher = [IO.Path]::GetFullPath((Join-Path $root 'BladeBrowser.exe'))
             $profile = Join-Path $root 'Data\profile'
             $result = [System.Windows.MessageBox]::Show(
                 'Удалить Blade из этой папки? Профиль, закладки и пароли можно сохранить отдельно.',
@@ -736,6 +783,20 @@ public static class InstallerLogic
                 }
             }
 
+            # The icon watcher exits shortly after the last Blade window closes. Wait for it
+            # rather than force-killing it or attempting to delete its executable while locked.
+            $launcherDeadline = (Get-Date).AddSeconds(12)
+            do {
+                $launcherRunning = @(Get-CimInstance Win32_Process -Filter "Name = 'BladeBrowser.exe'" -ErrorAction SilentlyContinue |
+                    Where-Object { $_.ExecutablePath -and [IO.Path]::GetFullPath($_.ExecutablePath).Equals($launcher, [StringComparison]::OrdinalIgnoreCase) })
+                if ($launcherRunning.Count -eq 0) { break }
+                Start-Sleep -Milliseconds 300
+            } while ((Get-Date) -lt $launcherDeadline)
+            if ($launcherRunning.Count -gt 0) {
+                [System.Windows.MessageBox]::Show('Значок Blade ещё закрывается. Подождите несколько секунд и повторите удаление.', 'Удаление Blade', 'OK', 'Information') | Out-Null
+                exit 1
+            }
+
             $removeProfile = [System.Windows.MessageBox]::Show(
                 "Удалить личный профиль: закладки, историю, пароли и cookies?`n`nДа — удалить профиль. Нет — оставить его в Data\profile.",
                 'Личные данные', [System.Windows.MessageBoxButton]::YesNoCancel,
@@ -744,13 +805,21 @@ public static class InstallerLogic
             $keepProfile = $removeProfile -eq [System.Windows.MessageBoxResult]::No
 
             $shell = New-Object -ComObject WScript.Shell
-            $links = @((Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'Blade.lnk'),
-                (Join-Path ([Environment]::GetFolderPath('Programs')) 'Blade.lnk'))
+            $links = @(
+                (Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'Blade.lnk'),
+                (Join-Path ([Environment]::GetFolderPath('Programs')) 'Blade.lnk'),
+                (Join-Path ([Environment]::GetFolderPath('Programs')) 'Blade Browser.lnk'),
+                (Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Blade.lnk'),
+                (Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Blade Browser.lnk'))
             foreach ($link in $links) {
                 try {
                     if (Test-Path -LiteralPath $link) {
                         $shortcut = $shell.CreateShortcut($link)
-                        if ($shortcut.TargetPath -and [IO.Path]::GetFullPath($shortcut.TargetPath).Equals($browser, [StringComparison]::OrdinalIgnoreCase)) {
+                        $target = if ($shortcut.TargetPath) { [IO.Path]::GetFullPath($shortcut.TargetPath) } else { '' }
+                        $arguments = [string]$shortcut.Arguments
+                        $ownedEngineShortcut = $target.Equals($browser, [StringComparison]::OrdinalIgnoreCase) -and
+                            $arguments.IndexOf($profile, [StringComparison]::OrdinalIgnoreCase) -ge 0
+                        if ($target.Equals($launcher, [StringComparison]::OrdinalIgnoreCase) -or $ownedEngineShortcut) {
                             Remove-Item -LiteralPath $link -Force
                         }
                     }
@@ -778,6 +847,7 @@ public static class InstallerLogic
             }
             $icon = Join-Path $root 'Blade.ico'
             if (Test-Path -LiteralPath $icon) { Remove-Item -LiteralPath $icon -Force }
+            if (Test-Path -LiteralPath $launcher) { Remove-Item -LiteralPath $launcher -Force }
 
             $remaining = @(Get-ChildItem -LiteralPath $root -Force -ErrorAction SilentlyContinue)
             if (-not $keepProfile -and @($remaining | Where-Object { $_.Name -notin @('Uninstall-Blade.ps1', 'Uninstall-Blade.bat') }).Count -eq 0) {
@@ -887,17 +957,15 @@ public static class InstallerLogic
     /// </summary>
     public static void LaunchBlade(string targetDir)
     {
-        string firefoxExe = Path.Combine(targetDir, "App", "Blade", "firefox.exe");
-        string profileDir = Path.Combine(targetDir, "Data", "profile");
-        string workDir = Path.Combine(targetDir, "App", "Blade");
-
-        if (!File.Exists(firefoxExe)) return;
+        string root = Path.GetFullPath(targetDir);
+        string launcher = Path.Combine(root, "BladeBrowser.exe");
+        if (!File.Exists(launcher))
+            throw new FileNotFoundException("Не найден фирменный запускатель Blade.", launcher);
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = firefoxExe,
-            Arguments = $"-profile \"{profileDir}\"",
-            WorkingDirectory = workDir,
+            FileName = launcher,
+            WorkingDirectory = root,
             UseShellExecute = true
         };
 
