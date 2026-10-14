@@ -146,8 +146,16 @@ if ($Publish) {
 
     & gh auth status 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Для публикации войди в GitHub через gh auth login.' }
-    $existingRelease = & gh release view "v$Version" --repo $Repo 2>$null
-    if ($LASTEXITCODE -eq 0) { throw "Релиз v$Version уже существует в $Repo; автоматическая замена запрещена." }
+    $releaseListing = @(& gh release list --repo $Repo --limit 100 --json tagName 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Не удалось проверить список релизов $Repo`: $($releaseListing -join ' ')"
+    }
+    try { $knownReleases = ($releaseListing -join "`n") | ConvertFrom-Json } catch {
+        throw "GitHub вернул некорректный список релизов $Repo`: $($_.Exception.Message)"
+    }
+    if (@($knownReleases | Where-Object { $_.tagName -eq "v$Version" }).Count -gt 0) {
+        throw "Релиз v$Version уже существует в $Repo; автоматическая замена запрещена."
+    }
     $targetCommit = (& git rev-parse HEAD).Trim()
     if ($LASTEXITCODE -ne 0 -or -not $targetCommit) { throw 'Не удалось определить коммит-источник релиза.' }
     $remoteMain = (& git ls-remote origin 'refs/heads/main').Trim()
