@@ -203,6 +203,68 @@ public static class BladeBrowserRegistrationShellV2 {
 "@
 }
 
+function Test-BladeEngineRunning([string]$EngineExe) {
+    foreach ($process in @(Get-Process -Name 'firefox' -ErrorAction SilentlyContinue)) {
+        $processPath = $null
+        try { $processPath = [string]$process.Path } catch {}
+        # A process whose image path cannot be read is treated as possibly Blade:
+        # patching omni.ja while its engine may be running is unsafe.
+        if ([string]::IsNullOrWhiteSpace($processPath)) { return $true }
+        try {
+            if ([string]::Equals(
+                [IO.Path]::GetFullPath($processPath),
+                [IO.Path]::GetFullPath($EngineExe),
+                [StringComparison]::OrdinalIgnoreCase
+            )) { return $true }
+        } catch { return $true }
+    }
+    return $false
+}
+
+function Invoke-BladeTilesRepairWhenClosed($Registration) {
+    $resources = Join-Path (Join-Path $Registration.Profile 'chrome') 'resources'
+    $tilesPatcher = Join-Path $resources 'Apply-Blade-Tiles.ps1'
+    if (-not (Test-Path -LiteralPath $tilesPatcher -PathType Leaf)) { return }
+    $engineExe = Join-Path $Registration.Engine 'firefox.exe'
+    if (Test-BladeEngineRunning $engineExe) {
+        Write-Output 'Tile engine repair skipped because Blade may still be running.'
+        return
+    }
+
+    $omni = Join-Path $Registration.Engine 'browser\omni.ja'
+    if (-not (Test-Path -LiteralPath $omni -PathType Leaf)) { throw 'Blade browser\omni.ja is missing.' }
+    $hashBefore = (Get-FileHash -LiteralPath $omni -Algorithm SHA256).Hash
+    $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    if (-not (Test-Path -LiteralPath $powershell -PathType Leaf)) { throw 'Windows PowerShell is missing.' }
+    $backupRoot = Join-Path $Registration.Root 'Backups\tiles-engine'
+    $quote = { param([string]$Value) "'" + $Value.Replace("'", "''") + "'" }
+    $command = '& ' + (& $quote $tilesPatcher) + ' -AppDir ' + (& $quote $Registration.Engine) +
+        ' -BackupRoot ' + (& $quote $backupRoot) + ' -SkipSyntaxCheck'
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
+    $process = $null
+    try {
+        $process = Start-Process -FilePath $powershell -ArgumentList @(
+            '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', $encoded
+        ) -WindowStyle Hidden -Wait -PassThru
+        if ($process.ExitCode -ne 0) { throw "Tile engine repair exited with code $($process.ExitCode)." }
+    } finally {
+        if ($process) { $process.Dispose() }
+    }
+    $hashAfter = (Get-FileHash -LiteralPath $omni -Algorithm SHA256).Hash
+    if ($hashBefore -ne $hashAfter) {
+        $startupCache = Join-Path $Registration.Profile 'startupCache'
+        if (Test-Path -LiteralPath $startupCache -PathType Container) {
+            $cacheItem = Get-Item -LiteralPath $startupCache -Force -ErrorAction Stop
+            if ($cacheItem.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                Write-Output 'Startup cache is a link; automatic cleanup was skipped.'
+            } else {
+                Remove-Item -LiteralPath $startupCache -Recurse -Force
+            }
+        }
+        Write-Output 'Blade pinned-tile engine repair applied.'
+    }
+}
+
 try {
     $registration = Resolve-BladeRegistration
     if ($ValidateOnly) {
@@ -323,7 +385,10 @@ try {
     Set-RegistrationValue 'Software\Blade\BrowserRegistration' 'SchemaVersion' 2 DWord
     [BladeBrowserRegistrationShellV2]::SHChangeNotify(0x08000000, 0x1000, [IntPtr]::Zero, [IntPtr]::Zero)
     Write-Output 'Registered: Blade Browser. Windows default choices were preserved.'
-    if ($RegisterOnly) { exit 0 }
+    if ($RegisterOnly) {
+        Invoke-BladeTilesRepairWhenClosed $registration
+        exit 0
+    }
     Start-Process 'ms-settings:defaultapps?registeredAppUser=Blade%20Browser'
     exit 2
 } catch {

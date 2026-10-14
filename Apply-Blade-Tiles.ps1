@@ -22,10 +22,14 @@
 #   powershell -ExecutionPolicy Bypass -File Apply-Blade-Tiles.ps1 `
 #     -AppDir "$env:LOCALAPPDATA\Blade\App\Blade"
 #   (без -AppDir — установленный движок; для стейджа передай Skeleton-Stage)
+#   -SkipSyntaxCheck используется только уже опубликованным repair-путём на
+#   ПК без Node; релизная сборка всегда проверяет исходники через node --check.
 # ============================================================================
 param(
     [string]$AppDir = (Join-Path $env:LOCALAPPDATA 'Blade\App\Blade'),
-    [switch]$DryRun
+    [string]$BackupRoot = (Join-Path $PSScriptRoot 'Backups'),
+    [switch]$DryRun,
+    [switch]$SkipSyntaxCheck
 )
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
@@ -258,18 +262,22 @@ try {
     [System.IO.File]::WriteAllText($f2, $insTxt, $utf8)
     $f3 = Join-Path $tmp 'AboutNewTab.sys.mjs'
     [System.IO.File]::WriteAllText($f3, $antTxt, $utf8)
-    & node --check $f1
-    if ($LASTEXITCODE -ne 0) { throw "node --check: TopSitesFeed.sys.mjs — синтаксис битый, откат" }
-    & node --check $f2
-    if ($LASTEXITCODE -ne 0) { throw "node --check: TopSites.sys.mjs — синтаксис битый, откат" }
-    & node --check $f3
-    if ($LASTEXITCODE -ne 0) { throw "node --check: AboutNewTab.sys.mjs — синтаксис битый, откат" }
-    Write-Host 'Синтаксис патчей проверен (node --check): OK' -ForegroundColor Green
+    if (-not $SkipSyntaxCheck) {
+        & node --check $f1
+        if ($LASTEXITCODE -ne 0) { throw "node --check: TopSitesFeed.sys.mjs — синтаксис битый, откат" }
+        & node --check $f2
+        if ($LASTEXITCODE -ne 0) { throw "node --check: TopSites.sys.mjs — синтаксис битый, откат" }
+        & node --check $f3
+        if ($LASTEXITCODE -ne 0) { throw "node --check: AboutNewTab.sys.mjs — синтаксис битый, откат" }
+        Write-Host 'Синтаксис патчей проверен (node --check): OK' -ForegroundColor Green
+    } else {
+        Write-Host 'Runtime-проверка Node пропущена: точные якоря движка проверены, архив проверен SHA-256.' -ForegroundColor DarkGray
+    }
 
     # --- 5. Перепаковка архива (порядок записей сохраняем, как в Rebrand) ---
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     $label = Split-Path $AppDir -Leaf
-    $bkDir = Join-Path $PSScriptRoot ("Backups\tiles-" + $stamp + "\" + $label)
+    $bkDir = Join-Path $BackupRoot ("tiles-" + $stamp + "\" + $label)
     if (-not $DryRun) {
         New-Item -ItemType Directory -Path $bkDir -Force | Out-Null
         Copy-Item $omni (Join-Path $bkDir 'browser-omni.ja') -Force
@@ -307,7 +315,7 @@ try {
         Write-Host "DryRun: патчи готовы и проверены, архив не тронут" -ForegroundColor Cyan
     } else {
         Move-Item $newOmni $omni -Force
-        Write-Host "Готово: browser/omni.ja перешит (pinnedOnly + дырки). Почисти startupCache профилей и перезапусти браузер." -ForegroundColor Green
+        Write-Host 'Готово: browser/omni.ja перешит (pinnedOnly + дырки). Очисти startupCache профиля и перезапусти браузер.' -ForegroundColor Green
     }
 } finally {
     Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue

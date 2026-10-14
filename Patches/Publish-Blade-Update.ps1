@@ -89,10 +89,12 @@ if ($Mode -eq 'Full') {
     $projectRoot = Split-Path -Parent (Resolve-Path -LiteralPath $PatchesDir -ErrorAction Stop).Path
     $brandOmniScript = Join-Path $projectRoot 'Apply-Blade-Omni.ps1'
     $brandVisualScript = Join-Path $projectRoot 'Apply-Blade-Rebrand.ps1'
+    $tilesEngineScript = Join-Path $projectRoot 'Apply-Blade-Tiles.ps1'
     $brandAssetsDir = Join-Path $projectRoot 'Branding'
     foreach ($requiredBrandFile in @(
         $brandOmniScript,
         $brandVisualScript,
+        $tilesEngineScript,
         (Join-Path $brandAssetsDir 'master_icon.png'),
         (Join-Path $brandAssetsDir 'brand.ftl'),
         (Join-Path $brandAssetsDir 'brand-ru.ftl'),
@@ -259,6 +261,15 @@ if ($Mode -eq 'Full') {
                     '-AppDir', $engineOut, '-BrandAssetsOnly')
     & powershell.exe @visualArgs
     if ($LASTEXITCODE -ne 0) { throw "Blade visual-брендинг упал (код $LASTEXITCODE)" }
+    # pinnedOnly работает только при наличии соответствующей прошивки в
+    # TopSitesFeed.sys.mjs. Полный пакет должен включать тот же патч, который
+    # апдейтер применяет к уже установленному движку.
+    $stagedTilesScript = Join-Path $releaseStage 'Apply-Blade-Tiles.ps1'
+    Copy-Item -LiteralPath $tilesEngineScript -Destination $stagedTilesScript -Force
+    $tilesArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $stagedTilesScript,
+                   '-AppDir', $engineOut, '-BackupRoot', (Join-Path $releaseStage 'BuildBackups'))
+    & powershell.exe @tilesArgs
+    if ($LASTEXITCODE -ne 0) { throw "Blade tiles-прошивка движка упала (код $LASTEXITCODE)" }
 
     # Проверяем видимые метки в готовом omni и сохраняем подпись официального exe.
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -280,6 +291,20 @@ if ($Mode -eq 'Full') {
             try { $value = $reader.ReadToEnd() } finally { $reader.Dispose() }
             if (-not $value.Contains($check.Value)) { throw "Брендинг не прошёл проверку: $($check.Entry)" }
         }
+        $tileChecks = @(
+            @{ Entry = 'chrome/browser/builtin-addons/newtab/lib/TopSitesFeed.sys.mjs'; Value = 'BLADE PATCH pinnedOnly' },
+            @{ Entry = 'modules/topsites/TopSites.sys.mjs'; Value = 'BLADE PATCH v2 (audit P1)' },
+            @{ Entry = 'modules/AboutNewTab.sys.mjs'; Value = 'TopSites.rows.filter(Boolean)' }
+        )
+        foreach ($check in $tileChecks) {
+            $entry = $brandZip.GetEntry($check.Entry)
+            if (-not $entry) { throw "В browser/omni.ja отсутствует модуль плиток $($check.Entry)" }
+            $entryStream = $entry.Open()
+            $reader = [System.IO.StreamReader]::new($entryStream, [System.Text.Encoding]::UTF8)
+            try { $value = $reader.ReadToEnd() } finally { $reader.Dispose() }
+            if (-not $value.Contains($check.Value)) { throw "Движковый патч плиток отсутствует: $($check.Entry)" }
+        }
+        Write-Host 'Проверка pinnedOnly и пустых слотов плиток пройдена.' -ForegroundColor Green
         $brandImages = @(
             @{ Entry = 'chrome/browser/content/branding/about-logo.png'; Width = 192; Height = 192 },
             @{ Entry = 'chrome/browser/content/branding/about-logo@2x.png'; Width = 384; Height = 384 },

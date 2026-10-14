@@ -72,6 +72,34 @@ function Write-Result([string]$kind, [string]$msg) {
 function Restart-Blade {
     if (-not $engineDir) { return }
     $fx = Join-Path $engineDir 'firefox.exe'
+    $expectedProfile = [System.IO.Path]::GetFullPath($ProfileDir)
+    $programs = [Environment]::GetFolderPath([Environment+SpecialFolder]::Programs)
+    $shell = $null
+    try { $shell = New-Object -ComObject WScript.Shell } catch {}
+    foreach ($shortcutName in @('Blade Browser.lnk', 'Blade.lnk')) {
+        $shortcutPath = Join-Path $programs $shortcutName
+        if (-not $shell -or -not (Test-Path -LiteralPath $shortcutPath -PathType Leaf)) { continue }
+        try {
+            $shortcut = $shell.CreateShortcut($shortcutPath)
+            $target = [System.IO.Path]::GetFullPath([string]$shortcut.TargetPath)
+            $launcher = [System.IO.Path]::GetFullPath((Join-Path $BladeRoot 'BladeBrowser.exe'))
+            $targetIsBlade = [string]::Equals($target, $launcher, [System.StringComparison]::OrdinalIgnoreCase)
+            if (-not $targetIsBlade -and [string]::Equals($target, [System.IO.Path]::GetFullPath($fx), [System.StringComparison]::OrdinalIgnoreCase)) {
+                $profileArgumentPattern = '(?i)-profile\s+"?' + [regex]::Escape($expectedProfile)
+                $targetIsBlade = [string]$shortcut.Arguments -match $profileArgumentPattern
+            }
+            if (-not $targetIsBlade) { continue }
+            # ShellExecute через фирменный ярлык сохраняет Blade AppUserModelID
+            # и пользовательскую иконку; прямой запуск firefox.exe подхватывает
+            # штатную иконку Firefox на панели задач.
+            Start-Process -FilePath $shortcutPath -WorkingDirectory $BladeRoot
+            return
+        } catch { }
+    }
+    $launcherPath = Join-Path $BladeRoot 'BladeBrowser.exe'
+    if (Test-Path -LiteralPath $launcherPath -PathType Leaf) {
+        try { Start-Process -FilePath $launcherPath -WorkingDirectory $BladeRoot; return } catch {}
+    }
     if (Test-Path $fx) {
         try {
             Start-Process -FilePath $fx `
@@ -317,6 +345,42 @@ if ($isFull) {
         } catch {
             Finish 'ERR' ("КОПИРОВАНИЕ И ОТКАТ НЕ УДАЛИСЬ: " + $_.Exception.Message + " — восстанови $engineBackup вручную") 1
         }
+    }
+}
+
+# --- Движковый патч плиток ---
+# В профиле pinnedOnly включён постоянно. Применяем его до замены chrome:
+# если новый движок несовместим с точными якорями, профиль остаётся целым.
+$tilesPatcher = Join-Path $chromeSrc 'resources\Apply-Blade-Tiles.ps1'
+if (-not (Test-Path -LiteralPath $tilesPatcher -PathType Leaf)) {
+    Finish 'ERR' 'в пакете нет движкового патча закреплённых плиток — установка отменена' 1
+}
+if (-not $engineDir) { Finish 'ERR' 'движок Blade не найден для настройки плиток' 1 }
+$engineOmni = Join-Path $engineDir 'browser\omni.ja'
+if (-not (Test-Path -LiteralPath $engineOmni -PathType Leaf)) { Finish 'ERR' 'в движке отсутствует browser\omni.ja' 1 }
+try { $tilesHashBefore = (Get-FileHash -LiteralPath $engineOmni -Algorithm SHA256).Hash }
+catch { Finish 'ERR' ("не удалось проверить движок перед прошивкой плиток: " + $_.Exception.Message) 1 }
+$tileBackupRoot = Join-Path $BladeRoot 'Backups\tiles-engine'
+$tilePowerShell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+if (-not (Test-Path -LiteralPath $tilePowerShell -PathType Leaf)) { $tilePowerShell = 'powershell.exe' }
+$tileArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $tilesPatcher,
+              '-AppDir', $engineDir, '-BackupRoot', $tileBackupRoot, '-SkipSyntaxCheck')
+& $tilePowerShell @tileArgs
+if ($LASTEXITCODE -ne 0) { Finish 'ERR' "движковый патч плиток не применился (код $LASTEXITCODE)" 1 }
+try { $tilesHashAfter = (Get-FileHash -LiteralPath $engineOmni -Algorithm SHA256).Hash }
+catch { Finish 'ERR' ("не удалось проверить движок после прошивки плиток: " + $_.Exception.Message) 1 }
+if ($tilesHashBefore -ne $tilesHashAfter) {
+    $startupCache = Join-Path $ProfileDir 'startupCache'
+    if (Test-Path -LiteralPath $startupCache -PathType Container) {
+        try {
+            $cacheItem = Get-Item -LiteralPath $startupCache -Force -ErrorAction Stop
+            if ($cacheItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+                Write-Warning 'startupCache — ссылка; автоматическая очистка пропущена.'
+            } else {
+                Remove-Item -LiteralPath $startupCache -Recurse -Force
+                Write-Host 'Кэш запуска очищен после прошивки плиток.' -ForegroundColor DarkGray
+            }
+        } catch { Finish 'ERR' ("не удалось очистить startupCache: " + $_.Exception.Message) 1 }
     }
 }
 

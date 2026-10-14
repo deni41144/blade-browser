@@ -131,6 +131,11 @@ $utf8Bom = New-Object System.Text.UTF8Encoding($true)
 # BladeUpdater.uc.js при обновлении в один клик; патчами он обновляется сам ---
 $resDir = Join-Path $dstChrome 'resources'
 New-Item -ItemType Directory -Path $resDir -Force | Out-Null
+$tilesPatcherSource = Join-Path (Split-Path -Parent $PatchesDir) 'Apply-Blade-Tiles.ps1'
+if (-not (Test-Path -LiteralPath $tilesPatcherSource -PathType Leaf)) {
+    throw 'Движковый патч закреплённых плиток Apply-Blade-Tiles.ps1 отсутствует.'
+}
+Copy-Item -LiteralPath $tilesPatcherSource -Destination (Join-Path $resDir 'Apply-Blade-Tiles.ps1') -Force
 $applierSrc = Get-Content (Join-Path $PatchesDir 'template\blade-apply-update.ps1') -Raw -Encoding UTF8
 [System.IO.File]::WriteAllText((Join-Path $resDir 'blade-apply-update.ps1'), $applierSrc, $utf8Bom)
 
@@ -187,7 +192,10 @@ $archiveCheck = [System.IO.Compression.ZipFile]::OpenRead($zipCandidate)
 try {
     # Compress-Archive writes Windows-style backslashes in this PowerShell build.
     $hasVersion = $archiveCheck.Entries | Where-Object { $_.FullName -match 'files[/\\]chrome[/\\]VERSION$' } | Select-Object -First 1
-    if (-not $hasVersion -or $archiveCheck.Entries.Count -lt 5) { throw 'В ZIP не хватает обязательных файлов патча.' }
+    $hasTilesPatcher = $archiveCheck.Entries | Where-Object { $_.FullName -match 'files[/\\]chrome[/\\]resources[/\\]Apply-Blade-Tiles\.ps1$' } | Select-Object -First 1
+    if (-not $hasVersion -or -not $hasTilesPatcher -or $archiveCheck.Entries.Count -lt 5) {
+        throw 'В ZIP не хватает обязательной версии или движкового патча закреплённых плиток.'
+    }
 } finally { $archiveCheck.Dispose() }
 $candidateHash = (Get-FileHash -LiteralPath $zipCandidate -Algorithm SHA256).Hash
 [System.IO.File]::WriteAllText($hashCandidate, "$candidateHash  $(Split-Path -Leaf $zipPath)`n", [System.Text.Encoding]::ASCII)
