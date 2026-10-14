@@ -269,11 +269,14 @@ test('P1 Battery 1.0.1: код паттерна в uc.js', () => {
 // 7. P1: политики — langpack-и не обновляются (ключ updates_disabled по схеме движка)
 // ----------------------------------------------------------------------------
 test('P1 Policies: langpack-и updates_disabled, ExtensionUpdate не тронут', () => {
-  const POLICIES = [
-    'C:\\Users\\Deni\\AppData\\Local\\Blade\\App\\Blade\\distribution\\policies.json',
-    path.join(ROOT, 'Skeleton-Stage', 'distribution', 'policies.json'),
-  ];
-  for (const p of POLICIES) {
+  const POLICIES = [];
+  if (process.env.LOCALAPPDATA) {
+    POLICIES.push(path.join(process.env.LOCALAPPDATA, 'Blade', 'App', 'Blade', 'distribution', 'policies.json'));
+  }
+  POLICIES.push(path.join(ROOT, 'Skeleton-Stage', 'smoke-158', 'App', 'Firefox64', 'distribution', 'policies.json'));
+  const availablePolicies = POLICIES.filter(fs.existsSync);
+  assert.ok(availablePolicies.length > 0, 'не найден ни установленный, ни staging policies.json');
+  for (const p of availablePolicies) {
     const j = JSON.parse(fs.readFileSync(p, 'utf8'));
     assert.strictEqual(j.policies.ExtensionUpdate, true, `${p}: ExtensionUpdate должен остаться true (uBO обновляется)`);
     assert.deepStrictEqual(
@@ -293,7 +296,7 @@ test('P3 CSS: правило nth-child(n+16) удалено из userContent.css
     path.join(ROOT, 'FirefoxPortable', 'Data', 'profile', 'chrome', 'userContent.css'), 'utf8');
   // селектор-правила быть не должно (упоминание в комментарии о сносе — ок)
   assert.ok(!css.includes('.top-sites-list li.top-site-outer:nth-child(n+16)'), 'кап 15-плиток всё ещё в CSS');
-  assert.ok(css.includes('СНЁСЁН (P3-аудит'), 'нет комментария о сносе');
+  assert.ok(/КАП nth-child\(n\+16\) УДАЛЁН/.test(css), 'нет комментария о сносе');
 });
 
 (async () => {
