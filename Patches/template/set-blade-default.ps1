@@ -179,6 +179,112 @@ function Set-RegistrationValue([string]$Path, [string]$Name, $Value, [Microsoft.
     } finally { $key.Dispose() }
 }
 
+function Save-TaskbarIdentityBackup($Registration, [Microsoft.Win32.RegistryHive]$Hive, [string]$RegistryPath,
+    [Microsoft.Win32.RegistryView]$View, [string]$ValueName, $Value,
+    [Microsoft.Win32.RegistryValueKind]$Kind) {
+    $backupDir = Join-Path $Registration.Root 'Backups'
+    if ((Test-Path -LiteralPath $backupDir -PathType Container) -and
+        ((Get-Item -LiteralPath $backupDir -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        throw 'Taskbar identity backup directory is a link.'
+    }
+    [IO.Directory]::CreateDirectory($backupDir) | Out-Null
+    $stamp = Get-Date -Format 'yyyyMMdd-HHmmss-fff'
+    $backupPath = Join-Path $backupDir "taskbar-identity-$($View.ToString())-$stamp.json"
+    $snapshot = @{
+        RegistryHive = $Hive.ToString()
+        RegistryView = $View.ToString()
+        RegistryPath = $RegistryPath
+        ValueName = $ValueName
+        Value = $Value
+        ValueKind = $Kind.ToString()
+        EnginePath = $Registration.Engine
+        Replacement = 'BladeBrowser.Desktop'
+    }
+    [IO.File]::WriteAllText($backupPath, ($snapshot | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
+}
+
+function Set-BladeTaskbarIdentity($Registration) {
+    $views = @([Microsoft.Win32.RegistryView]::Registry32, [Microsoft.Win32.RegistryView]::Registry64)
+    $machineMatches = 0
+    $updated = 0
+    foreach ($view in $views) {
+        $base = [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::LocalMachine, $view)
+        try {
+            $mozilla = $base.OpenSubKey('Software\Mozilla')
+            if ($null -eq $mozilla) { continue }
+            try { $appNames = @($mozilla.GetSubKeyNames()) } finally { $mozilla.Dispose() }
+            foreach ($appName in $appNames) {
+                $path = "Software\Mozilla\$appName\TaskBarIDs"
+                $readKey = $base.OpenSubKey($path)
+                if ($null -eq $readKey) { continue }
+                $hasEngine = $false
+                $oldValue = $null
+                $oldKind = [Microsoft.Win32.RegistryValueKind]::String
+                try {
+                    $hasEngine = @($readKey.GetValueNames()) -contains $Registration.Engine
+                    if ($hasEngine) {
+                        $oldValue = $readKey.GetValue($Registration.Engine, $null,
+                            [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+                        $oldKind = $readKey.GetValueKind($Registration.Engine)
+                    }
+                } finally { $readKey.Dispose() }
+                if (-not $hasEngine) { continue }
+                $machineMatches++
+                if ([string]$oldValue -eq 'BladeBrowser.Desktop') { $updated++; continue }
+                try {
+                    Save-TaskbarIdentityBackup $Registration ([Microsoft.Win32.RegistryHive]::LocalMachine) $path $view $Registration.Engine $oldValue $oldKind
+                    $writeKey = $base.OpenSubKey($path, $true)
+                    if ($null -eq $writeKey) { throw 'Registry key is not writable.' }
+                    try {
+                        $writeKey.SetValue($Registration.Engine, 'BladeBrowser.Desktop', [Microsoft.Win32.RegistryValueKind]::String)
+                        if ([string]$writeKey.GetValue($Registration.Engine, '') -ne 'BladeBrowser.Desktop') {
+                            throw 'Registry verification failed.'
+                        }
+                    } finally { $writeKey.Dispose() }
+                    $updated++
+                } catch {
+                    Write-Warning "Blade taskbar identity could not update $view\$path; the launcher will set the window identity at runtime. $($_.Exception.Message)"
+                }
+            }
+        } finally { $base.Dispose() }
+    }
+
+    if ($machineMatches -gt 0) {
+        if ($updated -eq $machineMatches) { Write-Output 'Blade taskbar identity registered in the existing Mozilla mapping.' }
+        return
+    }
+
+    # Fresh per-user installations may not have a machine-wide Mozilla mapping.
+    # Register both views so the Firefox process architecture sees the same Blade ID.
+    $userViewsUpdated = 0
+    foreach ($view in $views) {
+        $base = $null
+        try {
+            $base = [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::CurrentUser, $view)
+            $path = 'Software\Mozilla\Firefox\TaskBarIDs'
+            $key = $base.CreateSubKey($path)
+            try {
+                $oldValue = $key.GetValue($Registration.Engine, $null,
+                    [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+                if ([string]$oldValue -ne 'BladeBrowser.Desktop') {
+                    if ($null -ne $oldValue) {
+                        $oldKind = $key.GetValueKind($Registration.Engine)
+                        Save-TaskbarIdentityBackup $Registration ([Microsoft.Win32.RegistryHive]::CurrentUser) $path $view $Registration.Engine $oldValue $oldKind
+                    }
+                    $key.SetValue($Registration.Engine, 'BladeBrowser.Desktop', [Microsoft.Win32.RegistryValueKind]::String)
+                }
+                if ([string]$key.GetValue($Registration.Engine, '') -ne 'BladeBrowser.Desktop') {
+                    throw 'Registry verification failed.'
+                }
+                $userViewsUpdated++
+            } finally { $key.Dispose() }
+        } catch {
+            Write-Warning "Blade taskbar identity could not update the $view user registry view; the launcher will set the window identity at runtime. $($_.Exception.Message)"
+        } finally { if ($null -ne $base) { $base.Dispose() } }
+    }
+    if ($userViewsUpdated -eq $views.Count) { Write-Output 'Blade taskbar identity registered for this user.' }
+}
+
 function Initialize-RegistrationShell {
     if ('BladeBrowserRegistrationShellV2' -as [type]) { return }
     Add-Type -TypeDefinition @"
@@ -221,13 +327,51 @@ function Test-BladeEngineRunning([string]$EngineExe) {
     return $false
 }
 
+function Test-BladeTilesPatched($Registration) {
+    $omni = Join-Path $Registration.Engine 'browser\omni.ja'
+    if (-not (Test-Path -LiteralPath $omni -PathType Leaf)) { return $false }
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $checks = @(
+        @{ Entry = 'chrome/browser/builtin-addons/newtab/lib/TopSitesFeed.sys.mjs'; Marker = 'BLADE PATCH pinnedOnly' },
+        @{ Entry = 'modules/topsites/TopSites.sys.mjs'; Marker = 'BLADE PATCH v2 (audit P1)' },
+        @{ Entry = 'modules/AboutNewTab.sys.mjs'; Marker = 'TopSites.rows.filter(Boolean)' }
+    )
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($omni)
+    try {
+        foreach ($check in $checks) {
+            $entry = $archive.GetEntry($check.Entry)
+            if ($null -eq $entry) { return $false }
+            $reader = New-Object System.IO.StreamReader($entry.Open(), [System.Text.Encoding]::UTF8)
+            try { $content = $reader.ReadToEnd() } finally { $reader.Dispose() }
+            if (-not $content.Contains($check.Marker)) { return $false }
+        }
+        return $true
+    } finally {
+        $archive.Dispose()
+    }
+}
+
 function Invoke-BladeTilesRepairWhenClosed($Registration) {
     $resources = Join-Path (Join-Path $Registration.Profile 'chrome') 'resources'
     $tilesPatcher = Join-Path $resources 'Apply-Blade-Tiles.ps1'
     if (-not (Test-Path -LiteralPath $tilesPatcher -PathType Leaf)) { return }
+    $pendingMarker = Join-Path $resources 'TILES-REPAIR-PENDING'
+    if (Test-Path -LiteralPath $pendingMarker) {
+        $pendingItem = Get-Item -LiteralPath $pendingMarker -Force -ErrorAction Stop
+        if ($pendingItem.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+            throw 'Tile repair marker is a link.'
+        }
+    }
+    if (Test-BladeTilesPatched $Registration) {
+        if (Test-Path -LiteralPath $pendingMarker -PathType Leaf) {
+            Remove-Item -LiteralPath $pendingMarker -Force
+        }
+        return
+    }
     $engineExe = Join-Path $Registration.Engine 'firefox.exe'
     if (Test-BladeEngineRunning $engineExe) {
-        Write-Output 'Tile engine repair skipped because Blade may still be running.'
+        [IO.File]::WriteAllText($pendingMarker, 'pending', (New-Object Text.UTF8Encoding($false)))
+        Write-Output 'Tile engine repair deferred until Blade next starts.'
         return
     }
 
@@ -262,6 +406,12 @@ function Invoke-BladeTilesRepairWhenClosed($Registration) {
             }
         }
         Write-Output 'Blade pinned-tile engine repair applied.'
+    }
+    if (-not (Test-BladeTilesPatched $Registration)) {
+        throw 'Blade tile engine repair did not leave all required markers.'
+    }
+    if (Test-Path -LiteralPath $pendingMarker -PathType Leaf) {
+        Remove-Item -LiteralPath $pendingMarker -Force
     }
 }
 
@@ -364,6 +514,7 @@ try {
     foreach ($extension in @('.htm', '.html', '.xhtml', '.shtml')) { Set-RegistrationValue "$application\SupportedTypes" $extension '' }
     Set-RegistrationValue 'Software\Classes\AppUserModelId\BladeBrowser.Desktop' 'DisplayName' 'Blade Browser'
     Set-RegistrationValue 'Software\Classes\AppUserModelId\BladeBrowser.Desktop' 'IconUri' ($registration.Icon -replace ',0$', '')
+    Set-BladeTaskbarIdentity $registration
     Set-RegistrationValue 'Software\Microsoft\Windows\CurrentVersion\App Paths\BladeBrowser.exe' '' $registration.Launcher
     Initialize-RegistrationShell
     $programs = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'

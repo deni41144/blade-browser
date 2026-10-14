@@ -4,21 +4,21 @@
       <img src="Branding/master_icon.png" alt="Оригинальная эмблема Blade" width="150">
     </td>
     <td width="82%" valign="middle">
-      <img src="assets/blade-github-hero.svg" alt="Blade — Перековка / Reforged" width="100%">
+      <img src="assets/blade-github-hero.svg" alt="Blade — Возврат / Return" width="100%">
     </td>
   </tr>
 </table>
 
 <p align="center">
   <a href="https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe"><img src="https://img.shields.io/badge/Скачать%20Blade-Windows%20x64-C8102E?style=for-the-badge&logo=windows&logoColor=white" alt="Скачать Blade для Windows x64"></a>
-  <a href="https://github.com/deni41144/blade-browser/releases/latest"><img src="https://img.shields.io/badge/Текущая%20глава-Перековка-292329?style=for-the-badge" alt="Текущий релиз — Перековка"></a>
+  <a href="https://github.com/deni41144/blade-browser/releases/latest"><img src="https://img.shields.io/badge/Текущая%20глава-Возврат-292329?style=for-the-badge" alt="Текущий релиз — Возврат"></a>
   <a href="https://github.com/deni41144/blade-browser/releases"><img src="https://img.shields.io/badge/Архив-всех%20релизов-292329?style=for-the-badge&logo=github&logoColor=white" alt="Все релизы Blade"></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Windows-10%20%2F%2011-55515A" alt="Windows 10 и 11">
   <img src="https://img.shields.io/badge/Engine-Firefox%20Gecko-FF7139" alt="Движок Firefox Gecko">
-  <img src="https://img.shields.io/badge/Release-Reforged-C8102E" alt="Релиз Reforged">
+  <img src="https://img.shields.io/badge/Release-Return-C8102E" alt="Релиз Return">
 </p>
 
 <p align="center"><a href="#ru">Русский</a> · <a href="#en">English</a></p>
@@ -31,7 +31,7 @@
 
 Blade — браузер для Windows на движке Firefox. Gecko остаётся под капотом; Blade добавляет свой интерфейс, тёмные темы, оформление сайтов и инструменты управления фоновыми вкладками.
 
-**Текущая глава — «Перековка» / Reforged.** У релизов есть имена, а технические номера сохранены только в тегах и файлах: они нужны для безопасного поиска обновлений и отката.
+**Текущая глава — «Возврат» / Return.** У релизов есть имена, а технические номера сохранены только в тегах и файлах: они нужны для безопасного поиска обновлений и отката.
 
 ### Скачать и начать
 
@@ -79,7 +79,7 @@ Get-FileHash .\Blade-Setup.exe -Algorithm SHA256
 
 Blade is a Windows browser built on Firefox. Gecko stays under the hood; Blade adds its own interface, dark themes, website artwork and background-tab controls.
 
-**The current chapter is “Reforged.”** Releases have names; technical numbers remain in tags and filenames so the updater can compare builds and roll back safely.
+**The current chapter is “Return.”** Releases have names; technical numbers remain in tags and filenames so the updater can compare builds and roll back safely.
 
 ### Download and get started
 

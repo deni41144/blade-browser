@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="460" viewBox="0 0 1440 460" role="img" aria-labelledby="title desc">
-  <title id="title">Blade — Reforged</title>
+  <title id="title">Blade — Return</title>
   <desc id="desc">A dark red moonlit banner for Blade, a Firefox-based browser for Windows.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
@@ -58,7 +58,7 @@
   <text x="112" y="280" fill="#f1e6e8" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" letter-spacing="1">ТВОЙ БРАУЗЕР. ТВОИ ПРАВИЛА.</text>
   <rect x="112" y="318" width="335" height="42" rx="8" fill="#32131b" stroke="#a72b3c" stroke-opacity=".82"/>
   <circle cx="132" cy="339" r="4" fill="#ff475d"/>
-  <text x="148" y="345" fill="#ffe7e9" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="2">ПЕРЕКОВКА · REFORGED</text>
+  <text x="148" y="345" fill="#ffe7e9" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="2">ВОЗВРАТ · RETURN</text>
   <text x="112" y="405" fill="#d2c2c6" font-family="Segoe UI,Arial,sans-serif" font-size="13" letter-spacing="2.5">WINDOWS X64 · DARK FANTASY · GECKO</text>
   <rect x="1" y="1" width="1438" height="458" rx="23" fill="none" stroke="#652934" stroke-opacity=".8"/>
 </svg>
