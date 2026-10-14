@@ -4,7 +4,7 @@
 //                  можно задать вручную префом blade.clock.cityQuery. Ключей нет.
 // @author          Blade-Creations
 // @include         main
-// @version         2.7.0
+// @version         2.7.1
 // ==/UserScript==
 (function () {
   const WIDGET_ID = 'blade-clock-widget';
@@ -237,6 +237,7 @@
           if (btn.hidden !== hide) btn.hidden = hide;
         } catch (e) {}
       };
+      let disposed = false;
       const update = () => {
         const weatherPart = lastWeather ? (lastCity ? lastCity + ' ' : '') + lastWeather : '';
         const text = weatherPart ? timeString() + '  ·  ' + weatherPart : timeString();
@@ -272,19 +273,34 @@
         } catch (e) {}
         syncVisibility();   // страховка: даже если слушатели не встали, тик исправит видимость
       };
+      const win = doc.defaultView;
+      let tick = 0;
+      let progressListener = null;
+      const tabContainer = win.gBrowser && win.gBrowser.tabContainer;
+      const scheduleUpdate = () => {
+        if (disposed) return;
+        const delay = 60e3 - (Date.now() % 60e3);
+        tick = win.setTimeout(() => {
+          tick = 0;
+          update();
+          scheduleUpdate();
+        }, delay);
+      };
+      const cleanup = () => {
+        disposed = true;
+        if (tick) win.clearTimeout(tick);
+        try { if (progressListener) win.gBrowser.removeTabsProgressListener(progressListener); } catch (e) {}
+        try { if (tabContainer) tabContainer.removeEventListener('TabSelect', syncVisibility); } catch (e) {}
+      };
       update();
-      const tick = setInterval(update, 10e3);
-      doc.defaultView.addEventListener('unload', () => clearInterval(tick));
+      scheduleUpdate();
+      win.addEventListener('unload', cleanup, { once: true });
       btn.addEventListener('click', () => fetchWeather(true));
       // Живое скрытие при переходах: слушатели замыкаются на этот btn
       try {
-        const win = doc.defaultView;
-        const pl = { onLocationChange() { syncVisibility(); } };
-        win.gBrowser.addTabsProgressListener(pl);
-        win.gBrowser.tabContainer.addEventListener('TabSelect', syncVisibility);
-        win.addEventListener('unload', () => {
-          try { win.gBrowser.removeTabsProgressListener(pl); } catch (e) {}
-        });
+        progressListener = { onLocationChange() { syncVisibility(); } };
+        win.gBrowser.addTabsProgressListener(progressListener);
+        tabContainer.addEventListener('TabSelect', syncVisibility);
       } catch (e) {}
       return btn;
     }

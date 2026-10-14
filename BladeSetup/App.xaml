@@ -3,21 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- ======================================================== -->
-        <!-- AVA 3.0 / OPERA GX PALETTE (AVA-волна 2026-09-14)        -->
-        <!-- Базовая палитра: глубокий черный #060000, алый #FF0000   -->
-        <!-- ======================================================== -->
-        <Color x:Key="ColorBgWindow">#060002</Color>
-        <Color x:Key="ColorCardBg">#0d0305</Color>
-        <Color x:Key="ColorCardBgLight">#18060a</Color>
-        <Color x:Key="ColorAccentRed">#FF0000</Color>
-        <Color x:Key="ColorAccentHover">#FF2B2B</Color>
-        <Color x:Key="ColorAccentGlow">#80FF0000</Color>
-        <Color x:Key="ColorTextPrimary">#FFFFFF</Color>
-        <Color x:Key="ColorTextSecondary">#9E9397</Color>
-        <Color x:Key="ColorTextMuted">#635359</Color>
-        <Color x:Key="ColorBorderSubtle">#260A0E</Color>
-        <Color x:Key="ColorBorderHover">#FF0000</Color>
+        <!-- Тихая винная палитра Blade: контраст строится на слоях, не на свечении. -->
+        <Color x:Key="ColorBgWindow">#100D10</Color>
+        <Color x:Key="ColorCardBg">#171317</Color>
+        <Color x:Key="ColorCardBgLight">#21191E</Color>
+        <Color x:Key="ColorAccentRed">#D94B59</Color>
+        <Color x:Key="ColorAccentHover">#E85B67</Color>
+        <Color x:Key="ColorAccentGlow">#35D94B59</Color>
+        <Color x:Key="ColorTextPrimary">#F7F2F3</Color>
+        <Color x:Key="ColorTextSecondary">#B7AAAE</Color>
+        <Color x:Key="ColorTextMuted">#85787D</Color>
+        <Color x:Key="ColorBorderSubtle">#38292E</Color>
+        <Color x:Key="ColorBorderHover">#A9434E</Color>
 
         <!-- SolidColorBrush кисти -->
         <SolidColorBrush x:Key="BrushBgWindow" Color="{StaticResource ColorBgWindow}" />
@@ -31,29 +28,29 @@
         <SolidColorBrush x:Key="BrushBorderSubtle" Color="{StaticResource ColorBorderSubtle}" />
         <SolidColorBrush x:Key="BrushBorderHover" Color="{StaticResource ColorBorderHover}" />
 
-        <!-- Неоновые эффекты свечения AVA DropShadowEffect -->
+        <!-- Мягкие тени для отделения поверхностей. -->
         <DropShadowEffect x:Key="BladeGlowEffect"
-                          Color="#FF0000"
-                          BlurRadius="20"
-                          Opacity="0.45"
+                          Color="#D94B59"
+                          BlurRadius="16"
+                          Opacity="0.16"
                           ShadowDepth="0" />
 
         <DropShadowEffect x:Key="BladeAccentGlowEffect"
-                          Color="#FF0000"
-                          BlurRadius="26"
-                          Opacity="0.85"
+                          Color="#D94B59"
+                          BlurRadius="20"
+                          Opacity="0.25"
                           ShadowDepth="0" />
 
         <DropShadowEffect x:Key="BladeMegaGlowEffect"
-                          Color="#FF0000"
-                          BlurRadius="34"
-                          Opacity="0.95"
+                          Color="#D94B59"
+                          BlurRadius="26"
+                          Opacity="0.32"
                           ShadowDepth="0" />
 
         <DropShadowEffect x:Key="LaserGlowEffect"
-                          Color="#FF0000"
-                          BlurRadius="14"
-                          Opacity="0.95"
+                          Color="#D94B59"
+                          BlurRadius="10"
+                          Opacity="0.24"
                           ShadowDepth="0" />
 
         <!-- ======================================================== -->
@@ -78,7 +75,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="10"
                                 RenderTransformOrigin="0.5,0.5">
                             <Border.RenderTransform>
                                 <ScaleTransform x:Name="ButtonScale" ScaleX="1.0" ScaleY="1.0" />
@@ -108,7 +105,6 @@
 
                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
                                 <Setter TargetName="border" Property="Background" Value="{StaticResource BrushCardBgLight}" />
-                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
                                 <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
@@ -121,8 +117,8 @@
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
 
-                                <Setter TargetName="border" Property="Background" Value="#060102" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="#C50606" />
+                                <Setter TargetName="border" Property="Background" Value="#120E11" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#67434A" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
@@ -137,30 +133,28 @@
         <!-- Акцентная кнопка AVA 3.0 / Opera GX (Scale 1.03 + MegaGlow при Hover) -->
         <Style x:Key="BladeAccentButtonStyle" TargetType="Button">
             <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
-            <Setter Property="BorderThickness" Value="1.2" />
+            <Setter Property="BorderBrush" Value="#C84B57" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Padding" Value="20,10" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Effect" Value="{StaticResource BladeGlowEffect}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
-                                Effect="{TemplateBinding Effect}"
+                                CornerRadius="10"
                                 RenderTransformOrigin="0.5,0.5">
                             <Border.RenderTransform>
                                 <ScaleTransform x:Name="ButtonScale" ScaleX="1.0" ScaleY="1.0" />
                             </Border.RenderTransform>
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#C50606" Offset="0.0" />
-                                    <GradientStop Color="#8E0202" Offset="1.0" />
+                                    <GradientStop Color="#C84B57" Offset="0.0" />
+                                    <GradientStop Color="#A83A47" Offset="1.0" />
                                 </LinearGradientBrush>
                             </Border.Background>
                             <ContentPresenter HorizontalAlignment="Center"
@@ -186,13 +180,12 @@
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
 
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FFFFFF" />
-                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeMegaGlowEffect}" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#E98B91" />
                                 <Setter TargetName="border" Property="Background">
                                     <Setter.Value>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#FF1A1A" Offset="0.0" />
-                                            <GradientStop Color="#D60606" Offset="1.0" />
+                                            <GradientStop Color="#DB5964" Offset="0.0" />
+                                            <GradientStop Color="#B74450" Offset="1.0" />
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
@@ -208,12 +201,12 @@
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
 
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FF0000" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#8D3A44" />
                                 <Setter TargetName="border" Property="Background">
                                     <Setter.Value>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#750101" Offset="0.0" />
-                                            <GradientStop Color="#520000" Offset="1.0" />
+                                            <GradientStop Color="#963A45" Offset="0.0" />
+                                            <GradientStop Color="#7C303A" Offset="1.0" />
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
@@ -246,7 +239,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="10"
                                 RenderTransformOrigin="0.5,0.5">
                             <Border.RenderTransform>
                                 <ScaleTransform x:Name="ButtonScale" ScaleX="1.0" ScaleY="1.0" />
@@ -276,7 +269,6 @@
 
                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
                                 <Setter TargetName="border" Property="Background" Value="#140407" />
-                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
                                 <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
@@ -289,8 +281,8 @@
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
 
-                                <Setter TargetName="border" Property="Background" Value="#080102" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="#C50606" />
+                                <Setter TargetName="border" Property="Background" Value="#171216" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#67434A" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
@@ -324,11 +316,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccentRed}" />
+                                <Setter TargetName="border" Property="Background" Value="#2A2226" />
                                 <Setter Property="Foreground" Value="#FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#A80000" />
+                                <Setter TargetName="border" Property="Background" Value="#3A292E" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -340,13 +332,13 @@
         <!-- TEXTBOX STYLE: AVA 3.0 (4 состояния ввода)               -->
         <!-- ======================================================== -->
         <Style x:Key="BladeTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#090204" />
+            <Setter Property="Background" Value="#171317" />
             <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}" />
             <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontFamily" Value="Segoe UI, system-ui, sans-serif" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Padding" Value="13,10" />
             <Setter Property="CaretBrush" Value="{StaticResource BrushAccentRed}" />
             <Setter Property="SelectionBrush" Value="{StaticResource BrushAccentRed}" />
             <Setter Property="Template">
@@ -356,7 +348,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
+                                CornerRadius="9">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Focusable="False"
                                           HorizontalScrollBarVisibility="Hidden"
@@ -364,11 +356,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#661A22" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#594047" />
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
-                                <Setter TargetName="border" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.4" />
@@ -393,7 +384,7 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Grid Width="18" Height="18" Margin="0,0,10,0">
                                 <Border x:Name="boxBorder"
-                                        Background="#060102"
+                                        Background="#171317"
                                         BorderBrush="{StaticResource BrushBorderSubtle}"
                                         BorderThickness="1.5"
                                         CornerRadius="4" />
@@ -413,7 +404,6 @@
                                 <Setter TargetName="checkMark" Property="Visibility" Value="Visible" />
                                 <Setter TargetName="boxBorder" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />
                                 <Setter TargetName="boxBorder" Property="Background" Value="#140306" />
-                                <Setter TargetName="boxBorder" Property="Effect" Value="{StaticResource BladeGlowEffect}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="boxBorder" Property="BorderBrush" Value="{StaticResource BrushAccentRed}" />

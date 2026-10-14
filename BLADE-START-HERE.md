@@ -1,9 +1,9 @@
 # BLADE — START HERE
 > Одна страница для входа в проект: для новой сессии, другого агента или
-> человека. Обновлено: 2026-09-25 · v2.0.8 «Распад (Dissolve)» опубликована.
+> человека. Обновлено: 2026-10-14 · готовится v2.3.6 на Firefox 158.0.
 
 ## Что это
-Кастомный браузер Blade на движке Firefox 155 (2026): брендинг-хирургия omni.ja,
+Кастомный браузер Blade на движке Firefox 158.0 (2026): Blade-брендинг,
 тёмный демонический стиль, свой апдейтер/сетап/звук/палитра. Автор: Denis
 Bobliksov (Blade-Creations). Друзья получают обновления автоматически через
 репозиторий (BladeUpdater проверяет releases/latest раз в сутки).
@@ -16,9 +16,12 @@ Bobliksov (Blade-Creations). Друзья получают обновления 
 3. Этот файл — только для быстрого старта операций.
 
 ## Быстрый старт для нового разработчика
-1. **Движок + кастомизация одним архивом:** `Patches\Blade-Full-v2.0.8.zip`
-   (151 МБ, `App\Firefox64` — движок, `profile\` — chrome + user.js). Распаковать
-   в отдельную папку, запустить `firefox.exe`. Это рабочий браузер целиком.
+1. **Для установки и обычного запуска:** собранный `Blade-Setup.exe` либо
+   `Patches\Blade-Full-v2.3.6.zip`. Full — это payload установщика, а не
+   portable-папка с самостоятельным `firefox.exe`: setup создаёт регистрацию
+   профиля, ярлык и передаёт движку путь к `Data\profile`. Для ручного прогона
+   запускай движок с явным `-profile <путь-к-profile>`; bare `firefox.exe`
+   может открыть стандартный профиль Firefox без Blade-оболочки.
 2. **Исходники кастомизации** — в репо: `FirefoxPortable\Data\profile\chrome\`
    и `...\user.js`. Всё, что рассылается друзьям, берётся из этой папки
    (других копий нет — правки в ней).
@@ -30,12 +33,13 @@ Bobliksov (Blade-Creations). Друзья получают обновления 
 |---|---|
 | Dev-профиль (источник патчей) | `F:\firefox michael edition\FirefoxPortable\Data\profile` |
 | Живой браузер владельца | `C:\Users\Deni\AppData\Local\Blade` (профиль: `Data\profile`) — **НЕ ТРОГАТЬ без слова** |
-| Движок (для Full-сборок) | `%LOCALAPPDATA%\Blade\App\Blade` |
-| Скальпели движка | `Apply-Blade-Omni.ps1` (брендинг), `Apply-Blade-Skeleton.ps1` (телефоны), `Apply-Blade-CleanSheet.ps1` (языки) |
+| Движок (для Full-сборок) | `Skeleton-Stage\Firefox-<версия из Patches\firefox-engine-version.txt>\unpacked\core` |
+| Bootstrap-файлы Full | только `config.js`, `blade-defaults.js`, `policies.json` из `%LOCALAPPDATA%\Blade\App\Blade` или явного `-BootstrapDir` |
+| Брендинг Full | `Apply-Blade-Omni.ps1` + `Apply-Blade-Rebrand.ps1 -BrandAssetsOnly` на staging-копии; подпись `firefox.exe` проверяется после обработки |
 | Глаза (испытательный полигон) | `Blade-Eyes.ps1` → отчёты в `TestReports\eyes-*` |
 | Релиз-конвейер | `Patches\Publish-Blade-Update.ps1 -Version X.Y.Z -Codename "Y" -Notes "Z"` (`-SkipPublish` = сборка без заливки) |
-| Полный набор (патч+Full+data.zip) | `New-Blade-Release.ps1 -Version X -Codename "Y" -Notes "Z"` |
-| Сетап | `BladeSetup\Output\` (Blade-Setup.exe + data.zip) |
+| Полный набор (патч+Full+однофайловый офлайн-сетап) | `New-Blade-Release.ps1 -Version X -Codename "Y" -Notes "Z"` (`-Publish` загружает 6 файлов релиза) |
+| Сетап | `BladeSetup\Output\Blade-Setup.exe` (движок и ожидаемый SHA-256 встроены) |
 
 ## Типовые операции
 - **Проверить здоровье после правок:** `Blade-Eyes.ps1 -Full` → свежий отчёт

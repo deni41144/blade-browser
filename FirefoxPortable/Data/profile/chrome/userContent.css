@@ -2372,12 +2372,15 @@ input, textarea, [contenteditable] {
 /* ==== Волна «Сок» 2.0: экономия батареи — живые фоны замирают ============
    Преф публикует BladeBattery.uc.js (chrome-сторона), до remote-newtab он
    доезжает только через @media -moz-pref — тот же механизм, что у тем. */
-@media (-moz-pref("blade.battery.sav")) {
-  /* только главная: живые фоны pulse/flow крутят body::before/::after —
-     их и глушим; погодные оверлеи живут на html::before/::after, не тронуты */
-  body.activity-stream::before,
-  body.activity-stream::after {
-    animation: none !important;
+@-moz-document url("about:home"), url("about:newtab") {
+  @media (-moz-pref("blade.battery.sav")) {
+    /* Останавливаем и атмосферу страницы, и погодные слои на html. */
+    html::before,
+    html::after,
+    body.activity-stream::before,
+    body.activity-stream::after {
+      animation-play-state: paused !important;
+    }
   }
 }
 

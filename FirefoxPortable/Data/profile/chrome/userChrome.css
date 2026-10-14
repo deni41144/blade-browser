@@ -345,6 +345,26 @@ html|sidebar-main {
   visibility: collapse !important;
 }
 
+/* Плотный режим включается только при большом числе вкладок. Иконки остаются
+   видимыми, а активная вкладка сохраняет место для читаемого заголовка. */
+#tabbrowser-tabs[orient="horizontal"]:has(.tabbrowser-tab:nth-child(n + 18)) {
+  --tab-min-width: 52px !important;
+  --tab-min-width-pref: 52px !important;
+  --tab-max-width: 64px !important;
+}
+
+#tabbrowser-tabs[orient="horizontal"]:has(.tabbrowser-tab:nth-child(n + 18))
+  .tabbrowser-tab:not([pinned]):is([selected], [visuallyselected]) {
+  --tab-min-width: 148px !important;
+  --tab-min-width-pref: 148px !important;
+  --tab-max-width: 208px !important;
+}
+
+#tabbrowser-tabs[orient="horizontal"]:has(.tabbrowser-tab:nth-child(n + 18))
+  .tabbrowser-tab:not([pinned]):not([selected]):not([visuallyselected]) .tab-label-container {
+  display: none !important;
+}
+
 /* Терминальная адресная строка: служебные иконки приглушены в покое,
    оживают при наведении/фокусе */
 #urlbar .urlbar-page-action,
@@ -986,16 +1006,8 @@ html|html[data-blade-theme="custom"] #bobliks-settings-button[open] .toolbarbutt
   filter: drop-shadow(0 0 7px var(--accent)) drop-shadow(0 0 3px #ffffff) brightness(1.2) !important;
 }
 
-/* Стоп-кадр на неактивном окне — ВЫКЛЮЧЕНО НАВСЕГДА (проверено дважды):
-   в FF155 :-moz-window-inactive матчит и АКТИВНОЕ окно — правило ставит
-   паузу всегда (getAnimations: paused=3 при верифицированном foreground).
-   Цена всегда-бегущих анимаций измерена: 0.0–0.1% ядра — приемлемо.
-html|html:-moz-window-inactive #navigator-toolbox::before,
-html|html:-moz-window-inactive #navigator-toolbox::after,
-html|html:-moz-window-inactive #bobliks-settings-button .toolbarbutton-icon {
-  animation-play-state: paused !important;
-}
-*/
+/* :-moz-window-inactive не используется: в Firefox 155 он ошибочно совпадал
+   с активным окном. Пауза декора управляется BladeEffects через data-blade-fx-paused. */
 
 /* ==========================================================================
    5.2 REDUCED MOTION (v1.7): системная настройка «меньше анимаций» гасит
@@ -2914,6 +2926,18 @@ html|html[data-blade-night] #blade-clock-widget .blade-weather-glyph,
   #nav-bar::after {
     animation: none !important;
   }
+}
+
+/* Не тратим кадры на декоративные эффекты в свёрнутых и неактивных окнах.
+   BladeEffects выставляет атрибут только после проверки активного окна;
+   при возврате фокусировки анимации сами продолжаются с прежней точки. */
+:root[data-blade-fx-paused="true"] #navigator-toolbox::before,
+:root[data-blade-fx-paused="true"] #navigator-toolbox::after,
+:root[data-blade-fx-paused="true"] #bobliks-settings-button .toolbarbutton-icon,
+:root[data-blade-fx-paused="true"] #bobliks-settings-button::after,
+:root[data-blade-fx-paused="true"] #nav-bar::before,
+:root[data-blade-fx-paused="true"] #nav-bar::after {
+  animation-play-state: paused !important;
 }
 
 /* ============================================================================

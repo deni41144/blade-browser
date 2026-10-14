@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -27,7 +28,14 @@ public class InstallProgressReport
 
 public static class InstallerLogic
 {
-    public const string BladeVersion = "1.4.1"; // фолбэк, если VERSION из data.zip не читается
+    private const string EmbeddedPayloadResource = "BladeSetup.BladePayload.zip";
+    private const string EmbeddedPayloadHashResource = "BladeSetup.BladePayload.sha256";
+    private const long MaxPayloadBytes = 2L * 1024 * 1024 * 1024;
+    private const int MaxPayloadEntries = 25000;
+    private static readonly string[] ReservedWindowsNames =
+        { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+
+    public const string BladeVersion = "2.3.6"; // версия пакета, если VERSION не читается
 
     /// <summary>
     /// Версия сборки из data.zip (profile/chrome/VERSION) — единственный источник
@@ -39,10 +47,10 @@ public static class InstallerLogic
     {
         try
         {
-            if (string.IsNullOrEmpty(dataZipPath) || !File.Exists(dataZipPath)) return;
-            using ZipArchive archive = ZipFile.OpenRead(dataZipPath);
+            using ZipArchive archive = OpenPayloadArchive(dataZipPath);
             var entry = archive.Entries.FirstOrDefault(e =>
-                e.FullName.Equals("profile/chrome/VERSION", StringComparison.OrdinalIgnoreCase));
+                NormalizeArchivePath(e.FullName).Equals("profile/VERSION", StringComparison.OrdinalIgnoreCase) ||
+                NormalizeArchivePath(e.FullName).Equals("profile/chrome/VERSION", StringComparison.OrdinalIgnoreCase));
             if (entry is null) return;
             using var sr = new StreamReader(entry.Open(), Encoding.UTF8);
             string v = sr.ReadToEnd().Trim().TrimStart('\uFEFF');
@@ -86,6 +94,7 @@ public static class InstallerLogic
     /// </summary>
     public static string? FindDataZipPath()
     {
+        if (HasEmbeddedPayload()) return null;
         string baseDir = AppContext.BaseDirectory;
         string candidate1 = Path.Combine(baseDir, "data.zip");
         if (File.Exists(candidate1)) return candidate1;
@@ -107,6 +116,54 @@ public static class InstallerLogic
         return null;
     }
 
+    public static bool HasDataPayload(string? dataZipPath = null) =>
+        HasEmbeddedPayload() || (!string.IsNullOrWhiteSpace(dataZipPath) && File.Exists(dataZipPath));
+
+    private static bool HasEmbeddedPayload() =>
+        Assembly.GetExecutingAssembly().GetManifestResourceInfo(EmbeddedPayloadResource) is not null;
+
+    private static Stream OpenPayloadStream(string? dataZipPath)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        if (HasEmbeddedPayload())
+            return assembly.GetManifestResourceStream(EmbeddedPayloadResource)
+                ?? throw new InvalidDataException("В установщике не удалось открыть встроенный пакет Blade.");
+
+        if (!string.IsNullOrWhiteSpace(dataZipPath) && File.Exists(dataZipPath))
+            return new FileStream(dataZipPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+        throw new FileNotFoundException("Пакет Blade не найден. Пересоберите комплект установщика.");
+    }
+
+    private static ZipArchive OpenPayloadArchive(string? dataZipPath) =>
+        new(OpenPayloadStream(dataZipPath), ZipArchiveMode.Read);
+
+    private static string ReadExpectedPayloadHash(string? dataZipPath)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        using Stream? embedded = assembly.GetManifestResourceStream(EmbeddedPayloadHashResource);
+        if (embedded is not null)
+        {
+            using var reader = new StreamReader(embedded, Encoding.ASCII, detectEncodingFromByteOrderMarks: false);
+            return ParseSha256(reader.ReadToEnd());
+        }
+
+        string? sidecar = string.IsNullOrWhiteSpace(dataZipPath) ? null : dataZipPath + ".sha256";
+        if (sidecar is null || !File.Exists(sidecar))
+            throw new InvalidDataException("Не найден SHA-256 пакета. Скачайте комплект установщика заново.");
+        return ParseSha256(File.ReadAllText(sidecar, Encoding.ASCII));
+    }
+
+    private static string ParseSha256(string text)
+    {
+        string hash = text.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+        if (hash.Length != 64 || !hash.All(Uri.IsHexDigit))
+            throw new InvalidDataException("Файл SHA-256 имеет неверный формат.");
+        return hash.ToUpperInvariant();
+    }
+
+    private static string NormalizeArchivePath(string path) => path.Replace('\\', '/');
+
     /// <summary>
     /// Checks whether an existing Blade/Firefox installation resides in targetDir.
     /// </summary>
@@ -122,7 +179,7 @@ public static class InstallerLogic
     /// </summary>
     public static bool IsFirefoxRunningFromTarget(string targetDir)
     {
-        string fullTarget = Path.GetFullPath(targetDir).TrimEnd('\\');
+        string expectedExe = Path.GetFullPath(Path.Combine(targetDir, "App", "Blade", "firefox.exe"));
         try
         {
             var processes = Process.GetProcessesByName("firefox");
@@ -132,7 +189,7 @@ public static class InstallerLogic
                 {
                     string? exePath = proc.MainModule?.FileName;
                     if (!string.IsNullOrEmpty(exePath) &&
-                        Path.GetFullPath(exePath).StartsWith(fullTarget, StringComparison.OrdinalIgnoreCase))
+                        Path.GetFullPath(exePath).Equals(expectedExe, StringComparison.OrdinalIgnoreCase))
                     {
                         return true;
                     }
@@ -153,117 +210,202 @@ public static class InstallerLogic
         return false;
     }
 
+    private sealed record PayloadEntry(ZipArchiveEntry Entry, string RelativePath, string ArchivePath);
+
     /// <summary>
-    /// Performs safe cleaning of old engine and chrome files during an update,
-    /// preserving all user personal data: prefs.js, cookies*, places*, logins*, key*,
-    /// sessionstore*, chrome\img\custom_* and chrome\img\Без*.
+    /// Extracts into a unique sibling staging directory. Existing installs are
+    /// switched only after the complete archive has been checked and extracted.
     /// </summary>
-    public static void CleanForUpdate(string targetDir)
+    public static async Task InstallDataZipAsync(
+        string? dataZipPath,
+        string targetDir,
+        bool isUpdate,
+        IProgress<InstallProgressReport> progress,
+        CancellationToken cancellationToken)
     {
-        string appDir = Path.Combine(targetDir, "App");
-        if (Directory.Exists(appDir))
+        string target = Path.GetFullPath(targetDir);
+        string? parent = Path.GetDirectoryName(target.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (string.IsNullOrWhiteSpace(parent))
+            throw new InvalidOperationException("Выберите папку установки внутри диска, а не корень диска.");
+
+        Directory.CreateDirectory(parent);
+        string stage = Path.Combine(parent, $".{Path.GetFileName(target)}.blade-stage-{Guid.NewGuid():N}");
+        try
         {
+            Directory.CreateDirectory(stage);
+            await ExtractDataZipAsync(dataZipPath, stage, progress, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            progress.Report(new InstallProgressReport
+            {
+                Percent = 98.5,
+                Stage = isUpdate ? "Безопасное обновление..." : "Завершение установки...",
+                CurrentItem = "Подготовка файлов и сохранение профиля"
+            });
+
+            await Task.Run(() => CommitStagedInstallation(stage, target, isUpdate), CancellationToken.None);
+        }
+        finally
+        {
+            TryDeleteDirectory(stage);
+        }
+    }
+
+    private static void CommitStagedInstallation(string stageDir, string targetDir, bool isUpdate)
+    {
+        string target = Path.GetFullPath(targetDir);
+        string stage = Path.GetFullPath(stageDir);
+        string stagedApp = Path.Combine(stage, "App");
+        string stagedProfile = Path.Combine(stage, "Data", "profile");
+        string stagedChrome = Path.Combine(stagedProfile, "chrome");
+        string stagedUserJs = Path.Combine(stagedProfile, "user.js");
+
+        if (!File.Exists(Path.Combine(stagedApp, "Blade", "firefox.exe")) ||
+            !File.Exists(Path.Combine(stagedChrome, "userChrome.css")) ||
+            !File.Exists(Path.Combine(stagedChrome, "utils", "boot.sys.mjs")) ||
+            !File.Exists(stagedUserJs))
+            throw new InvalidDataException("В пакете не хватает обязательных файлов Firefox или Blade.");
+
+        if (!isUpdate)
+        {
+            if (Directory.Exists(target) && Directory.EnumerateFileSystemEntries(target).Any())
+                throw new IOException("Для новой установки выберите пустую папку.");
+
+            string emptyTargetBackup = CreateSiblingPath(target, "empty-backup");
+            bool movedEmptyTarget = false;
             try
             {
-                Directory.Delete(appDir, recursive: true);
+                if (Directory.Exists(target))
+                {
+                    Directory.Move(target, emptyTargetBackup);
+                    movedEmptyTarget = true;
+                }
+                Directory.Move(stage, target);
+                if (movedEmptyTarget) TryDeleteDirectory(emptyTargetBackup);
             }
             catch
             {
-                // If recursive delete fails on specific in-use file, delete contents individually
-                DeleteDirectoryContentsSafe(appDir);
+                if (movedEmptyTarget && !Directory.Exists(target) && Directory.Exists(emptyTargetBackup))
+                    Directory.Move(emptyTargetBackup, target);
+                throw;
             }
+            return;
         }
 
-        string chromeDir = Path.Combine(targetDir, "Data", "profile", "chrome");
-        if (Directory.Exists(chromeDir))
+        if (!IsExistingInstallation(target))
+            throw new IOException("Существующая установка Blade не найдена; обновление отменено.");
+
+        string appDir = Path.Combine(target, "App");
+        string profileDir = Path.Combine(target, "Data", "profile");
+        string chromeDir = Path.Combine(profileDir, "chrome");
+        string userJs = Path.Combine(profileDir, "user.js");
+        PreserveUserWallpapers(Path.Combine(chromeDir, "img"), Path.Combine(stagedChrome, "img"));
+
+        string backupRoot = CreateSiblingPath(target, "rollback");
+        Directory.CreateDirectory(backupRoot);
+        string backupApp = Path.Combine(backupRoot, "App");
+        string backupChrome = Path.Combine(backupRoot, "chrome");
+        string backupUserJs = Path.Combine(backupRoot, "user.js");
+        bool oldAppMoved = false, newAppMoved = false;
+        bool oldChromeMoved = false, newChromeMoved = false;
+        bool oldUserJsMoved = false, newUserJsMoved = false;
+
+        try
         {
-            CleanChromeDirectoryPreservingCustom(chromeDir);
+            if (Directory.Exists(appDir)) { Directory.Move(appDir, backupApp); oldAppMoved = true; }
+            Directory.Move(stagedApp, appDir); newAppMoved = true;
+
+            Directory.CreateDirectory(profileDir);
+            if (Directory.Exists(chromeDir)) { Directory.Move(chromeDir, backupChrome); oldChromeMoved = true; }
+            Directory.Move(stagedChrome, chromeDir); newChromeMoved = true;
+
+            if (File.Exists(userJs)) { File.Move(userJs, backupUserJs); oldUserJsMoved = true; }
+            File.Move(stagedUserJs, userJs); newUserJsMoved = true;
+
+            foreach (string staleName in new[] { "compatibility.ini", "pluginreg.dat" })
+            {
+                string stale = Path.Combine(profileDir, staleName);
+                if (File.Exists(stale)) File.Delete(stale);
+            }
+
+            TryDeleteDirectory(backupRoot);
         }
-
-        // Clean stale compatibility and plugin files that could conflict on relocation
-        string profileDir = Path.Combine(targetDir, "Data", "profile");
-        if (Directory.Exists(profileDir))
+        catch (Exception commitError)
         {
-            string compatFile = Path.Combine(profileDir, "compatibility.ini");
-            if (File.Exists(compatFile))
+            Exception? rollbackError = null;
+            try
             {
-                try { File.Delete(compatFile); } catch { }
+                if (newUserJsMoved && File.Exists(userJs)) File.Delete(userJs);
+                if (oldUserJsMoved && File.Exists(backupUserJs)) File.Move(backupUserJs, userJs);
+                if (newChromeMoved && Directory.Exists(chromeDir)) Directory.Delete(chromeDir, recursive: true);
+                if (oldChromeMoved && Directory.Exists(backupChrome)) Directory.Move(backupChrome, chromeDir);
+                if (newAppMoved && Directory.Exists(appDir)) Directory.Delete(appDir, recursive: true);
+                if (oldAppMoved && Directory.Exists(backupApp)) Directory.Move(backupApp, appDir);
             }
+            catch (Exception ex) { rollbackError = ex; }
 
-            string pluginFile = Path.Combine(profileDir, "pluginreg.dat");
-            if (File.Exists(pluginFile))
-            {
-                try { File.Delete(pluginFile); } catch { }
-            }
+            if (rollbackError is not null)
+                throw new IOException($"Обновление не завершилось; резервная копия оставлена в {backupRoot}. Ошибка отката: {rollbackError.Message}", commitError);
+
+            TryDeleteDirectory(backupRoot);
+            throw new IOException("Обновление не завершилось. Предыдущая версия восстановлена.", commitError);
         }
     }
 
-    private static void DeleteDirectoryContentsSafe(string dirPath)
+    private static string CreateSiblingPath(string targetDir, string purpose)
     {
-        var dirInfo = new DirectoryInfo(dirPath);
-        if (!dirInfo.Exists) return;
+        string target = Path.GetFullPath(targetDir);
+        string parent = Path.GetDirectoryName(target.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+            ?? throw new InvalidOperationException("Некорректная папка установки.");
+        return Path.Combine(parent, $".{Path.GetFileName(target)}.blade-{purpose}-{Guid.NewGuid():N}");
+    }
 
-        foreach (var file in dirInfo.GetFiles())
+    private static void PreserveUserWallpapers(string oldImgDir, string newImgDir)
+    {
+        if (!Directory.Exists(oldImgDir) || !Directory.Exists(newImgDir)) return;
+        foreach (string file in Directory.EnumerateFiles(oldImgDir))
         {
-            try { file.Delete(); } catch { }
+            if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0) continue;
+            string destination = Path.Combine(newImgDir, Path.GetFileName(file));
+            bool explicitlyCustom = IsCustomAssetName(Path.GetFileName(file));
+            if (explicitlyCustom || !File.Exists(destination)) File.Copy(file, destination, overwrite: explicitlyCustom);
         }
-
-        foreach (var subDir in dirInfo.GetDirectories())
+        foreach (string dir in Directory.EnumerateDirectories(oldImgDir))
         {
-            try { subDir.Delete(true); } catch { }
+            if ((File.GetAttributes(dir) & FileAttributes.ReparsePoint) != 0) continue;
+            string name = Path.GetFileName(dir);
+            string destination = Path.Combine(newImgDir, name);
+            CopyWallpaperDirectory(dir, destination, IsCustomAssetName(name));
         }
     }
 
-    private static void CleanChromeDirectoryPreservingCustom(string chromeDir)
+    private static bool IsCustomAssetName(string name) =>
+        name.StartsWith("custom_", StringComparison.OrdinalIgnoreCase) ||
+        name.StartsWith("Без", StringComparison.OrdinalIgnoreCase);
+
+    private static void CopyWallpaperDirectory(string source, string destination, bool overwrite)
     {
-        var chromeInfo = new DirectoryInfo(chromeDir);
-        if (!chromeInfo.Exists) return;
-
-        // Clean files in chrome root (userChrome.css, userContent.css, VERSION, etc.)
-        foreach (var file in chromeInfo.GetFiles())
+        Directory.CreateDirectory(destination);
+        foreach (string file in Directory.EnumerateFiles(source))
         {
-            try { file.Delete(); } catch { }
+            if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0) continue;
+            string target = Path.Combine(destination, Path.GetFileName(file));
+            if (overwrite || !File.Exists(target)) File.Copy(file, target, overwrite);
         }
-
-        // Handle subdirectories: JS, utils, img, themes, covers, etc.
-        foreach (var subDir in chromeInfo.GetDirectories())
+        foreach (string dir in Directory.EnumerateDirectories(source))
         {
-            if (subDir.Name.Equals("img", StringComparison.OrdinalIgnoreCase))
-            {
-                // In img/: keep custom_* and Без*
-                CleanImgDirectoryPreservingCustom(subDir);
-            }
-            else
-            {
-                // Delete all other subdirectories like JS, utils, etc. to replace with fresh ones
-                try { subDir.Delete(recursive: true); } catch { }
-            }
+            if ((File.GetAttributes(dir) & FileAttributes.ReparsePoint) != 0) continue;
+            CopyWallpaperDirectory(dir, Path.Combine(destination, Path.GetFileName(dir)), overwrite);
         }
     }
 
-    private static void CleanImgDirectoryPreservingCustom(DirectoryInfo imgDir)
+    private static void TryDeleteDirectory(string path)
     {
-        foreach (var file in imgDir.GetFiles())
+        try
         {
-            string name = file.Name;
-            bool isPreserved = name.StartsWith("custom_", StringComparison.OrdinalIgnoreCase) ||
-                               name.StartsWith("Без", StringComparison.OrdinalIgnoreCase);
-            if (!isPreserved)
-            {
-                try { file.Delete(); } catch { }
-            }
+            if (Directory.Exists(path)) Directory.Delete(path, recursive: true);
         }
-
-        foreach (var sub in imgDir.GetDirectories())
-        {
-            string name = sub.Name;
-            bool isPreserved = name.StartsWith("custom_", StringComparison.OrdinalIgnoreCase) ||
-                               name.StartsWith("Без", StringComparison.OrdinalIgnoreCase);
-            if (!isPreserved)
-            {
-                try { sub.Delete(recursive: true); } catch { }
-            }
-        }
+        catch { /* Keep a failed staging cleanup recoverable instead of masking the install result. */ }
     }
 
     /// <summary>
@@ -272,86 +414,63 @@ public static class InstallerLogic
     /// Maps profile/ -> {target}\FirefoxPortable\Data\profile\
     /// </summary>
     public static async Task ExtractDataZipAsync(
-        string dataZipPath,
+        string? dataZipPath,
         string targetDir,
         IProgress<InstallProgressReport> progress,
         CancellationToken cancellationToken)
     {
         await Task.Run(() =>
         {
-            using var archive = ZipFile.OpenRead(dataZipPath);
+            using Stream payload = OpenPayloadStream(dataZipPath);
+            string expectedHash = ReadExpectedPayloadHash(dataZipPath);
+            using (var sha256 = SHA256.Create())
+            {
+                string actualHash = Convert.ToHexString(sha256.ComputeHash(payload));
+                if (!actualHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("SHA-256 пакета не совпадает. Установка остановлена, файлы не изменены.");
+            }
+            if (!payload.CanSeek) throw new InvalidDataException("Пакет установщика нельзя безопасно перемотать для проверки.");
+            payload.Position = 0;
 
-            var validEntries = archive.Entries
-                .Where(e => !e.FullName.EndsWith('/') && !e.FullName.EndsWith('\\'))
-                .ToList();
-
-            long totalBytes = validEntries.Sum(e => e.Length);
+            using var archive = new ZipArchive(payload, ZipArchiveMode.Read, leaveOpen: true);
+            List<PayloadEntry> entries = BuildPayloadPlan(archive);
+            long totalBytes = entries.Sum(e => e.Entry.Length);
             long processedBytes = 0;
             long processedEntries = 0;
-            long totalEntries = validEntries.Count;
-
             const int bufferSize = 64 * 1024;
             byte[] buffer = new byte[bufferSize];
+            string root = Path.GetFullPath(targetDir);
+            Directory.CreateDirectory(root);
 
-            foreach (var entry in validEntries)
+            foreach (PayloadEntry planned in entries)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
-                string normalized = entry.FullName.Replace('/', '\\').TrimStart('\\');
-                string destPath;
-
-                // Маппинг БЕЗ "FirefoxPortable" и БЕЗ "Firefox64":
-                // App/Firefox64/... → {target}\App\Blade\...
-                // profile/...       → {target}\Data\profile\...
-                if (normalized.StartsWith("App\\", StringComparison.OrdinalIgnoreCase))
-                {
-                    string sub = normalized.Substring("App\\".Length);
-                    // Заменяем Firefox64 → Blade в первом сегменте пути
-                    if (sub.StartsWith("Firefox64\\", StringComparison.OrdinalIgnoreCase))
-                    {
-                        sub = "Blade\\" + sub.Substring("Firefox64\\".Length);
-                    }
-                    destPath = Path.Combine(targetDir, "App", sub);
-                }
-                else if (normalized.StartsWith("profile\\", StringComparison.OrdinalIgnoreCase))
-                {
-                    string sub = normalized.Substring("profile\\".Length);
-                    destPath = Path.Combine(targetDir, "Data", "profile", sub);
-                }
-                else
-                {
-                    destPath = Path.Combine(targetDir, normalized);
-                }
-
+                string destPath = GetContainedDestination(root, planned.RelativePath);
                 string? dir = Path.GetDirectoryName(destPath);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
+                if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 
-                string stage = "Распаковка...";
-                if (normalized.StartsWith("App\\", StringComparison.OrdinalIgnoreCase))
-                    stage = "Распаковка движка Firefox...";
-                else if (normalized.StartsWith("profile\\chrome\\", StringComparison.OrdinalIgnoreCase))
-                    stage = "Установка кастомизации Blade...";
-                else if (normalized.StartsWith("profile\\", StringComparison.OrdinalIgnoreCase))
-                    stage = "Настройка профиля...";
+                string stage = planned.ArchivePath.StartsWith("App/", StringComparison.OrdinalIgnoreCase)
+                    ? "Распаковка движка Firefox..."
+                    : planned.ArchivePath.StartsWith("profile/chrome/", StringComparison.OrdinalIgnoreCase)
+                        ? "Установка кастомизации Blade..."
+                        : "Настройка профиля...";
 
-                // Stream copy entry with progress tracking
-                using (var entryStream = entry.Open())
-                using (var fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                long entryBytes = 0;
+                using (Stream entryStream = planned.Entry.Open())
+                using (var fileStream = new FileStream(destPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                 {
                     int bytesRead;
                     while ((bytesRead = entryStream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+                        entryBytes += bytesRead;
+                        if (entryBytes > planned.Entry.Length)
+                            throw new InvalidDataException($"Размер файла в архиве некорректен: {planned.ArchivePath}");
                         fileStream.Write(buffer, 0, bytesRead);
                         processedBytes += bytesRead;
-
                         double percent = totalBytes > 0
-                            ? Math.Min(98.0, (double)processedBytes / totalBytes * 100.0)
-                            : Math.Min(98.0, (double)processedEntries / Math.Max(1, totalEntries) * 100.0);
-
+                            ? Math.Min(97.5, (double)processedBytes / totalBytes * 97.5)
+                            : Math.Min(97.5, (double)processedEntries / Math.Max(1, entries.Count) * 97.5);
                         progress.Report(new InstallProgressReport
                         {
                             Percent = percent,
@@ -362,22 +481,97 @@ public static class InstallerLogic
                         });
                     }
                 }
-
+                if (entryBytes != planned.Entry.Length)
+                    throw new InvalidDataException($"Файл в архиве неполный: {planned.ArchivePath}");
                 processedEntries++;
             }
-
-            // Ensure compatibility.ini and pluginreg.dat are cleaned up if present
-            string profileDir = Path.Combine(targetDir, "Data", "profile");
-            try
-            {
-                string compat = Path.Combine(profileDir, "compatibility.ini");
-                if (File.Exists(compat)) File.Delete(compat);
-                string plugin = Path.Combine(profileDir, "pluginreg.dat");
-                if (File.Exists(plugin)) File.Delete(plugin);
-            }
-            catch { }
-
         }, cancellationToken);
+    }
+
+    private static List<PayloadEntry> BuildPayloadPlan(ZipArchive archive)
+    {
+        if (archive.Entries.Count == 0 || archive.Entries.Count > MaxPayloadEntries)
+            throw new InvalidDataException("В архиве пустой или чрезмерно большой список файлов.");
+
+        var plan = new List<PayloadEntry>(archive.Entries.Count);
+        var destinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        long totalBytes = 0;
+        bool hasBrowser = false, hasChrome = false, hasBoot = false, hasUserJs = false;
+
+        foreach (ZipArchiveEntry entry in archive.Entries)
+        {
+            string archivePath = NormalizeArchivePath(entry.FullName);
+            bool isDirectory = archivePath.EndsWith("/", StringComparison.Ordinal);
+            string trimmed = isDirectory ? archivePath.TrimEnd('/') : archivePath;
+            if (trimmed.Length == 0 || trimmed.StartsWith("/", StringComparison.Ordinal) ||
+                Path.IsPathRooted(trimmed) || trimmed.Contains(':'))
+                throw new InvalidDataException($"Недопустимый путь в архиве: {entry.FullName}");
+
+            string[] segments = trimmed.Split('/');
+            foreach (string segment in segments)
+            {
+                if (segment.Length == 0 || segment is "." or ".." || segment.EndsWith(' ') || segment.EndsWith('.') ||
+                    segment.Any(ch => char.IsControl(ch) || Path.GetInvalidFileNameChars().Contains(ch)))
+                    throw new InvalidDataException($"Недопустимый путь в архиве: {entry.FullName}");
+                string stem = segment.Split('.')[0];
+                if (ReservedWindowsNames.Contains(stem, StringComparer.OrdinalIgnoreCase))
+                    throw new InvalidDataException($"Имя файла запрещено Windows: {entry.FullName}");
+            }
+
+            string relativePath;
+            if (segments[0].Equals("App", StringComparison.OrdinalIgnoreCase))
+            {
+                if (segments.Length < 2) continue;
+                string[] mapped = segments.Skip(1).ToArray();
+                if (mapped[0].Equals("Firefox64", StringComparison.OrdinalIgnoreCase)) mapped[0] = "Blade";
+                relativePath = Path.Combine("App", Path.Combine(mapped));
+            }
+            else if (segments[0].Equals("profile", StringComparison.OrdinalIgnoreCase))
+            {
+                if (segments.Length < 2) continue;
+                bool chromePath = segments[1].Equals("chrome", StringComparison.OrdinalIgnoreCase);
+                bool userJsPath = segments.Length == 2 && segments[1].Equals("user.js", StringComparison.OrdinalIgnoreCase);
+                if (!chromePath && !userJsPath)
+                    throw new InvalidDataException($"В архиве обнаружен непредусмотренный файл профиля: {entry.FullName}");
+                relativePath = Path.Combine("Data", "profile", Path.Combine(segments.Skip(1).ToArray()));
+            }
+            else
+            {
+                throw new InvalidDataException($"Неизвестный корневой каталог архива: {entry.FullName}");
+            }
+
+            if (isDirectory) continue;
+            uint unixMode = unchecked((uint)entry.ExternalAttributes) >> 16;
+            if ((unixMode & 0xF000) == 0xA000)
+                throw new InvalidDataException($"Символические ссылки в пакете не разрешены: {entry.FullName}");
+
+            string normalizedDestination = relativePath.Replace('\\', '/');
+            if (!destinations.Add(normalizedDestination))
+                throw new InvalidDataException($"Повторяющийся путь в архиве: {entry.FullName}");
+            totalBytes = checked(totalBytes + entry.Length);
+            if (entry.Length < 0 || totalBytes > MaxPayloadBytes)
+                throw new InvalidDataException("Распакованный пакет превышает безопасный лимит 2 ГБ.");
+
+            if (normalizedDestination.Equals("App/Blade/firefox.exe", StringComparison.OrdinalIgnoreCase)) hasBrowser = true;
+            if (normalizedDestination.Equals("Data/profile/chrome/userChrome.css", StringComparison.OrdinalIgnoreCase)) hasChrome = true;
+            if (normalizedDestination.Equals("Data/profile/chrome/utils/boot.sys.mjs", StringComparison.OrdinalIgnoreCase)) hasBoot = true;
+            if (normalizedDestination.Equals("Data/profile/user.js", StringComparison.OrdinalIgnoreCase)) hasUserJs = true;
+            plan.Add(new PayloadEntry(entry, relativePath, archivePath));
+        }
+
+        if (!hasBrowser || !hasChrome || !hasBoot || !hasUserJs)
+            throw new InvalidDataException("Архив не содержит обязательный Firefox/Blade payload.");
+        return plan;
+    }
+
+    private static string GetContainedDestination(string rootDir, string relativePath)
+    {
+        string root = Path.GetFullPath(rootDir).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string destination = Path.GetFullPath(Path.Combine(root, relativePath));
+        string rootPrefix = root + Path.DirectorySeparatorChar;
+        if (!destination.StartsWith(rootPrefix, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException($"Путь архива выходит за границы установки: {relativePath}");
+        return destination;
     }
 
     /// <summary>
@@ -488,58 +682,98 @@ public static class InstallerLogic
         }
     }
 
-    /// <summary>
-    /// Creates {target}\Uninstall-Blade.bat (which copies itself to %TEMP% before deleting)
-    /// and adds HKCU entry for "Programs and Features".
-    /// </summary>
+    /// <summary>Creates a profile-aware uninstaller that only stops/removes this Blade installation.</summary>
     public static void CreateUninstaller(string targetDir)
     {
+        string psPath = Path.Combine(targetDir, "Uninstall-Blade.ps1");
         string batPath = Path.Combine(targetDir, "Uninstall-Blade.bat");
-        string batContent =
-            "@echo off\r\n" +
-            "chcp 65001 >nul\r\n" +
-            "setlocal\r\n" +
-            "title Blade Uninstaller\r\n" +
-            "echo ========================================================\r\n" +
-            "echo               BLADE — ДЕИНСТАЛЛЯЦИЯ\r\n" +
-            "echo ========================================================\r\n" +
-            "\r\n" +
-            ":: Fix: Self-copy to TEMP so bat does not lock its own folder\r\n" +
-            "set \"TEMP_SCRIPT=%TEMP%\\blade_uninstall_worker_%RANDOM%.bat\"\r\n" +
-            "if /i not \"%~dp0\"==\"%TEMP%\\\" (\r\n" +
-            "    copy /y \"%~f0\" \"%TEMP_SCRIPT%\" >nul 2>&1\r\n" +
-            "    start \"\" \"%TEMP_SCRIPT%\" \"%~dp0\"\r\n" +
-            "    exit /b\r\n" +
-            ")\r\n" +
-            "\r\n" +
-            ":: Running from TEMP\r\n" +
-            "set \"TARGET_DIR=%~1\"\r\n" +
-            "if \"%TARGET_DIR%\"==\"\" set \"TARGET_DIR=%~dp0\"\r\n" +
-            "if \"%TARGET_DIR:~-1%\"==\"\\\" set \"TARGET_DIR=%TARGET_DIR:~0,-1%\"\r\n" +
-            "\r\n" +
-            "echo Закрытие запущенного браузера Blade...\r\n" +
-            "taskkill /f /im firefox.exe >nul 2>&1\r\n" +
-            "timeout /t 1 /nobreak >nul\r\n" +
-            "\r\n" +
-            "echo Удаление ярлыков...\r\n" +
-            "del /f /q \"%USERPROFILE%\\Desktop\\Blade.lnk\" >nul 2>&1\r\n" +
-            "del /f /q \"%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Blade.lnk\" >nul 2>&1\r\n" +
-            "\r\n" +
-            "echo Удаление записи из реестра...\r\n" +
-            "reg delete \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Blade\" /f >nul 2>&1\r\n" +
-            "\r\n" +
-            "echo Удаление файлов Blade...\r\n" +
-            "timeout /t 2 /nobreak >nul\r\n" +
-            "rmdir /s /q \"%TARGET_DIR%\" >nul 2>&1\r\n" +
-            "\r\n" +
-            "echo [BLADE] Деинсталляция успешно завершена.\r\n" +
-            "timeout /t 2 /nobreak >nul\r\n" +
-            "\r\n" +
-            ":: Remove temp worker script\r\n" +
-            "(goto) 2>nul & del \"%~f0\"\r\n";
+        string psContent = """
+            $ErrorActionPreference = 'Stop'
+            Add-Type -AssemblyName PresentationFramework
+            $root = [IO.Path]::GetFullPath($PSScriptRoot).TrimEnd('\')
+            $browser = [IO.Path]::GetFullPath((Join-Path $root 'App\Blade\firefox.exe'))
+            $profile = Join-Path $root 'Data\profile'
+            $result = [System.Windows.MessageBox]::Show(
+                'Удалить Blade из этой папки? Профиль, закладки и пароли можно сохранить отдельно.',
+                'Удаление Blade', [System.Windows.MessageBoxButton]::YesNoCancel,
+                [System.Windows.MessageBoxImage]::Question)
+            if ($result -ne [System.Windows.MessageBoxResult]::Yes) { exit 0 }
+
+            $running = @(Get-CimInstance Win32_Process -Filter "Name = 'firefox.exe'" -ErrorAction SilentlyContinue |
+                Where-Object { $_.ExecutablePath -and [IO.Path]::GetFullPath($_.ExecutablePath).Equals($browser, [StringComparison]::OrdinalIgnoreCase) })
+            if ($running.Count -gt 0) {
+                $close = [System.Windows.MessageBox]::Show(
+                    'Найдены окна Blade из этой установки. Закрыть только их сейчас?',
+                    'Blade запущен', [System.Windows.MessageBoxButton]::YesNoCancel,
+                    [System.Windows.MessageBoxImage]::Question)
+                if ($close -ne [System.Windows.MessageBoxResult]::Yes) { exit 0 }
+                foreach ($item in $running) { Stop-Process -Id $item.ProcessId -Force -ErrorAction SilentlyContinue }
+                Start-Sleep -Milliseconds 700
+                $stillRunning = @(Get-CimInstance Win32_Process -Filter "Name = 'firefox.exe'" -ErrorAction SilentlyContinue |
+                    Where-Object { $_.ExecutablePath -and [IO.Path]::GetFullPath($_.ExecutablePath).Equals($browser, [StringComparison]::OrdinalIgnoreCase) })
+                if ($stillRunning.Count -gt 0) {
+                    [System.Windows.MessageBox]::Show('Не удалось закрыть Blade. Закройте его вручную и повторите удаление.', 'Удаление Blade', 'OK', 'Warning') | Out-Null
+                    exit 1
+                }
+            }
+
+            $removeProfile = [System.Windows.MessageBox]::Show(
+                "Удалить личный профиль: закладки, историю, пароли и cookies?`n`nДа — удалить профиль. Нет — оставить его в Data\profile.",
+                'Личные данные', [System.Windows.MessageBoxButton]::YesNoCancel,
+                [System.Windows.MessageBoxImage]::Warning)
+            if ($removeProfile -eq [System.Windows.MessageBoxResult]::Cancel) { exit 0 }
+            $keepProfile = $removeProfile -eq [System.Windows.MessageBoxResult]::No
+
+            $shell = New-Object -ComObject WScript.Shell
+            $links = @((Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'Blade.lnk'),
+                (Join-Path ([Environment]::GetFolderPath('Programs')) 'Blade.lnk'))
+            foreach ($link in $links) {
+                try {
+                    if (Test-Path -LiteralPath $link) {
+                        $shortcut = $shell.CreateShortcut($link)
+                        if ($shortcut.TargetPath -and [IO.Path]::GetFullPath($shortcut.TargetPath).Equals($browser, [StringComparison]::OrdinalIgnoreCase)) {
+                            Remove-Item -LiteralPath $link -Force
+                        }
+                    }
+                } catch { }
+            }
+
+            $uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Blade'
+            try {
+                $registeredRoot = (Get-ItemProperty -LiteralPath $uninstallKey -Name InstallLocation -ErrorAction Stop).InstallLocation
+                if ($registeredRoot -and [IO.Path]::GetFullPath($registeredRoot).TrimEnd('\').Equals($root, [StringComparison]::OrdinalIgnoreCase)) {
+                    Remove-Item -LiteralPath $uninstallKey -Recurse -Force
+                }
+            } catch { }
+
+            $app = Join-Path $root 'App\Blade'
+            if (Test-Path -LiteralPath $app) { Remove-Item -LiteralPath $app -Recurse -Force }
+            $appParent = Join-Path $root 'App'
+            if ((Test-Path -LiteralPath $appParent) -and -not (Get-ChildItem -LiteralPath $appParent -Force | Select-Object -First 1)) {
+                Remove-Item -LiteralPath $appParent -Force
+            }
+            if (-not $keepProfile -and (Test-Path -LiteralPath $profile)) { Remove-Item -LiteralPath $profile -Recurse -Force }
+            $data = Join-Path $root 'Data'
+            if ((Test-Path -LiteralPath $data) -and -not (Get-ChildItem -LiteralPath $data -Force | Select-Object -First 1)) {
+                Remove-Item -LiteralPath $data -Force
+            }
+            $icon = Join-Path $root 'Blade.ico'
+            if (Test-Path -LiteralPath $icon) { Remove-Item -LiteralPath $icon -Force }
+
+            $remaining = @(Get-ChildItem -LiteralPath $root -Force -ErrorAction SilentlyContinue)
+            if (-not $keepProfile -and @($remaining | Where-Object { $_.Name -notin @('Uninstall-Blade.ps1', 'Uninstall-Blade.bat') }).Count -eq 0) {
+                $command = "/d /c timeout /t 3 /nobreak >nul & rmdir /s /q `"$root`""
+                Start-Process -FilePath $env:ComSpec -ArgumentList $command -WorkingDirectory $env:TEMP -WindowStyle Hidden
+            } else {
+                $message = if ($keepProfile) { "Blade удалён. Профиль сохранён: $profile" } else { 'Blade удалён. В папке остались пользовательские файлы, они не затронуты.' }
+                [System.Windows.MessageBox]::Show($message, 'Готово', 'OK', 'Information') | Out-Null
+            }
+            """;
+        string batContent = "@echo off\r\npowershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"%~dp0Uninstall-Blade.ps1\"\r\n";
 
         try
         {
+            File.WriteAllText(psPath, psContent, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             File.WriteAllText(batPath, batContent, Encoding.UTF8);
         }
         catch { }
@@ -555,7 +789,7 @@ public static class InstallerLogic
                 key.SetValue("Publisher", "Blade-Creations");
                 key.SetValue("DisplayIcon", Path.Combine(targetDir, "Blade.ico"));
                 key.SetValue("InstallLocation", targetDir);
-                key.SetValue("UninstallString", $"cmd.exe /c \"\"{batPath}\"\"");
+                key.SetValue("UninstallString", $"powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{psPath}\"");
                 key.SetValue("NoModify", 1, RegistryValueKind.DWord);
                 key.SetValue("NoRepair", 1, RegistryValueKind.DWord);
             }

@@ -145,9 +145,8 @@ user_pref("browser.urlbar.scotchBonnet.enableOverride", false);
    ============================================================================ */
 
 /* --- ПРОЦЕССЫ И ПАМЯТЬ --- */
-user_pref("dom.ipc.processCount", 4);                     /* 4 контентных процесса вместо ~8 */
-user_pref("fission.autostart", false);                    /* Fission принудителен в release — установка скорее no-op; статус: about:support → Fission */
-user_pref("browser.sessionhistory.max_total_viewers", 2); /* меньше копий страниц в памяти */
+user_pref("dom.ipc.processCount", 4);                     /* умеренное число контентных процессов */
+user_pref("browser.sessionhistory.max_total_viewers", 2); /* ограничиваем BFCache ради памяти */
 user_pref("browser.tabs.unloadOnLowMemory", true);        /* фоновые вкладки выгружаются при нехватке RAM */
 user_pref("browser.shell.checkDefaultBrowser", false);    /* не проверять дефолтность при старте */
 /* Диета памяти 2.0 (webIsolated 2, медиа/имидж-лимиты) — ОТКАЧЕНА владельцем
@@ -164,7 +163,7 @@ user_pref("network.http.http3.enable", true);             /* HTTP/3 (QUIC) гд�
 
 /* --- ОТРИСОВКА --- */
 user_pref("media.hardware-video-decoding.enabled", true); /* видео грузит GPU, а не CPU */
-user_pref("browser.newtab.preload", true);                /* новая вкладка готова до открытия */
+user_pref("browser.newtab.preload", false);               /* не держим анимированную Blade-страницу заранее в фоне */
 
 
 
@@ -220,18 +219,7 @@ user_pref("general.smoothScroll.msdPhysics.continuousMotionMaxDeltaMS", 250);
 user_pref("general.smoothScroll.msdPhysics.motionBeginSpringConstant", 450);
 user_pref("general.smoothScroll.msdPhysics.regularSpringConstant", 650);
 
-/* Тяжёлые сайты (Reddit, маркетплейсы): вдвое больше параллельных соединений
-   на сервер — картинки грузятся не в очереди */
-user_pref("network.http.max-persistent-connections-per-server", 12);
-
-/* --- BLADE: CYBER-STEALTH РАЗГОН (раунд 7) --- */
-
-/* Спекулятивный пре-коннект: TCP/TLS поднимается по НАВЕДЕНИЮ на ссылку,
-   до клика; подсказки адресной строки коннектятся на опережение */
-user_pref("network.http.speculative-parallel-limit", 6);
-/* disablePrefetch и speculativeConnect уже заданы в «СЕТЬ» — дубли убраны */
-
-/* HTTP/3 QUIC: мгновенное открытие Cloudflare/Google (0-RTT рукопожатие) */
+/* HTTP/3 QUIC: повторная попытка соединения по другому семейству IP */
 user_pref("network.http.http3.retry_different_ip_family", true);
 
 /* Реактивный отклик: тултипы за 120мс вместо ~500, первый чанк HTML
@@ -244,28 +232,8 @@ user_pref("nglayout.initialpaint.delay", 0);
 user_pref("general.smoothScroll.mouseWheel.durationMinMS", 60);
 user_pref("general.smoothScroll.mouseWheel.durationMaxMS", 140);
 
-/* --- BLADE: РАЗГОН ДВИЖКА (раунд 20, отфильтровано ревью) --- */
-
-/* Предкомпиляция шейдеров WebRender: нет статтеров при первом рендере
-   градиентов/свечений/блюров (имя префа precache-shaders, не pre-cache) */
-user_pref("gfx.webrender.precache-shaders", true);
-user_pref("gfx.webrender.compositor", true);
-
-/* Дисковый кэш выключен, а лимит ОДНОГО файла в мем-кэше был дефолтных
-   5 МБ — обои и бандлы тяжелее перекачивались заново. Шапка 50 МБ */
-user_pref("browser.cache.memory.max_entry_size", 51200);
-user_pref("image.mem.decode_bytes_at_a_time", 65536);
-
-/* TLS-сессии: 32768 токенов вместо 2048 — повторные заходы без
-   повторного криптографического рукопожатия */
-user_pref("network.ssl_tokens_cache_capacity", 32768);
-
-/* Запросы страницы улетают залпом, без искусственного пейсинга */
-user_pref("network.http.pacing.requests.enabled", false);
-user_pref("network.buffer.cache.size", 262144);
-
-/* GC квантами по 10 мс: главный поток не замерзает дольше кадра (144 Гц) */
-user_pref("javascript.options.mem.gc_incremental_slice_ms", 10);
+/* Графикой, сетевыми буферами, кэшированием и паузами GC управляет Gecko.
+   Удалены внутренние overrides без подтверждённого выигрыша. */
 
 /* --- BLADE: ФИНАЛЬНЫЕ ШТРИХИ (раунд 21) --- */
 
@@ -295,10 +263,8 @@ user_pref("browser.newtabpage.blade.pinnedOnly", true);
 
 /* --- BLADE: АУДИО КАЧЕСТВО (без потери производительности) --- */
 
-/* Медиа-кэш 256МБ: YouTube не сбрасывает качество при микрозадержках сети */
+/* Ограничиваем медиакэш; пороги предзагрузки остаются штатными Gecko. */
 user_pref("media.cache_size", 262144);
-user_pref("media.cache_readahead_limit", 999999);
-user_pref("media.cache_resume_threshold", 999999);
 
 /* Аудио не зависит от этого префа (он управляет только декодированием
    видео): включаем сейвер по умолчанию — фоновое видео перестаёт жечь

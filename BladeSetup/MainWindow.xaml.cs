@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private double _currentPercent = 0;
     private string _currentTargetDir = string.Empty;
     private bool _isInstalling = false;
+    private bool _isCommitting = false;
 
     private Action? _onModalPrimary;
     private Action? _onModalSecondary;
@@ -56,17 +57,23 @@ public partial class MainWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_isCommitting)
+        {
+            ShowModalDialog(
+                title: "Завершение операции",
+                message: "Сейчас меняются файлы установки. Дождитесь завершения, чтобы не прерывать переключение версии.",
+                primaryText: "Понятно",
+                onPrimary: () => { }
+            );
+            return;
+        }
         if (_isInstalling)
         {
             ShowModalDialog(
                 title: "Отмена установки",
-                message: "Установка ещё не завершена. Вы уверены, что хотите отменить процесс и выйти?",
-                primaryText: "Да, выйти",
-                onPrimary: () =>
-                {
-                    _cancellationTokenSource?.Cancel();
-                    Close();
-                },
+                message: "Установка ещё не завершена. Отменить её и дождаться безопасной очистки временных файлов?",
+                primaryText: "Да, отменить",
+                onPrimary: () => _cancellationTokenSource?.Cancel(),
                 secondaryText: "Продолжить",
                 onSecondary: () => { }
             );
@@ -168,11 +175,11 @@ public partial class MainWindow : Window
 
         // Check 1: data.zip must exist
         string? dataZipPath = InstallerLogic.FindDataZipPath();
-        if (dataZipPath == null)
+        if (!InstallerLogic.HasDataPayload(dataZipPath))
         {
             ShowModalDialog(
-                title: "Файл данных не найден",
-                message: "Файл данных data.zip не найден рядом с установщиком.\n\nПожалуйста, скачайте установщик целиком и поместите data.zip в одну папку с Blade-Setup.exe.",
+                title: "Пакет Blade не найден",
+                message: "В установщике нет встроенного пакета, а рядом не найден data.zip с файлом проверки SHA-256.\n\nСкачайте полный комплект Blade-Setup.exe и data.zip.sha256.",
                 primaryText: "Понятно",
                 onPrimary: () => { }
             );
@@ -182,7 +189,7 @@ public partial class MainWindow : Window
         CheckAndProceedInstallation(dataZipPath);
     }
 
-    private void CheckAndProceedInstallation(string dataZipPath)
+    private void CheckAndProceedInstallation(string? dataZipPath)
     {
         // Check 2: Firefox running from target
         if (InstallerLogic.IsFirefoxRunningFromTarget(_currentTargetDir))
@@ -220,12 +227,10 @@ public partial class MainWindow : Window
         if (Directory.Exists(_currentTargetDir) && Directory.EnumerateFileSystemEntries(_currentTargetDir).Any())
         {
             ShowModalDialog(
-                title: "Папка не пуста",
-                message: "Папка не пуста и не похожа на установку Blade.\n\nПродолжить установку в эту папку?",
-                primaryText: "Продолжить",
-                onPrimary: () => ExecuteInstallation(dataZipPath, isUpdate: false),
-                secondaryText: "Отмена",
-                onSecondary: () => { }
+                title: "Нужна пустая папка",
+                message: "Выбранная папка содержит чужие файлы и не является установкой Blade.\n\nВыберите пустую папку, чтобы установщик случайно не заменил существующие данные.",
+                primaryText: "Понятно",
+                onPrimary: () => { }
             );
             return;
         }
@@ -237,7 +242,7 @@ public partial class MainWindow : Window
     // ================================================================
     // SCREEN 3: INSTALLING & PROGRESS
     // ================================================================
-    private async void ExecuteInstallation(string dataZipPath, bool isUpdate)
+    private async void ExecuteInstallation(string? dataZipPath, bool isUpdate)
     {
         _isInstalling = true;
         _cancellationTokenSource = new CancellationTokenSource();
@@ -248,19 +253,16 @@ public partial class MainWindow : Window
 
         var progress = new Progress<InstallProgressReport>(report =>
         {
+            if (report.Stage is "Безопасное обновление..." or "Завершение установки...")
+                _isCommitting = true;
             UpdateProgress(report.Percent, report.Stage, report.CurrentItem);
         });
 
         try
         {
-            if (isUpdate)
-            {
-                UpdateProgress(2, "Подготовка к обновлению...", "Очистка предыдущей версии движка...");
-                await Task.Run(() => InstallerLogic.CleanForUpdate(_currentTargetDir), token);
-            }
-
-            // Extract data.zip with streaming real progress (User Fix 2)
-            await InstallerLogic.ExtractDataZipAsync(dataZipPath, _currentTargetDir, progress, token);
+            UpdateProgress(1, "Проверка пакета...", "Сверка SHA-256 и состава архива.");
+            await InstallerLogic.InstallDataZipAsync(dataZipPath, _currentTargetDir, isUpdate, progress, token);
+            _isCommitting = false;
 
             // Deploy icon & create shortcuts
             UpdateProgress(98, "Настройка ярлыков и системы...", "Копирование Blade.ico...");
@@ -298,6 +300,7 @@ public partial class MainWindow : Window
         catch (OperationCanceledException)
         {
             _isInstalling = false;
+            _isCommitting = false;
             ShowScreen(ScreenSplash);
             ShowModalDialog(
                 title: "Установка отменена",
@@ -309,6 +312,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             _isInstalling = false;
+            _isCommitting = false;
             ShowScreen(ScreenSplash);
             ShowModalDialog(
                 title: "Ошибка установки",
@@ -344,6 +348,16 @@ public partial class MainWindow : Window
 
     private void CancelInstallButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_isCommitting)
+        {
+            ShowModalDialog(
+                title: "Завершение операции",
+                message: "Сейчас меняются файлы установки. Отмена временно недоступна, чтобы сохранить рабочую версию браузера.",
+                primaryText: "Понятно",
+                onPrimary: () => { }
+            );
+            return;
+        }
         ShowModalDialog(
             title: "Прерывание",
             message: "Вы действительно хотите прервать установку Blade?",
@@ -454,7 +468,7 @@ public partial class MainWindow : Window
     private readonly List<AvaParticle> _particles = new();
     private DispatcherTimer? _particleTimer;
     private readonly Random _random = new();
-    private int _activeParticleLimit = 40;
+    private int _activeParticleLimit = 14;
     private bool _isEffectsInitialized = false;
 
     protected override void OnContentRendered(EventArgs e)
@@ -490,14 +504,14 @@ public partial class MainWindow : Window
         if (_isEffectsInitialized || ParticlesCanvas == null) return;
         _isEffectsInitialized = true;
 
-        const int maxPoolSize = 60;
+        const int maxPoolSize = 22;
         _particles.Clear();
         ParticlesCanvas.Children.Clear();
 
-        var redBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x00, 0x00));
-        var brightRedBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x33, 0x33));
-        var whiteBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
-        var orangeRedBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x55, 0x22));
+        var redBrush = new SolidColorBrush(Color.FromRgb(0xD9, 0x4B, 0x59));
+        var brightRedBrush = new SolidColorBrush(Color.FromRgb(0xE8, 0x65, 0x70));
+        var whiteBrush = new SolidColorBrush(Color.FromRgb(0xD8, 0xCD, 0xD0));
+        var orangeRedBrush = new SolidColorBrush(Color.FromRgb(0xA8, 0x4A, 0x4D));
         redBrush.Freeze();
         brightRedBrush.Freeze();
         whiteBrush.Freeze();
@@ -528,9 +542,9 @@ public partial class MainWindow : Window
             _particles.Add(particle);
         }
 
-        _particleTimer = new DispatcherTimer(DispatcherPriority.Render)
+        _particleTimer = new DispatcherTimer(DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(25) // ~40 FPS мягкий шаг, 0% CPU overhead
+            Interval = TimeSpan.FromMilliseconds(50)
         };
         _particleTimer.Tick += ParticleTimer_Tick;
         _particleTimer.Start();
@@ -599,7 +613,7 @@ public partial class MainWindow : Window
         p.Vy = isBurst ? -(_random.NextDouble() * 3.8 + 1.6) : -(_random.NextDouble() * 1.3 + 0.45);
         p.MaxLife = isBurst ? _random.Next(25, 55) : _random.Next(80, 150);
         p.Life = initialScatter ? _random.NextDouble() * p.MaxLife : p.MaxLife;
-        p.BaseOpacity = _random.NextDouble() * 0.65 + 0.35;
+        p.BaseOpacity = _random.NextDouble() * 0.20 + 0.12;
         p.WobbleSpeed = _random.NextDouble() * 0.08 + 0.02;
         p.WobbleAngle = _random.NextDouble() * Math.PI * 2;
 
@@ -615,9 +629,9 @@ public partial class MainWindow : Window
     {
         _activeParticleLimit = mode switch
         {
-            AvaParticleMode.Quiet => 15,
-            AvaParticleMode.Victory => 60,
-            _ => 40
+            AvaParticleMode.Quiet => 8,
+            AvaParticleMode.Victory => 18,
+            _ => 14
         };
     }
 
@@ -634,7 +648,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Белая вспышка всего окна (Opera GX Flash) на 100% завершения установки.
+    /// Мягкий акцент при завершении установки.
     /// </summary>
     public void TriggerWindowFlash()
     {
@@ -642,8 +656,8 @@ public partial class MainWindow : Window
 
         var anim = new DoubleAnimationUsingKeyFrames();
         anim.KeyFrames.Add(new LinearDoubleKeyFrame(0.0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
-        anim.KeyFrames.Add(new LinearDoubleKeyFrame(0.38, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(80))));
-        anim.KeyFrames.Add(new SplineDoubleKeyFrame(0.0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(500)),
+        anim.KeyFrames.Add(new LinearDoubleKeyFrame(0.08, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(70))));
+        anim.KeyFrames.Add(new SplineDoubleKeyFrame(0.0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(420)),
             new KeySpline(0.25, 0.1, 0.25, 1.0)));
 
         FlashOverlay.BeginAnimation(UIElement.OpacityProperty, anim);

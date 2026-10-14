@@ -3,7 +3,7 @@
 // @description     Режимы эффектов и остановка анимаций неактивного окна
 // @author          Blade-Creations
 // @include         main
-// @version         1.1.1
+// @version         1.1.2
 // @loadOrder       6
 // ==/UserScript==
 (function () {
@@ -49,7 +49,7 @@
     :root[data-blade-fx-mode="eco"] #blade-atmosphere {display:none !important;}
     :root[data-blade-fx-paused="true"] #blade-idle {display:none !important;}
   `;
-  const contentTargets = ['body::before', 'body::after', '.outer-wrapper::before', '.outer-wrapper::after',
+  const contentTargets = ['html::before', 'html::after', 'body::before', 'body::after', '.outer-wrapper::before', '.outer-wrapper::after',
     '.top-site-outer', '.top-site-outer::before', '.top-site-outer::after',
     '.top-site-button', '.tile', '.tile::before', '.tile::after'];
   const contentCss = prefix => `
@@ -136,7 +136,7 @@
     canAnimate: () => !paused && mode() !== 'eco' && !battery(),
   };
   sync();
-  window.Blade?.mark('effects', 'v1.1.1 OK ' + mode());
+  window.Blade?.mark('effects', 'v1.1.2 OK ' + mode());
   window.addEventListener('unload', () => {
     for (const name of ['TabSelect', 'TabShow']) window.gBrowser?.tabContainer.removeEventListener(name, schedule);
     disposed = true;
