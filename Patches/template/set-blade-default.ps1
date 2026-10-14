@@ -203,10 +203,16 @@ function Save-TaskbarIdentityBackup($Registration, [Microsoft.Win32.RegistryHive
     [IO.File]::WriteAllText($backupPath, ($snapshot | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
 }
 
+function Get-BladeTaskbarUserFallbackViews([Microsoft.Win32.RegistryView[]]$MachineRegisteredViews = @()) {
+    $views = @([Microsoft.Win32.RegistryView]::Registry32, [Microsoft.Win32.RegistryView]::Registry64)
+    return @($views | Where-Object { $MachineRegisteredViews -notcontains $_ })
+}
+
 function Set-BladeTaskbarIdentity($Registration) {
     $views = @([Microsoft.Win32.RegistryView]::Registry32, [Microsoft.Win32.RegistryView]::Registry64)
     $machineMatches = 0
     $updated = 0
+    $machineRegisteredViews = @()
     foreach ($view in $views) {
         $base = [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::LocalMachine, $view)
         try {
@@ -230,7 +236,11 @@ function Set-BladeTaskbarIdentity($Registration) {
                 } finally { $readKey.Dispose() }
                 if (-not $hasEngine) { continue }
                 $machineMatches++
-                if ([string]$oldValue -eq 'BladeBrowser.Desktop') { $updated++; continue }
+                if ([string]$oldValue -eq 'BladeBrowser.Desktop') {
+                    $updated++
+                    $machineRegisteredViews += $view
+                    continue
+                }
                 try {
                     Save-TaskbarIdentityBackup $Registration ([Microsoft.Win32.RegistryHive]::LocalMachine) $path $view $Registration.Engine $oldValue $oldKind
                     $writeKey = $base.OpenSubKey($path, $true)
@@ -242,22 +252,20 @@ function Set-BladeTaskbarIdentity($Registration) {
                         }
                     } finally { $writeKey.Dispose() }
                     $updated++
+                    $machineRegisteredViews += $view
                 } catch {
-                    Write-Warning "Blade taskbar identity could not update $view\$path; the launcher will set the window identity at runtime. $($_.Exception.Message)"
+                    Write-Warning "Blade taskbar identity could not update $view\$path; the machine mapping may override the per-user fallback until it is updated. $($_.Exception.Message)"
                 }
             }
         } finally { $base.Dispose() }
     }
 
-    if ($machineMatches -gt 0) {
-        if ($updated -eq $machineMatches) { Write-Output 'Blade taskbar identity registered in the existing Mozilla mapping.' }
-        return
-    }
-
-    # Fresh per-user installations may not have a machine-wide Mozilla mapping.
-    # Register both views so the Firefox process architecture sees the same Blade ID.
+    # Firefox reads this key in the native registry view of the process. An x64
+    # browser cannot see a machine mapping that exists only in WOW6432Node, so
+    # keep a per-user fallback for each architecture view missing a machine map.
+    $userViewsToUpdate = @(Get-BladeTaskbarUserFallbackViews $machineRegisteredViews)
     $userViewsUpdated = 0
-    foreach ($view in $views) {
+    foreach ($view in $userViewsToUpdate) {
         $base = $null
         try {
             $base = [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::CurrentUser, $view)
@@ -279,10 +287,16 @@ function Set-BladeTaskbarIdentity($Registration) {
                 $userViewsUpdated++
             } finally { $key.Dispose() }
         } catch {
-            Write-Warning "Blade taskbar identity could not update the $view user registry view; the launcher will set the window identity at runtime. $($_.Exception.Message)"
+            Write-Warning "Blade taskbar identity could not update the $view user registry view. Firefox may keep using its fallback taskbar identity. $($_.Exception.Message)"
         } finally { if ($null -ne $base) { $base.Dispose() } }
     }
-    if ($userViewsUpdated -eq $views.Count) { Write-Output 'Blade taskbar identity registered for this user.' }
+    if ($machineMatches -gt 0 -and $updated -eq $machineMatches) {
+        Write-Output 'Blade taskbar identity registered in the existing Mozilla mapping.'
+    }
+    if ($userViewsToUpdate.Count -gt 0 -and $userViewsUpdated -eq $userViewsToUpdate.Count) {
+        if ($machineMatches -gt 0) { Write-Output 'Blade taskbar identity fallback registered for this user in the missing registry view(s).' }
+        else { Write-Output 'Blade taskbar identity registered for this user.' }
+    }
 }
 
 function Initialize-RegistrationShell {

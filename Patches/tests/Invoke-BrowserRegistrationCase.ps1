@@ -116,6 +116,8 @@ function Assert-Registration {
     }
     $shortcutPath = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Blade Browser.lnk'
     Assert-Equal ([BladeBrowserRegistrationShellV2]::GetShortcutIdentity($shortcutPath)) 'BladeBrowser.Desktop' 'Wrong shortcut AppUserModelId.'
+    $taskbarEngine = if ($script:Engine) { $script:Engine } else { Join-Path $script:BladeRoot 'App\Blade' }
+    Assert-Equal (Get-FixtureValue 'Software\Mozilla\Firefox\TaskBarIDs' $taskbarEngine) 'BladeBrowser.Desktop' 'Firefox x64 has no current-user taskbar identity fallback.'
     $launcher = Join-Path $script:BladeRoot 'BladeBrowser.exe'
     Assert-True (Test-Path -LiteralPath $launcher -PathType Leaf) 'Installed launcher missing.'
     Assert-Equal (Get-FileHash -LiteralPath $launcher).Hash (Get-FileHash -LiteralPath $LauncherPath).Hash 'Installed launcher differs from newly compiled production source.'
@@ -257,6 +259,23 @@ try {
         elseif ($Case -eq 'launcher-prefers-blade') { Test-LauncherCapture 'Blade' -Both }
         else { Test-LauncherCapture 'Blade' }
         $result.Passed = $true
+    } elseif ($Case -eq 'taskbar-view-fallbacks') {
+        $tokens = $null; $parseErrors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile($RegistrarPath, [ref]$tokens, [ref]$parseErrors)
+        Assert-Equal $parseErrors.Count 0 'Registrar has a PowerShell parse error.'
+        $functionAst = $ast.Find({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Get-BladeTaskbarUserFallbackViews' }, $true)
+        Assert-True ($null -ne $functionAst) 'Registrar does not expose the taskbar registry-view fallback selector.'
+        . ([scriptblock]::Create($functionAst.Extent.Text))
+        $both = @([Microsoft.Win32.RegistryView]::Registry32, [Microsoft.Win32.RegistryView]::Registry64)
+        Assert-Equal (@(Get-BladeTaskbarUserFallbackViews @()).Count) 2 'No machine mapping must register a user fallback for both views.'
+        $fallback = @(Get-BladeTaskbarUserFallbackViews @([Microsoft.Win32.RegistryView]::Registry32))
+        Assert-Equal $fallback.Count 1 'A 32-bit-only machine mapping must create one native-view fallback.'
+        Assert-Equal $fallback[0] ([Microsoft.Win32.RegistryView]::Registry64) 'A 32-bit-only machine mapping must fall back in the x64 view.'
+        $fallback = @(Get-BladeTaskbarUserFallbackViews @([Microsoft.Win32.RegistryView]::Registry64))
+        Assert-Equal $fallback.Count 1 'A 64-bit-only machine mapping must create one 32-bit-view fallback.'
+        Assert-Equal $fallback[0] ([Microsoft.Win32.RegistryView]::Registry32) 'A 64-bit-only machine mapping must fall back in the x86 view.'
+        Assert-Equal @(Get-BladeTaskbarUserFallbackViews $both).Count 0 'No user fallback is needed when both machine views are registered.'
+        $result.Passed = $true
     } else {
         $env:LOCALAPPDATA = Join-Path $WorkRoot 'LocalAppData fixture'
         $env:APPDATA = Join-Path $WorkRoot 'Roaming fixture'
@@ -264,6 +283,7 @@ try {
         $engineName = 'Blade'
         if ($Case -like '*firefox64*') { $engineName = 'Firefox64' }
         $engine = Join-Path $script:BladeRoot "App\$engineName"
+        $script:Engine = $engine
         $script:Profile = Join-Path $script:BladeRoot 'Data\profile'
         $resource = Join-Path $script:Profile 'chrome\resources'
         New-Item -ItemType Directory -Path $engine, $resource -Force | Out-Null

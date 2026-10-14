@@ -91,7 +91,8 @@ if (-not $HarnessSelfTest) {
 $availableCases = @('isolation-self-test', 'register-root-blade', 'register-engine-firefox64', 'register-autodetect',
     'repeat-idempotent', 'default-settings', 'validate-only', 'validate-after-register',
     'reject-test-engine', 'reject-profile-mismatch', 'reject-noninstalled-caller', 'reject-missing-profile',
-    'reject-missing-launcher', 'launcher-pure-input', 'launcher-live-blade', 'launcher-live-firefox64', 'launcher-prefers-blade')
+    'reject-missing-launcher', 'launcher-pure-input', 'launcher-live-blade', 'launcher-live-firefox64', 'launcher-prefers-blade',
+    'taskbar-view-fallbacks')
 if ($HarnessSelfTest) { $Case = @('isolation-self-test') }
 elseif ($Case.Count -eq 0) { $Case = $availableCases }
 foreach ($name in $Case) { if ($availableCases -notcontains $name) { throw "Unknown test case: $name" } }
