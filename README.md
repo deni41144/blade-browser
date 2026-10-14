@@ -1,6 +1,13 @@
-<p align="center">
-  <img src="assets/blade-github-hero.svg" alt="Blade — Кровавая Луна / Blood Moon" width="100%">
-</p>
+<table>
+  <tr>
+    <td width="18%" align="center" valign="middle">
+      <img src="Branding/master_icon.png" alt="Оригинальная эмблема Blade" width="150">
+    </td>
+    <td width="82%" valign="middle">
+      <img src="assets/blade-github-hero.svg" alt="Blade — Кровавая Луна / Blood Moon" width="100%">
+    </td>
+  </tr>
+</table>
 
 <p align="center">
   <a href="https://github.com/deni41144/blade-browser/releases/latest/download/Blade-Setup.exe"><img src="https://img.shields.io/badge/Скачать%20Blade-Windows%20x64-C8102E?style=for-the-badge&logo=windows&logoColor=white" alt="Скачать Blade для Windows x64"></a>
