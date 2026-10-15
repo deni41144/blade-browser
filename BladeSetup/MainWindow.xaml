@@ -68,7 +68,7 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                             <Image RenderOptions.BitmapScalingMode="HighQuality"
                                    SnapsToDevicePixels="True"
-                                   Source="blade-logo-14.png"
+                                   Source="brand-logo.png"
                                    Width="18"
                                    Height="18"
                                    Margin="0,0,10,0"
@@ -151,7 +151,7 @@
                                             BorderBrush="#3A2B30"
                                             BorderThickness="1"
                                             HorizontalAlignment="Center">
-                                        <Image Source="blade-logo-78.png"
+                                        <Image Source="brand-logo.png"
                                                Width="78" Height="78"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
@@ -499,7 +499,7 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                 </Border>
-                                <Image Source="blade-logo-56.png"
+                                <Image Source="brand-logo.png"
                                        Width="56"
                                        Height="56"
                                        Opacity="0.95"
@@ -599,7 +599,7 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                 </Border>
-                                <Image Source="blade-logo-72.png"
+                                <Image Source="brand-logo.png"
                                        Width="72"
                                        Height="72"
                                        HorizontalAlignment="Center"
