@@ -11,9 +11,9 @@
     <RootNamespace>BladeSetup</RootNamespace>
     <AssemblyTitle>Blade Setup</AssemblyTitle>
     <Product>Blade Browser</Product>
-    <Version>1.4.6</Version>
-    <FileVersion>1.4.6.0</FileVersion>
-    <AssemblyVersion>1.4.6.0</AssemblyVersion>
+    <Version>1.4.7</Version>
+    <FileVersion>1.4.7.0</FileVersion>
+    <AssemblyVersion>1.4.7.0</AssemblyVersion>
     <Company>Blade-Creations</Company>
     <Copyright>Copyright © 2026 Denis Bobliksov</Copyright>
     

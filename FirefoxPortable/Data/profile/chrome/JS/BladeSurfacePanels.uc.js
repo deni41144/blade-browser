@@ -3,7 +3,7 @@
 // @description     Address results and native tab previews in the Blade menu material
 // @author          Blade-Creations
 // @include         main
-// @version         1.0.1
+// @version         1.0.2
 // @loadOrder       110
 // ==/UserScript==
 (function () {
@@ -46,15 +46,22 @@
       font-family:var(--blade-ui,'Rubik','Segoe UI',sans-serif) !important;
     }
     :root[data-blade-surfaces] #urlbar .urlbarView {
-      background:transparent !important; background-image:none !important;
-      border:0 !important; border-top:1px solid #ffffff14 !important;
-      border-radius:0 !important; margin-inline:8px !important;
+      background-color:#121317 !important;
+      background-image:var(--blade-material,linear-gradient(160deg,#261b21,#111217)) !important;
+      border:1px solid color-mix(in srgb,var(--blade-surface-accent) 38%,#45404b) !important;
+      border-radius:12px !important; margin-inline:8px !important;
+      box-shadow:0 16px 38px #0009,inset 0 1px #ffffff14 !important;
+      overflow:hidden !important;
       color:#ececf2 !important;
       font-family:var(--blade-ui,'Rubik','Segoe UI',sans-serif) !important;
     }
     :root[data-blade-surfaces] #urlbar .urlbarView::before {
       content:'Поиск и переход'; display:block; padding:11px 12px 5px;
-      color:#aaa4b4; font-size:11px; font-weight:500;
+      color:color-mix(in srgb,var(--blade-surface-accent) 45%,#ded5dd); font-size:11px; font-weight:600;
+    }
+    /* Firefox 158 draws a separate background inside the results panel. */
+    :root[data-blade-surfaces] #urlbar .urlbarView-background {
+      background:transparent !important; border:0 !important; box-shadow:none !important;
     }
     :root[data-blade-surfaces] #urlbar .urlbarView::after {
       content:'↑↓  Выбрать     Enter  Открыть     Esc  Закрыть';
@@ -66,7 +73,10 @@
       scrollbar-width:thin; scrollbar-color:#ffffff30 transparent;
     }
     :root[data-blade-surfaces] #urlbar .urlbarView-body-inner { border:0 !important; }
-    :root[data-blade-surfaces] #urlbar .urlbarView-results { padding:2px 0 !important; }
+    :root[data-blade-surfaces] #urlbar .urlbarView-results {
+      padding:2px 0 !important; max-height:min(55vh,480px) !important;
+      overflow-y:auto !important; scrollbar-width:thin; scrollbar-color:#ffffff30 transparent;
+    }
     :root[data-blade-surfaces] #urlbar .urlbarView-row {
       margin:3px 0 !important; border:1px solid #ffffff09 !important;
       border-radius:8px !important; background:#00000020 !important;
@@ -208,5 +218,5 @@
   panel?.addEventListener('popuphidden', hide);
   window.addEventListener('unload', destroy, {once:true});
   window.BladeSurfacePanels = {destroy, status:()=>({disposed, preview:!!panel, hovered:!!hovered, style:style.isConnected})};
-  window.Blade?.mark('surfaces', 'v1.0.1 OK');
+  window.Blade?.mark('surfaces', 'v1.0.2 OK');
 })();
