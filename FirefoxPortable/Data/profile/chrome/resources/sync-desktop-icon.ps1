@@ -6,6 +6,8 @@ param(
     [long]$RequestStamp = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
 )
 $ErrorActionPreference = 'Stop'
+$ChromePath = [IO.Path]::GetFullPath($ChromePath).TrimEnd('\','/')
+$ExecutablePath = [IO.Path]::GetFullPath($ExecutablePath)
 $sourcePath = Join-Path $ChromePath ('img\ico\' + $IconName + '.png')
 $iconDirectory = Join-Path (Split-Path -Parent $ChromePath) 'ThemeIcons'
 [void][IO.Directory]::CreateDirectory($iconDirectory)
@@ -45,7 +47,13 @@ if (!(Test-Path -LiteralPath $iconPath) -or (Get-Item -LiteralPath $sourcePath).
     } finally { $stream.Dispose(); $graphics.Dispose(); $bitmap.Dispose(); $source.Dispose() }
 }
 $shell = New-Object -ComObject WScript.Shell
-$installedExe = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Blade\App\Blade\firefox.exe'
+$profilePath = Split-Path -Parent $ChromePath
+$bladeRoot = Split-Path -Parent (Split-Path -Parent $profilePath)
+$launcherPath = Join-Path $bladeRoot 'BladeBrowser.exe'
+$ownedEngines = @((Join-Path $bladeRoot 'App\Blade\firefox.exe'), (Join-Path $bladeRoot 'App\Firefox64\firefox.exe'))
+$canMigrate = (Test-Path -LiteralPath $launcherPath -PathType Leaf) -and
+    ($ownedEngines -contains $ExecutablePath)
+$profileArgument = '^\s*-profile\s+(?:"' + [regex]::Escape($profilePath) + '"|' + [regex]::Escape($profilePath) + ')\s*$'
 $changed = 0
 $iconDirs = @($DesktopPath)
 $iconDirs += Join-Path ([Environment]::GetFolderPath('StartMenu')) 'Programs'
@@ -54,9 +62,17 @@ foreach ($iconDir in ($iconDirs | Where-Object { Test-Path -LiteralPath $_ })) {
 foreach ($file in Get-ChildItem -LiteralPath $iconDir -Filter '*.lnk' -File) {
     $shortcut = $shell.CreateShortcut($file.FullName)
     $sameExecutable = [string]::Equals($shortcut.TargetPath,$ExecutablePath,[StringComparison]::OrdinalIgnoreCase)
-    $installedBlade = $false
-    if (!($sameExecutable -or $installedBlade)) { continue }
-    if ($shortcut.IconLocation -ne "$iconPath,0") {
+    $sameLauncher = $canMigrate -and [string]::Equals($shortcut.TargetPath,$launcherPath,[StringComparison]::OrdinalIgnoreCase)
+    # Migrate only a plain launch of this exact profile. Private and web-app
+    # shortcuts carry additional arguments and must retain their launch behavior.
+    $legacyLaunch = $canMigrate -and $sameExecutable -and ($shortcut.Arguments -match $profileArgument)
+    if (!($sameExecutable -or $sameLauncher)) { continue }
+    if ($legacyLaunch) {
+        $shortcut.TargetPath = $launcherPath
+        $shortcut.Arguments = ''
+        $shortcut.WorkingDirectory = $bladeRoot
+    }
+    if ($legacyLaunch -or $shortcut.IconLocation -ne "$iconPath,0") {
         $shortcut.IconLocation = "$iconPath,0"
         $shortcut.Save()
         $changed++
