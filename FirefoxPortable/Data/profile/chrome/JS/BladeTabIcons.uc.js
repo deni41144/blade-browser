@@ -43,6 +43,8 @@
     cherry: '7CHERRY.png',
     midnight: '8BLUE.png',  // Midnight Blue — синий значок
     volt: '9YELLOW.png',    // Volt Yellow — жёлтый значок
+    white: '10INK.png',     // WHITE — тушный значок на светлой вкладке (не красный)
+    custom: '1RED.png',     // custom → red (конвенция atmosphere)
   };
 
   const BLANK = /^about:(newtab|home|welcome|blank)$/;
@@ -111,6 +113,7 @@
 
   // ---- старт: gBrowser может быть ещё не готов — повторяем ----
   let tries = 0;
+  let iconTimer = 0; // PERF: handle watchdog-таймера (уборка на unload)
   (function start() {
     try {
       if (!window.gBrowser || !window.gBrowser.tabContainer) {
@@ -121,7 +124,27 @@
       registerIco();
       hookSetIcon();
       try {
-        window.gBrowser.tabContainer.addEventListener('TabOpen', (ev) => applyTab(ev.target));
+        const tc = window.gBrowser.tabContainer;
+        tc.addEventListener('TabOpen', (ev) => applyTab(ev.target));
+        // anti-flicker: Firefox может вернуть бренд-иконку на пустой вкладке
+        // через attr/pageshow минуя setIcon — переприменяем themed-значок.
+        tc.addEventListener('TabAttrModified', (ev) => applyTab(ev.target));
+        tc.addEventListener('TabSelect', (ev) => applyTab(ev.target));
+        window.addEventListener('pageshow', (ev) => {
+          try { applyTab(window.gBrowser.getTabForBrowser(ev.target)); } catch (e) {}
+        }, true);
+        // watchdog-reconcile: гасит остаточный «через раз» дефолтный красный.
+        // PERF: 1.5s→15s (×10 реже) + пропуск скрытого окна + уборка на unload.
+        // Реактивность держат TabOpen/TabAttrModified/TabSelect/pageshow выше.
+        // applyTab идемпотентен (image===want → return), поэтому в steady-state
+        // проход НЕ вызывает setIcon и НЕ генерит TabAttrModified-шторм; themeIcon
+        // дёшев (getAttribute+lookup, без getComputedStyle). Таймер оставлен
+        // быстрым (1.5с) ради latency лечения отката иконки (цель: стабильный
+        // значок без мигания); скрытый документ пропускаем, на unload убираем.
+        if (!iconTimer) {
+          iconTimer = setInterval(() => { if (!document.hidden) applyAll(); }, 1500);
+          window.addEventListener('unload', () => { if (iconTimer) { clearInterval(iconTimer); iconTimer = 0; } }, { once: true });
+        }
       } catch (e) { mark('ERR tabopen ' + e); }
       // смена темы: шина (setTheme эмитит AFTER applyLiveAttrs — атрибут уже свежий)
       try {
