@@ -53,14 +53,6 @@
     function syncSelectionPrefs(themeId) {
       const t = THEMES.find(x => x.id === themeId) || THEMES[0];
       const accent = (themeId === 'custom') ? getCustomColor() : t.accent;
-      // WHITE (light page) must give sites a LIGHT content scheme, otherwise
-      // dark-mode sites draw light text on our light page bg (washed out).
-      // Dark themes keep the dark content preference.
-      try {
-        const pr = hexToRgb(t.page || '#000000');
-        const pageLight = (pr[0] + pr[1] + pr[2]) / 3 > 128;
-        Services.prefs.setIntPref('layout.css.prefers-color-scheme.content-override', pageLight ? 0 : 2);
-      } catch (e) {}
 
       // Firefox's urlbar also uses lightweight-theme highlight tokens.
       // Keep the real input selection in sync, including existing windows.
