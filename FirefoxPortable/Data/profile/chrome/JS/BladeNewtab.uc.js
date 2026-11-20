@@ -1270,10 +1270,9 @@
             const ln = lines[i].trim();
             if (ln) { detail = ln; break; }
           }
-          if (!detail) return;
-          const el = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                    const el = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
           el.id = 'blade-hero-chronicle';
-          el.textContent = title + ' — ' + detail;
+          el.textContent = title.replace(/^Blade\s*[—–-]\s*/i, '');
           wrap.appendChild(el);
         } catch (e) {}
       }).catch(() => {});

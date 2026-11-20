@@ -22,6 +22,7 @@
     grey: ['#e5e9ed', '#a7b0bd', '#363f4c'],
     purple: ['#ecddff', '#a67fdd', '#4f2d78'],
     custom: ['var(--accent,#ff2a2a)', 'var(--accent,#ff2a2a)', '#303744'],
+    white: ['#171717', '#3a3a3a', '#0d0d0d'],
   };
   const coats = {
     red: 'linear-gradient(166deg,transparent 39%,#fff8 40%,#fff1 41%,transparent 43%),linear-gradient(180deg,#fff4 0%,transparent 21%,transparent 74%,#ad263b35 100%)',
@@ -34,6 +35,7 @@
     grey: 'repeating-linear-gradient(0deg,#fff2 0px,transparent 1px,transparent 3px),linear-gradient(180deg,#fff6 0%,transparent 31%,#66728830 48%,#fff4 49%,transparent 51%)',
     purple: 'conic-gradient(from 150deg at 38% 54%,transparent 0deg,#fff5 49deg,transparent 50deg,transparent 119deg,#fff3 120deg,transparent 170deg,#fff4 210deg,transparent 260deg)',
     custom: 'none',
+    white: 'linear-gradient(180deg,#ffffff55 0%,transparent 28%,#00000012 100%)',
   };
   // Small material pieces belong to the clock, not a generic decorative frame.
   const motifs = {
@@ -47,6 +49,7 @@
     grey: ['M35 100 L44 94 L49 100 L40 104 Z','M128 85 L138 81 L135 89 L125 91 Z','M222 115 L229 107 L235 113 L228 118 Z','M309 96 L320 91 L317 98 L308 101 Z','M377 115 L385 108 L393 112 L383 119 Z'],
     purple: [],
     custom: [],
+    white: [],
   };
   const style = document.createElementNS(NS, 'style');
   style.id = 'blade-hero-clock-style';
@@ -99,10 +102,24 @@
       animation-play-state:paused !important;
     }
     #blade-hero[data-hc-ready="true"]::before,#blade-hero[data-hc-ready="true"]::after {display:none !important;}
-    #blade-hero[data-hc-ready="true"] .bh-accent-line {visibility:hidden !important;box-shadow:none !important;}
+    #blade-hero[data-hc-ready="true"] .bh-accent-line {
+      visibility:visible !important;
+      box-shadow:0 0 10px color-mix(in srgb, var(--accent,#ff2a2a) 55%, transparent), 0 0 4px var(--accent,#ff2a2a) !important;
+    }
     #blade-hero[data-hc-ready="true"] .bh-clock:is([data-hc-theme='orange']) {font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;font-weight:700 !important;letter-spacing:5px !important;}
 
     #blade-hero[data-hc-ready="true"] .bh-clock { isolation:isolate; animation:none !important; opacity:1 !important; transform:none !important; }
+    #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='white'] .bh-hm {
+      background:linear-gradient(180deg,#171717 0%,#3a3a3a 55%,#171717 100%) !important;
+      background-size:100% 100% !important;background-clip:text !important;
+      -webkit-text-fill-color:transparent !important;color:transparent !important;
+      -webkit-text-stroke:.4px rgba(23,23,23,.6) !important;
+      text-shadow:none !important;
+      filter:drop-shadow(0 0 2px #ffffff)
+        drop-shadow(0 0 10px rgba(34,34,34,.5))
+        drop-shadow(0 0 26px rgba(34,34,34,.32))
+        drop-shadow(0 0 52px rgba(34,34,34,.2)) !important;
+    }
     #blade-hero[data-hc-ready="true"] .bh-hm {
       position:relative; z-index:2; color:var(--hc-face,#ffe0d8) !important;
       background:none !important; -webkit-text-fill-color:var(--hc-face,#ffe0d8) !important;
@@ -135,7 +152,7 @@
 
     #blade-hero[data-hc-ready="true"] .bh-clock[data-hc-theme='custom'] .bh-hm::after {content:none;}
     #blade-hero[data-hc-ready="true"] .bh-sec {
-      z-index:2; color:var(--hc-face) !important; -webkit-text-fill-color:var(--hc-face) !important;
+      left:calc(100% + 12px / var(--bh-scale, 1)) !important; z-index:2; color:var(--hc-face) !important; -webkit-text-fill-color:var(--hc-face) !important;
       opacity:.82 !important; background:none !important; filter:none !important; animation:none !important;
       text-shadow:0 2px 0 var(--hc-depth),0 3px 4px #000 !important; font-variant-numeric:tabular-nums;font-family:var(--blade-display,'Unbounded','Segoe UI',sans-serif) !important;font-weight:500 !important;
     }
@@ -226,7 +243,16 @@
     const hero=document.getElementById('blade-hero');
     // Red/Grey are v2.0.5; Purple is 2.1.0; Volt stays original.
     if(['volt','red','grey','purple'].includes(theme))hero.removeAttribute('data-hc-ready');else hero.setAttribute('data-hc-ready','true');
-    const accent=getComputedStyle(root).getPropertyValue('--accent').trim()||'#ff2a2a';
+    // PERF: для фиксированных тем accent не меняется без смены theme — берём
+    // кэш (lastAccent), не флашим стиль на каждый sync (TabSelect/progress).
+    // custom меняет акцент без смены id — перечитываем всегда, иначе потеряем
+    // детект изменений в `changed` ниже.
+    let accent;
+    if (theme === 'custom' || theme !== lastTheme || !lastAccent) {
+      accent = getComputedStyle(root).getPropertyValue('--accent').trim()||'#ff2a2a';
+    } else {
+      accent = lastAccent;
+    }
     const changed = theme !== lastTheme || (theme === 'custom' && accent !== lastAccent);
     lastAccent=accent;
     if (changed) {

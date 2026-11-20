@@ -18,7 +18,18 @@
     root.getAttribute('data-blade-fx-mode') !== 'eco' &&
     (window.BladeEffects ? window.BladeEffects.canAnimate() : document.hasFocus());
   const theme = () => root.getAttribute('data-blade-theme') || 'red';
-  const accent = () => getComputedStyle(root).getPropertyValue('--accent').trim() || '#ff2a2a';
+  // PERF: кэш --accent по теме. accent() зовётся из make()/showLoading() на
+  // каждой навигации (STATE_START/onLocationChange) — getComputedStyle там
+  // принудительно флашит стиль. custom меняет акцент без смены id — не кэшим.
+  let accentCache = '', accentTheme = null;
+  const accent = () => {
+    const t = theme();
+    if (t === 'custom' || t !== accentTheme || !accentCache) {
+      accentTheme = t;
+      accentCache = getComputedStyle(root).getPropertyValue('--accent').trim() || '#ff2a2a';
+    }
+    return accentCache;
+  };
   const css = `
     .blade-chrome-contour,.blade-chrome-loading,.blade-chrome-theme-edge {
       position:absolute!important;pointer-events:none!important;z-index:1002!important;

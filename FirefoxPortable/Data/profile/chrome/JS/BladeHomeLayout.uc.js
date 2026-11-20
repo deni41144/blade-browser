@@ -33,7 +33,7 @@
   function clockGeometry() {
     const clock = document.getElementById('blade-hero');
     if (!clock || !isHome(window.gBrowser.selectedBrowser)) return null;
-    if (!clockOriginal) clockOriginal = ['translate','scale','transform-origin'].map(name => [name,clock.style.getPropertyValue(name),clock.style.getPropertyPriority(name)]);
+    if (!clockOriginal) clockOriginal = ['translate','scale','transform-origin','--bh-scale'].map(name => [name,clock.style.getPropertyValue(name),clock.style.getPropertyPriority(name)]);
     for (const [name,value,priority] of clockOriginal) {
       if (value) clock.style.setProperty(name,value,priority); else clock.style.removeProperty(name);
     }
@@ -46,6 +46,7 @@
       clock.style.setProperty('transform-origin','center','important');
       clock.style.setProperty('translate',`${result.x-base.x}px ${result.y-base.y}px`,'important');
       clock.style.setProperty('scale',String(result.s),'important');
+      clock.style.setProperty('--bh-scale',String(result.s),'important');
     }
     return result;
   }

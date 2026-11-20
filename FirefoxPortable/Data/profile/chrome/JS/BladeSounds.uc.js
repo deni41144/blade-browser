@@ -21,6 +21,7 @@
     green:{name:'Плавный цифровой сигнал',base:520,modes:[1,2,4],weights:[1,.045,.007],decay:.052,attack:.009,brush:0,cut:1100,space:.014,intervals:[1,1.5,1.333]},
     purple:{name:'Мягкий синтезатор',base:392,modes:[1,1.006,1.498],weights:[1,.3,.18],decay:.113,attack:.017,brush:.006,cut:1200,space:.065,fm:.055,intervals:[1,1.25,1.5]},
     custom:{name:'Нейтральный мягкий щелчок',base:390,modes:[1,1.94,2.9],weights:[1,.1,.025],decay:.064,attack:.008,brush:.025,cut:1000,space:.015,intervals:[1,1.25,1.5]},
+    white:{name:'Бумажный чернильный щелчок',base:505,modes:[1,2.4,3.9],weights:[1,.08,.02],decay:.045,attack:.002,brush:.06,cut:2100,space:.006,intervals:[1,1.25,1.5]},
   };
   const events={
     select:{length:.17,notes:[[0,1,1]],gain:.52},

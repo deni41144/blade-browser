@@ -46,6 +46,8 @@
   }
   function clear() {for(const scene of [...scenes.keys()])remove(scene);}
   function closed(event) {
+    const th0 = root.getAttribute('data-blade-theme') || 'red';
+    if (window.BladeWhiteTabClose?.ownsTheme(th0) || th0 === 'blood') return;
     if (!allowed()) return;
     const tab=event.target, rect=tab.getBoundingClientRect(), base=host.getBoundingClientRect();
     // Do not animate tabs outside the visible tab strip or a closing window.

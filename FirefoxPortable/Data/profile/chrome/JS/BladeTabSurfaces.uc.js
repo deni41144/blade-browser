@@ -23,9 +23,10 @@
     cherry: '<path d="M0 13Q44 8 80 13T150 12T220 11"/><path fill="currentColor" stroke="none" d="M39 4Q50 0 49 8Q40 12 39 4ZM119 5Q126 0 130 6Q127 14 119 5ZM178 2Q188 0 186 7Q178 11 178 2Z"/>',
     midnight: '<path d="M0 13Q28 6 55 13T110 13T165 13T220 13M0 9Q28 2 55 9T110 9T165 9T220 9"/><path d="M172 2H174M195 4H197" opacity=".65"/>',
     volt: '<path d="M0 12H45L53 5L50 12H83L95 2L88 12H148L158 6L155 12H220" stroke-width="1.7"/><path d="M10 15H35M172 15H205" opacity=".5"/>',
-    custom: '<path d="M0 13H220"/>'
+    custom: '<path d="M0 13H220"/>',
+    white: '<path d="M0 13H70L78 7H104L110 11H150L158 5H220M10 15H48M182 10H212"/>'
   };
-  const colors = {red:'#ff3c44',blood:'#ff252f',purple:'#b18bff',green:'#3ae897',grey:'#d9dee6',orange:'#ffa052',cherry:'#f798bb',midnight:'#81aaff',volt:'#f6ec73',custom:'#b7bdc8'};
+  const colors = {red:'#ff3c44',blood:'#ff252f',purple:'#b18bff',green:'#3ae897',grey:'#d9dee6',orange:'#ffa052',cherry:'#f798bb',midnight:'#81aaff',volt:'#f6ec73',custom:'#b7bdc8',white:'#222222'};
   const art = Object.entries(drawings).map(([id, body]) => {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 16" preserveAspectRatio="none" color="${colors[id]}" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
     return `:root[data-blade-tab-surfaces][data-blade-theme="${id}"] { --blade-tab-art:url("data:image/svg+xml,${encodeURIComponent(svg)}"); }`;

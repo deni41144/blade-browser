@@ -53,6 +53,7 @@
     function syncSelectionPrefs(themeId) {
       const t = THEMES.find(x => x.id === themeId) || THEMES[0];
       const accent = (themeId === 'custom') ? getCustomColor() : t.accent;
+
       // Firefox's urlbar also uses lightweight-theme highlight tokens.
       // Keep the real input selection in sync, including existing windows.
       const linear = n => n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4;

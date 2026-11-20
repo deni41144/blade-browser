@@ -83,11 +83,23 @@
   root.appendChild(style);
 
   function state() { return {mode:mode(), paused, battery:battery()}; }
+  // PERF: кэш --accent по теме вместо getComputedStyle на каждый sync.
+  // getComputedStyle принудительно флашит стиль; sync зовётся на каждом
+  // TabSelect/focus/blur. custom-тема меняет акцент без смены id — не кэшируем.
+  let accentCache = '', accentTheme = null;
+  function currentAccent() {
+    const theme = root.getAttribute('data-blade-theme') || 'red';
+    if (theme === 'custom' || theme !== accentTheme || !accentCache) {
+      accentTheme = theme;
+      accentCache = window.getComputedStyle(root).getPropertyValue('--accent').trim() || '#ff2a2a';
+    }
+    return accentCache;
+  }
   function contentState() {
     const current = state();
     return {...current, reduced:reducedMotion.matches, paused:current.paused || current.mode === 'eco' || current.battery,
       theme:root.getAttribute('data-blade-theme') || 'red',
-      accent:window.getComputedStyle(root).getPropertyValue('--accent').trim() || '#ff2a2a'};
+      accent:currentAccent()};
   }
   function sync() {
     if (disposed) return;
@@ -108,7 +120,12 @@
     if (signature === lastVisualState) return;
     lastVisualState = signature;
     for (const browser of window.gBrowser?.browsers || []) {
-      if (!/^about:(newtab|home)(?:[?#]|$)/.test(browser.currentURI?.spec || '')) continue;
+      // PERF/robust: currentURI может бросить на remote-браузере; не сканируем
+      // мёртвые browsingContext (ранний выход до getActor).
+      let spec = '';
+      try { spec = browser.currentURI?.spec || ''; } catch (e) { continue; }
+      if (!/^about:(newtab|home)(?:[?#]|$)/.test(spec)) continue;
+      if (!browser.browsingContext?.currentWindowGlobal) continue;
       try { browser.browsingContext.currentWindowGlobal.getActor('BladeEffectsVisibility')
         .sendAsyncMessage('Blade:PauseEffects', visualState); } catch (e) {}
     }
@@ -119,7 +136,9 @@
     syncTimer = setTimeout(sync, 0);
   }
   const prefObserver = {observe:sync};
-  const batteryObserver = new MutationObserver(sync);
+  // PERF: observer через тот же debounce schedule(), что и события — иначе
+  // каждая мутация root-атрибутов звала sync() напрямую (без coalescing).
+  const batteryObserver = new MutationObserver(schedule);
   Services.prefs.addObserver(PREF, prefObserver);
   reducedMotion.addEventListener('change', sync);
   batteryObserver.observe(root, {attributes:true, attributeFilter:['data-blade-battery','data-blade-theme','style']});
