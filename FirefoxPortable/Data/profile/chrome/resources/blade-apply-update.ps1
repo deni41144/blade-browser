@@ -300,8 +300,11 @@ if ($isFull) {
 # --- Применение кастомизации: наши файлы заменяем, img не трогаем (свои обои) ---
 try {
     Write-Host 'Обновление кастомизации...' -ForegroundColor Cyan
-    Get-ChildItem $chromeDir -Exclude 'img' | Remove-Item -Recurse -Force
-    Copy-Item (Join-Path $chromeSrc '*') $chromeDir -Recurse -Force
+    # robocopy /MIR перезаписывает существующие файлы надёжно (Copy-Item падал
+    # "Cannot create a file when that file already exists" при повторном применении).
+    # /XD img сохраняет свои обои юзера.
+    & robocopy $chromeSrc $chromeDir /MIR /XD img /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -gt 7) { throw "robocopy exit $LASTEXITCODE" }
     if (Test-Path $userSrc) { Copy-Item $userSrc $ProfileDir -Force }
 
     # Мёртвые файлы старых версий (точные имена, свои файлы не задеваем)
